@@ -1,3 +1,5 @@
+export { createActiveRemoval } from './active-removal';
+export type { ActiveRemovalHandle, ActiveRemovalOptions } from './active-removal';
 export { createArrowNavigation, isNavigationDisabled } from './arrow-navigation';
 export type {
   ArrowNavigationHandle,

@@ -73,6 +73,12 @@
     "activeNodeInside": "collapsing a branch that holds the active node moves the active node to the branch, and that request is emitted before the expansion request, so a consumer that accepts one and refuses the other is left with a coherent pair",
     "reason": "A branch is a disclosure, so the capability is open. accordion reached for selection for the same value, and tree needs that word for something else."
   },
+  "cells": {
+    "react": "renderCells returns the cells of one row of nodes: icon, label, description, meta, actions",
+    "angular": "one ng-template[slTreeCell] per cell, holding the cell's own directive",
+    "default": "the label is the name getLabel returns, with the matched span marked; no other cell is drawn",
+    "asymmetry": "React returns the five props a written node takes; Angular projects five templates. Each is the form the binding already gives a written node."
+  },
   "lazy": {
     "owner": "the consumer",
     "inputs": ["hasChildren", "getChildrenCount", "loading", "invalid"],
@@ -116,8 +122,9 @@
       "reason": "A roving tabindex is the better model when it works, and it stops working the moment a window recycles the row holding tabindex=\"0\". The fact that decides it is one the family already holds, which is the rule listbox set."
     },
     "onFocus": "The selected node when there is one, otherwise the first node, which is what the pattern requires of a single-select and a multi-select tree alike.",
-    "afterRemoval": "createRemovalFocus: the next sibling, then the previous, then the parent. Zag returns focus to the tree and React Aria keeps a key that no longer exists, so a reader deleting three files in a row is sent to the top three times.",
-    "insideAnInput": "arrow navigation stands down while focus is inside a text field in a row, which is the rule toolbar established and what makes an inline rename composable."
+    "afterRemoval": "createActiveRemoval: the next sibling, then the previous, then the parent. Zag returns focus to the tree and React Aria keeps a key that no longer exists, so a reader deleting three files in a row is sent to the top three times.",
+    "insideAnInput": "arrow navigation stands down while focus is inside a text field in a row, which is the rule toolbar established and what makes an inline rename composable.",
+    "insideActions": "a control in the trailing cell answers for itself: the keys pressed on it and the clicks on it are not the row's"
   },
   "expander": {
     "element": "span",
@@ -160,7 +167,7 @@
     "aria-level": "written only in the flat structure; the nesting is what the browser computes it from otherwise",
     "aria-setsize": "written with aria-level, and also on the children of a branch whose getChildrenCount exceeds what has arrived",
     "aria-posinset": "written wherever aria-setsize is",
-    "aria-busy": "true on the group of a branch whose children are still on their way",
+    "aria-busy": "true on a branch whose children are still on their way, and on its group once one is placed",
     "aria-activedescendant": "on the canvas, under that focus model, naming the active node's id",
     "aria-disabled": "on a disabled node, so it keeps its place in the reading order",
     "name": "the canvas takes aria-label or aria-labelledby; the pattern requires one and the reference page says so"

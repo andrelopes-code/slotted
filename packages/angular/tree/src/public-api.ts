@@ -22,6 +22,7 @@ export { SlTree } from './tree';
 export type { TreeActiveRequest, TreeChangeRequest, TreeExpansionRequest, TreeValue } from './tree';
 export {
   SlTreeActions,
+  SlTreeCell,
   SlTreeDescription,
   SlTreeEmpty,
   SlTreeGroup,
@@ -30,3 +31,4 @@ export {
   SlTreeMeta,
   SlTreeNode,
 } from './tree-parts';
+export type { TreeCell, TreeCellContext } from './tree-parts';

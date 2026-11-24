@@ -49,6 +49,7 @@ export type TreeStructure = 'auto' | 'nested' | 'flat';
 export type TreeAlignment = 'start' | 'center' | 'end' | 'nearest';
 
 export interface TreeDefaults {
+  disabled: boolean;
   disallowEmptySelection: boolean;
   disallowSelectAll: boolean;
   expandOn: TreeExpandOn;
@@ -80,6 +81,7 @@ export interface TreeDefaults {
  * for the reason `listbox` states.
  */
 const FALLBACK: TreeDefaults = {
+  disabled: false,
   disallowEmptySelection: false,
   disallowSelectAll: false,
   expandOn: 'row',

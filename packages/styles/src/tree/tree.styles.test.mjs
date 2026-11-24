@@ -396,3 +396,18 @@ test('mirrors the guide and the chevron for a right-to-left document', () => {
 test('sizes the chevron glyph by the icon size, whatever the box grows to', () => {
   assert.match(rule(part('expander')), /--slotted-icon-size:var\(--_icon-size\)/);
 });
+
+/** An inline icon stands on the baseline of its line, three pixels under the name. */
+test('centers the icon cell on the name at the size of the row', () => {
+  const icon = rule(part('icon'));
+  assert.match(icon, /display:flex/);
+  assert.match(icon, /--slotted-icon-size:var\(--_icon-size\)/);
+});
+
+/** The name is what gives way: a one-word description beside a long name stays whole. */
+test('keeps a description whole up to its share of the row', () => {
+  const description = rule(part('description'));
+  assert.match(description, /flex:none/);
+  assert.match(description, /max-inline-size:40%/);
+  assert.match(description, /text-overflow:ellipsis/);
+});

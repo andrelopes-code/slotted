@@ -85,6 +85,7 @@ import * as toolbarModule from './messages/toolbar';
 import * as topNavigationModule from './messages/top-navigation';
 import * as tourModule from './messages/tour';
 import * as transferModule from './messages/transfer';
+import * as treeModule from './messages/tree';
 import * as uploadModule from './messages/upload';
 import * as wizardModule from './messages/wizard';
 
@@ -169,6 +170,7 @@ export type { ToolbarMessages } from './messages/toolbar';
 export type { TopNavigationMessages } from './messages/top-navigation';
 export type { TourMessages } from './messages/tour';
 export type { TransferMessages } from './messages/transfer';
+export type { TreeMessages } from './messages/tree';
 export type { UploadMessages } from './messages/upload';
 export type { WizardMessages } from './messages/wizard';
 
@@ -253,6 +255,7 @@ export { toolbarMessages } from './messages/toolbar';
 export { topNavigationMessages } from './messages/top-navigation';
 export { tourMessages } from './messages/tour';
 export { transferMessages } from './messages/transfer';
+export { treeMessages } from './messages/tree';
 export { uploadMessages } from './messages/upload';
 export { wizardMessages } from './messages/wizard';
 
@@ -339,6 +342,7 @@ export interface SlottedMessages {
   readonly topNavigation: topNavigationModule.TopNavigationMessages;
   readonly tour: tourModule.TourMessages;
   readonly transfer: transferModule.TransferMessages;
+  readonly tree: treeModule.TreeMessages;
   readonly upload: uploadModule.UploadMessages;
   readonly wizard: wizardModule.WizardMessages;
 }
@@ -426,6 +430,7 @@ export const EN_US: SlottedMessages = {
   topNavigation: topNavigationModule.en,
   tour: tourModule.en,
   transfer: transferModule.en,
+  tree: treeModule.en,
   upload: uploadModule.en,
   wizard: wizardModule.en,
 };

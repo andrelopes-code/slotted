@@ -1,14 +1,23 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/tree/contract.json';
 import { SlTree } from './tree';
 import type { TreeChangeRequest, TreeExpansionRequest, TreeValue } from './tree';
 import { provideTreeDefaults } from './tree-defaults';
-import { SlTreeGroup, SlTreeIcon, SlTreeMeta, SlTreeNode } from './tree-parts';
+import {
+  SlTreeActions,
+  SlTreeCell,
+  SlTreeEmpty,
+  SlTreeGroup,
+  SlTreeIcon,
+  SlTreeLabel,
+  SlTreeMeta,
+  SlTreeNode,
+} from './tree-parts';
 
 interface Entry {
   id: string;
@@ -53,14 +62,16 @@ const ROOTS: Entry[] = [
   template: `<div
     slTree
     aria-label="Files"
-    [nodes]="roots"
+    [nodes]="roots()"
     [getKey]="key"
     [getLabel]="name"
     [getChildren]="children"
+    [getChildrenCount]="more"
     [hasChildren]="branch"
     [isNodeDisabled]="locked"
     [isNodeLoading]="fetching"
     [selectionMode]="selectionMode()"
+    [selectionBehavior]="behavior()"
     [selectionCascade]="cascade()"
     [structure]="structure()"
     [navigateDisabled]="navigateDisabled()"
@@ -73,15 +84,17 @@ const ROOTS: Entry[] = [
   ></div>`,
 })
 class Host {
-  readonly roots = ROOTS;
+  readonly roots = signal<readonly Entry[]>(ROOTS);
   readonly key = (entry: Entry) => entry.id;
   readonly name = (entry: Entry) => entry.name;
   readonly children = (entry: Entry) => entry.entries;
+  readonly more = (entry: Entry) => entry.more;
   readonly branch = (entry: Entry) => entry.entries !== undefined || entry.more !== undefined;
   readonly locked = (entry: Entry) => entry.locked === true;
   readonly fetching = (entry: Entry) => entry.id === this.loadingKey();
 
   readonly selectionMode = signal<'none' | 'single' | 'multiple'>('single');
+  readonly behavior = signal<'toggle' | 'replace'>('toggle');
   readonly cascade = signal<'none' | 'descendants'>('none');
   readonly structure = signal<'auto' | 'nested' | 'flat'>('auto');
   readonly navigateDisabled = signal(false);
@@ -91,6 +104,7 @@ class Host {
   readonly expanded = signal<readonly string[]>(['src', 'lib']);
   readonly value = signal<TreeValue>(null);
   readonly activeKey = signal<string | null>(null);
+  readonly tree = viewChild.required(SlTree);
   readonly requests: TreeChangeRequest[] = [];
   readonly expansions: TreeExpansionRequest[] = [];
 }
@@ -436,12 +450,20 @@ describe('the ecosystem', () => {
 
   it('lets an application set the defaults once', () => {
     TestBed.configureTestingModule({
-      providers: [provideTreeDefaults({ size: 'lg', variant: 'plain', expandOn: 'expander' })],
+      providers: [
+        provideTreeDefaults({
+          size: 'lg',
+          variant: 'plain',
+          expandOn: 'expander',
+          disabled: true,
+        }),
+      ],
     });
     const { root } = mount();
     expect(root.dataset['size']).toBe('lg');
     expect(root.dataset['variant']).toBe('plain');
     expect(root.dataset['expandOn']).toBe('expander');
+    expect(root.dataset['disabled']).toBe('');
   });
 });
 
@@ -554,5 +576,361 @@ describe('a recursive template', () => {
     const depth = (key: string) =>
       root.querySelector<HTMLElement>(`[data-key="${key}"]`)?.dataset['depth'];
     expect([depth('a'), depth('b'), depth('c')]).toEqual(['0', '1', '2']);
+  });
+});
+
+describe('a control in the trailing cell of a row', () => {
+  @Component({
+    standalone: true,
+    imports: [SlTree, SlTreeActions, SlTreeNode],
+    template: `<div slTree aria-label="Documents">
+      <li slTreeNode value="invoice" label="Invoice">
+        <div slTreeActions><button type="button" (click)="opened.set(true)">Open</button></div>
+      </li>
+    </div>`,
+  })
+  class ActionsHost {
+    readonly opened = signal(false);
+  }
+
+  const mountActions = () => {
+    const fixture = TestBed.createComponent(ActionsHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    return {
+      fixture,
+      button: root.querySelector('button') as HTMLButtonElement,
+      node: root.querySelector<HTMLElement>('[data-key="invoice"]') as HTMLElement,
+    };
+  };
+
+  it('acts on its own and leaves the row where it was', () => {
+    const { button, fixture, node } = mountActions();
+
+    button.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.opened()).toBe(true);
+    expect(node.dataset['selected']).toBeUndefined();
+  });
+
+  /** A prevented keydown is a button that never receives its click. */
+  it.each(['Enter', ' ', 'ArrowDown'])('keeps the key %j for itself', (key) => {
+    const { button, fixture, node } = mountActions();
+
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    button.dispatchEvent(event);
+    fixture.detectChanges();
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(node.dataset['selected']).toBeUndefined();
+  });
+});
+
+describe('a row of the handed hierarchy', () => {
+  @Component({
+    standalone: true,
+    imports: [SlTree, SlTreeActions, SlTreeCell, SlTreeIcon, SlTreeLabel, SlTreeMeta],
+    template: `<div
+      slTree
+      aria-label="Files"
+      [nodes]="roots"
+      [getKey]="key"
+      [getLabel]="name"
+      [getChildren]="children"
+      [expandedKeys]="['src']"
+    >
+      <ng-template slTreeCell="icon"><span slTreeIcon>·</span></ng-template>
+      @if (upper()) {
+        <ng-template slTreeCell="label" let-node [slTreeCellOf]="roots">
+          <b slTreeLabel>{{ node.name.toUpperCase() }}</b>
+        </ng-template>
+      }
+      <ng-template slTreeCell="meta" let-node [slTreeCellOf]="roots">
+        @if (node.entries; as entries) {
+          <span slTreeMeta>{{ entries.length }}</span>
+        }
+      </ng-template>
+      <ng-template slTreeCell="actions">
+        <div slTreeActions><button type="button">More</button></div>
+      </ng-template>
+    </div>`,
+  })
+  class CellsHost {
+    readonly roots = ROOTS;
+    readonly key = (entry: Entry) => entry.id;
+    readonly name = (entry: Entry) => entry.name;
+    readonly children = (entry: Entry) => entry.entries;
+    readonly upper = signal(false);
+  }
+
+  const mountCells = () => {
+    const fixture = TestBed.createComponent(CellsHost);
+    fixture.detectChanges();
+    const rowOf = (key: string) =>
+      (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+        `[data-key="${key}"] > [data-part="row"]`,
+      ) as HTMLElement;
+    return { fixture, rowOf };
+  };
+
+  it('fills every cell of the row from its template', () => {
+    const { rowOf } = mountCells();
+
+    const cells = [...rowOf('src').children].map((cell) => (cell as HTMLElement).dataset['part']);
+    expect(cells).toEqual(['expander', 'icon', 'label', 'meta', 'actions']);
+    expect(rowOf('src').querySelector("[data-part='label']")?.textContent?.trim()).toBe('src');
+    expect(rowOf('index.ts').querySelector("[data-part='meta']")).toBeNull();
+  });
+
+  it('replaces the name when the label is one of the cells', () => {
+    const { fixture, rowOf } = mountCells();
+
+    fixture.componentInstance.upper.set(true);
+    fixture.detectChanges();
+
+    const label = rowOf('src').querySelector<HTMLElement>("[data-part='label']");
+    expect(label?.textContent?.trim()).toBe('SRC');
+    expect(rowOf('src').parentElement?.getAttribute('aria-labelledby')).toBe(label?.id);
+  });
+});
+
+describe('a query, beyond the names it keeps', () => {
+  it('marks the matched span of the name', () => {
+    const { host, fixture, byKey } = mount();
+
+    host.query.set('read');
+    fixture.detectChanges();
+
+    const label = byKey('readme.md')?.querySelector("[data-part='label']");
+    expect(label?.querySelector('mark')?.textContent).toBe('read');
+    expect(label?.textContent).toBe('readme.md');
+  });
+
+  /** The branch is a hit of its own, and still holds one that must be seen. */
+  it('opens a matching branch that holds another match', () => {
+    const { host, fixture, keys } = mount();
+    host.expanded.set([]);
+    host.roots.set([{ id: 'a', name: 'report', entries: [{ id: 'b', name: 'report-2026' }] }]);
+
+    host.query.set('report');
+    fixture.detectChanges();
+
+    expect(keys()).toEqual(['a', 'b']);
+  });
+
+  it('filters the flat rows as it filters the nested ones', () => {
+    const { host, fixture, byKey, keys } = mount();
+    host.expanded.set([]);
+    host.structure.set('flat');
+
+    host.query.set('a.ts');
+    fixture.detectChanges();
+
+    expect(keys()).toEqual(['src', 'lib', 'a.ts']);
+    expect(byKey('a.ts')?.dataset['match']).toBe('hit');
+    expect(byKey('lib')?.dataset['match']).toBe('ancestor');
+  });
+
+  it('walks in and out of a branch the query holds open, and opens nothing', () => {
+    const { host, fixture, type } = mount();
+    host.expanded.set([]);
+    host.activeKey.set('src');
+    host.query.set('a.ts');
+    fixture.detectChanges();
+
+    type('ArrowRight');
+    expect(host.activeKey()).toBe('lib');
+
+    type('ArrowLeft');
+    expect(host.activeKey()).toBe('src');
+    expect(host.expanded()).toEqual([]);
+  });
+});
+
+describe('revealing a node', () => {
+  const MANY = Array.from({ length: 400 }, (_, index) => ({ id: `row-${index}` }));
+
+  @Component({
+    standalone: true,
+    imports: [SlTree],
+    template: `<div
+      slTree
+      #tree="slTree"
+      aria-label="Many"
+      virtual
+      [itemSize]="32"
+      [nodes]="rows"
+      [getKey]="key"
+    ></div>`,
+  })
+  class ManyHost {
+    readonly rows = MANY;
+    readonly key = (entry: { id: string }) => entry.id;
+    readonly tree = viewChild.required<SlTree>('tree');
+  }
+
+  it('scrolls to a node whose branches were closed', () => {
+    const scrolled = vi.fn();
+    const native = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function scrollIntoView(options) {
+      scrolled((this as HTMLElement).dataset['key'], options);
+    };
+    const { host, fixture } = mount();
+    host.expanded.set([]);
+    fixture.detectChanges();
+
+    host.tree().scrollToKey('a.ts', 'center');
+    fixture.detectChanges();
+
+    expect(scrolled).toHaveBeenCalledWith('a.ts', { block: 'center' });
+    Element.prototype.scrollIntoView = native;
+  });
+
+  it('moves the window to a row it does not hold', () => {
+    const fixture = TestBed.createComponent(ManyHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement.querySelector("[data-ui='tree']") as HTMLElement;
+    let top = 0;
+    Object.defineProperty(root, 'scrollTop', { get: () => top, set: (next) => (top = next) });
+
+    fixture.componentInstance.tree().scrollToKey('row-300', 'start');
+
+    expect(top).toBe(300 * 32);
+  });
+});
+
+describe('a branch whose children arrive', () => {
+  const branch = (entries?: Entry[]): Entry[] => [
+    { id: 'docs', name: 'docs', more: 3, ...(entries === undefined ? {} : { entries }) },
+  ];
+  const arrived = [
+    { id: 'guide', name: 'guide.md' },
+    { id: 'api', name: 'api.md' },
+  ];
+
+  it('is busy itself while it has no group to busy', () => {
+    const { host, fixture, byKey } = mount();
+    host.roots.set(branch());
+
+    host.loadingKey.set('docs');
+    fixture.detectChanges();
+
+    expect(byKey('docs')?.getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('states the size of the set until the rest of it arrives', () => {
+    const { host, fixture, byKey } = mount();
+    host.expanded.set(['docs']);
+
+    host.roots.set(branch(arrived));
+    fixture.detectChanges();
+
+    expect(byKey('api')?.getAttribute('aria-setsize')).toBe('3');
+    expect(byKey('api')?.getAttribute('aria-posinset')).toBe('2');
+    expect(byKey('docs')?.hasAttribute('aria-setsize')).toBe(false);
+  });
+
+  it('announces them once, with the name of the branch and how many came', async () => {
+    const { host, fixture } = mount();
+    host.expanded.set(['docs']);
+    host.roots.set(branch());
+    host.loadingKey.set('docs');
+    fixture.detectChanges();
+
+    host.roots.set(branch(arrived));
+    host.loadingKey.set(undefined);
+    fixture.detectChanges();
+
+    await vi.waitFor(() => expect(document.body.textContent).toContain('docs: 2 items loaded'));
+  });
+});
+
+describe('a composed tree that holds nothing', () => {
+  @Component({
+    standalone: true,
+    imports: [SlTree, SlTreeEmpty, SlTreeNode],
+    template: `<div slTree aria-label="Files">
+      @for (name of names(); track name) {
+        <li slTreeNode [value]="name" [label]="name"></li>
+      }
+      <p slTreeEmpty>No files</p>
+    </div>`,
+  })
+  class EmptyHost {
+    readonly names = signal<readonly string[]>([]);
+  }
+
+  it('shows its message until a node is written', () => {
+    const fixture = TestBed.createComponent(EmptyHost);
+    fixture.detectChanges();
+    const empty = () => (fixture.nativeElement as HTMLElement).querySelector("[data-part='empty']");
+    expect(empty()).not.toBeNull();
+
+    fixture.componentInstance.names.set(['readme.md']);
+    fixture.detectChanges();
+
+    expect(empty()).toBeNull();
+  });
+});
+
+describe('the alternative selection model', () => {
+  it('replaces on a plain press and adds with the accelerator held', () => {
+    const { host, fixture, press } = mount();
+    host.selectionMode.set('multiple');
+    host.behavior.set('replace');
+    host.value.set(['index.ts']);
+    fixture.detectChanges();
+
+    press('a.ts');
+    expect(host.value()).toEqual(['a.ts']);
+
+    press('readme.md', { ctrlKey: true });
+    expect(host.value()).toEqual(['a.ts', 'readme.md']);
+
+    press('a.ts', { ctrlKey: true });
+    expect(host.value()).toEqual(['readme.md']);
+  });
+});
+
+describe('the active node, taken away', () => {
+  const remaining = (...ids: string[]): Entry[] => ids.map((id) => ({ id, name: id }));
+
+  it('sends the keyboard to the sibling that is left, then to the parent', async () => {
+    const { host, fixture, byKey, press } = mount();
+    const nest = (...ids: string[]) =>
+      host.roots.set([
+        { id: 'top', name: 'top', entries: remaining(...ids) },
+        { id: 'next', name: 'next' },
+      ]);
+    host.expanded.set(['top']);
+    nest('a', 'b');
+    fixture.detectChanges();
+    press('b');
+    byKey('b')?.focus();
+
+    nest('a');
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(document.activeElement).toBe(byKey('a')));
+
+    nest();
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(document.activeElement).toBe(byKey('top')));
+    expect(host.activeKey()).toBe('top');
+  });
+
+  /** A tree whose only tab stop was the removed node is one Tab cannot reach. */
+  it('stays reachable when focus was elsewhere', async () => {
+    const { host, fixture, byKey } = mount();
+    host.roots.set(remaining('a', 'b'));
+    host.activeKey.set('b');
+    fixture.detectChanges();
+
+    host.roots.set(remaining('a'));
+    fixture.detectChanges();
+
+    await vi.waitFor(() => expect(host.activeKey()).toBe('a'));
+    fixture.detectChanges();
+    expect(byKey('a')?.tabIndex).toBe(0);
   });
 });

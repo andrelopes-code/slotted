@@ -34,13 +34,17 @@ export abstract class SlTreeContext {
   abstract nodeTabIndex(key: string): number | null;
   /**
    * The level, the size of the sibling group and the place in it. All three are
-   * `null` unless the flat structure is in force, which is exactly when the
-   * pattern requires them: with the nesting in the DOM the browser computes
-   * them itself.
+   * `null` unless the flat structure is in force or part of the group has yet to
+   * arrive, which is when the pattern requires them: with the whole group nested
+   * in the DOM the browser computes them itself.
    */
   abstract levelOf(key: string): number | null;
   abstract setSizeOf(key: string): number | null;
   abstract posInSetOf(key: string): number | null;
+  /** The label cut where the query matched it, or whole without a query. */
+  abstract segmentsOf(label: string): readonly { text: string; matched: boolean }[];
+  /** Says, once, that the children of a branch have arrived. */
+  abstract announceLoaded(key: string): void;
   /** A press on a row, with the modifiers it was pressed with. */
   abstract press(key: string, event: MouseEvent): void;
   /** A press on the chevron, which only ever opens or closes. */

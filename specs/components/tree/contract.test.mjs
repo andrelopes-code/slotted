@@ -274,7 +274,7 @@ test('resolves every axis through the same order, and defaults to what it declar
 test('answers where focus goes when a node or its branch disappears', () => {
   assert.equal(contract.focus.tabStops, 1);
   assert.equal(contract.focus.auto.virtual, 'activedescendant');
-  assert.match(contract.focus.afterRemoval, /createRemovalFocus/);
+  assert.match(contract.focus.afterRemoval, /createActiveRemoval/);
   assert.match(contract.expansion.activeNodeInside, /before the expansion request/);
 });
 

@@ -1,4 +1,6 @@
 import { keyedProps, withSelectorKey } from '@slotted/core/selector-key';
+import { useEffect, useRef } from 'react';
+
 import { Glyph, Icon } from '../icon';
 import { TreeDepthContext, useTree, useTreeDepth } from './tree-context';
 import type {
@@ -12,6 +14,9 @@ import { SPINNER_RING } from '../button/spinner-ring';
 
 /** The selector the root reads its visible rows through, in DOM order. */
 export const NODE_SELECTOR = "[data-part='node']";
+
+/** The trailing cell of a row, whose controls answer for themselves. */
+export const ACTIONS_SELECTOR = "[data-part='actions']";
 
 /**
  * One node, and the facts the root reads back off it.
@@ -57,6 +62,12 @@ export function TreeNode({
   const isDisabled = disabled === true || tree.disabled === true;
   const chosen = tree.selectionMode === 'none' ? undefined : selected;
 
+  const wasLoading = useRef(loading === true);
+  useEffect(() => {
+    if (wasLoading.current && loading !== true) tree.announceLoaded(value);
+    wasLoading.current = loading === true;
+  });
+
   const rootProps: TreeNodeRootProps = keyedProps({
     ...nativeProps,
     'aria-busy': branch && loading === true ? true : undefined,
@@ -101,6 +112,10 @@ export function TreeNode({
       onClick={(event) => {
         onClick?.(event as never);
         if (event.defaultPrevented) return;
+        /* A menu a trailing control opens is portalled, and React bubbles its
+           click through here as well. */
+        const target = event.target as Element;
+        if (!event.currentTarget.contains(target) || target.closest(ACTIONS_SELECTOR)) return;
         tree.press(value, event);
       }}
     >

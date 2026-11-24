@@ -9,6 +9,7 @@ import {
   indeterminateKeys,
   moveIndex,
   nextSelection,
+  offsetForIndex,
   splitByMatch,
   virtualWindow,
 } from '@slotted/core/collection';
@@ -17,10 +18,15 @@ import type {
   TreeCollection,
   TreeNode as TreeNodeData,
 } from '@slotted/core/collection';
+import { createActiveRemoval } from '@slotted/core/focus';
+import type { ActiveRemovalHandle } from '@slotted/core/focus';
+import { treeMessages } from '@slotted/core/i18n';
+import { getLiveAnnouncer } from '@slotted/core/live-announcer';
 import { createControllable } from '@slotted/core/state';
 import { createTypeahead, isPrintable } from '@slotted/core/typeahead';
 import type { TypeaheadHandle } from '@slotted/core/typeahead';
 import {
+  Children,
   useCallback,
   useEffect,
   useId,
@@ -32,9 +38,10 @@ import {
 } from 'react';
 import type { CSSProperties, FocusEvent, KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
+import { useMessages } from '../i18n';
 import { TreeContext, TreeDepthContext } from './tree-context';
 import { useTreeDefaults } from './tree-defaults';
-import { NODE_SELECTOR, TreeNode } from './tree-parts';
+import { ACTIONS_SELECTOR, NODE_SELECTOR, TreeNode } from './tree-parts';
 import type {
   TreeActiveReason,
   TreeAlignment,
@@ -114,6 +121,7 @@ export function Tree<T = unknown>({
   itemSize,
   loading,
   loop,
+  messages,
   name,
   navigateDisabled,
   nodes,
@@ -127,7 +135,7 @@ export function Tree<T = unknown>({
   readOnly,
   ref,
   render,
-  renderNode,
+  renderCells,
   required,
   selectOnFocus,
   selectionBehavior,
@@ -201,6 +209,7 @@ export function Tree<T = unknown>({
   const rootRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLUListElement | null>(null);
   const baseId = useId();
+  const t = useMessages(treeMessages, messages);
 
   /* ── The hierarchy, when the tree was handed one ─────────────────────── */
 
@@ -291,8 +300,9 @@ export function Tree<T = unknown>({
         },
       });
       const moved = state.request(keys, reason, source);
-      if (cancelled) return;
+      if (cancelled) return false;
       if (moved) setOwnExpanded(keys);
+      return true;
     },
     [expanded, expansionControlled, onExpandedKeysChange],
   );
@@ -367,9 +377,11 @@ export function Tree<T = unknown>({
     for (const node of collection.nodes) {
       if (filter.contains(node.label, query)) hits.add(node.key);
     }
-    const kept = new Set(hits);
-    for (const key of hits) for (const ancestor of collection.ancestorsOf(key)) kept.add(ancestor);
-    return { hits, kept };
+    const opened = new Set<string>();
+    for (const key of hits) {
+      for (const ancestor of collection.ancestorsOf(key)) opened.add(ancestor);
+    }
+    return { hits, opened, kept: new Set([...hits, ...opened]) };
   }, [collection, query]);
 
   /* ── Selection ──────────────────────────────────────────────────────── */
@@ -385,9 +397,7 @@ export function Tree<T = unknown>({
   const chosen = useMemo(() => new Set(selected), [selected]);
 
   const isOpen = useCallback(
-    (key: string) =>
-      expanded.includes(key) ||
-      (filtered !== undefined && filtered.kept.has(key) && !filtered.hits.has(key)),
+    (key: string) => expanded.includes(key) || filtered?.opened.has(key) === true,
     [expanded, filtered],
   );
 
@@ -427,7 +437,9 @@ export function Tree<T = unknown>({
       const result = nextSelection({
         action: intent,
         mode: resolved.selectionMode,
-        behavior: resolved.selectionBehavior,
+        /* Every toggle asked for by name is one: the accelerator held, the box,
+           Space. `replace` is what a plain press asks for instead. */
+        behavior: intent === 'toggle' ? 'toggle' : resolved.selectionBehavior,
         selected,
         keys,
         key,
@@ -492,7 +504,7 @@ export function Tree<T = unknown>({
       requestActive(key, 'pointer', event);
 
       if (row.branch && resolved.expandOn === 'row') {
-        setExpanded(key, !expanded.includes(key), 'pointer', event);
+        setExpanded(key, !isOpen(key), 'pointer', event);
       }
 
       if (resolved.selectionMode !== 'none') {
@@ -510,7 +522,7 @@ export function Tree<T = unknown>({
     },
     [
       applySelection,
-      expanded,
+      isOpen,
       onNodeActivate,
       readRows,
       requestActive,
@@ -526,9 +538,9 @@ export function Tree<T = unknown>({
     (key: string, event: MouseEvent<HTMLElement>) => {
       if (resolved.disabled === true) return;
       requestActive(key, 'pointer', event);
-      setExpanded(key, !expanded.includes(key), 'pointer', event);
+      setExpanded(key, !isOpen(key), 'pointer', event);
     },
-    [expanded, requestActive, resolved.disabled, setExpanded],
+    [isOpen, requestActive, resolved.disabled, setExpanded],
   );
 
   const pressIndicator = useCallback(
@@ -576,10 +588,12 @@ export function Tree<T = unknown>({
 
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.defaultPrevented || resolved.disabled === true) return;
-    /* Arrow navigation stands down while focus is inside a control the reader
-       is typing in, which is what makes an inline rename composable. */
+    /* The tree stands down while focus is inside a control: one the reader is
+       typing in, which is what makes an inline rename composable, one in the
+       trailing cell, and one in a layer either of them portalled. */
     const target = event.target as HTMLElement;
-    if (target.closest('input, textarea, [contenteditable="true"]') !== null) return;
+    if (!event.currentTarget.contains(target)) return;
+    if (target.closest(`input, textarea, [contenteditable="true"], ${ACTIONS_SELECTOR}`)) return;
 
     const rows = readRows();
     if (rows.length === 0) return;
@@ -659,7 +673,7 @@ export function Tree<T = unknown>({
         take();
         if (row === undefined) return;
         if (!row.branch) return;
-        if (!expanded.includes(row.key)) {
+        if (!isOpen(row.key)) {
           setExpanded(row.key, true, 'keyboard', event);
           return;
         }
@@ -671,7 +685,7 @@ export function Tree<T = unknown>({
       case backward: {
         take();
         if (row === undefined) return;
-        if (row.branch && expanded.includes(row.key)) {
+        if (row.branch && isOpen(row.key) && !filtered?.opened.has(row.key)) {
           setExpanded(row.key, false, 'keyboard', event);
           return;
         }
@@ -683,7 +697,7 @@ export function Tree<T = unknown>({
         take();
         if (row === undefined) return;
         if (row.branch && resolved.expandOn === 'row') {
-          setExpanded(row.key, !expanded.includes(row.key), 'keyboard', event);
+          setExpanded(row.key, !isOpen(row.key), 'keyboard', event);
         }
         if (resolved.selectionMode !== 'none') {
           applySelection(row.key, event, 'replace', 'keyboard');
@@ -754,47 +768,25 @@ export function Tree<T = unknown>({
     wanted.element.focus();
   };
 
-  /* ── The imperative surface ─────────────────────────────────────────── */
+  /** The latest position and request, for the observer that outlives a render. */
+  const position = useRef({ active, requestActive });
+  const removal = useRef<ActiveRemovalHandle | null>(null);
 
-  const revealPath = useCallback(
-    (key: string) => {
-      if (collection === undefined) return expanded;
-      const path = collection.ancestorsOf(key);
-      const next = [...new Set([...expanded, ...path])];
-      return next;
-    },
-    [collection, expanded],
-  );
+  useEffect(() => {
+    position.current = { active, requestActive };
+    removal.current?.refresh();
+  }, [active, requestActive]);
 
-  useImperativeHandle(
-    handleRef,
-    (): TreeHandle => ({
-      focus: () => {
-        const rows = readRows();
-        const wanted = rows.find((row) => row.key === active) ?? rows[0];
-        (wanted?.element ?? canvasRef.current)?.focus();
-      },
-      scrollToKey: (key, align: TreeAlignment = 'nearest') => {
-        const next = revealPath(key);
-        if (!same(next, expanded)) requestExpanded(next, 'programmatic', undefined);
-        const row = readRows().find((candidate) => candidate.key === key);
-        row?.element.scrollIntoView({ block: align === 'nearest' ? 'nearest' : align });
-      },
-      expand: (key) => {
-        const next = [...new Set([...revealPath(key), key])];
-        if (!same(next, expanded)) requestExpanded(next, 'programmatic', undefined);
-      },
-      collapse: (key) => setExpanded(key, false, 'programmatic', undefined),
-      expandAll: () => {
-        if (collection === undefined) return;
-        requestExpanded(collection.branchKeys, 'programmatic', undefined);
-      },
-      collapseAll: () => requestExpanded([], 'programmatic', undefined),
-      getActiveKey: () => active,
-      getElement: () => rootRef.current,
-    }),
-    [active, collection, expanded, readRows, requestExpanded, revealPath, setExpanded],
-  );
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas === null) return undefined;
+    removal.current = createActiveRemoval(canvas, {
+      nodeSelector: NODE_SELECTOR,
+      getActive: () => position.current.active,
+      onMove: (key) => position.current.requestActive(key, 'programmatic', undefined),
+    });
+    return () => removal.current?.destroy();
+  }, []);
 
   /* ── The window ─────────────────────────────────────────────────────── */
 
@@ -806,10 +798,13 @@ export function Tree<T = unknown>({
    */
   const windowed = resolved.virtual && collection !== undefined;
 
-  const visible: readonly TreeNodeData<T>[] = useMemo(
-    () => (collection === undefined ? [] : collection.visible(expanded)),
-    [collection, expanded],
-  );
+  const visible: readonly TreeNodeData<T>[] = useMemo(() => {
+    if (collection === undefined) return [];
+    if (filtered === undefined) return collection.visible(expanded);
+    return collection
+      .visible([...expanded, ...filtered.opened])
+      .filter((node) => filtered.kept.has(node.key));
+  }, [collection, expanded, filtered]);
 
   const [viewportSize, setViewportSize] = useState(0);
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -863,6 +858,83 @@ export function Tree<T = unknown>({
     });
   }, [active, resolved.itemSize, resolved.overscan, scrollOffset, viewportSize, visible, windowed]);
 
+  /* ── The imperative surface ─────────────────────────────────────────── */
+
+  /** The node `scrollToKey` asked for, until the rows that show it are placed. */
+  const pendingReveal = useRef<{ key: string; align: TreeAlignment } | null>(null);
+
+  const revealPath = useCallback(
+    (key: string) => {
+      if (collection === undefined) return expanded;
+      const path = collection.ancestorsOf(key);
+      const next = [...new Set([...expanded, ...path])];
+      return next;
+    },
+    [collection, expanded],
+  );
+
+  const reveal = useCallback(
+    (key: string, align: TreeAlignment) => {
+      const root = rootRef.current;
+      if (root === null) return;
+      if (!windowed) {
+        const row = readRows().find((candidate) => candidate.key === key);
+        row?.element.scrollIntoView({ block: align });
+        return;
+      }
+
+      const index = visible.findIndex((node) => node.key === key);
+      if (index === -1) return;
+      root.scrollTop = offsetForIndex({
+        index,
+        itemCount: visible.length,
+        itemSize: resolved.itemSize,
+        scrollOffset: root.scrollTop,
+        viewportSize: root.clientHeight,
+        align,
+      });
+    },
+    [readRows, resolved.itemSize, visible, windowed],
+  );
+
+  useMeasure(() => {
+    const pending = pendingReveal.current;
+    if (pending === null) return;
+    pendingReveal.current = null;
+    reveal(pending.key, pending.align);
+  }, [expanded, reveal]);
+
+  useImperativeHandle(
+    handleRef,
+    (): TreeHandle => ({
+      focus: () => {
+        const rows = readRows();
+        const wanted = rows.find((row) => row.key === active) ?? rows[0];
+        (wanted?.element ?? canvasRef.current)?.focus();
+      },
+      scrollToKey: (key, align: TreeAlignment = 'nearest') => {
+        const next = revealPath(key);
+        if (same(next, expanded)) reveal(key, align);
+        else if (requestExpanded(next, 'programmatic', undefined)) {
+          pendingReveal.current = { key, align };
+        }
+      },
+      expand: (key) => {
+        const next = [...new Set([...revealPath(key), key])];
+        if (!same(next, expanded)) requestExpanded(next, 'programmatic', undefined);
+      },
+      collapse: (key) => setExpanded(key, false, 'programmatic', undefined),
+      expandAll: () => {
+        if (collection === undefined) return;
+        requestExpanded(collection.branchKeys, 'programmatic', undefined);
+      },
+      collapseAll: () => requestExpanded([], 'programmatic', undefined),
+      getActiveKey: () => active,
+      getElement: () => rootRef.current,
+    }),
+    [active, collection, expanded, readRows, requestExpanded, reveal, revealPath, setExpanded],
+  );
+
   /* ── What every part reads ──────────────────────────────────────────── */
 
   const positions = useMemo(() => {
@@ -870,7 +942,35 @@ export function Tree<T = unknown>({
     return collection;
   }, [collection, resolvedStructure]);
 
+  /**
+   * The node, where the DOM does not hold its whole sibling group: under the
+   * flat structure, and in a branch that has more children than have arrived.
+   */
+  const counted = (key: string) => {
+    if (positions !== undefined) return positions.nodeFor(key);
+    const node = collection?.nodeFor(key);
+    if (node?.parent === undefined) return undefined;
+    const parent = collection?.nodeFor(node.parent);
+    return (parent?.childrenCount ?? 0) > (parent?.children.length ?? 0) ? node : undefined;
+  };
+
+  const announceLoaded = (key: string) => {
+    const root = rootRef.current;
+    const node = [...(root?.querySelectorAll<HTMLElement>(NODE_SELECTOR) ?? [])].find(
+      (candidate) => candidate.dataset['key'] === key,
+    );
+    if (root === null || node === undefined) return;
+
+    const count =
+      collection?.nodeFor(key)?.children.length ??
+      node.querySelectorAll(`:scope > [data-part='group'] > ${NODE_SELECTOR}`).length;
+    const text =
+      node.dataset['textValue'] ?? node.querySelector("[data-part='label']")?.textContent ?? '';
+    getLiveAnnouncer(root.ownerDocument).announce(t('loaded', { label: text, count }));
+  };
+
   const context: TreeContextValue = {
+    announceLoaded,
     disabled: resolved.disabled,
     expandOn: resolved.expandOn,
     guides: resolved.guides,
@@ -902,13 +1002,13 @@ export function Tree<T = unknown>({
       if (active === null) return -1;
       return key === active ? 0 : -1;
     },
-    posInSetOf: (key) => positions?.nodeFor(key)?.posInSet,
+    posInSetOf: (key) => counted(key)?.posInSet,
     press,
     pressExpander,
     pressIndicator,
     readOnly,
     selectionMode: resolved.selectionMode,
-    setSizeOf: (key) => positions?.nodeFor(key)?.setSize,
+    setSizeOf: (key) => counted(key)?.setSize,
     structure: resolvedStructure,
   };
 
@@ -940,7 +1040,8 @@ export function Tree<T = unknown>({
         <TreeNode
           key={key}
           value={key}
-          label={renderNode ? renderNode(node.item, key) : marked(label(node.item))}
+          label={marked(label(node.item))}
+          {...renderCells?.(node.item, key)}
           {...(node.disabled ? { disabled: true } : {})}
           {...(node.hasChildren ? { hasChildren: true } : {})}
           {...(isNodeLoading?.(node.item) === true ? { loading: true } : {})}
@@ -969,10 +1070,14 @@ export function Tree<T = unknown>({
       key={node.key}
       value={node.key}
       depth={node.level}
-      label={renderNode ? renderNode(node.item, node.key) : marked(label(node.item))}
+      label={marked(label(node.item))}
+      {...renderCells?.(node.item, node.key)}
       {...(node.disabled ? { disabled: true } : {})}
       {...(node.hasChildren ? { hasChildren: true } : {})}
       {...(isNodeLoading?.(node.item) === true ? { loading: true } : {})}
+      {...(filtered === undefined
+        ? {}
+        : { match: filtered.hits.has(node.key) ? ('hit' as const) : ('ancestor' as const) })}
       {...(pinned ? { pinned: true, offset: visible.indexOf(node) * resolved.itemSize } : {})}
       textValue={label(node.item)}
     />
@@ -1002,7 +1107,7 @@ export function Tree<T = unknown>({
   const holdsNothing =
     collection !== undefined
       ? collection.nodes.length === 0 || (filtered !== undefined && filtered.kept.size === 0)
-      : false;
+      : Children.toArray(children).length === 0;
 
   const rootProps: TreeRootProps = keyedProps({
     ...nativeProps,

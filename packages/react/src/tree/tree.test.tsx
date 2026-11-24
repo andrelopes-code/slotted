@@ -1,5 +1,6 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/tree/contract.json';
@@ -660,5 +661,286 @@ describe('the first paint of a window', () => {
     Object.defineProperty(root, 'clientHeight', { configurable: true, value: 416 });
     fireEvent.scroll(root);
     expect(items().length).toBeGreaterThan(1);
+  });
+});
+
+describe('a control in the trailing cell of a row', () => {
+  const onOpen = vi.fn();
+
+  function Actions() {
+    return (
+      <Tree aria-label="Documents" selectionMode="single">
+        <TreeNode
+          value="invoice"
+          label="Invoice"
+          actions={
+            <button type="button" onClick={onOpen}>
+              Open
+            </button>
+          }
+        />
+      </Tree>
+    );
+  }
+
+  it('acts on its own and leaves the row where it was', () => {
+    onOpen.mockClear();
+    render(<Actions />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
+
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    expect(byKey('invoice')?.dataset['selected']).toBeUndefined();
+  });
+
+  /** React bubbles through a portal, and a layer it opened is not the row. */
+  it('leaves the row alone when its layer is pressed', () => {
+    render(
+      <Tree aria-label="Documents">
+        <TreeNode
+          value="invoice"
+          label="Invoice"
+          actions={createPortal(<button type="button">Rename</button>, document.body)}
+        />
+      </Tree>,
+    );
+
+    const item = screen.getByRole('button', { name: 'Rename' });
+    fireEvent.click(item);
+
+    expect(fireEvent.keyDown(item, { key: 'Enter' })).toBe(true);
+    expect(byKey('invoice')?.dataset['selected']).toBeUndefined();
+  });
+
+  /** A prevented keydown is a button that never receives its click. */
+  it.each(['Enter', ' ', 'ArrowDown'])('keeps the key %j for itself', (key) => {
+    render(<Actions />);
+
+    const button = screen.getByRole('button', { name: 'Open' });
+
+    expect(fireEvent.keyDown(button, { key })).toBe(true);
+    expect(byKey('invoice')?.dataset['selected']).toBeUndefined();
+  });
+});
+
+describe('a row of the handed hierarchy', () => {
+  it('fills every cell of the row with what renderCells returns', () => {
+    render(
+      <Files
+        renderCells={(entry) => ({
+          icon: <i data-testid={`icon-${entry.id}`} />,
+          ...(entry.entries === undefined ? {} : { meta: entry.entries.length }),
+          description: 'edited',
+          actions: <button type="button">More</button>,
+        })}
+      />,
+    );
+
+    const cells = [...(row('src')?.children ?? [])].map(
+      (cell) => (cell as HTMLElement).dataset['part'],
+    );
+    expect(cells).toEqual(['expander', 'icon', 'label', 'description', 'meta', 'actions']);
+    expect(row('src')?.querySelector("[data-part='label']")).toHaveTextContent('src');
+    expect(row('index.ts')?.querySelector("[data-part='meta']")).toBeNull();
+  });
+
+  it('replaces the name when the label is one of the cells', () => {
+    render(<Files renderCells={(entry) => ({ label: <b>{entry.name.toUpperCase()}</b> })} />);
+
+    const label = row('src')?.querySelector("[data-part='label']");
+    expect(label?.querySelector('b')).toHaveTextContent('SRC');
+    expect(byKey('src')?.getAttribute('aria-labelledby')).toBe(label?.id);
+  });
+});
+
+describe('a query, beyond the names it marks', () => {
+  /** The branch is a hit of its own, and still holds one that must be seen. */
+  it('opens a matching branch that holds another match', () => {
+    render(
+      <Files
+        defaultExpandedKeys={[]}
+        nodes={[{ id: 'a', name: 'report', entries: [{ id: 'b', name: 'report-2026' }] }]}
+        query="report"
+      />,
+    );
+
+    expect(names()).toEqual(['a', 'b']);
+  });
+
+  it('filters the flat rows as it filters the nested ones', () => {
+    render(<Files defaultExpandedKeys={[]} structure="flat" query="a.ts" />);
+
+    expect(names()).toEqual(['src', 'lib', 'a.ts']);
+    expect(byKey('a.ts')?.dataset['match']).toBe('hit');
+    expect(byKey('lib')?.dataset['match']).toBe('ancestor');
+  });
+
+  it('walks in and out of a branch the query holds open, and opens nothing', () => {
+    const onExpandedKeysChange = vi.fn();
+    render(
+      <Files
+        defaultActiveKey="src"
+        defaultExpandedKeys={[]}
+        onExpandedKeysChange={onExpandedKeysChange}
+        query="a.ts"
+      />,
+    );
+
+    fireEvent.keyDown(byKey('src') as HTMLElement, { key: 'ArrowRight' });
+    expect(byKey('lib')?.dataset['current']).toBe('');
+
+    fireEvent.keyDown(byKey('lib') as HTMLElement, { key: 'ArrowLeft' });
+    expect(byKey('src')?.dataset['current']).toBe('');
+    expect(onExpandedKeysChange).not.toHaveBeenCalled();
+  });
+
+  it('closes again what the query held open when the query empties', () => {
+    const { rerender } = render(<Files defaultExpandedKeys={[]} structure="flat" query="a.ts" />);
+
+    rerender(<Files defaultExpandedKeys={[]} structure="flat" query="" />);
+
+    expect(names()).toEqual(['src', 'docs', 'readme.md']);
+  });
+});
+
+describe('revealing a node', () => {
+  it('scrolls to a node whose branches were closed', () => {
+    const scrolled = vi.fn();
+    const native = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function scrollIntoView(options) {
+      scrolled((this as HTMLElement).dataset['key'], options);
+    };
+    const handle = createRef<TreeHandle>();
+    render(<Files handleRef={handle} defaultExpandedKeys={[]} />);
+
+    act(() => handle.current?.scrollToKey('a.ts', 'center'));
+
+    expect(scrolled).toHaveBeenCalledWith('a.ts', { block: 'center' });
+    Element.prototype.scrollIntoView = native;
+  });
+
+  it('moves the window to a row it does not hold', () => {
+    const handle = createRef<TreeHandle>();
+    const { container } = render(
+      <Tree
+        aria-label="Many"
+        handleRef={handle}
+        nodes={Array.from({ length: 400 }, (_, index) => ({ id: `row-${index}` }))}
+        getKey={(entry: { id: string }) => entry.id}
+        virtual
+        itemSize={32}
+      />,
+    );
+    const root = container.querySelector("[data-ui='tree']") as HTMLElement;
+
+    act(() => handle.current?.scrollToKey('row-300', 'start'));
+
+    expect(root.scrollTop).toBe(300 * 32);
+  });
+});
+
+describe('a branch whose children arrive', () => {
+  const branch = (entries?: Entry[]): Entry[] => [
+    { id: 'docs', name: 'docs', more: 3, ...(entries === undefined ? {} : { entries }) },
+  ];
+  const arrived = [
+    { id: 'guide', name: 'guide.md' },
+    { id: 'api', name: 'api.md' },
+  ];
+
+  it('states the size of the set until the rest of it arrives', () => {
+    render(<Files nodes={branch(arrived)} defaultExpandedKeys={['docs']} />);
+
+    expect(byKey('api')?.getAttribute('aria-setsize')).toBe('3');
+    expect(byKey('api')?.getAttribute('aria-posinset')).toBe('2');
+    expect(byKey('docs')?.hasAttribute('aria-setsize')).toBe(false);
+  });
+
+  it('announces them once, with the name of the branch and how many came', async () => {
+    const { rerender } = render(
+      <Files nodes={branch()} defaultExpandedKeys={['docs']} isNodeLoading={() => true} />,
+    );
+
+    rerender(<Files nodes={branch(arrived)} defaultExpandedKeys={['docs']} />);
+
+    expect(await screen.findByText('docs: 2 items loaded')).toBeInTheDocument();
+  });
+});
+
+describe('a composed tree that holds nothing', () => {
+  it('shows its message until a node is written', () => {
+    const { container, rerender } = render(
+      <Tree aria-label="Files" emptyContent="No files">
+        {[]}
+      </Tree>,
+    );
+    expect(container.querySelector("[data-part='empty']")).toHaveTextContent('No files');
+
+    rerender(
+      <Tree aria-label="Files" emptyContent="No files">
+        <TreeNode value="readme" label="readme.md" />
+      </Tree>,
+    );
+    expect(container.querySelector("[data-part='empty']")).toBeNull();
+  });
+});
+
+describe('the alternative selection model', () => {
+  it('replaces on a plain press and adds with the accelerator held', () => {
+    render(
+      <Files defaultValue={['index.ts']} selectionBehavior="replace" selectionMode="multiple" />,
+    );
+    const chosen = () => names().filter((key) => byKey(key ?? '')?.dataset['selected'] === '');
+
+    fireEvent.click(row('a.ts') as HTMLElement);
+    expect(chosen()).toEqual(['a.ts']);
+
+    fireEvent.click(row('readme.md') as HTMLElement, { ctrlKey: true });
+    expect(chosen()).toEqual(['a.ts', 'readme.md']);
+
+    fireEvent.click(row('a.ts') as HTMLElement, { ctrlKey: true });
+    expect(chosen()).toEqual(['readme.md']);
+  });
+});
+
+describe('the active node, taken away', () => {
+  const remaining = (...ids: string[]): Entry[] => ids.map((id) => ({ id, name: id }));
+
+  it('sends the keyboard to the node that took its place', async () => {
+    const { rerender } = render(<Files nodes={remaining('a', 'b', 'c')} />);
+    fireEvent.click(row('b') as HTMLElement);
+    byKey('b')?.focus();
+
+    rerender(<Files nodes={remaining('a', 'c')} />);
+
+    await waitFor(() => expect(byKey('c')).toHaveFocus());
+    expect(byKey('c')?.dataset['current']).toBe('');
+    expect(byKey('c')?.tabIndex).toBe(0);
+  });
+
+  it('sends it to the previous sibling, then to the parent', async () => {
+    const tree = (...ids: string[]): Entry[] => [
+      { id: 'top', name: 'top', entries: remaining(...ids) },
+      { id: 'next', name: 'next' },
+    ];
+    const { rerender } = render(<Files nodes={tree('a', 'b')} defaultExpandedKeys={['top']} />);
+    fireEvent.click(row('b') as HTMLElement);
+    byKey('b')?.focus();
+
+    rerender(<Files nodes={tree('a')} defaultExpandedKeys={['top']} />);
+    await waitFor(() => expect(byKey('a')).toHaveFocus());
+
+    rerender(<Files nodes={tree()} defaultExpandedKeys={['top']} />);
+    await waitFor(() => expect(byKey('top')).toHaveFocus());
+  });
+
+  /** A tree whose only tab stop was the removed node is one Tab cannot reach. */
+  it('stays reachable when focus was elsewhere', async () => {
+    const { rerender } = render(<Files nodes={remaining('a', 'b')} defaultActiveKey="b" />);
+
+    rerender(<Files nodes={remaining('a')} defaultActiveKey="b" />);
+
+    await waitFor(() => expect(byKey('a')?.tabIndex).toBe(0));
+    expect(document.body).toHaveFocus();
   });
 });

@@ -6,11 +6,14 @@ import {
   computed,
   contentChildren,
   Directive,
+  effect,
   ElementRef,
   inject,
   input,
   numberAttribute,
   signal,
+  TemplateRef,
+  untracked,
   ViewEncapsulation,
 } from '@angular/core';
 import type { Signal } from '@angular/core';
@@ -20,6 +23,9 @@ import { SlTreeContext } from './tree-context';
 
 /** The selector the tree reads its visible rows through, in DOM order. */
 export const NODE_SELECTOR = "[data-part='node']";
+
+/** The trailing cell of a row, whose controls answer for themselves. */
+export const ACTIONS_SELECTOR = "[data-part='actions']";
 
 /**
  * One node, and the facts the tree reads back off it.
@@ -83,8 +89,15 @@ export const NODE_SELECTOR = "[data-part='node']";
         ></span>
       }
       <ng-content select="[slTreeIcon]" />
-      <span data-part="label" data-part-label="" [attr.id]="labelId()"
-        >{{ label() }}<ng-content select="[slTreeLabel]"
+      <span data-part="label" data-part-label="" [attr.id]="labelId()">
+        @for (segment of segments(); track $index) {
+          @if (segment.matched) {
+            <mark>{{ segment.text }}</mark>
+          } @else {
+            <ng-container>{{ segment.text }}</ng-container>
+          }
+        }
+        <ng-content select="[slTreeLabel]"
       /></span>
       <ng-content select="[slTreeDescription]" />
       <ng-content select="[slTreeMeta]" />
@@ -125,6 +138,7 @@ export const NODE_SELECTOR = "[data-part='node']";
     '[attr.data-match]': 'match() ?? null',
     '[attr.data-pinned]': "pinned() ? '' : null",
     '[attr.aria-labelledby]': 'labelId()',
+    '[attr.aria-busy]': "branch() && loading() ? 'true' : null",
     '[attr.aria-expanded]': 'ariaExpanded()',
     '[attr.aria-selected]': 'ariaSelected()',
     '[attr.aria-checked]': 'ariaChecked()',
@@ -223,6 +237,7 @@ export class SlTreeNode {
     () => !this.expanded() && this.tree.holdsSelection(this.value()),
   );
   protected readonly current = computed(() => this.tree.isActive(this.value()));
+  protected readonly segments = computed(() => this.tree.segmentsOf(this.label()));
   protected readonly id = computed(() => this.tree.nodeId(this.value()));
   protected readonly labelId = computed(() => this.tree.labelId(this.value()));
   protected readonly resolvedDisabled = computed(
@@ -251,6 +266,13 @@ export class SlTreeNode {
   protected readonly tabIndex = computed(() => this.tree.nodeTabIndex(this.value()));
 
   constructor() {
+    let wasLoading = false;
+    effect(() => {
+      const loading = this.loading();
+      if (wasLoading && !loading) untracked(() => this.tree.announceLoaded(this.value()));
+      wasLoading = loading;
+    });
+
     /*
      * Projected content is created with the parent's view, before a closed
      * branch has placed its group in the document, so one read at creation
@@ -275,7 +297,8 @@ export class SlTreeNode {
   }
 
   protected onRowClick(event: MouseEvent) {
-    if (this.resolvedDisabled()) return;
+    if (event.defaultPrevented || this.resolvedDisabled()) return;
+    if ((event.target as Element).closest(ACTIONS_SELECTOR) !== null) return;
     this.tree.press(this.value(), event);
   }
 
@@ -322,6 +345,37 @@ export class SlTreeGroup {
   host: { 'data-part': 'icon', 'data-part-icon': '', 'aria-hidden': 'true' },
 })
 export class SlTreeIcon {}
+
+/** The cells of a row that a template of `nodes` can fill. */
+export type TreeCell = 'actions' | 'description' | 'icon' | 'label' | 'meta';
+
+/** What a cell template receives: the consumer's own node, and its key. */
+export interface TreeCellContext<T> {
+  $implicit: T;
+  key: string;
+}
+
+/**
+ * One cell of every row of `nodes`, written by the consumer:
+ * `<ng-template slTreeCell="meta" let-node><span slTreeMeta>…</span></ng-template>`.
+ * The template holds the cell's own directive, so a node without that cell
+ * draws nothing.
+ */
+@Directive({ selector: 'ng-template[slTreeCell]', standalone: true })
+export class SlTreeCell<T = unknown> {
+  readonly cell = input.required<TreeCell>({ alias: 'slTreeCell' });
+  /** The set the nodes come from, read for the type of `let-node` alone. */
+  readonly nodes = input<readonly T[] | undefined>(undefined, { alias: 'slTreeCellOf' });
+
+  readonly template = inject<TemplateRef<TreeCellContext<T>>>(TemplateRef);
+
+  static ngTemplateContextGuard<T>(
+    _directive: SlTreeCell<T>,
+    context: unknown,
+  ): context is TreeCellContext<T> {
+    return context !== null;
+  }
+}
 
 /** The node's name, when it is richer than a string. */
 @Directive({ selector: '[slTreeLabel]', standalone: true })

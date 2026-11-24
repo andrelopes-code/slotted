@@ -25,6 +25,7 @@ export type {
   TreeGroupProps,
   TreeHandle,
   TreeMessageProps,
+  TreeNodeCells,
   TreeNodeProps,
   TreeNodeRootProps,
   TreePartProps,

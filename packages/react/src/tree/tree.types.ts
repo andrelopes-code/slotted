@@ -1,3 +1,4 @@
+import type { PartialMessages, TreeMessages } from '@slotted/core/i18n';
 import type { ChangeReason, ChangeRequest } from '@slotted/core/state';
 import type { ComponentPropsWithRef, HTMLAttributes, MouseEvent, ReactNode, Ref } from 'react';
 
@@ -154,13 +155,15 @@ export interface TreeContextValue {
   pressIndicator: (key: string, event: MouseEvent<HTMLElement>) => void;
   /**
    * How large a sibling group is and where one node sits in it. Both are
-   * `undefined` unless the flat structure is in force, which is exactly when
-   * the pattern requires them: with the nesting in the DOM the browser
-   * computes all three.
+   * `undefined` unless the flat structure is in force or part of the group has
+   * yet to arrive, which is when the pattern requires them: with the whole
+   * group nested in the DOM the browser computes all three.
    */
   levelOf: (key: string) => number | undefined;
   setSizeOf: (key: string) => number | undefined;
   posInSetOf: (key: string) => number | undefined;
+  /** Says, once, that the children of a branch have arrived. */
+  announceLoaded: (key: string) => void;
 }
 
 /** What `render` receives for the tree's root. */
@@ -273,6 +276,11 @@ export interface TreeNodeProps extends Omit<ComponentPropsWithRef<'li'>, 'childr
   render?: ((props: TreeNodeRootProps) => ReactNode) | undefined;
 }
 
+/** What `renderCells` returns: the cells of a row, each one optional. */
+export type TreeNodeCells = Partial<
+  Pick<TreeNodeProps, 'actions' | 'description' | 'icon' | 'label' | 'meta'>
+>;
+
 export interface TreeProps<T = unknown> extends Omit<
   ComponentPropsWithRef<'div'>,
   'defaultValue' | 'onChange' | 'children'
@@ -342,8 +350,11 @@ export interface TreeProps<T = unknown> extends Omit<
   getChildrenCount?: ((node: T) => number | undefined) | undefined;
   isNodeDisabled?: ((node: T) => boolean) | undefined;
   isNodeLoading?: ((node: T) => boolean) | undefined;
-  /** The content of one row. The family renders the row around it. */
-  renderNode?: ((node: T, key: string) => ReactNode) | undefined;
+  /**
+   * The cells of one row of `nodes`. A cell left out is not drawn, and a label
+   * left out is the name `getLabel` returns, with the matched span marked.
+   */
+  renderCells?: ((node: T, key: string) => TreeNodeCells) | undefined;
 
   /**
    * A query the tree filters by. The consumer owns the string and the control
@@ -359,6 +370,9 @@ export interface TreeProps<T = unknown> extends Omit<
 
   /** What the tree shows when it holds nothing. */
   emptyContent?: ReactNode | undefined;
+
+  /** The words the tree announces, over the ones of the language in force. */
+  messages?: PartialMessages<TreeMessages> | undefined;
 
   ref?: Ref<HTMLDivElement> | undefined;
   handleRef?: Ref<TreeHandle> | undefined;

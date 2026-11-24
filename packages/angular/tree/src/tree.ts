@@ -1,21 +1,23 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
   afterNextRender,
+  afterRenderEffect,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
-  contentChild,
+  contentChildren,
   DestroyRef,
   ElementRef,
   forwardRef,
   inject,
+  Injector,
   input,
   model,
   numberAttribute,
   output,
   signal,
-  TemplateRef,
+  untracked,
   ViewEncapsulation,
 } from '@angular/core';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -25,6 +27,7 @@ import type {
   ValidationErrors,
   Validator,
 } from '@angular/forms';
+import { injectMessages } from '@slotted/angular/i18n';
 import {
   cascadeSelection,
   createFilter,
@@ -32,6 +35,8 @@ import {
   indeterminateKeys,
   moveIndex,
   nextSelection,
+  offsetForIndex,
+  splitByMatch,
   virtualWindow,
 } from '@slotted/core/collection';
 import type {
@@ -39,6 +44,9 @@ import type {
   TreeCollection,
   TreeNode as TreeNodeData,
 } from '@slotted/core/collection';
+import { createActiveRemoval } from '@slotted/core/focus';
+import { treeMessages, type PartialMessages, type TreeMessages } from '@slotted/core/i18n';
+import { getLiveAnnouncer } from '@slotted/core/live-announcer';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeRequest } from '@slotted/core/state';
 import { createTypeahead, isPrintable } from '@slotted/core/typeahead';
@@ -58,7 +66,8 @@ import type {
   TreeStructure,
   TreeVariant,
 } from './tree-defaults';
-import { NODE_SELECTOR, SlTreeGroup, SlTreeNode } from './tree-parts';
+import { ACTIONS_SELECTOR, NODE_SELECTOR, SlTreeCell, SlTreeGroup, SlTreeNode } from './tree-parts';
+import type { TreeCell } from './tree-parts';
 
 export type {
   TreeAlignment,
@@ -189,7 +198,7 @@ function same(a: readonly string[], b: readonly string[]) {
       <li
         slTreeNode
         [value]="node.key"
-        [label]="node.label"
+        [label]="cellOf('label') === null ? node.label : ''"
         [level]="node.level"
         [hasChildren]="node.branch"
         [disabled]="node.disabled"
@@ -199,12 +208,31 @@ function same(a: readonly string[], b: readonly string[]) {
         [pinned]="node.offset !== undefined"
         [offset]="node.offset"
       >
-        @if (nodeContent(); as content) {
-          <ng-container
-            [ngTemplateOutlet]="content"
-            [ngTemplateOutletContext]="{ $implicit: node.item, key: node.key }"
-          />
-        }
+        <ng-container
+          ngProjectAs="[slTreeIcon]"
+          [ngTemplateOutlet]="cellOf('icon')"
+          [ngTemplateOutletContext]="{ $implicit: node.item, key: node.key }"
+        />
+        <ng-container
+          ngProjectAs="[slTreeLabel]"
+          [ngTemplateOutlet]="cellOf('label')"
+          [ngTemplateOutletContext]="{ $implicit: node.item, key: node.key }"
+        />
+        <ng-container
+          ngProjectAs="[slTreeDescription]"
+          [ngTemplateOutlet]="cellOf('description')"
+          [ngTemplateOutletContext]="{ $implicit: node.item, key: node.key }"
+        />
+        <ng-container
+          ngProjectAs="[slTreeMeta]"
+          [ngTemplateOutlet]="cellOf('meta')"
+          [ngTemplateOutletContext]="{ $implicit: node.item, key: node.key }"
+        />
+        <ng-container
+          ngProjectAs="[slTreeActions]"
+          [ngTemplateOutlet]="cellOf('actions')"
+          [ngTemplateOutletContext]="{ $implicit: node.item, key: node.key }"
+        />
         @if (node.children.length > 0) {
           <ul slTreeGroup [busy]="node.loading">
             @for (child of node.children; track child.key) {
@@ -284,7 +312,7 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
   readonly itemSize = input(this.defaults.itemSize, { transform: numberAttribute });
   readonly overscan = input(this.defaults.overscan, { transform: numberAttribute });
 
-  readonly disabled = input(false, { transform: booleanAttribute });
+  readonly disabled = input(this.defaults.disabled, { transform: booleanAttribute });
   readonly readOnly = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
@@ -312,11 +340,18 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
    */
   readonly query = input<string | undefined>(undefined);
 
-  /** The row's content, re-rendered per node rather than projected once. */
-  protected readonly nodeContent = contentChild<TemplateRef<unknown>>('slTreeNodeContent');
+  /** The words the tree announces, over the ones of the language in force. */
+  readonly messages = input<PartialMessages<TreeMessages> | undefined>(undefined);
+
+  /** The cells of a row of `nodes`, rendered per node rather than projected once. */
+  private readonly cells = contentChildren(SlTreeCell);
+  /** The nodes written in the template, where the tree holds no hierarchy. */
+  private readonly written = contentChildren(SlTreeNode, { descendants: true });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
   private readonly ids = inject(SlTreeIdFactory);
+  private readonly t = injectMessages(treeMessages, this.messages);
   private readonly base = this.ids.next();
   private readonly typeaheadHandle: TypeaheadHandle = createTypeahead({
     timeout: this.defaults.typeaheadTimeout,
@@ -337,7 +372,26 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
      * kind of defect that only exists on the first paint, which is exactly
      * where a reader meets it.
      */
-    afterNextRender(() => this.measure());
+    afterNextRender(() => {
+      this.measure();
+      const canvas = this.canvas();
+      if (canvas === null) return;
+      const removal = createActiveRemoval(canvas, {
+        nodeSelector: NODE_SELECTOR,
+        getActive: () => untracked(this.activeKey),
+        onMove: (key) => this.requestActive(key, 'programmatic', undefined),
+      });
+      afterRenderEffect(
+        {
+          read: () => {
+            this.activeKey();
+            removal.refresh();
+          },
+        },
+        { injector: this.injector },
+      );
+      destroyRef.onDestroy(() => removal.destroy());
+    });
 
     const root = this.host.nativeElement;
     if (typeof ResizeObserver !== 'undefined') {
@@ -421,9 +475,9 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
     const filter = createFilter();
     const hits = new Set<string>();
     for (const node of held.nodes) if (filter.contains(node.label, query)) hits.add(node.key);
-    const kept = new Set(hits);
-    for (const key of hits) for (const ancestor of held.ancestorsOf(key)) kept.add(ancestor);
-    return { hits, kept };
+    const opened = new Set<string>();
+    for (const key of hits) for (const ancestor of held.ancestorsOf(key)) opened.add(ancestor);
+    return { hits, opened, kept: new Set([...hits, ...opened]) };
   });
 
   /* ── The window ─────────────────────────────────────────────────────── */
@@ -433,7 +487,12 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
 
   private readonly visible = computed<readonly TreeNodeData<unknown>[]>(() => {
     const held = this.collection();
-    return held === undefined ? [] : held.visible(this.expandedKeys());
+    if (held === undefined) return [];
+    const filtered = this.filtered();
+    if (filtered === undefined) return held.visible(this.expandedKeys());
+    return held
+      .visible([...this.expandedKeys(), ...filtered.opened])
+      .filter((node) => filtered.kept.has(node.key));
   });
 
   private readonly windowed = computed(() => this.virtual() && this.collection() !== undefined);
@@ -527,7 +586,7 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
 
   protected readonly holdsNothing = computed(() => {
     const held = this.collection();
-    if (held === undefined) return false;
+    if (held === undefined) return this.written().length === 0;
     const filtered = this.filtered();
     return held.nodes.length === 0 || (filtered !== undefined && filtered.kept.size === 0);
   });
@@ -537,6 +596,10 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
   private readonly positions = computed(() =>
     this.structureMode() === 'flat' ? this.collection() : undefined,
   );
+
+  protected cellOf(cell: TreeCell) {
+    return this.cells().find((candidate) => candidate.cell() === cell)?.template ?? null;
+  }
 
   private readonly indeterminateSet = computed(() => {
     const held = this.collection();
@@ -560,8 +623,7 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
    */
   isExpanded(key: string) {
     if (this.expandedKeys().includes(key)) return true;
-    const filtered = this.filtered();
-    return filtered !== undefined && filtered.kept.has(key) && !filtered.hits.has(key);
+    return this.heldOpen(key);
   }
 
   isActive(key: string) {
@@ -598,11 +660,49 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
   }
 
   setSizeOf(key: string) {
-    return this.positions()?.nodeFor(key)?.setSize ?? null;
+    return this.counted(key)?.setSize ?? null;
   }
 
   posInSetOf(key: string) {
-    return this.positions()?.nodeFor(key)?.posInSet ?? null;
+    return this.counted(key)?.posInSet ?? null;
+  }
+
+  segmentsOf(label: string) {
+    const query = this.query();
+    if (this.collection() === undefined || query === undefined || query.trim() === '') {
+      return [{ text: label, matched: false }];
+    }
+    return splitByMatch(label, query);
+  }
+
+  announceLoaded(key: string) {
+    const root = this.host.nativeElement;
+    const node = this.readRows().find((row) => row.key === key);
+    if (node === undefined) return;
+
+    const count =
+      this.collection()?.nodeFor(key)?.children.length ??
+      node.element.querySelectorAll(`:scope > [data-part='group'] > ${NODE_SELECTOR}`).length;
+    getLiveAnnouncer(root.ownerDocument).announce(this.t('loaded', { label: node.label, count }));
+  }
+
+  /** Whether a query, rather than the reader, is what holds this branch open. */
+  private heldOpen(key: string) {
+    return this.filtered()?.opened.has(key) === true;
+  }
+
+  /**
+   * The node, where the DOM does not hold its whole sibling group: under the
+   * flat structure, and in a branch that has more children than have arrived.
+   */
+  private counted(key: string) {
+    const flat = this.positions();
+    if (flat !== undefined) return flat.nodeFor(key);
+    const held = this.collection();
+    const node = held?.nodeFor(key);
+    if (node?.parent === undefined) return undefined;
+    const parent = held?.nodeFor(node.parent);
+    return (parent?.childrenCount ?? 0) > (parent?.children.length ?? 0) ? node : undefined;
   }
 
   protected readonly activeDescendant = computed(() => {
@@ -708,6 +808,7 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
     });
     state.request(keys, reason, source);
     if (!cancelled) this.expandedKeys.set(keys);
+    return !cancelled;
   }
 
   private requestActive(key: string | null, reason: TreeActiveRequest['reason'], source: unknown) {
@@ -776,7 +877,9 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
     const result = nextSelection({
       action: intent,
       mode: this.selection(),
-      behavior: this.selectionBehavior(),
+      /* Every toggle asked for by name is one: the accelerator held, the box,
+         Space. `replace` is what a plain press asks for instead. */
+      behavior: intent === 'toggle' ? 'toggle' : this.selectionBehavior(),
       selected: this.selected(),
       keys: rows.filter((row) => !row.disabled).map((row) => row.key),
       key,
@@ -849,10 +952,11 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
 
   protected onKeyDown(event: KeyboardEvent) {
     if (event.defaultPrevented || this.treeDisabled()) return;
-    /* Arrow navigation stands down while focus is inside a control the reader
-       is typing in, which is what makes an inline rename composable. */
+    /* The tree stands down while focus is inside a control: one the reader is
+       typing in, which is what makes an inline rename composable, and one in
+       the trailing cell. */
     const target = event.target as HTMLElement;
-    if (target.closest('input, textarea, [contenteditable="true"]') !== null) return;
+    if (target.closest(`input, textarea, [contenteditable="true"], ${ACTIONS_SELECTOR}`)) return;
 
     const rows = this.readRows();
     if (rows.length === 0) return;
@@ -921,7 +1025,7 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
     if (event.key === backward) {
       take();
       if (row === undefined) return;
-      if (row.branch && this.isExpanded(row.key)) {
+      if (row.branch && this.isExpanded(row.key) && !this.heldOpen(row.key)) {
         this.setExpanded(row.key, false, 'keyboard', event);
         return;
       }
@@ -1023,9 +1127,35 @@ export class SlTree implements SlTreeContext, ControlValueAccessor, Validator {
   }
 
   scrollToKey(key: string, align: TreeAlignment = 'nearest') {
-    this.expand(key);
-    const row = this.readRows().find((candidate) => candidate.key === key);
-    row?.element.scrollIntoView({ block: align === 'nearest' ? 'nearest' : align });
+    const path = this.collection()?.ancestorsOf(key) ?? [];
+    const next = [...new Set([...this.expandedKeys(), ...path])];
+    if (same(next, this.expandedKeys())) {
+      this.reveal(key, align);
+      return;
+    }
+    if (!this.requestExpanded(next, 'programmatic', undefined)) return;
+    afterNextRender(() => this.reveal(key, align), { injector: this.injector });
+  }
+
+  private reveal(key: string, align: TreeAlignment) {
+    if (!this.windowed()) {
+      const row = this.readRows().find((candidate) => candidate.key === key);
+      row?.element.scrollIntoView({ block: align });
+      return;
+    }
+
+    const rows = this.visible();
+    const index = rows.findIndex((node) => node.key === key);
+    if (index === -1) return;
+    const root = this.host.nativeElement;
+    root.scrollTop = offsetForIndex({
+      index,
+      itemCount: rows.length,
+      itemSize: this.itemSize(),
+      scrollOffset: root.scrollTop,
+      viewportSize: root.clientHeight,
+      align,
+    });
   }
 
   /* ── Reactive Forms ─────────────────────────────────────────────────── */

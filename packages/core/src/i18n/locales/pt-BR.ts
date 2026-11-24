@@ -87,6 +87,7 @@ import { ptBR as toolbar } from './pt-BR/toolbar';
 import { ptBR as topNavigation } from './pt-BR/top-navigation';
 import { ptBR as tour } from './pt-BR/tour';
 import { ptBR as transfer } from './pt-BR/transfer';
+import { ptBR as tree } from './pt-BR/tree';
 import { ptBR as upload } from './pt-BR/upload';
 import { ptBR as wizard } from './pt-BR/wizard';
 
@@ -172,6 +173,7 @@ export const PT_BR: SlottedMessages = {
   topNavigation,
   tour,
   transfer,
+  tree,
   upload,
   wizard,
 };
