@@ -147,7 +147,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'progress-indicator-angular-wave-ramp',
       language: 'angular',
-      label: 'One input, five values',
+      label: 'One input, three values',
       source:
         '<div slProgressBar label="Five per cent" size="lg" wave [value]="5"></div>\n<div slProgressBar label="Half way" size="lg" wave [value]="50"></div>\n<div slProgressBar label="Finished" size="lg" wave [value]="100"></div>',
     }),
@@ -214,13 +214,13 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'tones',
     title: 'What the wait means, in color',
-    note: 'The five the theme owns, each in the context it exists for: work in hand, a background job, an upload that landed, a quota nearly spent, a transfer that failed.',
+    note: 'The six tones, each in the context it exists for: work in hand, a background job, a rate sync, an upload that landed, a quota nearly spent, a transfer that failed.',
     snippet: defineSnippet({
       id: 'progress-indicator-angular-tones',
       language: 'angular',
       label: 'Tone, and the sentence beside it',
       source:
-        '<div slProgressBar label="Uploading invoices" [value]="62"></div>\n<div slProgressBar label="Reindexing in the background" tone="secondary" [value]="62"></div>\n<div slProgressBar label="Storage used" tone="warning" [value]="88"></div>\n<div slProgressBar label="Transfer failed" tone="danger" [value]="41"></div>',
+        '<div slProgressBar label="Uploading invoices" [value]="62"></div>\n<div slProgressBar label="Reindexing the catalog" tone="secondary" [value]="62"></div>\n<div slProgressBar label="Syncing carrier rates" tone="info" [value]="62"></div>\n<div slProgressBar label="Backup complete" tone="success" [value]="100"></div>\n<div slProgressBar label="Storage used" tone="warning" [value]="88"></div>\n<div slProgressBar label="Transfer failed" tone="danger" [value]="41"></div>',
     }),
   },
   {
@@ -238,7 +238,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'page',
     title: 'The bar on an edge: the viewport’s, or a box’s',
-    note: 'placement="page" pins the bar to the top edge of the viewport, squares its corners, drops its track and reads the sticky stacking token. edge-start and edge-end stand the same bar on the block-start or block-end edge of the nearest positioned box, over the line that edge draws; slAppShellProgress and slPageHeaderProgress are the boxes the library gives it. Each grows out of its edge and goes back into it.',
+    note: 'placement="page" pins the bar to the top edge of the viewport, squares its corners, drops its track and reads the sticky stacking token. edge-start and edge-end stand the same bar on the block-start or block-end edge of the nearest positioned box, over the line that edge draws; slAppShellProgress and slPageHeaderProgress place it in an app shell and a page header. Each grows out of its edge and goes back into it.',
     snippet: defineSnippet({
       id: 'progress-indicator-angular-page',
       language: 'angular',
@@ -249,7 +249,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'content',
-    title: 'Content the family did not choose',
+    title: 'Content the component did not choose',
     note: 'A four-word label in a 360-pixel column, an unbreakable digest beside a number that must not break, and a right-to-left row where every edge changes ends but the clock does not.',
     snippet: defineSnippet({
       id: 'progress-indicator-angular-content',
@@ -331,7 +331,7 @@ export const ANGULAR_PROGRESS_INDICATOR_DOCS = {
         'accent | secondary | info | success | warning | danger',
         'accent',
         'all three',
-        'The five the theme owns. The indicator is the tone’s text role and the track is a computed tint of it',
+        'The six tones the theme provides. The indicator is the tone’s text role and the track is a computed tint of it',
       ],
       [
         'label',
@@ -359,7 +359,7 @@ export const ANGULAR_PROGRESS_INDICATOR_DOCS = {
         'string',
         '—',
         'slProgressBar, slProgressCircle',
-        'A string the family cannot compute — “3 of 7 files”. It becomes both aria-valuetext and the rendered value',
+        'A string the component cannot compute — “3 of 7 files”. It becomes both aria-valuetext and the rendered value',
       ],
       [
         'format',
@@ -415,7 +415,7 @@ export const ANGULAR_PROGRESS_INDICATOR_DOCS = {
         'number',
         '0',
         'all three',
-        'Milliseconds the wait must last before anything is painted. Until then the host carries hidden — no box, no role, no reserved band',
+        'Milliseconds the wait must last before anything is painted. Until then the host carries hidden — no box and no reserved band',
       ],
       [
         'minDuration',
@@ -466,7 +466,7 @@ export const ANGULAR_PROGRESS_INDICATOR_DOCS = {
         'boolean, string',
         '—',
         'Your own region',
-        'ARIA asks a consumer to write both on the region that is loading, pointing at the indicator’s id. The family cannot: the region is yours',
+        'ARIA asks a consumer to write both on the region that is loading, pointing at the indicator’s id. The component cannot: the region is yours',
       ],
       [
         'slInlineMessage',
@@ -480,8 +480,8 @@ export const ANGULAR_PROGRESS_INDICATOR_DOCS = {
       'The host carries role="progressbar" with aria-valuemin and aria-valuemax written out, and aria-valuenow only while there is a value. ARIA 1.3 asks an author to omit aria-valuenow when the value is indeterminate, and the omission is what says “in progress, and nobody knows how far”.',
       'A value outside the range is clamped, and the clamped value is what both the paint and aria-valuenow report — so the picture a reader sees and the number a reader hears cannot disagree. Progress is usually computed from numbers an application does not fully control.',
       'progressbar carries Children Presentational: True in ARIA 1.3, which means everything inside the host is pruned from the accessibility tree. The label reaches a reader through aria-labelledby and the number through aria-valuetext; anything else you project is silent. A live region inside an indicator is silent too, which is why the words that carry a wait belong to slInlineMessage beside it rather than to a hidden region within it.',
-      'An accessible name is required, and there are three ways to give one: label, an aria-label or aria-labelledby you wrote on your own element — read once through HostAttributeToken and never overwritten — or decorative for the case the feature guide names. With none of the three, development warns and the indicator still renders: a nameless bar reports visually, and taking a screen down mid-upload is worse than the defect.',
-      'If the indicator describes the loading of a region, ARIA asks you to set aria-busy on that region and point aria-describedby at the indicator. The family writes neither, because the region is yours; the accessibility demonstration shows both.',
+      'An accessible name is required, and there are three ways to give one: label, an aria-label or aria-labelledby you wrote on your own element — read once through HostAttributeToken and never overwritten — or decorative for a spinner beside text that already says what is happening. With none of the three, development warns and the indicator still renders: a nameless bar reports visually, and taking a screen down mid-upload is worse than the defect.',
+      'If the indicator describes the loading of a region, ARIA asks you to set aria-busy on that region and point aria-describedby at the indicator. The component writes neither, because the region is yours.',
       'Under prefers-reduced-motion every loop stops rather than shortening — an animation that repeats forever needs to stop, and the indeterminate indicator rests at a length that reads as a fraction rather than as nought or as full. The cost is real: a still indicator says nothing on its own, so the name matters more, and the loader is best given a visible label.',
       'The indicator is a tone’s text role, which the theme holds to the 4.5:1 reading ratio against every surface — more than the 3:1 WCAG 2.2 1.4.11 asks of a meaningful graphic — in all three color schemes. Under forced colors the track keeps a ButtonBorder edge and the indicator takes Highlight, so the geometry survives a palette the family did not choose.',
     ],
@@ -505,7 +505,7 @@ export const ANGULAR_PROGRESS_INDICATOR_DOCS = {
       defineSnippet({
         id: 'progress-indicator-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning the indicator for an application',
         source:
           "[data-ui='progress-indicator'] {\n  --slotted-progress-indicator-thickness: var(--slotted-space-4);\n  --slotted-progress-indicator-radius: var(--slotted-radius-xs);\n  --slotted-progress-indicator-track-color: var(--slotted-surface-sunken);\n}\n\n/* One ring in an icon slot, at the size that slot already has. */\n[data-ui='button'] [data-ui='progress-indicator'] {\n  --slotted-progress-indicator-size: var(--slotted-control-icon-size-md);\n}",
       }),

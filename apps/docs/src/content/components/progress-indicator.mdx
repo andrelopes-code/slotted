@@ -1,0 +1,74 @@
+---
+title: Progress indicator
+description: Reports how far a task has come, or that one is under way, as a bar, a ring or a loader.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Value and range
+
+`value` is measured against `min` and `max`, which default to 0 and 100. The number is written with `Intl` in the page language, as a percentage unless `format` takes another form: the second bar runs from 200 to 400 and the third reads in megabytes. `valueText` replaces both the spoken and the rendered number for a quantity the component cannot compute, such as "3 of 7 files". A value outside the range is clamped, and the clamped value is the one drawn and the one announced. `showValue` renders the number beside the name. A bar that reaches its maximum carries `data-complete`.
+
+<Example name="determinate" />
+
+## Progress while a task runs
+
+Pass the current value from state and the bar follows it. The name comes from `label`; an indicator without a name, an `aria-label` or `decorative` logs a warning in development. ARIA asks the page to mark the region that waits with `aria-busy` and to point `aria-describedby` at the indicator. The component writes neither, because the region belongs to the page. Press the button: the import takes about three seconds.
+
+<Example name="live" />
+
+## Unknown duration
+
+Leave `value` out and the indicator reports a wait instead of a quantity: `aria-valuenow` is omitted, the whole track shows, and `showValue` renders no number. Pass `null` to state that the number is not known yet. Passing 0 would state that nothing has been done.
+
+<Example name="indeterminate" />
+
+## Sizes
+
+`size` is the thickness of the bar, the diameter of the ring and the box of the loader. Rings and loaders read the control height scale, so one placed beside a control of the same step is as tall as that control. Here the rings and loaders hide their label with `hideLabel`, which keeps it as the accessible name.
+
+<Example name="sizes" />
+
+## Tones
+
+`tone` colors the indicator and tints its track. The six tones carry meaning through the label beside them, never through color alone: `accent` for work in hand, `secondary` for a background job, `info` for a sync, `success` for work that landed, `warning` for a quota nearly spent and `danger` for a transfer that failed.
+
+<Example name="tones" />
+
+## Wave
+
+`wave` draws the active part of the bar and of the ring as a wave. The ring grows a fifth to make room for its crests. The amplitude follows the value: flat below 6 per cent, full from 16 to 84 per cent and flat again from 96, so a bar at the start or at the end reads as a plain fill. A bar with no value is wavy along its whole length.
+
+<Example name="wave" />
+
+## Buffer
+
+`buffer` states a second quantity on the bar: the lighter band is what has arrived, and the indicator is what has been processed. It is never drawn behind the value. The second bar has the same value with no buffer.
+
+<Example name="buffer" />
+
+## Loader
+
+`Loader` keeps a short wait of unknown duration company with a shape that morphs while it turns. It measures nothing and takes no `value`. `contained` adds a rounded container behind the shape, for a photograph or a colored surface where a bare shape has no ground. `decorative` removes the loader from the accessibility tree, with no role, no range and no name: use it only when the text beside it already says what is happening, as the last row does. A wait whose structure is known belongs to a skeleton, and a control that started the work shows its own `loading` state.
+
+<Example name="loader" />
+
+## Edge of a box
+
+`placement="edge-start"` and `placement="edge-end"` stand the bar on the block-start or block-end edge of the nearest positioned box, the whole inline size of that box, over the line the edge already draws. The card is that box here. The bar has no track and no radius, hides its label while keeping it as the name, and grows out of its edge and back into it. `loading` shows and withdraws it. Use it for a refresh of data already on screen, which keeps its values while the bar runs. In an application, `AppShellProgress` and `PageHeaderProgress` place such a bar in the app shell and in the page header.
+
+<Example name="edges" />
+
+## Page
+
+`placement="page"` pins the bar to the top edge of the viewport, squares its corners and drops its track. The label is hidden and stays as the accessible name. A navigation is the wait this placement answers, so the example sets `delay` and `minDuration` on the bar, and a response faster than 200 ms draws nothing.
+
+<Example name="page" />
+
+## Timing
+
+`loading` states whether the wait is still on. `delay` is the time in milliseconds the wait must last before anything is drawn, and until then the root carries `hidden`. `minDuration` is the time an indicator that did appear is held before it is withdrawn, so it does not appear and vanish within one frame. The recommended pair is 200 and 400, and a defaults provider sets it once for every indicator below it: `ProgressIndicatorDefaultsProvider` in React, `provideProgressIndicatorDefaults` in Angular. `onWithdraw` in React and `withdraw` in Angular fire when the indicator actually leaves the page, which is later than `loading` turning false whenever `minDuration` is holding it. The fast response lasts 150 ms and the slow one 1.5 s.
+
+<Example name="timing" />
