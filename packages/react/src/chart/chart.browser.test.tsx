@@ -217,9 +217,11 @@ describe('the tooltip of a chart', () => {
         x={{ field: 'x' }}
       />,
     );
-    await vi.waitFor(() => {
-      expect(document.querySelector('[data-part="tooltip-label"]')).not.toBeNull();
-    });
+    /* The first tooltip waits for the engine, which is fetched on demand. */
+    await vi.waitFor(
+      () => expect(document.querySelector('[data-part="tooltip-label"]')).not.toBeNull(),
+      { timeout: 10_000 },
+    );
     const labels = [...document.querySelectorAll('[data-part="tooltip-label"]')];
 
     for (const label of labels) expect(label.getBoundingClientRect().width).toBeGreaterThan(0);
