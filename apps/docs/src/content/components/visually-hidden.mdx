@@ -1,0 +1,30 @@
+---
+title: Visually Hidden
+description: Removes content from sight and keeps it in the accessibility tree, so a screen reader reads words the page does not show.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Naming an icon-only control
+
+`VisuallyHidden` renders a `span` that is clipped to one pixel and taken out of flow. It is not `display: none` or `visibility: hidden`, which would remove the content from the accessibility tree as well. The button above shows a trash glyph and a screen reader reads "Delete invoice INV-20418". A control that needs only a name can take `aria-label` instead, as `IconButton` does; use `VisuallyHidden` when the words are content, such as a count or a table heading. To hide content from everyone, use the `hidden` attribute.
+
+## Completing a visible count
+
+A visible figure often needs its unit. The bell and the 3 are all a sighted reader sees, and a screen reader reads "3 unread notifications". The hidden words sit in the row after the figure, so they are read in document order. The element is out of flow, so the `gap` of the `Inline` does not open a second space for it and the row measures the same with or without it.
+
+<Example name="count" />
+
+## Naming a table column
+
+A column that holds only controls has no visible heading, and a table cell without a header has no column name for a screen reader. A hidden `Actions` heading names the column. Each button in the column carries its own hidden words, so every row reads "Cancel order SO-10421" and not an anonymous button.
+
+<Example name="table-heading" />
+
+## Revealing on focus
+
+`focusable` stops the hiding while focus is inside the element. The element is then rendered as it was written: the component paints nothing on the revealed state, so the appearance of a skip link belongs to the link. In React, `render` hands the props to the anchor; in Angular, the attribute goes on the anchor itself. Tab into the preview to reveal the link, and press Enter to move focus to the heading, which takes `tabindex="-1"` to receive it.
+
+<Example name="skip-link" />
