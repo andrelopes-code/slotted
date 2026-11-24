@@ -2,7 +2,9 @@ import { render, screen } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
+import { Loader } from './loader';
 import { ProgressBar } from './progress-bar';
+import { ProgressCircle } from './progress-circle';
 
 /** Properties Chrome animates on the compositor, away from the main thread. */
 const COMPOSITED = new Set([
@@ -90,5 +92,27 @@ describe('a compact bar in a table cell', () => {
     expect(value.getBoundingClientRect().bottom).toBeLessThanOrEqual(
       track.getBoundingClientRect().top,
     );
+  });
+});
+
+/**
+ * The withheld indicator draws no box and stands in no accessibility tree. The
+ * root's own `display` outranked the rule that withholds it.
+ */
+describe('an indicator that is not loading', () => {
+  it.each([
+    ['bar', <ProgressBar key="bar" label="Refreshing" loading={false} />],
+    [
+      'edge bar',
+      <ProgressBar key="edge" label="Refreshing" loading={false} placement="edge-start" />,
+    ],
+    ['ring', <ProgressCircle key="ring" label="Refreshing" loading={false} />],
+    ['loader', <Loader key="loader" label="Refreshing" loading={false} />],
+  ])('draws nothing: %s', (_, indicator) => {
+    render(indicator);
+
+    const root = document.querySelector('[data-ui="progress-indicator"]')!;
+
+    expect(getComputedStyle(root).display).toBe('none');
   });
 });
