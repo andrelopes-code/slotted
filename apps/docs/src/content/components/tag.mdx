@@ -1,0 +1,78 @@
+---
+title: Tag
+description: A one-line label for a category or a value that can also be removed, pressed, followed or selected.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Tag or badge
+
+A tag names a category, a filter or a value, such as the labels on an order. A badge states a status or a count and is never interactive; a tag can be removed (`Tag`), run a command (`TagButton`), navigate (`TagLink`) or hold a selection (`TagToggle`). A run of static tags written as `role="list"` announces its length and takes no arrow-key navigation.
+
+## Tone and variant
+
+`tone` picks the semantic color: `accent`, `secondary`, `info`, `success`, `warning` or `danger`. `variant` picks how the tone is painted: `solid` fills the tag, `soft` tints it, `outline` draws the edge alone and `dashed` draws that edge in dashes. The default is `secondary` and `soft`. Pair the color with words, because color alone is not a signal.
+
+<Example name="appearance" wide />
+
+## Sizes and shapes
+
+`size` takes the control scale: `sm`, `md` and `lg`. A tag shrinks and grows with the controls it sits beside. `shape` is `pill`, a fully rounded chip, or `square`, a rectangle with the small corner radius.
+
+<Example name="sizes" />
+
+## Glyphs
+
+A glyph goes before or after the label: the `start` and `end` props in React, and an element carrying `slTagStart` or `slTagEnd` inside `slTagBody` in Angular. The part sizes and centers the glyph.
+
+<Example name="content" />
+
+## Removing a tag
+
+In React a tag is removable when it receives `onRemove`, which also renders the remove control. In Angular a tag is removable when it carries `removable`, and a `button` with `slTagRemove` draws the control; the `remove` output emits the request. Removing is a request, not a change: the application drops the value from its own list. The control is named from `messages.remove` and the tag's label, so it reads "Remove Fragile". Backspace and Delete on a focused control inside the tag ask for the same removal. Remove tags here with the mouse, then with the keyboard.
+
+<Example name="removal" />
+
+## Confirming a removal
+
+The request carries `reason`, `remove` for the control and `keyboard` for Backspace or Delete, and `cancel()`. Calling `cancel()` refuses the removal and the group leaves focus where it is, so the application can ask first. In this example the tag stays until the person confirms, and the message states how the removal was requested.
+
+<Example name="confirm" />
+
+## Disabled and refused removal
+
+`disabled` refuses every interaction the tag offers, its removal included, and sets `data-disabled` on the tag. A disabled `TagButton` is natively disabled. A disabled `TagLink` loses its `href` and announces `aria-disabled`, because an anchor without a destination is not a link. `removeDisabled` refuses only the removal and leaves the rest of the tag operable.
+
+<Example name="states" />
+
+## Commands and links
+
+`TagButton` runs a command on the button that is the tag's body. `TagLink` navigates on a real anchor, so middle click and "open in new tab" keep working. In Angular the element carrying `slTagBody` decides which one the tag is: a `span` does nothing, a `button` runs a command and an `a` navigates. Here the carriers link to their own pages and the last tag reveals the rest of the list.
+
+<Example name="actions" />
+
+## Selection
+
+`TagToggle` holds a selection and exposes it as `aria-pressed`. A selected tag fills and draws a check before the label, so the state is not color alone. `defaultSelected` sets the starting state of an uncontrolled toggle, which keeps its own selection. A disabled toggle takes no press.
+
+<Example name="selection" />
+
+## Controlled filters
+
+Pass `selected` to own the selection. A press calls `onSelectedChange` in React and emits `selectedChange` in Angular, and the tag moves only when the new value is passed back. In Angular the request exposes the new value as `$event.value`. A toggle can also be removable: here each filter leaves the bar with its control or with Backspace.
+
+<Example name="filters" />
+
+## Groups
+
+`TagGroup` is a toolbar by default: one tab stop, and the arrow keys move between the controls inside it, each tag's body and then its remove control. `orientation="vertical"` changes the keys to up and down and writes `aria-orientation`. `loop={false}` in React and `[loop]="false"` in Angular stops the arrow keys at the ends of the run instead of wrapping.
+
+<Example name="group" />
+
+## Defaults
+
+A defaults provider sets `tone`, `variant`, `size` and `shape` once for every tag under it: `TagDefaultsProvider` in React, `provideTagDefaults` in Angular. A tag that sets a prop of its own keeps it.
+
+<Example name="defaults" />

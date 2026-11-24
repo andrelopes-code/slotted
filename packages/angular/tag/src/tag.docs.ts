@@ -23,7 +23,7 @@ const SIZE = "'sm' | 'md' | 'lg'";
 const SHAPE = "'pill' | 'square'";
 
 const appearance = (member: string): ApiTuple[] => [
-  ['tone', TONE, 'secondary', member, 'Which of the five semantic colors the tag speaks in'],
+  ['tone', TONE, 'secondary', member, 'Which of the six semantic colors the tag speaks in'],
   [
     'variant',
     VARIANT,
@@ -65,7 +65,7 @@ const removable = (member: string): ApiTuple[] => [
     'Partial<TagMessages>',
     '—',
     member,
-    'Words laid over the language in force, key by key: remove is the word the remove control announces before the tag’s own label, so it reads “Remove Design”',
+    'Overrides for the strings of the language in force, by key: remove is the word the remove control announces before the tag’s own label, so it reads “Remove Design”',
   ],
   [
     'removeDisabled',
@@ -92,7 +92,7 @@ const disabled = (member: string): ApiTuple => [
 ];
 
 const ACCESSIBILITY_SHARED = [
-  'There is no tag or chip pattern in the WAI-ARIA Authoring Practices — the pattern index at w3.org/WAI/ARIA/apg/patterns/ carries thirty-two entries and neither word occurs. The applicable official guidance is the Toolbar pattern for the group, the Button pattern for a chip that acts and for the remove control, the Link pattern for one that navigates, and aria-pressed in WAI-ARIA 1.2 for one that holds a selection.',
+  'The WAI-ARIA Authoring Practices define no tag or chip pattern. The group follows the Toolbar pattern, a chip that acts and the remove control follow the Button pattern, a chip that navigates follows the Link pattern, and a chip that holds a selection uses aria-pressed from WAI-ARIA 1.2.',
   'The chip box is never the interactive element. A button cannot contain a button and an anchor cannot contain either, so a chip that both acts and removes puts its two controls side by side: slTagBody is the primary target and slTagRemove is its sibling.',
   'What the chip is, is which element carries slTagBody: a span does nothing, a button runs a command, an anchor navigates. The element is the member, which keeps routerLink, type, download and every native listener on the element that owns them.',
   'The remove control’s name is composed, not repeated: aria-labelledby joins a hidden word to the tag’s own label, so it announces “Remove Design” rather than “Remove”. Text referenced by aria-labelledby counts even when the element holding it is hidden.',
@@ -101,7 +101,7 @@ const ACCESSIBILITY_SHARED = [
   'The remove control is as tall as the chip and as wide as its glyph plus a step of air on each side, floored at the WCAG 2.2 2.5.8 minimum of 24 CSS pixels, which carries it past that minimum in both axes at every size and every density. The chip’s own height is floored at that minimum for the same reason.',
   'A tag is one line. A value too long for its container is clipped with an ellipsis rather than reflowed, and the clipping is visual only: the whole value stays in the DOM, in the accessibility tree, and findable by page search.',
   'The label is a bidi isolate whose direction comes from its own first strong character, so an Arabic value inside an English page reads right to left and is clipped at its own end.',
-  'Under forced colors every tone ground becomes one system color, so the family draws its edge in currentColor there, and a selected chip takes the system’s own Highlight pair.',
+  'Under forced colors every tone ground becomes one system color, so tag draws its edge in currentColor there, and a selected chip takes the system’s own Highlight pair.',
 ];
 
 export const ANGULAR_TAG_DOCS = {
@@ -208,7 +208,7 @@ export const ANGULAR_TAG_DOCS = {
         language: 'angular',
         label: 'The remaining values, behind one more chip',
         source:
-          '<div slTagGroup aria-label="Participantes">\n  @for (person of shown(); track person.id) {\n    <span slTag>\n      <span slTagBody>{{ person.name }}</span>\n    </span>\n  }\n  @if (hidden() > 0) {\n    <span slTag variant="outline">\n      <button slTagBody (click)="showAll()">+{{ hidden() }}</button>\n    </span>\n  }\n</div>',
+          '<div slTagGroup aria-label="Participants">\n  @for (person of shown(); track person.id) {\n    <span slTag>\n      <span slTagBody>{{ person.name }}</span>\n    </span>\n  }\n  @if (hidden() > 0) {\n    <span slTag variant="outline">\n      <button slTagBody (click)="showAll()">+{{ hidden() }}</button>\n    </span>\n  }\n</div>',
       }),
     ],
   },
@@ -236,14 +236,13 @@ export const ANGULAR_TAG_DOCS = {
         id: 'tag-link-angular-destination',
         language: 'angular',
         label: 'A chip that navigates',
-        source: '<span slTag>\n  <a slTagBody href="/equipes/plataforma">#plataforma</a>\n</span>',
+        source: '<span slTag>\n  <a slTagBody href="/teams/platform">#platform</a>\n</span>',
       }),
       defineSnippet({
         id: 'tag-link-angular-router',
         language: 'angular',
         label: 'A destination the router owns',
-        source:
-          '<span slTag>\n  <a slTagBody routerLink="/equipes/plataforma">#plataforma</a>\n</span>',
+        source: '<span slTag>\n  <a slTagBody routerLink="/teams/platform">#platform</a>\n</span>',
       }),
     ],
   },
@@ -277,7 +276,7 @@ export const ANGULAR_TAG_DOCS = {
     ]),
     accessibility: [
       ...ACCESSIBILITY_SHARED,
-      'A selected tag announces aria-pressed, not aria-selected. aria-selected is only valid inside a listbox, a grid or a tree, and an option may not contain the remove control this family puts beside the label.',
+      'A selected tag announces aria-pressed, not aria-selected. aria-selected is only valid inside a listbox, a grid or a tree, and an option may not contain the remove control that tag puts beside the label.',
       'The label never changes with the state, which is the APG’s rule for a toggle.',
       'Selection is not color alone. The chip fills, and a check grows into the label beside the words — WCAG 2.2 1.4.1.',
     ],
@@ -286,15 +285,14 @@ export const ANGULAR_TAG_DOCS = {
         id: 'tag-toggle-angular-uncontrolled',
         language: 'angular',
         label: 'A filter that remembers its own state',
-        source:
-          '<span slTag>\n  <button slTagToggle defaultSelected>Somente abertos</button>\n</span>',
+        source: '<span slTag>\n  <button slTagToggle defaultSelected>Open only</button>\n</span>',
       }),
       defineSnippet({
         id: 'tag-toggle-angular-set',
         language: 'angular',
         label: 'A set of filters the application owns',
         source:
-          '<div slTagGroup aria-label="Filtros">\n  @for (facet of facets; track facet) {\n    <span slTag tone="accent">\n      <button\n        slTagToggle\n        [selected]="chosen().has(facet)"\n        (selectedChange)="choose(facet, $event.value)"\n      >\n        {{ facet }}\n      </button>\n    </span>\n  }\n</div>',
+          '<div slTagGroup aria-label="Filters">\n  @for (facet of facets; track facet) {\n    <span slTag tone="accent">\n      <button\n        slTagToggle\n        [selected]="chosen().has(facet)"\n        (selectedChange)="choose(facet, $event.value)"\n      >\n        {{ facet }}\n      </button>\n    </span>\n  }\n</div>',
       }),
     ],
   },

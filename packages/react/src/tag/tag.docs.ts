@@ -23,7 +23,7 @@ const SIZE = "'sm' | 'md' | 'lg'";
 const SHAPE = "'pill' | 'square'";
 
 const appearance = (member: string): ApiTuple[] => [
-  ['tone', TONE, 'secondary', member, 'Which of the five semantic colors the tag speaks in'],
+  ['tone', TONE, 'secondary', member, 'Which of the six semantic colors the tag speaks in'],
   [
     'variant',
     VARIANT,
@@ -65,7 +65,7 @@ const removable = (member: string): ApiTuple[] => [
     'Partial<TagMessages>',
     '—',
     member,
-    'Words laid over the language in force, key by key: remove is the word the remove control announces before the tag’s own label, so it reads “Remove Design”',
+    'Overrides for the strings of the language in force, by key: remove is the word the remove control announces before the tag’s own label, so it reads “Remove Design”',
   ],
   [
     'removeDisabled',
@@ -85,15 +85,15 @@ const disabled = (member: string): ApiTuple => [
 ];
 
 const ACCESSIBILITY_SHARED = [
-  'There is no tag or chip pattern in the WAI-ARIA Authoring Practices — the pattern index at w3.org/WAI/ARIA/apg/patterns/ carries thirty-two entries and neither word occurs. The applicable official guidance is the Toolbar pattern for the group, the Button pattern for a chip that acts and for the remove control, the Link pattern for one that navigates, and aria-pressed in WAI-ARIA 1.2 for one that holds a selection.',
+  'The WAI-ARIA Authoring Practices define no tag or chip pattern. The group follows the Toolbar pattern, a chip that acts and the remove control follow the Button pattern, a chip that navigates follows the Link pattern, and a chip that holds a selection uses aria-pressed from WAI-ARIA 1.2.',
   'The chip box is never the interactive element. A button cannot contain a button and an anchor cannot contain either, so a chip that both acts and removes puts its two controls side by side: the body is the primary target and the remove control is its sibling.',
   'The remove control’s name is composed, not repeated: aria-labelledby joins a hidden word to the tag’s own label, so it announces “Remove Design” rather than “Remove”. Text referenced by aria-labelledby counts even when the element holding it is hidden.',
-  'Backspace and Delete on any control inside a removable tag ask for the same removal the X does, and the request says which of the two it was. MUI, Primer, React Aria and Angular Material all ship the shortcut; Primer announces it in a visually hidden sentence beside the value.',
-  'The focus ring is drawn on the control, never on the chip: a chip can hold two controls, and a ring around the whole box could not say which one has focus. It is inset, because a ring outside the body would cover the remove control beside it and a ring outside the remove would touch the next tag in a wrapped run.',
+  'Backspace and Delete on any control inside a removable tag ask for the same removal the X does, and the request says which of the two it was.',
+  'The focus ring is drawn on the control, never on the chip: a chip can hold two controls, and a ring around the whole box could not say which one has focus. The ring is inset, so it does not cover the remove control beside the body or touch the next tag in a wrapped run.',
   'The remove control is as tall as the chip and as wide as its glyph plus a step of air on each side, floored at the WCAG 2.2 2.5.8 minimum of 24 CSS pixels, which carries it past that minimum in both axes at every size and every density. The chip’s own height is floored at that minimum for the same reason.',
   'A tag is one line. A value too long for its container is clipped with an ellipsis rather than reflowed, and the clipping is visual only: text-overflow shortens nothing, so the whole value stays in the DOM, stays in the accessibility tree, and a page search still finds it.',
   'The label is a bidi isolate whose direction comes from its own first strong character, so an Arabic value inside an English page reads right to left and is clipped at its own end.',
-  'Under forced colors every tone ground becomes one system color, so the family draws its edge in currentColor there, and a selected chip takes the system’s own Highlight pair — its whole signal is a ground the system has replaced.',
+  'Under forced colors every tone ground becomes one system color, so tag draws its edge in currentColor there, and a selected chip takes the system’s own Highlight pair — its whole signal is a ground the system has replaced.',
 ];
 
 export const REACT_TAG_DOCS = {
@@ -184,7 +184,7 @@ export const REACT_TAG_DOCS = {
         language: 'tsx',
         label: 'A run of values that are not controls',
         source:
-          '<TagGroup aria-label="Tecnologias" role="list">\n  <Tag>TypeScript</Tag>\n  <Tag>Angular</Tag>\n  <Tag>React</Tag>\n</TagGroup>;',
+          '<TagGroup aria-label="Technologies" role="list">\n  <Tag>TypeScript</Tag>\n  <Tag>Angular</Tag>\n  <Tag>React</Tag>\n</TagGroup>;',
       }),
       defineSnippet({
         id: 'tag-react-defaults',
@@ -225,7 +225,7 @@ export const REACT_TAG_DOCS = {
         language: 'tsx',
         label: 'The remaining values, behind one more chip',
         source:
-          '<TagGroup aria-label="Participantes">\n  {people.slice(0, 5).map((person) => (\n    <Tag key={person.id}>{person.name}</Tag>\n  ))}\n  {people.length > 5 ? (\n    <TagButton onClick={showAll} variant="outline">\n      +{people.length - 5}\n    </TagButton>\n  ) : null}\n</TagGroup>;',
+          '<TagGroup aria-label="Participants">\n  {people.slice(0, 5).map((person) => (\n    <Tag key={person.id}>{person.name}</Tag>\n  ))}\n  {people.length > 5 ? (\n    <TagButton onClick={showAll} variant="outline">\n      +{people.length - 5}\n    </TagButton>\n  ) : null}\n</TagGroup>;',
       }),
     ],
   },
@@ -253,14 +253,14 @@ export const REACT_TAG_DOCS = {
         id: 'tag-link-react-destination',
         language: 'tsx',
         label: 'A chip that navigates',
-        source: '<TagLink href="/equipes/plataforma">#plataforma</TagLink>;',
+        source: '<TagLink href="/teams/platform">#platform</TagLink>;',
       }),
       defineSnippet({
         id: 'tag-link-react-router',
         language: 'tsx',
         label: 'A destination the router owns',
         source:
-          '<TagLink render={(props) => <Link {...props} to="/equipes/plataforma" />}>#plataforma</TagLink>;',
+          '<TagLink render={(props) => <Link {...props} to="/teams/platform" />}>#platform</TagLink>;',
       }),
     ],
   },
@@ -294,8 +294,8 @@ export const REACT_TAG_DOCS = {
     ]),
     accessibility: [
       ...ACCESSIBILITY_SHARED,
-      'A selected tag announces aria-pressed, not aria-selected. aria-selected is only valid inside a listbox, a grid or a tree, and an option may not contain the remove control this family puts beside the label. Carbon’s SelectableTag reaches the same conclusion; Angular Material reaches the other one and gives up the remove button.',
-      'The label never changes with the state, which is the APG’s rule for a toggle: “Aberto” stays “Aberto” and the state is announced beside it.',
+      'A selected tag announces aria-pressed, not aria-selected. aria-selected is only valid inside a listbox, a grid or a tree, and an option may not contain the remove control that tag puts beside the label.',
+      'The label never changes with the state, which is the APG’s rule for a toggle: “Open” stays “Open” and the state is announced beside it.',
       'Selection is not color alone. The chip fills, and a check grows into the label beside the words — WCAG 2.2 1.4.1.',
     ],
     snippets: [
@@ -303,14 +303,14 @@ export const REACT_TAG_DOCS = {
         id: 'tag-toggle-react-uncontrolled',
         language: 'tsx',
         label: 'A filter that remembers its own state',
-        source: '<TagToggle defaultSelected>Somente abertos</TagToggle>;',
+        source: '<TagToggle defaultSelected>Open only</TagToggle>;',
       }),
       defineSnippet({
         id: 'tag-toggle-react-set',
         language: 'tsx',
         label: 'A set of filters the application owns',
         source:
-          '<TagGroup aria-label="Filtros">\n  {facets.map((facet) => (\n    <TagToggle\n      key={facet}\n      onSelectedChange={(next) => setChosen(toggle(chosen, facet, next))}\n      selected={chosen.has(facet)}\n      tone="accent"\n    >\n      {facet}\n    </TagToggle>\n  ))}\n</TagGroup>;',
+          '<TagGroup aria-label="Filters">\n  {facets.map((facet) => (\n    <TagToggle\n      key={facet}\n      onSelectedChange={(next) => setChosen(toggle(chosen, facet, next))}\n      selected={chosen.has(facet)}\n      tone="accent"\n    >\n      {facet}\n    </TagToggle>\n  ))}\n</TagGroup>;',
       }),
     ],
   },

@@ -3,7 +3,7 @@ import type { PartialMessages, TagMessages } from '@slotted/core/i18n';
 import type { ChangeReason } from '@slotted/core/state';
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref, SyntheticEvent } from 'react';
 
-/** Which of the five semantic colors the tag speaks in. */
+/** Which of the six semantic colors the tag speaks in. */
 export type TagTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
 
 /** How that color is painted. `soft` is the tinted chip a tag usually is. */
