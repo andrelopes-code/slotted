@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   contentChild,
+  ElementRef,
   forwardRef,
   HostAttributeToken,
   inject,
@@ -59,6 +60,9 @@ const AUTO_TONES: readonly AvatarResolvedTone[] = [
 
 /** At the smallest step there is room for one letter, which is Fluent's rule at 16 pixels. */
 const INITIALS_MAX: Record<AvatarSize, number> = { xs: 1, sm: 2, md: 2, lg: 2, xl: 2 };
+
+/** The hosts whose own role an avatar keeps. */
+const INTERACTIVE_HOSTS = new Set(['A', 'BUTTON']);
 
 /**
  * A picture of a person or an entity, and what stands in when there is none:
@@ -226,7 +230,14 @@ export class SlAvatar {
     return this.decorative() || name === undefined || name.trim() === '';
   });
 
-  protected readonly role = computed(() => this.writtenRole ?? (this.silent() ? null : 'img'));
+  /** A link or a button is announced as one: `img` would take its role away. */
+  private readonly interactive = INTERACTIVE_HOSTS.has(
+    inject<ElementRef<HTMLElement>>(ElementRef).nativeElement.tagName,
+  );
+
+  protected readonly role = computed(
+    () => this.writtenRole ?? (this.silent() || this.interactive ? null : 'img'),
+  );
   protected readonly ariaLabel = computed(() => (this.silent() ? null : (this.name() ?? null)));
   protected readonly ariaHidden = computed(() => (this.silent() ? 'true' : null));
 

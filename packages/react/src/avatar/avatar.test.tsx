@@ -279,6 +279,18 @@ describe('the accessibility tree', () => {
 
     expect(avatar()).toHaveAttribute('role', 'presentation');
   });
+
+  it('leaves the role of the element the page renders as it is', () => {
+    render(
+      <>
+        <Avatar name="Ada Lovelace" render={(props) => <a {...props} href="#ada" />} />
+        <Avatar name="Grace Hopper" render={(props) => <button {...props} type="button" />} />
+      </>,
+    );
+
+    expect(screen.getByRole('link', { name: 'Ada Lovelace' })).not.toHaveAttribute('role');
+    expect(screen.getByRole('button', { name: 'Grace Hopper' })).not.toHaveAttribute('role');
+  });
 });
 
 describe('states and native wiring', () => {

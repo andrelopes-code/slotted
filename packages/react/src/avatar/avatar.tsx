@@ -173,10 +173,11 @@ export function Avatar({
      * rule `icon` already took: a name present decides `role="img"`, an absent
      * one decides `aria-hidden`. `decorative` is the third case — a name that
      * is written beside the avatar, where announcing it reads the person twice.
+     * An element the page renders, a link or a button, keeps its own role.
      */
     ...(decorative || name === undefined || name.trim() === ''
       ? { 'aria-hidden': true }
-      : { 'aria-label': name, role: 'img' }),
+      : { 'aria-label': name, ...(render === undefined ? { role: 'img' } : {}) }),
     /* An explicit role the consumer wrote is never replaced by an inferred one. */
     ...(role === undefined ? {} : { role }),
   });

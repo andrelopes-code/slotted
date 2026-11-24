@@ -169,3 +169,7 @@ test('names one reference page, covering the fallback order and the identity col
     'accessibility',
   ]);
 });
+
+test('is an image when named, and leaves an element the page renders its own role', () => {
+  assert.deepEqual(contract.role, { named: 'img', ownElement: null, silent: null });
+});

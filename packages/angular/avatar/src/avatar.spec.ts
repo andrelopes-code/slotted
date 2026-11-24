@@ -42,6 +42,7 @@ import { SlAvatarImage } from './avatar-image';
     <span slAvatar id="seeded" name="Ada Lovelace" idFor="user-8842"></span>
     <span slAvatar id="seeded-too" name="Someone Else" idFor="user-8842"></span>
     <a slAvatar id="linked" name="Ada Lovelace" href="#profile"></a>
+    <button slAvatar id="pressed" type="button" name="Grace Hopper"></button>
   `,
 })
 class Host {
@@ -249,6 +250,14 @@ describe('the accessibility tree', () => {
     const { query } = mount();
 
     expect(query('#written-role').getAttribute('role')).toBe('presentation');
+  });
+
+  it('leaves the role of a link and of a button as it is', () => {
+    const { query } = mount();
+
+    expect(query('#linked').getAttribute('role')).toBeNull();
+    expect(query('#linked').getAttribute('aria-label')).toBe('Ada Lovelace');
+    expect(query('#pressed').getAttribute('role')).toBeNull();
   });
 });
 
