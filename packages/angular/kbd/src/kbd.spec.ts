@@ -90,6 +90,21 @@ describe('SlKbd', () => {
     expect(key.querySelector('[data-part="name"]').textContent).toBe('Command');
   });
 
+  it('leaves the legend of a key with no spoken name to the reader', () => {
+    const fixture = renderTemplate(
+      `<kbd slKbd keyName="f5"></kbd><kbd slShortcut keys="mod+k" platform="windows"></kbd>`,
+    );
+    const hidden = [...fixture.nativeElement.querySelectorAll('[data-part="legend"]')].map(
+      (legend: Element) => [legend.textContent, legend.getAttribute('aria-hidden')],
+    );
+
+    expect(hidden).toEqual([
+      ['F5', null],
+      ['Ctrl', 'true'],
+      ['K', null],
+    ]);
+  });
+
   it('leaves a projected legend unhidden and unnamed', () => {
     const fixture = renderTemplate(`<kbd slKbd>Any key</kbd>`);
     const key = fixture.nativeElement.querySelector('kbd');
