@@ -3632,6 +3632,7 @@ export type ComponentToken =
   | '--slotted-dialog-radius'
   | '--slotted-dialog-rule-color'
   | '--slotted-dialog-scrim'
+  | '--slotted-dialog-scrim-backdrop-filter'
   | '--slotted-dialog-surface'
   | '--slotted-dialog-title-color'
   | '--slotted-dialog-title-font-family'
@@ -3664,6 +3665,7 @@ export type ComponentToken =
   | '--slotted-drawer-resizer-line-color'
   | '--slotted-drawer-rule-color'
   | '--slotted-drawer-scrim'
+  | '--slotted-drawer-scrim-backdrop-filter'
   | '--slotted-drawer-sheet-dim'
   | '--slotted-drawer-sheet-floor'
   | '--slotted-drawer-sheet-height'
@@ -6007,6 +6009,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-dialog-radius",
   "--slotted-dialog-rule-color",
   "--slotted-dialog-scrim",
+  "--slotted-dialog-scrim-backdrop-filter",
   "--slotted-dialog-surface",
   "--slotted-dialog-title-color",
   "--slotted-dialog-title-font-family",
@@ -6039,6 +6042,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-drawer-resizer-line-color",
   "--slotted-drawer-rule-color",
   "--slotted-drawer-scrim",
+  "--slotted-drawer-scrim-backdrop-filter",
   "--slotted-drawer-sheet-dim",
   "--slotted-drawer-sheet-floor",
   "--slotted-drawer-sheet-height",

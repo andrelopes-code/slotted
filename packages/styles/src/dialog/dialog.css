@@ -255,6 +255,33 @@
     transition: opacity var(--slotted-duration-long) var(--slotted-easing-standard);
   }
 
+  /**
+   * A theme filters the page under a modal layer with
+   * `--slotted-dialog-scrim-backdrop-filter`, `none` unless set. A filter makes
+   * the scrim a stacking context, which its place in the document would paint
+   * over the panel, so it stands at the bottom of the layer's own. It comes and
+   * goes with the scrim's opacity.
+   */
+  [data-ui-dialog][data-modal] > [data-part-backdrop] {
+    transition-property:
+      opacity,
+      -webkit-backdrop-filter,
+      backdrop-filter;
+    z-index: -1;
+  }
+
+  [data-ui-dialog][data-modal][data-open] > [data-part-backdrop] {
+    -webkit-backdrop-filter: var(--slotted-dialog-scrim-backdrop-filter, none);
+    backdrop-filter: var(--slotted-dialog-scrim-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-dialog][data-modal][data-open] > [data-part-backdrop] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
   /* ── The box the panel sits in ────────────────────────────────────────── */
 
   /**

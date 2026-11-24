@@ -615,6 +615,8 @@ const snippets = [
     source: `[data-ui='drawer'] {
   --slotted-drawer-extent-md: 26rem;
   --slotted-drawer-scrim: rgb(12 20 40 / 0.6);
+  /* The page under a modal layer. */
+  --slotted-drawer-scrim-backdrop-filter: blur(6px);
   --slotted-drawer-border-color: var(--slotted-border-subtle);
   --slotted-drawer-resizer-line-color: var(--slotted-tone-accent-border);
   --slotted-drawer-footer-surface: transparent;

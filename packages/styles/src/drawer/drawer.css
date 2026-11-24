@@ -334,6 +334,35 @@
     transition: opacity var(--slotted-duration-long) var(--slotted-easing-standard);
   }
 
+  /**
+   * A theme filters the page under a modal layer with
+   * `--slotted-drawer-scrim-backdrop-filter`, `none` unless set. A filter makes
+   * the scrim a stacking context, which its place in the document would paint
+   * over the panel, so it stands at the bottom of the layer's own. It comes and
+   * goes with the scrim's opacity.
+   */
+  [data-ui-drawer][data-mode='overlay'][data-modal] > [data-part-backdrop] {
+    transition-property:
+      opacity,
+      -webkit-backdrop-filter,
+      backdrop-filter;
+    z-index: -1;
+  }
+
+  [data-ui-drawer][data-mode='overlay'][data-modal][data-open]:not([data-undimmed])
+    > [data-part-backdrop] {
+    -webkit-backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+    backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-drawer][data-mode='overlay'][data-modal][data-open]:not([data-undimmed])
+      > [data-part-backdrop] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
   /* ── The panel ────────────────────────────────────────────────────────── */
 
   /**
@@ -1709,11 +1738,22 @@
   /**
    * The scrim dims with the sheet: out of sight it is clear, at the lowest stop
    * it is whole. The element keeps the fade it opens and closes with; the
-   * scroll drives a layer inside it, and the two multiply.
+   * scroll drives a layer inside it, and the two multiply. The scroll drives the
+   * filter of the element itself, from none to the token.
    */
   @supports (animation-timeline: scroll()) {
     [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag] > [data-part-backdrop] {
       background: none;
+    }
+
+    [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag][data-modal]:not(
+        [data-sheet-content],
+        [data-sheet-travel]
+      )
+      > [data-part-backdrop] {
+      animation: slotted-drawer-sheet-filter linear both;
+      animation-timeline: --slotted-drawer-sheet;
+      animation-range: 0px var(--slotted-drawer-sheet-floor, 100%);
     }
 
     [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag]
@@ -1740,6 +1780,13 @@
       > [data-part-backdrop]::before {
       animation: none;
       opacity: var(--slotted-drawer-sheet-dim, 1);
+    }
+  }
+
+  @keyframes slotted-drawer-sheet-filter {
+    from {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
     }
   }
 

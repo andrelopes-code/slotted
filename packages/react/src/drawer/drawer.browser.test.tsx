@@ -386,6 +386,35 @@ describe('a bottom sheet on the platform scroll', () => {
     expect(dim()).toBeLessThan(1);
   });
 
+  it('scales the filter of the scrim with the travel of a dragged sheet', async () => {
+    document.documentElement.style.setProperty(
+      '--slotted-drawer-scrim-backdrop-filter',
+      'blur(6px)',
+    );
+    const { header, layer, panel } = await open({ snapPoints: [0.4, 1], defaultExtent: 0.4 });
+    const backdrop = layer.querySelector('[data-part="backdrop"]') as HTMLElement;
+    const radius = () =>
+      Number(/blur\(([\d.]+)px\)/.exec(getComputedStyle(backdrop).backdropFilter)?.[1] ?? 0);
+    const travel = shown(layer, panel);
+    expect(radius()).toBe(6);
+
+    await touch('touchStart', header.x, header.y);
+    for (let step = 1; step <= 10; step += 1) {
+      await touch('touchMove', header.x, header.y + (travel / 2) * (step / 10));
+      await frame();
+    }
+    await frame();
+    expect(radius()).toBeGreaterThan(0);
+    expect(radius()).toBeLessThan(6);
+
+    layer.style.scrollSnapType = 'none';
+    layer.scrollTop = 0;
+    await frame();
+    await frame();
+    expect(radius()).toBe(0);
+    await touch('touchEnd', header.x, header.y + travel / 2);
+  });
+
   /* A transform takes no part in sticky positioning: with the scroll at 0 the footer stuck to the panel's top. */
   it('keeps the footer in its place in the panel along a close', async () => {
     document.documentElement.style.setProperty('--slotted-drawer-slide-exit-duration', '400ms');

@@ -682,6 +682,8 @@ const snippets = [
   /* The measure the five size steps do not hold. It wins over the step. */
   --slotted-dialog-measure: 46rem;
   --slotted-dialog-scrim: rgb(12 20 40 / 0.6);
+  /* The page under a modal layer. */
+  --slotted-dialog-scrim-backdrop-filter: blur(6px);
   --slotted-dialog-radius: var(--slotted-radius-lg);
   --slotted-dialog-border-color: var(--slotted-border-subtle);
   --slotted-dialog-footer-surface: transparent;
