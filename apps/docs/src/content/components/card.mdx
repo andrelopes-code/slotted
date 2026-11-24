@@ -1,0 +1,68 @@
+---
+title: Card
+description: Groups the content of one subject on a bounded surface, with regions for media, a header, a body and a footer.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Fill
+
+`fill` sets how the surface is bounded: `outline`, the default, is a hairline edge; `elevated` adds a lift to the edge; `subtle` is a filled ground. A set of cards sits in a `Grid` or a `Stack`, as here.
+
+<Example name="fills" wide />
+
+## Sizes
+
+`size` sets the inset of the card itself: `sm`, `md` or `lg`. Density is the choice of the application, and this inset is the choice of the card. The same content under each size shows the step between them.
+
+<Example name="sizes" wide />
+
+## Regions
+
+`CardHeader` holds a title and the line that supports it, both written with `Heading` and `Text`. `CardActions` is the corner of the header: beside a title alone it is centered on the title, and beside a title and its line it is centered on both. `CardBody` holds the content. `CardFooter` holds actions and metadata.
+
+<Example name="regions" />
+
+## Rules between regions
+
+A rule between two regions is a `Divider` written between them. Mark it `decorative` so that it is not announced as a separator, which is what a rule inside one card usually is. `inset` indents the rule from both edges.
+
+<Example name="dividers" />
+
+## Media
+
+`CardMedia` runs to the edge of the card and rounds the corners it touches. An `img`, `video`, `canvas`, `picture` or `svg` inside it fills the part and is cropped to cover it. Media clips itself, so an overlay opened inside the card is not cut off. The picture here is an inline SVG, so the example makes no network request.
+
+<Example name="media" />
+
+## Horizontal
+
+`orientation="horizontal"` places the media beside the regions. The card measures its own inline size, and at 24rem or less the media returns to the top, so the card stacks in a narrow column or on a phone with no breakpoint.
+
+<Example name="horizontal" wide />
+
+## Body that bleeds
+
+`bleed` on `CardBody` removes the padding of the body and clips it to the corners of the card it touches. The children run from one edge to the other, which suits a list whose rules and row grounds reach the edge.
+
+<Example name="bleed" />
+
+## A card that links
+
+`CardLink` is the one destination of the card. Its hit area covers the whole surface, so a press anywhere on the card follows the link, while the accessible name stays the title and Enter, the context menu and middle-click remain the browser's. A card carries at most one. `CardActions` and `CardFooter` sit above the hit area, so the link in the footer stays operable. The card answers hover and press unless it is `disabled`. Text over the hit area cannot be selected with the pointer.
+
+<Example name="link" />
+
+## A card that chooses
+
+A choice card is a `label` around a native radio or checkbox placed in `CardSelection`. In React, `render` makes the root a `label`; in Angular, `slCard` is written on a `label`. The whole surface becomes the target, and the text of the label names the control. Write that text with `Text`: a heading has no place in a label. The set of cards is a named `radiogroup`, so the question is announced with the options. Options that need no card are the tiles of a `RadioGroup`. `selected` paints the accent ground and edge. `disabled` dims the card and removes its hover; the `disabled` of the input is what refuses the interaction. Both are painted only: the input announces the state to assistive technology. Choose Express, then try the last card.
+
+<Example name="choice" />
+
+## Defaults
+
+`CardDefaultsProvider` in React and `provideCardDefaults` in Angular set `fill`, `orientation` and `size` once for every card under them. A card that states a value of its own keeps it.
+
+<Example name="defaults" wide />
