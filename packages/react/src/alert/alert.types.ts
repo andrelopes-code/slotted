@@ -2,7 +2,7 @@ import type { AlertMessages, PartialMessages } from '@slotted/core/i18n';
 import type { ChangeReason, ChangeRequest } from '@slotted/core/state';
 import type { ComponentPropsWithRef, ReactNode } from 'react';
 
-/** Which of the five semantic colors the message speaks in. */
+/** The semantic color of the message. */
 export type AlertTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
 
 /** How that color is painted. `soft` is the tinted box an alert usually is. */

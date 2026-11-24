@@ -1,0 +1,74 @@
+---
+title: Alert
+description: Frames a message about a page, a section or the thing beside it, with a tone, a title, actions, and a control that puts it away.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Tones
+
+`tone` sets the color and the mark of the message: `accent` and `info` draw the information mark, `success`, `warning` and `danger` draw their own, and `secondary` draws none. The mark carries the tone without color, so a message reads the same in grayscale and under forced colors. Use `danger` for a failure, `warning` for something that needs attention, `success` for a finished action and `secondary` for a neutral note.
+
+<Example name="tones" />
+
+## Variants
+
+`variant` sets how the tone is painted. `soft`, the default, fills the box with the tone's surface and draws its border. `outline` draws the border alone and takes the surface underneath. `solid` fills the box with the tone's strong color and sets the text and the mark in the ink the theme measures against it.
+
+<Example name="variants" />
+
+## Reach
+
+`reach` sets how far the message applies. `inline` is the tightest and sits beside the thing it is about, such as a field group. `section`, the default, sits inside a page section. `page` runs to both edges of the container that holds it and loses its corners, which suits a banner across an application. Put the message where it applies, and keep `page` for what concerns every screen.
+
+<Example name="reach" wide />
+
+## Actions
+
+`AlertActions` in React and `slAlertActions` in Angular hold the controls that act on the message, outside the part that announces it. Each button inside takes the alert's tone and the `sm` size; a button that sets its own `tone` or `size` keeps it. Give the first action the default variant and the others `ghost`. `actionsPlacement` sets where the actions stand: `below` puts them on a row under the text, and `end` puts them at the end of the text's line once the alert is 40rem wide, and under the text below that width. A `page` alert defaults to `end`, and every other reach to `below`.
+
+<Example name="actions" wide />
+
+## Dismissible
+
+`dismissible` renders the control that closes the message. It is off by default: leave it off for a message that must stay until the condition is resolved. The control is a native button named by the `dismiss` message, which `messages` replaces key by key. Closing hides the alert and keeps it in the document. Escape does not close it. When the alert closes with focus inside it, focus returns to the element it came from, which `restoreFocus` set to `false` turns off. Tab to the dismiss control and press Enter: focus goes back to Export report.
+
+<Example name="dismissible" />
+
+## Controlled
+
+Pass `open` to own the state. A press on the dismiss control calls `onOpenChange` in React and emits `openChange` in Angular, and the alert closes only when the new value is passed back. In Angular the event carries a `ChangeRequest`: read the new value from `$event.value`. `defaultOpen` sets the starting state of an alert that owns its own. In Angular a template can also call `setOpen` on the instance that `exportAs="slAlert"` gives it.
+
+<Example name="controlled" />
+
+## Refusing a dismissal
+
+The change request carries `reason`, which is `dismiss` for the control and `programmatic` for `setOpen`, and `cancel()`, which refuses the change. A refused alert stays open and focus stays on the control. Here the alert closes only after the switch confirms the review. The request is `request.cancel()` in React and `$event.cancel()` in Angular.
+
+<Example name="refusal" />
+
+## Live announcements
+
+`live` sets whether the text announces itself. `off`, the default, writes no role. `polite` writes `role="status"` and `assertive` writes `role="alert"` on the content part, never on the box, so the controls beside the text are not read. Screen readers do not announce alerts that are present when the page loads, so use `polite` or `assertive` for a message that arrives afterwards. Use `assertive` only for a failure the reader must hear at once. Press each button to render the alert that follows.
+
+<Example name="live" />
+
+## Content
+
+The description breaks a string with no break opportunity, such as an image digest, instead of overflowing. `hideIcon` removes the mark. A message may hold a title alone or a description alone. The title names the box through `aria-labelledby`, so an alert with a title is a region landmark, and an alert with no title is a plain grouping element.
+
+<Example name="content" />
+
+## Icon and title element
+
+`icon` in React and the `slAlertIcon` element in Angular replace the tone's mark and keep its box and its place on the first line of the message. The title is a `div` by default. To put the message in the document outline, render the title as a heading: `render` on `AlertTitle` in React, and `slAlertTitle` on an `h3` in Angular. Use a heading for a page banner and leave it a `div` beside a field group.
+
+<Example name="markup" />
+
+## Defaults
+
+`AlertDefaultsProvider` in React and `provideAlertDefaults` in Angular set `tone`, `variant`, `reach` and `live` once for every alert under them. An alert that sets a value of its own keeps it. The last alert here sets `danger`, and the others take `warning`, `outline` and `inline` from the provider.
+
+<Example name="defaults" />
