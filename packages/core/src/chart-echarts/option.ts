@@ -69,6 +69,12 @@ export const CANVAS_THRESHOLD = 4000;
 /** The id suffix of the invisible line a range's band is stacked on. */
 const RANGE_LOWER = '__lower';
 
+/** The space between a line's last point and the words after it, in pixels. */
+const END_LABEL_DISTANCE = 10;
+
+/** The least distance between the centers of two of those words, in pixels. */
+const END_LABEL_LINE = 16;
+
 /** How much a mark that is not selected recedes while another one is. */
 const RECEDED = 0.32;
 
@@ -85,7 +91,7 @@ export function requiredChunks(view: ChartEngineView): string[] {
   if (model.shape === 'cartesian') chunks.add('cartesian');
   for (const series of model.series) {
     chunks.add(series.kind === 'area' || series.kind === 'range' ? 'line' : series.kind);
-    if (series.labels) chunks.add('labels');
+    if (series.labels || series.endLabel) chunks.add('labels');
   }
   if (model.annotations.length > 0 || view.range) chunks.add('annotations');
   if (view.zoomable && model.shape === 'cartesian') chunks.add('zoom');
@@ -160,6 +166,11 @@ function dash(series: ChartModelSeries, width: number): number[] | 'solid' {
     default:
       return 'solid';
   }
+}
+
+/** The index of the last value that is there, or -1. */
+function lastValue(values: readonly (number | null)[]) {
+  return values.reduce<number>((found, value, index) => (value !== null ? index : found), -1);
 }
 
 function withAlpha(color: string, alpha: number) {
@@ -326,6 +337,7 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
      plot, shared between the categories. */
   const estimate = (text: string) => text.length * theme.labelSize * 0.6;
   const valueLabelRoom = model.axes.reduce((room, axis, index) => {
+    if (!axis.labels && axis.labelWidth === undefined) return room;
     const extremes = visible
       .filter((series) => series.axis === index)
       .flatMap((series) => [...series.plotted, ...series.top]);
@@ -339,23 +351,43 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
       );
     return room + longestValue + theme.inset;
   }, 0);
+  const endLabelRoom = Math.max(
+    0,
+    ...visible.map((series) => {
+      const text = series.endLabel?.text(lastValue(series.plotted)) ?? '';
+      return text === '' ? 0 : estimate(text) + END_LABEL_DISTANCE;
+    }),
+  );
   const band =
-    Math.max(0, width - theme.inset * 2 - valueLabelRoom) / Math.max(1, model.categories.length);
+    Math.max(0, width - theme.inset * 2 - valueLabelRoom - endLabelRoom) /
+    Math.max(1, model.categories.length);
   const longestCategory = Math.max(
     0,
     ...model.categories.map((category) => estimate(category.label)),
   );
 
+  const { secondary } = model.x;
+  const secondaryLine = Math.round(theme.labelSize * 1.4);
+  const secondaryStyle = {
+    color: theme.label,
+    fontSize: theme.labelSize,
+    fontFamily: theme.fontFamily,
+    lineHeight: secondaryLine,
+  };
+  /* Stated when there is none too: the engine merges an option over the last. */
+  const customValues = { customValues: model.x.ticks === null ? null : [...model.x.ticks] };
   const categoryAxis: Record<string, unknown> = {
     type: model.xType,
     name: model.x.label,
     nameLocation: 'middle',
-    nameGap: theme.labelSize + theme.inset * 2,
+    nameGap: theme.labelSize + theme.inset * 2 + (secondary ? secondaryLine : 0),
     nameTextStyle: { color: theme.label, fontSize: theme.labelSize, fontFamily: theme.fontFamily },
     boundaryGap: model.xType === 'category' ? hasBars : false,
     axisLine: { show: true, lineStyle: { color: theme.axis, width: 1 } },
-    axisTick: { show: false },
+    axisTick: { show: false, ...customValues },
     axisLabel: {
+      ...customValues,
+      show: model.x.labels,
       color: theme.label,
       fontSize: theme.labelSize,
       fontFamily: theme.fontFamily,
@@ -380,8 +412,12 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
             showMaxLabel: true,
           }
         : {}),
-      formatter: (value: number | string) =>
-        model.xType === 'category' ? String(value) : model.x.format(Number(value)),
+      ...(secondary ? { lineHeight: secondaryLine, rich: { secondary: secondaryStyle } } : {}),
+      formatter: (value: number | string) => {
+        if (model.xType === 'category') return String(value);
+        const label = model.x.format(Number(value));
+        return secondary ? `${label}\n{secondary|${secondary(Number(value))}}` : label;
+      },
     },
     splitLine: splitLine(
       horizontal
@@ -421,6 +457,7 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
     axisLine: { show: false },
     axisTick: { show: false },
     axisLabel: {
+      show: axis.labels,
       color: theme.label,
       fontSize: theme.labelSize,
       fontFamily: theme.fontFamily,
@@ -618,10 +655,8 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
         };
       }
 
-      const last = values.reduce<number>(
-        (found, value, index) => (value !== null ? index : found),
-        -1,
-      );
+      const last = lastValue(values);
+      const { endLabel } = series;
       const area = series.kind === 'area';
       return {
         ...common,
@@ -650,6 +685,23 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
           cap: 'round',
           join: 'round',
         },
+        ...(endLabel
+          ? {
+              endLabel: {
+                show: true,
+                color: endLabel.strong ? theme.text : color,
+                distance: END_LABEL_DISTANCE,
+                fontFamily: theme.fontFamily,
+                fontSize: theme.labelSize,
+                fontWeight: endLabel.strong ? 600 : 500,
+                lineHeight: END_LABEL_LINE,
+                formatter: (params: { dataIndex: number }) => endLabel.text(params.dataIndex),
+              },
+              /* A point's own labels hide where they collide; the ends move apart. */
+              labelLayout: (label: { dataIndex?: number | undefined }) =>
+                label.dataIndex === undefined ? { moveOverlap: 'shiftY' } : { hideOverlap: true },
+            }
+          : { endLabel: { show: false } }),
         areaStyle: area
           ? {
               color: {
@@ -692,7 +744,8 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
     Boolean(annotation.label);
   const rowHeight = Math.round(theme.labelSize * 1.4);
   const plotStart = theme.inset + theme.labelSize * 3;
-  const plotEnd = width - theme.inset - (model.xType !== 'category' ? theme.labelSize * 2 : 0);
+  const endRoom = Math.max(endLabelRoom, model.xType !== 'category' ? theme.labelSize * 2 : 0);
+  const plotEnd = width - theme.inset - endRoom;
   const uprightLines = model.annotations.filter(upright);
   const boxes =
     width > 0 && uprightLines.length > 0
@@ -746,7 +799,7 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
     const label = {
       show: Boolean(annotation.label),
       formatter: annotation.label ?? '',
-      color: theme.text,
+      color: annotation.tone ? color : theme.text,
       fontFamily: theme.fontFamily,
       fontSize: theme.labelSize,
       position: onValueAxis || annotation.kind === 'band' ? 'insideEndTop' : 'end',
@@ -819,9 +872,7 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
     /* A time or value axis may put its last label on the plot's edge, and
        the engine does not always count the half of it that hangs past. */
     right:
-      theme.inset +
-      (horizontal && labelled.length ? labelRoom : 0) +
-      (!horizontal && model.xType !== 'category' ? theme.labelSize * 2 : 0),
+      theme.inset + (horizontal && labelled.length ? labelRoom : 0) + (horizontal ? 0 : endRoom),
     top:
       top +
       (!horizontal && labelled.length ? theme.labelSize * 1.5 : 0) +

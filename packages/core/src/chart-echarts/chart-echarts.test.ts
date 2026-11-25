@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 
-import { createChartModel, type ChartSpec, type ChartTheme } from '../chart/index';
+import { createChartModel, skeletonAxes, type ChartSpec, type ChartTheme } from '../chart/index';
 import { loadEngine } from './loader';
 import { buildChartOption, chooseRenderer, requiredChunks } from './option';
 
@@ -454,5 +454,133 @@ describe('a range series', () => {
     const series = drawn(['likely']).option['series'] as { id: string }[];
 
     expect(series.map((entry) => entry.id)).toEqual(['forecast']);
+  });
+});
+
+const times: ChartSpec = {
+  x: {
+    field: 'at',
+    type: 'time',
+    ticks: ['2020-01-01', new Date(2030, 0, 1), 'never'],
+    secondary: (date) => `${date.getUTCFullYear() - 1986} yrs`,
+  },
+  data: [
+    { at: '2016-01-01', v: 1 },
+    { at: '2040-01-01', v: 2 },
+  ],
+  series: [{ kind: 'line', field: 'v' }],
+};
+
+const built = (value: ChartSpec, width = 600) =>
+  buildChartOption({ model: createChartModel(value), theme }, width).option as {
+    grid: { left: number; right: number };
+    series: Record<string, any>[];
+    xAxis: { axisLabel: Record<string, any>; axisTick: Record<string, any> }[];
+    yAxis: { axisLabel: Record<string, any> }[];
+  };
+
+describe('the labels of an axis', () => {
+  it('are drawn unless the axis says otherwise, and labelWidth keeps the room', () => {
+    const hidden = built({
+      ...spec,
+      x: { field: 'm', labels: false },
+      y: { labels: false, labelWidth: 60 },
+    });
+
+    expect(built(spec).xAxis[0]!.axisLabel['show']).toBe(true);
+    expect(hidden.xAxis[0]!.axisLabel['show']).toBe(false);
+    expect(hidden.yAxis[0]!.axisLabel['show']).toBe(false);
+    expect(hidden.grid.left).toBe(theme.inset * 2 + 60);
+  });
+
+  it('stand at the ticks a time axis is given, with the second line under each', () => {
+    const { axisLabel, axisTick } = built(times).xAxis[0]!;
+    const ticks = [Date.UTC(2020, 0, 1), Date.UTC(2030, 0, 1)];
+
+    expect(axisLabel['customValues']).toEqual(ticks);
+    expect(axisTick['customValues']).toEqual(ticks);
+    expect(axisLabel['formatter'](ticks[0])).toMatch(/\n\{secondary\|34 yrs\}$/);
+  });
+
+  it('take no ticks on a category axis, and clear the ones of the option before', () => {
+    const { axisLabel } = built({ ...spec, x: { field: 'm', ticks: ['Jan'] } }).xAxis[0]!;
+
+    expect(axisLabel['customValues']).toBeNull();
+  });
+});
+
+describe('the end label of a line', () => {
+  const line = (endLabel: ChartSpec['series'][number]['endLabel']): ChartSpec => ({
+    ...spec,
+    data: [...spec.data, { m: 'Apr', a: null, b: null }],
+    series: [{ kind: 'line', field: 'a', label: 'Plan', endLabel }],
+  });
+
+  it('writes the name and the value at a point, or the text a function returns', () => {
+    const text = (endLabel: ChartSpec['series'][number]['endLabel']) =>
+      built(line(endLabel)).series[0]!['endLabel']['formatter']({ dataIndex: 2 });
+
+    expect(text(true)).toBe('Plan 2');
+    expect(text(({ category, formatted, series }) => `${series} ${category} ${formatted}`)).toBe(
+      'Plan Mar 2',
+    );
+  });
+
+  it('takes the series color, or the text color when it is strong', () => {
+    const label = (endLabel: ChartSpec['series'][number]['endLabel']) =>
+      built(line(endLabel)).series[0]!['endLabel'];
+
+    expect(label(true)).toMatchObject({ color: '#2563eb', fontWeight: 500 });
+    expect(label({ strong: true })).toMatchObject({ color: theme.text, fontWeight: 600 });
+    expect(label(undefined)).toEqual({ show: false });
+  });
+
+  it('reserves the room of the widest label and loads its collision handling', () => {
+    const plain = built(line(undefined)).grid.right;
+    const view = { model: createChartModel(line(true)), theme };
+
+    expect(built(line(true)).grid.right - plain).toBeCloseTo('Plan 2'.length * 12 * 0.6 + 10);
+    expect(requiredChunks(view)).toContain('labels');
+  });
+
+  it('is drawn by lines and areas of an upright chart alone', () => {
+    const bars = createChartModel({
+      ...spec,
+      series: [{ kind: 'bar', field: 'b', endLabel: true }],
+    });
+    const lying = createChartModel({ ...line(true), orientation: 'horizontal' });
+
+    expect(bars.series[0]!.endLabel).toBeNull();
+    expect(lying.series[0]!.endLabel).toBeNull();
+  });
+});
+
+describe('skeletonAxes', () => {
+  it('draws the labels the loaded chart writes, and the room a width keeps', () => {
+    expect(skeletonAxes(spec)).toEqual({ column: 'labels', row: 'labels' });
+    expect(skeletonAxes({ x: { field: 'm', labels: false }, y: { labels: false } })).toEqual({
+      column: 'none',
+      row: 'none',
+    });
+    expect(skeletonAxes({ y: { labels: false, labelWidth: 60 } }).column).toBe('room');
+    expect(skeletonAxes({ orientation: 'horizontal', x: { field: 'm', labels: false } })).toEqual({
+      column: 'none',
+      row: 'labels',
+    });
+  });
+});
+
+describe('the label of an annotation', () => {
+  it('takes the tone of the annotation, and the text color without one', () => {
+    const series = built({
+      ...spec,
+      annotations: [
+        { kind: 'band', from: 1, to: 2, label: 'Loss', tone: 'danger' },
+        { kind: 'line', value: 3, label: 'Goal' },
+      ],
+    }).series[0]!;
+
+    expect(series['markArea'].data[0][0].label.color).toBe(theme.tones.danger);
+    expect(series['markLine'].data[0].label.color).toBe(theme.text);
   });
 });

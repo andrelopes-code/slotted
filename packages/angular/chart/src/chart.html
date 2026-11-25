@@ -442,9 +442,9 @@ resolvedToolbar() !== 'none') {
         data-loading
         aria-hidden="true"
       ></span>
-      } @else {
+      } @else { @if (skeletonAxes().column !== 'none') {
       <div data-skeleton="y">
-        @for (line of repeat(5); track line) {
+        @for (line of repeat(skeletonAxes().column === 'labels' ? 5 : 0); track line) {
         <span
           data-ui="skeleton"
           data-ui-skeleton=""
@@ -458,6 +458,7 @@ resolvedToolbar() !== 'none') {
         ></span>
         }
       </div>
+      }
       <div data-skeleton="marks">
         @for (mark of repeat(skeletonKind() === 'bar' ? 7 : 2); track mark) {
         <span
@@ -473,6 +474,7 @@ resolvedToolbar() !== 'none') {
         ></span>
         }
       </div>
+      @if (skeletonAxes().row === 'labels') {
       <div data-skeleton="x">
         @for (line of repeat(6); track line) {
         <span
@@ -488,7 +490,7 @@ resolvedToolbar() !== 'none') {
         ></span>
         }
       </div>
-      }
+      } }
     </div>
   </div>
   } @else if (failed()) {

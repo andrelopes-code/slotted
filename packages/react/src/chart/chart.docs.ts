@@ -488,6 +488,42 @@ const scenes: ReferenceSceneMeta[] = [
     }),
   },
   {
+    id: 'end-labels',
+    title: 'Lines that end with their name',
+    note: 'endLabel writes the name and the last value after a line’s last point, in its color, and the plot keeps the room of the widest. Labels that would touch move apart, and a hidden series takes its label with it. The strokes tell the lines apart without color.',
+    snippet: defineSnippet({
+      id: 'chart-react-end-labels',
+      language: 'tsx',
+      label: 'endLabel and stroke',
+      source:
+        "const series: ChartSeries[] = [\n  { kind: 'line', field: 'plan', label: 'Plan', endLabel: { strong: true } },\n  { kind: 'line', field: 'peers', label: 'Peers', endLabel: true, stroke: 'dashed' },\n  { kind: 'line', field: 'market', label: 'Market', endLabel: true, stroke: 'dotted' },\n];",
+    }),
+  },
+  {
+    id: 'time-ticks',
+    title: 'Ticks the application chooses',
+    note: 'x.ticks names the times that take a tick and a label, and x.secondary writes a second line under each, such as an age. The table and the summary leave the second line out.',
+    snippet: defineSnippet({
+      id: 'chart-react-time-ticks',
+      language: 'tsx',
+      label: 'x.ticks and x.secondary',
+      source:
+        "const x: ChartXAxis = {\n  field: 'at',\n  type: 'time',\n  format: { year: 'numeric' },\n  secondary: (date) => `${date.getUTCFullYear() - 1986} years`,\n  ticks: ['2020-01-01', '2030-01-01', '2040-01-01'],\n};",
+    }),
+  },
+  {
+    id: 'shared-categories',
+    title: 'Two charts on one category axis',
+    note: 'labelWidth starts both plots at one place, and x.labels writes the months once: the chart above leaves them to the strip under it.',
+    snippet: defineSnippet({
+      id: 'chart-react-shared-categories',
+      language: 'tsx',
+      label: 'x.labels and y.labelWidth',
+      source:
+        "<>\n  <Chart\n    data={monthly}\n    series={orders}\n    x={{ field: 'month', labels: false }}\n    y={{ labelWidth: 64 }}\n  />\n  <Chart data={monthly} series={revenue} x={{ field: 'month' }} y={{ labelWidth: 64 }} />\n</>;",
+    }),
+  },
+  {
     id: 'annotations',
     title: 'Targets, ranges and events',
     note: 'A band for the tolerance range, a line for the annual target and a vertical line on the month the campaign started — each labelled on the plot.',
@@ -872,14 +908,14 @@ export const REACT_CHART_DOCS = {
         'ChartXAxis',
         '—',
         'Chart',
-        'The category field, and its type (category, time, value), label, format and extent',
+        'The category field, and its type (category, time, value), label, format, extent, labels, ticks and secondary',
       ],
       [
         'y',
         'ChartYAxis | [ChartYAxis, ChartYAxis]',
         '—',
         'Chart',
-        'The value axis, or the start and end axes: label, format, scale, extent, labelWidth',
+        'The value axis, or the start and end axes: label, format, scale, extent, labelWidth, labels',
       ],
       [
         'min',
@@ -905,6 +941,27 @@ export const REACT_CHART_DOCS = {
         'The pixels the axis labels take beside an upright plot. Two charts stacked on the same categories with one width start their plots at one place; a longer label is cut with an ellipsis',
       ],
       [
+        'labels',
+        'boolean',
+        'true',
+        'x, y',
+        'Whether the axis writes its labels. false gives their room to the plot, for a chart stacked with one that writes the same categories; a stated labelWidth keeps it',
+      ],
+      [
+        'ticks',
+        'readonly (string | number | Date)[]',
+        '—',
+        'x',
+        'On a time axis, the times that take a tick and a label, in place of the engine’s. One outside the domain in view is not drawn',
+      ],
+      [
+        'secondary',
+        '(value: Date) => string',
+        '—',
+        'x',
+        'On a time axis, a second line under each label. The date holds the axis’ wall clock in UTC, so it is read with getUTC*. The table and the summary leave it out',
+      ],
+      [
         'orientation',
         "'vertical' | 'horizontal'",
         'vertical',
@@ -925,7 +982,20 @@ export const REACT_CHART_DOCS = {
         'series',
         'How a line or an area passes through its points',
       ],
-      ['stroke', "'solid' | 'dashed'", 'solid', 'series', 'A dashed line for a reference'],
+      [
+        'stroke',
+        "'solid' | 'dashed' | 'dotted'",
+        'solid',
+        'series',
+        'The dash of a line, repeated by the legend and the tooltip: lines told apart without color',
+      ],
+      [
+        'endLabel',
+        'boolean | (point) => string | { text, strong }',
+        'false',
+        'series',
+        'The name and the last value after the last point of a line or an area, in the series’ color. strong takes the text color and the semibold weight, for the line the others are read against. An upright chart with no end axis draws it',
+      ],
       [
         'markers',
         "'none' | 'last' | 'all'",
@@ -952,7 +1022,7 @@ export const REACT_CHART_DOCS = {
         'readonly ChartAnnotation[]',
         '—',
         'Chart',
-        'Lines and bands on either axis, labelled, in a tone. On the category axis a value names a category by its key or its x value; one that names none is not drawn',
+        'Lines and bands on either axis, labelled, in a tone the label shares. On the category axis a value names a category by its key or its x value; one that names none is not drawn',
       ],
       [
         'recordKey',

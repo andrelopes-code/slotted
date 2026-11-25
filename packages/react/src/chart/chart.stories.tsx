@@ -600,6 +600,87 @@ export const Range: Story = {
   ),
 };
 
+const REFERENCES = Array.from({ length: 10 }, (_, index) => ({
+  year: String(2017 + index),
+  plan: 100 + index * 9,
+  peers: 100 + index * 8.6,
+  market: 100 + index * 4,
+}));
+
+export const EndLabels: Story = {
+  parameters: scenario('end-labels'),
+  render: () => (
+    <Stage>
+      <Chart
+        data={REFERENCES}
+        description="A plan and two references over ten years"
+        legend={false}
+        series={[
+          { kind: 'line', field: 'plan', label: 'Plan', endLabel: { strong: true } },
+          { kind: 'line', field: 'peers', label: 'Peers', endLabel: true, stroke: 'dashed' },
+          { kind: 'line', field: 'market', label: 'Market', endLabel: true, stroke: 'dotted' },
+        ]}
+        size="lg"
+        title="Plan and references"
+        x={{ field: 'year' }}
+        y={{ format: { minimumFractionDigits: 1 } }}
+      />
+    </Stage>
+  ),
+};
+
+const DECADES = Array.from({ length: 70 }, (_, index) => ({
+  at: `${2016 + index}-01-01`,
+  value: Math.round(100 + index * 12 - (index * index) / 9),
+}));
+
+export const TimeTicks: Story = {
+  parameters: scenario('time-ticks'),
+  render: () => (
+    <Stage>
+      <Chart
+        data={DECADES}
+        description="The value over seventy years, with the age at each decade"
+        series={[{ kind: 'line', field: 'value', label: 'Value' }]}
+        title="Value"
+        x={{
+          field: 'at',
+          type: 'time',
+          format: { year: 'numeric' },
+          secondary: (date) => `${date.getUTCFullYear() - 1986} years`,
+          ticks: [2020, 2030, 2040, 2050, 2060, 2070, 2080].map((year) => `${year}-01-01`),
+        }}
+      />
+    </Stage>
+  ),
+};
+
+export const SharedCategories: Story = {
+  parameters: scenario('shared-categories'),
+  render: () => (
+    <Stage>
+      <Chart
+        data={MONTHLY}
+        description="Monthly orders"
+        series={[{ kind: 'line', field: 'orders', label: 'Orders' }]}
+        size="sm"
+        title="Orders"
+        x={{ field: 'month', labels: false }}
+        y={{ labelWidth: 64 }}
+      />
+      <Chart
+        data={MONTHLY}
+        description="Monthly revenue"
+        series={[{ kind: 'line', field: 'revenue', label: 'Revenue' }]}
+        size="sm"
+        title="Revenue"
+        x={{ field: 'month' }}
+        y={{ format: brlThousands, labelWidth: 64 }}
+      />
+    </Stage>
+  ),
+};
+
 export const Annotations: Story = {
   parameters: scenario('annotations'),
   render: () => (

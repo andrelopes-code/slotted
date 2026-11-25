@@ -9,6 +9,7 @@ export {
   createChartModel,
   pointText,
   seriesOf,
+  skeletonAxes,
   visibleSeries,
 } from './model';
 export type {
@@ -18,8 +19,10 @@ export type {
   ChartModel,
   ChartModelAnnotation,
   ChartModelAxis,
+  ChartModelEndLabel,
   ChartModelOptions,
   ChartModelSeries,
+  ChartSkeletonAxes,
 } from './model';
 export {
   categoryFraction,
@@ -65,6 +68,9 @@ export type {
   ChartAnnotation,
   ChartColor,
   ChartCurve,
+  ChartEndLabel,
+  ChartEndLabelPoint,
+  ChartEndLabelText,
   ChartField,
   ChartGrid,
   ChartKind,

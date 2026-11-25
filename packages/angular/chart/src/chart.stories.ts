@@ -196,7 +196,6 @@ const DATA = {
   brl: { format: brlThousands },
   revenue: [{ kind: 'area', field: 'revenue', label: 'Revenue' }],
   revenueBars: [{ kind: 'bar', field: 'revenue', label: 'Revenue' }],
-  revenueLine: [{ kind: 'line', field: 'revenue', label: 'Revenue' }],
   orders: [{ kind: 'bar', field: 'orders', label: 'Orders', slot: 3 }],
   revenueAndTarget: [
     { kind: 'area', field: 'revenue', label: 'Revenue' },
@@ -320,6 +319,35 @@ const DATA = {
     low: Math.round(Number(row['revenue']) * 0.9),
     high: Math.round(Number(row['revenue']) * 1.12),
   })),
+  references: Array.from({ length: 10 }, (_, index) => ({
+    year: String(2017 + index),
+    plan: 100 + index * 9,
+    peers: 100 + index * 8.6,
+    market: 100 + index * 4,
+  })),
+  endLabelled: [
+    { kind: 'line', field: 'plan', label: 'Plan', endLabel: { strong: true } },
+    { kind: 'line', field: 'peers', label: 'Peers', endLabel: true, stroke: 'dashed' },
+    { kind: 'line', field: 'market', label: 'Market', endLabel: true, stroke: 'dotted' },
+  ],
+  year: { field: 'year' },
+  oneDecimal: { format: { minimumFractionDigits: 1 } },
+  decades: Array.from({ length: 70 }, (_, index) => ({
+    at: `${2016 + index}-01-01`,
+    value: Math.round(100 + index * 12 - (index * index) / 9),
+  })),
+  valueLine: [{ kind: 'line', field: 'value', label: 'Value' }],
+  decadeTicks: {
+    field: 'at',
+    type: 'time',
+    format: { year: 'numeric' },
+    secondary: (date: Date) => `${date.getUTCFullYear() - 1986} years`,
+    ticks: [2020, 2030, 2040, 2050, 2060, 2070, 2080].map((year) => `${year}-01-01`),
+  },
+  ordersLine: [{ kind: 'line', field: 'orders', label: 'Orders' }],
+  revenueLine: [{ kind: 'line', field: 'revenue', label: 'Revenue' }],
+  monthUnlabelled: { field: 'month', labels: false },
+  wide: { labelWidth: 64 },
   forecastSeries: [
     { id: 'forecast', kind: 'line', field: 'forecast', label: 'Forecast', stroke: 'dashed' },
     {
@@ -606,6 +634,27 @@ export const Range = story(
   'range',
   `<figure slChart title="Revenue forecast" description="Revenue forecast with the likely range of each month"
     [data]="forecast" [series]="forecastSeries" [x]="month" [y]="brl"></figure>`,
+);
+
+export const EndLabels = story(
+  'end-labels',
+  `<figure slChart title="Plan and references" description="A plan and two references over ten years"
+    size="lg" [legend]="false" [data]="references" [series]="endLabelled" [x]="year"
+    [y]="oneDecimal"></figure>`,
+);
+
+export const TimeTicks = story(
+  'time-ticks',
+  `<figure slChart title="Value" description="The value over seventy years, with the age at each decade"
+    [data]="decades" [series]="valueLine" [x]="decadeTicks"></figure>`,
+);
+
+export const SharedCategories = story(
+  'shared-categories',
+  `<figure slChart title="Orders" description="Monthly orders" size="sm"
+    [data]="monthly" [series]="ordersLine" [x]="monthUnlabelled" [y]="wide"></figure>
+   <figure slChart title="Revenue" description="Monthly revenue" size="sm"
+    [data]="monthly" [series]="revenueLine" [x]="month" [y]="wide"></figure>`,
 );
 
 export const Annotations = story(

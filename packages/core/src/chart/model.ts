@@ -4,12 +4,15 @@ import type {
   ChartAnnotation,
   ChartColor,
   ChartCurve,
+  ChartEndLabel,
   ChartKind,
   ChartOrientation,
+  ChartSeries,
   ChartSlot,
   ChartSpec,
   ChartStackMode,
   ChartTone,
+  ChartXAxis,
   ChartXType,
   ChartYAxis,
 } from './types';
@@ -45,8 +48,8 @@ export interface ChartModelSeries {
   readonly axis: 0 | 1;
   readonly curve: ChartCurve;
   /**
-   * The line's dash. A consumer asks for `solid` or `dashed`; a series past
-   * the eighth slot is given `dashed`, `dotted` or `dash-dot` in turn, because
+   * The line's dash. A consumer asks for any but `dash-dot`; a series past the
+   * eighth slot is given `dashed`, `dotted` or `dash-dot` in turn, because
    * it shares its color with every other series past the eighth and a line
    * has no fill to carry a texture.
    */
@@ -54,6 +57,7 @@ export interface ChartModelSeries {
   readonly connectNulls: boolean;
   readonly markers: 'none' | 'last' | 'all';
   readonly labels: boolean;
+  readonly endLabel: ChartModelEndLabel | null;
   readonly innerRadius: number;
   readonly visible: boolean;
   /** The consumer's values, one per category. */
@@ -69,9 +73,16 @@ export interface ChartModelSeries {
   readonly format: (value: number) => string;
 }
 
+/** The words after a line's last point: what they say at a category, and their weight. */
+export interface ChartModelEndLabel {
+  readonly text: (index: number) => string;
+  readonly strong: boolean;
+}
+
 export interface ChartModelAxis {
   readonly label: string | undefined;
   readonly labelWidth: number | undefined;
+  readonly labels: boolean;
   readonly scale: 'linear' | 'log';
   readonly extent: 'zero' | 'data';
   readonly min: number | undefined;
@@ -103,6 +114,10 @@ export interface ChartModel {
     readonly field: string;
     readonly label: string | undefined;
     readonly format: (value: number | string) => string;
+    readonly labels: boolean;
+    /** Where a time axis is told to put its ticks; null lets the engine choose. */
+    readonly ticks: readonly number[] | null;
+    readonly secondary: ((value: number) => string) | null;
   };
   readonly categories: readonly ChartCategory[];
   readonly series: readonly ChartModelSeries[];
@@ -258,6 +273,7 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
   const axisBase = axesSpec.slice(0, 2).map((axis) => ({
     label: axis.label,
     labelWidth: axis.labelWidth,
+    labels: axis.labels ?? true,
     scale: axis.scale ?? 'linear',
     min: percent ? 0 : axis.min,
     max: percent ? 100 : axis.max,
@@ -382,7 +398,10 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
     }
   }
 
-  const series: ChartModelSeries[] = stacked;
+  const series: ChartModelSeries[] = stacked.map((entry, position) => ({
+    ...entry,
+    endLabel: endLabelOf(spec.series[position]!, entry, categories, orientation),
+  }));
   const axes: ChartModelAxis[] = axisBase.map((axis, index) => ({
     ...axis,
     extent:
@@ -441,7 +460,14 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
     orientation,
     stackMode,
     locale,
-    x: { field: xField, label: spec.x?.label, format: formatX },
+    x: {
+      field: xField,
+      label: spec.x?.label,
+      format: formatX,
+      labels: spec.x?.labels ?? true,
+      ticks: timeTicks(spec.x, xType),
+      secondary: timeSecondary(spec.x, xType),
+    },
     categories,
     series,
     axes,
@@ -457,7 +483,42 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
   };
 }
 
-/** The series a point belongs to, or `undefined` for a key the chart does not hold. */
+function timeTicks(x: ChartXAxis | undefined, type: ChartXType): readonly number[] | null {
+  if (type !== 'time' || x?.ticks === undefined) return null;
+  return x.ticks.map(chartTime).filter((tick): tick is number => tick !== null);
+}
+
+function timeSecondary(x: ChartXAxis | undefined, type: ChartXType) {
+  const secondary = x?.secondary;
+  return type === 'time' && secondary ? (value: number) => secondary(new Date(value)) : null;
+}
+
+/** A line or an area of an upright chart writes its end; nothing else has one. */
+function endLabelOf(
+  spec: ChartSeries,
+  series: Omit<ChartModelSeries, 'endLabel'>,
+  categories: readonly ChartCategory[],
+  orientation: ChartOrientation,
+): ChartModelEndLabel | null {
+  const asked = spec.endLabel;
+  const drawn = (series.kind === 'line' || series.kind === 'area') && orientation === 'vertical';
+  if (!asked || !drawn) return null;
+  const { strong = false, text }: ChartEndLabel =
+    typeof asked === 'function' ? { text: asked } : asked === true ? {} : asked;
+
+  return {
+    strong,
+    text: (index) => {
+      const value = series.values[index] ?? null;
+      const category = categories[index];
+      if (value === null || category === undefined) return '';
+      const formatted = series.format(value);
+      const point = { series: series.label, category: category.label, value, formatted };
+      return text ? text(point) : `${series.label} ${formatted}`;
+    },
+  };
+}
+
 /**
  * A point's value as the reader sees it: the value formatted, or for a range
  * both bounds. The dash is the en dash, which every language writes a range with.
@@ -477,6 +538,25 @@ export function seriesOf(model: ChartModel, id: string) {
 
 export function categoryIndex(model: ChartModel, key: string) {
   return model.categories.findIndex((category) => category.key === key);
+}
+
+/** What the skeleton draws beside its marks: the labels, their room alone, or neither. */
+export interface ChartSkeletonAxes {
+  readonly column: 'labels' | 'room' | 'none';
+  readonly row: 'labels' | 'none';
+}
+
+/** The labels the loaded chart will write, by where they stand, so nothing moves when it lands. */
+export function skeletonAxes(spec: Pick<ChartSpec, 'orientation' | 'x' | 'y'>): ChartSkeletonAxes {
+  const axis = axisList(spec.y)[0];
+  const category = spec.x?.labels ?? true;
+  const value = axis?.labels ?? true;
+  if (spec.orientation === 'horizontal') {
+    return { column: category ? 'labels' : 'none', row: value ? 'labels' : 'none' };
+  }
+  const room = axis?.labelWidth === undefined ? 'none' : 'room';
+
+  return { column: value ? 'labels' : room, row: category ? 'labels' : 'none' };
 }
 
 /** The series a reader can move between: visible, and on a pie the single one. */

@@ -32,6 +32,7 @@ import {
   readChartTheme,
   sameTheme,
   seriesOf,
+  skeletonAxes,
   toggleHidden,
   TOOLTIP_DOCK_WIDTH,
   tooltipContext,
@@ -42,6 +43,7 @@ import type {
   ChartColor,
   ChartLegendEntry,
   ChartModel,
+  ChartSkeletonAxes,
   ChartPoint,
   ChartRange,
   ChartRecord,
@@ -1528,7 +1530,7 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
               </table>
             </div>
           ) : null}
-          {waiting ? <Skeleton kind={skeletonKind} /> : null}
+          {waiting ? <Skeleton axes={skeletonAxes(spec)} kind={skeletonKind} /> : null}
           {!waiting && failed ? (
             <div data-part="error" data-part-error="">
               {renderError?.() ?? (
@@ -1691,7 +1693,7 @@ function SkeletonLine() {
  * The chart it stands in for, in the plot's box: the axes' labels, the grid
  * and the marks of its kind, under one shimmer (the `loading-states` skill).
  */
-function Skeleton({ kind }: { kind: 'bar' | 'line' | 'pie' }) {
+function Skeleton({ axes, kind }: { axes: ChartSkeletonAxes; kind: 'bar' | 'line' | 'pie' }) {
   const repeat = (count: number) =>
     Array.from({ length: count }, (_, index) => <SkeletonBlock key={index} />);
   return (
@@ -1708,9 +1710,11 @@ function Skeleton({ kind }: { kind: 'bar' | 'line' | 'pie' }) {
           <SkeletonBlock shape="circle" />
         ) : (
           <>
-            <div data-skeleton="y">{repeat(5)}</div>
+            {axes.column === 'none' ? null : (
+              <div data-skeleton="y">{axes.column === 'labels' ? repeat(5) : null}</div>
+            )}
             <div data-skeleton="marks">{repeat(kind === 'bar' ? 7 : 2)}</div>
-            <div data-skeleton="x">{repeat(6)}</div>
+            {axes.row === 'none' ? null : <div data-skeleton="x">{repeat(6)}</div>}
           </>
         )}
       </div>

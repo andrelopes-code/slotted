@@ -24,6 +24,8 @@ export type {
 } from './chart.types';
 export type {
   ChartAnnotation,
+  ChartEndLabel,
+  ChartEndLabelPoint,
   ChartKind,
   ChartPoint,
   ChartRange,

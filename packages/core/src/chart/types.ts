@@ -55,6 +55,25 @@ export type ChartNumberFormat =
 export type ChartTimeFormat =
   Intl.DateTimeFormatOptions | ((value: number, locale: string | undefined) => string);
 
+/** The last point of a line, as its end label reads it. */
+export interface ChartEndLabelPoint {
+  /** What the legend calls the series. */
+  readonly series: string;
+  /** The category's text, as the axis writes it. */
+  readonly category: string;
+  readonly value: number;
+  /** The value, written with the series' format. */
+  readonly formatted: string;
+}
+
+export type ChartEndLabelText = (point: ChartEndLabelPoint) => string;
+
+export interface ChartEndLabel {
+  readonly text?: ChartEndLabelText | undefined;
+  /** The text color and the semibold weight, for the line the others are read against. */
+  readonly strong?: boolean | undefined;
+}
+
 /** `Field` is the set of field names a record has; a binding narrows it to the keys of its row type. */
 export interface ChartSeries<Field extends string = string> {
   /** Unique within the chart. Defaults to `field`. */
@@ -83,10 +102,18 @@ export interface ChartSeries<Field extends string = string> {
   /** The value axis the series is read against, named by its side. */
   readonly axis?: 'start' | 'end' | undefined;
   readonly curve?: ChartCurve | undefined;
-  readonly stroke?: 'solid' | 'dashed' | undefined;
+  readonly stroke?: 'solid' | 'dashed' | 'dotted' | undefined;
   readonly connectNulls?: boolean | undefined;
   readonly markers?: 'none' | 'last' | 'all' | undefined;
   readonly labels?: boolean | undefined;
+  /**
+   * The name and the last value of a line or an area, written after its last
+   * point in the series' color. A function writes the text; an object states
+   * `strong`, for the one line the others are read against, beside it. The
+   * plot keeps the inline room of the widest label, and labels that would
+   * touch move apart. An upright chart with no end axis draws it.
+   */
+  readonly endLabel?: boolean | ChartEndLabelText | ChartEndLabel | undefined;
   /** A scatter's bubble size. */
   readonly sizeField?: Field | undefined;
   /** A pie's hole, as a share of its radius from 0 to 0.9. Above 0 is a donut. */
@@ -111,6 +138,23 @@ export interface ChartXAxis<Field extends string = string> {
   readonly format?: ChartNumberFormat | ChartTimeFormat | undefined;
   readonly min?: number | undefined;
   readonly max?: number | undefined;
+  /**
+   * Whether the axis writes its labels. `false` gives their room to the plot,
+   * for a chart stacked under one that already writes the same categories.
+   * The line of the axis, the table and the summary stay.
+   */
+  readonly labels?: boolean | undefined;
+  /**
+   * On a time axis, the times that take a tick and a label, in place of the
+   * ones the engine chooses. One outside the domain in view is not drawn.
+   */
+  readonly ticks?: readonly (string | number | Date)[] | undefined;
+  /**
+   * On a time axis, a second line under each label, such as an age or a term.
+   * The date holds the fields of the axis' wall clock in UTC: read it with
+   * `getUTC*`. The table and the summary leave it out.
+   */
+  readonly secondary?: ((value: Date) => string) | undefined;
 }
 
 export interface ChartYAxis {
@@ -133,6 +177,11 @@ export interface ChartYAxis {
    * both lines them up. A label wider than it is cut with an ellipsis.
    */
   readonly labelWidth?: number | undefined;
+  /**
+   * Whether the axis writes its labels. `false` gives their room to the plot,
+   * and a stated `labelWidth` keeps it.
+   */
+  readonly labels?: boolean | undefined;
 }
 
 export interface ChartAnnotation {

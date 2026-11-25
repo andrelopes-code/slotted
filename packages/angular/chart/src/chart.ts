@@ -48,6 +48,7 @@ import {
   readChartTheme,
   sameTheme,
   seriesOf,
+  skeletonAxes,
   toggleHidden,
   TOOLTIP_DOCK_WIDTH,
   tooltipContext,
@@ -403,6 +404,9 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
     const current = this.chartModel();
     return current ? describeChart(current, this.t) : '';
   });
+  protected readonly skeletonAxes = computed(() =>
+    skeletonAxes({ orientation: this.orientation(), x: this.x(), y: this.y() }),
+  );
   protected readonly skeletonKind = computed(() => {
     const kinds = this.series().map((entry) => entry.kind);
     if (kinds.includes('pie')) return 'pie';
