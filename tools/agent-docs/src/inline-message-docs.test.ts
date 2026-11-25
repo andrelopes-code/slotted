@@ -25,7 +25,9 @@ describe.each(['react', 'angular'] as const)('the %s inline-message page', (bind
 
     expect(page).not.toMatch(/message of a section/i);
     expect(page).toMatch(/sm beside a compact field, md beside a large field/);
-    expect(page).toMatch(/A message about a section, a page or a command’s outcome is an alert/);
+    expect(page).toMatch(
+      /A message about a section, a page or the outcome of a command belongs in an Alert/,
+    );
   });
 });
 
