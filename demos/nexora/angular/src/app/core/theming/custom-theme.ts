@@ -350,7 +350,7 @@ export const OVERLAY_RADIUS_TOKENS = [
   '--slotted-select-content-radius',
   '--slotted-combobox-content-radius',
   '--slotted-multi-select-content-radius',
-  '--slotted-date-picker-content-radius',
+  '--slotted-picker-panel-radius',
   '--slotted-tooltip-radius',
   '--slotted-hover-card-radius',
   '--slotted-toast-radius',

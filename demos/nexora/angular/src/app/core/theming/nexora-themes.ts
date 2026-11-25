@@ -217,8 +217,8 @@ const overlays = (radius: string, shadow: string, line: string): Components =>
     '--slotted-select-content-border-color': line,
     '--slotted-combobox-content-radius': radius,
     '--slotted-combobox-content-shadow': shadow,
-    '--slotted-date-picker-content-radius': radius,
-    '--slotted-date-picker-content-shadow': shadow,
+    '--slotted-picker-panel-radius': radius,
+    '--slotted-picker-panel-shadow': shadow,
   }) as Components;
 
 type DensityValues = NonNullable<ThemeOverrides['densities']>[Density];

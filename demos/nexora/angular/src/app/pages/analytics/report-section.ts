@@ -490,9 +490,10 @@ export class ReportSection {
       .slice(0, spec.chart?.limit ?? table.rows.length)
       .map((row) => {
         const record: Record<string, unknown> = { key: row.key, label: this.rowLabel(row) };
-        for (const series of this.series()) {
-          const value = row.cells[series.field];
-          record[series.field] = value && value.value !== null ? plotted(value.value, this.unit()) : null;
+        for (const { field } of this.series()) {
+          if (field === undefined) continue;
+          const value = row.cells[field];
+          record[field] = value && value.value !== null ? plotted(value.value, this.unit()) : null;
         }
         return record;
       });
