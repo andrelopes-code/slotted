@@ -28,6 +28,7 @@ const ELSEWHERE = {
   'field-group': 'it paints no invalid state; its fields paint their own',
   form: 'it paints no invalid state; its fields paint their own',
   message: 'a message that did not go says so in words under its surface',
+  'picker-panel': 'the footer says in words what is wrong, and Apply is off',
   stepper: 'a failed step shows a cross in place of its number',
   'time-picker': 'the frame is the composed `time-field`, which takes `data-invalid`',
   wizard:

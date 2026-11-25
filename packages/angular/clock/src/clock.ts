@@ -18,6 +18,7 @@ import {
 import type { OnInit } from '@angular/core';
 import { injectLocale, injectMessages } from '@slotted/angular/i18n';
 import {
+  clockFinest,
   clockHourGroups,
   clockModel,
   clockSlotGroups,
@@ -328,7 +329,8 @@ export class SlClock implements OnInit {
     });
     const grids = [groupsGrid('hour', this.t('hours'), hours)];
 
-    const minutes = granularity === 'hour' ? [] : model.minutes(held?.hour ?? 0);
+    const minutes =
+      clockFinest(granularity, this.step()) === 'hour' ? [] : model.minutes(held?.hour ?? 0);
     if (minutes.length > 0) {
       const cells = clockUnitCells(minutes, held?.minute ?? null, format);
       grids.push(unitsGrid('minute', this.t('minutes'), cells));

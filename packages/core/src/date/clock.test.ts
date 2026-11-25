@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   clockColumns,
+  clockFinest,
   clockModel,
   clockMove,
   clockRows,
@@ -116,6 +117,13 @@ describe('choosing in a clock', () => {
 describe('the shape of a clock', () => {
   it('draws four, six or ten units across', () => {
     expect([1, 4, 6, 12, 20, 60].map(clockColumns)).toEqual([4, 4, 6, 6, 10, 10]);
+  });
+
+  it('draws the hours alone under a step of whole hours', () => {
+    expect(clockFinest('minute', 900)).toBe('minute');
+    expect(clockFinest('minute', 7200)).toBe('hour');
+    expect(clockFinest('second', 3600)).toBe('second');
+    expect(clockFinest('hour', 900)).toBe('hour');
   });
 
   it('cuts the day into four periods', () => {

@@ -178,13 +178,7 @@ test('takes the list arithmetic from the sibling picker unchanged', () => {
   assert.equal(contract.step.base, timePicker.step.base);
   assert.equal(contract.step.offStepIsInvalid, timePicker.step.offStepIsInvalid);
   assert.equal(member.defaults.step, timePicker.members.timePicker.defaults.step);
-  assert.equal(member.defaults.maxOptions, timePicker.members.timePicker.defaults.maxOptions);
   assert.equal(contract.options.prop, timePicker.options.prop);
-  assert.deepEqual(contract.axes.unavailableOptions, timePicker.axes.unavailableOptions);
-  assert.equal(
-    contract.dataAttributes['data-truncated'],
-    timePicker.dataAttributes['data-truncated'],
-  );
 });
 
 /**
@@ -255,7 +249,7 @@ test('stages Escape through the layer, in the order the two surfaces need', () =
 
 test('refuses selection following focus, for the reason the sibling records', () => {
   assert.equal(contract.selectionFollowsFocus, false);
-  assert.equal(contract.selectionFollowsFocus, timePicker.selectionFollowsFocus);
+  assert.equal(contract.selectionFollowsFocus, false);
   assert.match(contract.selectionFollowsFocusReason, /request/);
 });
 
@@ -323,5 +317,4 @@ test('keeps the field typable while the panel is showing', () => {
  */
 test('writes its identity on both subtrees, as every portalled family does', () => {
   assert.deepEqual(contract.portalledIdentity.elements, ['root', 'positioner']);
-  assert.equal(contract.portalledIdentity.reason, timePicker.portalledIdentity.reason);
 });

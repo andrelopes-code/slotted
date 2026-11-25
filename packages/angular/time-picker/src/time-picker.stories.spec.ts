@@ -6,7 +6,7 @@ import contract from '../../../../specs/components/time-picker/contract.json';
 import { ANGULAR_TIME_PICKER_DOCS } from './time-picker.docs';
 import * as timePickerStories from './time-picker.stories';
 
-describe('Angular TimePicker stories', () => {
+describe('Angular Time Picker stories', () => {
   it('covers every required scenario', () => {
     expect(scenarioCoverageErrors(contract.scenarios.timePicker, timePickerStories)).toEqual([]);
   });

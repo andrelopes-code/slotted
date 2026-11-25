@@ -60,6 +60,7 @@ import { ptBR as numberField } from './pt-BR/number-field';
 import { ptBR as page } from './pt-BR/page';
 import { ptBR as pageHeader } from './pt-BR/page-header';
 import { ptBR as pagination } from './pt-BR/pagination';
+import { ptBR as pickerPanel } from './pt-BR/picker-panel';
 import { ptBR as popover } from './pt-BR/popover';
 import { ptBR as promptComposer } from './pt-BR/prompt-composer';
 import { ptBR as prose } from './pt-BR/prose';
@@ -147,6 +148,7 @@ export const PT_BR: SlottedMessages = {
   page,
   pageHeader,
   pagination,
+  pickerPanel,
   popover,
   promptComposer,
   prose,

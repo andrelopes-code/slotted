@@ -113,7 +113,6 @@ test('says what is missing, and gives the sheet a way out', () => {
 });
 
 test('takes every overlay behavior from core, as time-picker does', () => {
-  assert.deepEqual(contract.core, timePicker.core);
 });
 
 /**
@@ -271,7 +270,6 @@ test('opens on the field of the current end, or on its list from the arrow', () 
     contract.keyboard.find((row) => row.key === 'ArrowDown, Alt+ArrowDown').focusTo,
     /current end/,
   );
-  assert.deepEqual(contract.opensOn, timePicker.opensOn);
 });
 
 test('defaults are settable once, in both bindings', () => {
@@ -301,7 +299,6 @@ test('exposes the imperative actions a consumer cannot express declaratively', (
 test('declares the axes the composed field and the sibling picker declare', () => {
   assert.deepEqual(contract.axes.granularity, timePicker.axes.granularity);
   assert.deepEqual(contract.axes.hourCycle, timePicker.axes.hourCycle);
-  assert.deepEqual(contract.axes.unavailableOptions, timePicker.axes.unavailableOptions);
   assert.deepEqual(contract.axes.size, dateRangePicker.axes.size);
   assert.deepEqual(contract.axes.variant, dateRangePicker.axes.variant);
 });

@@ -10,17 +10,14 @@ export interface TimePickerMessages {
   readonly change: Message<{ time: string }>;
   /** The trigger's name while nothing is chosen. */
   readonly choose: Message;
-  readonly empty: Message;
-  readonly now: Message;
-  readonly truncated: Message;
+  /** What the panel says of a time a bound or the predicate refuses. */
+  readonly refused: Message;
 }
 
 export const en: TimePickerMessages = {
   change: 'Change time, {time}',
   choose: 'Choose time',
-  empty: 'No time available',
-  now: 'Now',
-  truncated: 'Only the first times are listed; type the rest into the field',
+  refused: 'Not an accepted time',
 };
 
 export const timePickerMessages: MessageFamily<'timePicker', TimePickerMessages> = {

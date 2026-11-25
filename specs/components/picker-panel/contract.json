@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 5,
+  "family": "picker-panel",
+  "ui": "picker-panel",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Panel the date and time pickers open."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-datepicker/",
+  "public": false,
+  "why": "The shell of six pickers, written once. React keeps it out of its exports; Angular publishes it because an entry point cannot import from another without one. Neither documents it: a product uses the pickers.",
+  "contentRole": "dialog",
+  "core": [
+    "@slotted/core/date",
+    "@slotted/core/state",
+    "@slotted/core/presence",
+    "@slotted/core/portal",
+    "@slotted/core/positioner",
+    "@slotted/core/dismissable-layer",
+    "@slotted/core/extent",
+    "@slotted/core/focus"
+  ],
+  "grid": {
+    "rail": 148,
+    "module": 280,
+    "head": 54,
+    "footer": 46,
+    "widest": 710,
+    "oneColumnBelow": 760
+  },
+  "draft": {
+    "rule": "a press in the panel writes a draft; Apply writes the value and closes",
+    "discardedBy": ["Escape", "outside press"],
+    "withoutConfirm": "the press that completes the value writes it and closes, and there is no Apply",
+    "typing": "the field writes the value itself, and the draft follows it"
+  },
+  "presets": {
+    "shape": "{ label, value | () => value }",
+    "draws": "the label and what the press writes, in words",
+    "refused": "disabled when the rules of the picker refuse the value"
+  },
+  "oneColumn": {
+    "months": 1,
+    "parts": "one at a time: data-showing is day or time, and the buttons of the head change it",
+    "rail": "a strip over the footer"
+  },
+  "wiring": {
+    "aria-label": "the dialog carries the trigger's name",
+    "aria-pressed": "a preset, a length or a step that the draft equals",
+    "status": "the hint of the footer is a status region, so a reason Apply is off is spoken"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "move",
+      "by": "1 stop",
+      "wraps": true
+    },
+    {
+      "key": "Escape",
+      "effect": "close",
+      "discards": "the draft",
+      "after": "the calendar has walked down its view"
+    },
+    {
+      "key": "Ctrl+Enter",
+      "effect": "apply"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "move a ruler handle one step later",
+      "scope": "the ruler",
+      "mirroredInRtl": true
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "move a ruler handle one step earlier",
+      "scope": "the ruler",
+      "mirroredInRtl": true
+    },
+    {
+      "key": "PageUp",
+      "effect": "move a ruler handle one hour later",
+      "scope": "the ruler"
+    },
+    {
+      "key": "PageDown",
+      "effect": "move a ruler handle one hour earlier",
+      "scope": "the ruler"
+    },
+    {
+      "key": "Home",
+      "effect": "move a ruler handle to its earliest time",
+      "scope": "the ruler"
+    },
+    {
+      "key": "End",
+      "effect": "move a ruler handle to its latest time",
+      "scope": "the ruler"
+    }
+  ],
+  "messages": [
+    "apply",
+    "clear",
+    "presets",
+    "today",
+    "now",
+    "fromNow",
+    "duration",
+    "time",
+    "chooseDay",
+    "chooseMonth",
+    "previousDay",
+    "nextDay",
+    "previousYear",
+    "nextYear",
+    "decrease",
+    "increase",
+    "startHandle",
+    "endHandle",
+    "week",
+    "ahead",
+    "behind",
+    "days",
+    "every",
+    "pageKeys",
+    "yearKeys",
+    "over",
+    "short"
+  ],
+  "stateAttributes": {
+    "open": "data-open",
+    "selected": "data-selected",
+    "current": "data-current",
+    "invalid": "data-invalid"
+  },
+  "dataAttributes": {
+    "data-kind": "which picker the panel belongs to: date, time, date-range, datetime, datetime-range, time-range",
+    "data-showing": "day or time, the part one column shows",
+    "data-empty": "a value not chosen yet",
+    "data-today": "the month today is in",
+    "data-unavailable": "an hour of the ruler with no accepted time"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "select"],
+      "carries": ["value", "previous", "reason", "event"]
+    }
+  },
+  "members": {
+    "pickerPanel": {
+      "nativeElement": "div",
+      "defaults": {},
+      "capabilities": ["open", "appearance", "content", "wiring"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "selected",
+        "current",
+        "invalid"
+      ],
+      "parts": [
+        "positioner",
+        "content",
+        "grip",
+        "root",
+        "rail",
+        "presets",
+        "preset",
+        "preset-label",
+        "preset-result",
+        "group",
+        "group-label",
+        "chips",
+        "chip",
+        "offsets",
+        "jump",
+        "jump-head",
+        "jump-year",
+        "jump-grid",
+        "jump-month",
+        "step",
+        "main",
+        "head",
+        "value",
+        "meta",
+        "steps",
+        "range-head",
+        "half",
+        "half-label",
+        "half-meta",
+        "half-value",
+        "half-day",
+        "half-time",
+        "span",
+        "span-text",
+        "body",
+        "clocks",
+        "side",
+        "time-head",
+        "time-label",
+        "time-meta",
+        "time-value",
+        "ruler",
+        "ruler-track",
+        "ruler-hour",
+        "ruler-band",
+        "ruler-handle",
+        "ruler-scale",
+        "footer",
+        "hint",
+        "clear",
+        "apply"
+      ]
+    }
+  }
+}

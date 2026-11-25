@@ -179,6 +179,7 @@ export type {
 } from './segments';
 export {
   clockColumns,
+  clockFinest,
   clockModel,
   clockMove,
   clockRows,
@@ -191,6 +192,8 @@ export {
 export type { ClockModel, ClockPeriod, ClockRules, ClockStep, ClockUnit, SlotGroup } from './clock';
 export { clockHourGroups, clockSlotGroups, clockStop, clockUnitCells } from './clock-view';
 export type { ClockCell, ClockGroup, ClockHoursOptions, ClockPeriodNames } from './clock-view';
+export { dayMeta, momentMeta, stepLabel, timeMeta } from './picker-words';
+export { rulerKeyTarget, rulerShare, rulerTimeAt } from './ruler';
 export { presetValue, relativeDays } from './relative';
 export type { PickerPreset } from './relative';
 export { monthGrid, visibleMonths, yearPage } from './grid';

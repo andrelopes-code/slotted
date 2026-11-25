@@ -1,382 +1,363 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { plainTime } from '@slotted/core/date';
-import type { PlainTime } from '@slotted/core/date';
+import { SlClockSlot } from '@slotted/angular/clock';
+import { SlField, SlFieldLabel } from '@slotted/angular/field';
 import { provideSlotted } from '@slotted/angular/i18n';
+import { plainTime, toISOTime } from '@slotted/core/date';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
 import type { ChangeRequest } from '@slotted/core/state';
-import { describe, expect, it, vi } from 'vitest';
+import type { PlainTime } from '@slotted/core/date';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import contract from '../../../../specs/components/time-picker/contract.json';
 import { SlTimePicker } from './time-picker';
 import { provideTimePickerDefaults } from './time-picker-defaults';
-import { SlTimePickerOption } from './time-picker-option';
-import { SlTimePickerFooter, SlTimePickerPresets } from './time-picker-parts';
+import { SlTimePickerFooter } from './time-picker-parts';
 
-const TEN = plainTime(10, 0);
-const NOON = plainTime(12, 0);
+const t = plainTime;
+
+describe('what it is made of', () => {
+  it('declares every part the contract names, and opens the shared panel', () => {
+    const fixture = render(picker('defaultOpen'));
+
+    for (const part of contract.members.timePicker.parts) {
+      expect(query(fixture, `[data-part="${part}"]`), part).not.toBeNull();
+    }
+    expect(query(fixture, '[data-ui="picker-panel"][data-part="root"]')?.dataset['kind']).toBe(
+      'time',
+    );
+  });
+
+  it('is a dialog, and the trigger says so', () => {
+    const fixture = render(picker('defaultOpen'));
+
+    expect(trigger(fixture).getAttribute('aria-haspopup')).toBe('dialog');
+    expect(trigger(fixture).getAttribute('aria-controls')).toBe(dialog(fixture)?.id);
+  });
+
+  it('draws the whole day, the shortcuts and the steps from now', () => {
+    const fixture = render(picker('defaultOpen [presets]="lunch"'));
+
+    expect(options(fixture, 'Hours')).toHaveLength(24);
+    expect(texts(queryAll(fixture, '[data-part="preset-label"]'))).toEqual(['Now', 'Lunch']);
+    expect(texts(queryAll(fixture, '[data-part="preset-result"]'))).toEqual(['10:20', '12:00']);
+    expect(texts(queryAll(fixture, '[data-part="chip"]'))).toEqual([
+      '+15 min',
+      '+30 min',
+      '+1 hr',
+      '+2 hr',
+      '+4 hr',
+      '+8 hr',
+    ]);
+  });
+
+  it('is the clock alone when there is nothing to put in the rail', () => {
+    expect(query(render(picker('defaultOpen [offsets]="[]"')), '[data-part="rail"]')).toBeNull();
+  });
+
+  it('draws whole times from a stated list, with no Now and no steps', () => {
+    const fixture = render(
+      picker(
+        'defaultOpen [options]="clinic"',
+        '<ng-template slClockSlot let-state="state">{{ state.label }} free</ng-template>',
+      ),
+    );
+
+    expect(texts(options(fixture, 'Times'))).toEqual(['09:00 free', '09:20 free']);
+    expect(query(fixture, '[data-part="rail"]')).toBeNull();
+  });
+
+  it('says how far the time is from now, and what the footer is given', () => {
+    const fixture = render(
+      picker('defaultOpen [defaultValue]="halfPastTwo"', '<span slTimePickerFooter>Gate B</span>'),
+    );
+
+    expect(text(fixture, 'time-meta')).toBe('in 4 hr 10 min');
+    expect(text(fixture, 'hint')).toBe('Gate B');
+    press(fixture, options(fixture, 'Hours')[9]!);
+    expect(text(fixture, 'time-meta')).toBe('50 min ago');
+  });
+
+  it('says the step in the footer when the consumer says nothing', () => {
+    expect(text(render(picker('defaultOpen')), 'hint')).toBe('Every 15 min');
+  });
+});
+
+describe('the draft', () => {
+  it('reaches the field only on Apply, which closes the panel', () => {
+    const fixture = render(picker('defaultOpen [defaultValue]="halfPastTwo"'));
+
+    press(fixture, options(fixture, 'Hours')[9]!);
+    press(fixture, options(fixture, 'Minutes')[1]!);
+    expect(written(fixture)).toEqual([]);
+
+    press(fixture, action(fixture, 'apply'));
+    expect(written(fixture)).toEqual(['09:15']);
+    expect(dialog(fixture)).toBeNull();
+    expect(document.activeElement).toBe(trigger(fixture));
+  });
+
+  it('is dropped by Escape', () => {
+    const fixture = render(picker('defaultOpen [defaultValue]="halfPastTwo"'));
+
+    press(fixture, options(fixture, 'Hours')[9]!);
+    document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
+    fixture.detectChanges();
+    expect(dialog(fixture)).toBeNull();
+
+    press(fixture, trigger(fixture));
+    expect(selected(fixture)).toEqual(['14', ':30']);
+    expect(written(fixture)).toEqual([]);
+  });
+
+  it('follows what is typed in the field, and Apply keeps the typed time', () => {
+    const fixture = render(picker('defaultOpen [defaultValue]="halfPastTwo"'));
+    press(fixture, options(fixture, 'Hours')[9]!);
+
+    const hour = query(fixture, '[data-part="control"] [data-field="hour"]')!;
+    hour.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'ArrowUp' }));
+    fixture.detectChanges();
+    expect(written(fixture)).toEqual(['15:30']);
+    expect(selected(fixture)).toEqual(['15', ':30']);
+
+    press(fixture, action(fixture, 'apply'));
+    expect(written(fixture)).toEqual(['15:30']);
+  });
+
+  it('is applied by Ctrl and Enter from anywhere in the panel', () => {
+    const fixture = render(picker('defaultOpen'));
+
+    press(fixture, options(fixture, 'Hours')[9]!);
+    options(fixture, 'Hours')[9]!.dispatchEvent(
+      new KeyboardEvent('keydown', { bubbles: true, ctrlKey: true, key: 'Enter' }),
+    );
+    expect(written(fixture)).toEqual(['09:00']);
+  });
+
+  it('is emptied by Clear, and Apply writes the empty value', () => {
+    const fixture = render(picker('defaultOpen [defaultValue]="halfPastTwo"'));
+
+    press(fixture, action(fixture, 'clear'));
+    expect(written(fixture)).toEqual([]);
+    press(fixture, action(fixture, 'apply'));
+    expect(written(fixture)).toEqual([null]);
+  });
+
+  it('keeps Apply off while nothing is chosen, and says why a time is refused', () => {
+    expect(action(render(picker('defaultOpen')), 'apply').disabled).toBe(true);
+
+    const fixture = render(picker('defaultOpen [value]="halfPastTwo" [min]="evening"'));
+    expect(action(fixture, 'apply').disabled).toBe(true);
+    expect(text(fixture, 'hint')).toBe('Not an accepted time');
+  });
+
+  it('waits for the consumer who owns the value', () => {
+    const fixture = render(picker('defaultOpen [value]="halfPastTwo"'));
+
+    press(fixture, options(fixture, 'Hours')[9]!);
+    press(fixture, action(fixture, 'apply'));
+    press(fixture, trigger(fixture));
+    expect(selected(fixture)).toEqual(['14', ':30']);
+  });
+});
+
+describe('without a confirmation', () => {
+  it('writes and closes on the press that completes the time', () => {
+    const fixture = render(picker('defaultOpen confirm="false"'));
+
+    press(fixture, options(fixture, 'Hours')[9]!);
+    expect(written(fixture)).toEqual([]);
+    press(fixture, options(fixture, 'Minutes')[1]!);
+    expect(written(fixture)).toEqual(['09:15']);
+    expect(dialog(fixture)).toBeNull();
+  });
+
+  it('completes on the hour where the step is whole hours', () => {
+    const fixture = render(picker('defaultOpen confirm="false" step="3600"'));
+
+    press(fixture, options(fixture, 'Hours')[9]!);
+    expect(written(fixture)).toEqual(['09:00']);
+  });
+
+  it('is what the application says once for every picker, and writes a shortcut at once', () => {
+    const fixture = render(picker('defaultOpen'), [provideTimePickerDefaults({ confirm: false })]);
+
+    expect(query(fixture, '[data-part="apply"]')).toBeNull();
+    press(fixture, query(fixture, '[data-part="preset"]')!);
+    expect(written(fixture)).toEqual(['10:20']);
+  });
+});
+
+describe('the shortcuts', () => {
+  it('step from now, and refuse past midnight or out of bounds', () => {
+    const fixture = render(
+      picker('defaultOpen [max]="evening"').replace('tenTwenty', 'fiveInTheAfternoon'),
+    );
+    const chips = queryAll(fixture, '[data-part="chip"]') as HTMLButtonElement[];
+
+    expect(chips.map((chip) => chip.disabled)).toEqual([false, false, false, true, true, true]);
+    press(fixture, chips[2]!);
+    press(fixture, action(fixture, 'apply'));
+    expect(written(fixture)).toEqual(['18:00']);
+  });
+
+  it('mark the one the draft is, and refuse the one the rules refuse', () => {
+    const fixture = render(picker('defaultOpen [presets]="lunch"'));
+    const lunch = queryAll(fixture, '[data-part="preset"]')[1] as HTMLButtonElement;
+    press(fixture, lunch);
+    expect(lunch.getAttribute('aria-pressed')).toBe('true');
+    expect(selected(fixture)).toEqual(['12', ':00']);
+
+    const refused = render(picker('defaultOpen [min]="halfPastTwo" [presets]="lunch"'));
+    expect((queryAll(refused, '[data-part="preset"]')[1] as HTMLButtonElement).disabled).toBe(true);
+  });
+});
+
+describe('opening', () => {
+  it('takes focus to the chosen hour from the trigger', () => {
+    const fixture = render(picker('[defaultValue]="halfPastTwo"'));
+
+    press(fixture, trigger(fixture));
+    expect(document.activeElement).toBe(options(fixture, 'Hours')[14]);
+  });
+
+  it('leaves focus in the field from the chord', () => {
+    const fixture = render(picker('[defaultValue]="halfPastTwo"'));
+    const hour = query(fixture, '[data-part="control"] [data-field="hour"]')!;
+    hour.focus();
+
+    hour.dispatchEvent(
+      new KeyboardEvent('keydown', { altKey: true, bubbles: true, key: 'ArrowDown' }),
+    );
+    fixture.detectChanges();
+    expect(dialog(fixture)).not.toBeNull();
+    expect(document.activeElement).toBe(hour);
+  });
+
+  it('asks before moving the open state the consumer owns', () => {
+    const fixture = render(picker('[open]="false" (openChange)="opens.push($event)"'));
+
+    press(fixture, trigger(fixture));
+    expect(fixture.componentInstance.opens[0]?.value).toBe(true);
+    expect(dialog(fixture)).toBeNull();
+  });
+
+  it('answers no press at all while it is disabled', () => {
+    expect(trigger(render(picker('disabled'))).disabled).toBe(true);
+  });
+});
+
+describe('what is around it', () => {
+  it('returns to the first value on a reset of the form', () => {
+    const fixture = render(`<form>${picker('defaultOpen [defaultValue]="halfPastTwo"')}</form>`);
+    press(fixture, options(fixture, 'Hours')[9]!);
+    press(fixture, action(fixture, 'apply'));
+
+    query(fixture, 'form')!.dispatchEvent(new Event('reset'));
+    expect(written(fixture)).toEqual(['09:30', '14:30']);
+  });
+
+  it('names the control by the field around it, and not the panel', () => {
+    const fixture = render(
+      `<div slField><label slFieldLabel>Departure</label>${picker('defaultOpen')}</div>`,
+    );
+    const label = query(fixture, 'label')!;
+    const named = queryAll(fixture, `[aria-labelledby~="${label.id}"]`);
+
+    expect(named).toHaveLength(1);
+    expect(dialog(fixture)?.contains(named[0]!)).toBe(false);
+  });
+
+  it('is invalid on a time the bounds refuse', () => {
+    const fixture = render(picker('[defaultValue]="halfPastTwo" [min]="evening"'));
+
+    expect(query(fixture, '[data-ui="time-picker"]')?.hasAttribute('data-invalid')).toBe(true);
+  });
+
+  it('changes its words with the language in force', () => {
+    const fixture = render('<div slTimePicker defaultOpen [referenceTime]="tenTwenty"></div>', [
+      provideSlotted({ catalogs: { 'pt-BR': PT_BR }, locale: 'pt-BR' }),
+    ]);
+
+    // language: pt-BR
+    expect(action(fixture, 'apply').textContent?.trim()).toBe('Aplicar');
+    expect(options(fixture, 'Minutos')).toHaveLength(4);
+    // language: en-US
+  });
+
+  it('names the trigger with the time written', () => {
+    const fixture = render(picker('[defaultValue]="halfPastTwo"'));
+
+    expect(trigger(fixture).getAttribute('aria-label')).toBe('Change time, 14:30');
+  });
+});
 
 @Component({
   standalone: true,
-  imports: [SlTimePicker, SlTimePickerFooter, SlTimePickerOption, SlTimePickerPresets],
-  template: `<div slTimePicker></div>`,
+  imports: [SlClockSlot, SlField, SlFieldLabel, SlTimePicker, SlTimePickerFooter],
+  template: '',
 })
 class Host {
-  readonly ten = TEN;
-  readonly noon = NOON;
-  readonly nine = plainTime(9, 0);
-  readonly eleven = plainTime(11, 0);
-  readonly clinic = [plainTime(9, 0), plainTime(9, 20), plainTime(13, 45)];
-  readonly marks = [plainTime(0, 0, 15), plainTime(0, 0, 30)];
-  readonly value = signal<PlainTime | null | undefined>(undefined);
-  readonly refusesTen = (time: PlainTime) => time.hour === 10;
-  readonly refusesAll = () => true;
+  readonly clinic = [t(9), t(9, 20)];
+  readonly evening = t(18);
+  readonly fiveInTheAfternoon = t(17);
+  readonly halfPastTwo = t(14, 30);
+  readonly lunch = [{ label: 'Lunch', value: () => t(12) }];
+  readonly opens: ChangeRequest<boolean>[] = [];
   readonly requests: ChangeRequest<PlainTime | null>[] = [];
-  readonly onRequest = vi.fn((request: ChangeRequest<PlainTime | null>) => {
-    this.requests.push(request);
-  });
+  readonly tenTwenty = t(10, 20);
 }
 
-function renderTemplate(template: string, providers: unknown[] = []) {
+afterEach(() => document.body.replaceChildren());
+
+function render(template: string, providers: unknown[] = []) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({ providers: providers as never[] });
   TestBed.overrideComponent(Host, { set: { template } });
   const fixture = TestBed.createComponent(Host);
+  document.body.appendChild(fixture.nativeElement as Node);
   fixture.detectChanges();
+
   return fixture;
 }
 
-type Fixture = ReturnType<typeof renderTemplate>;
+type Fixture = ReturnType<typeof render>;
 
-const BOUNDS = `locale="pt-BR" [referenceTime]="noon" [min]="nine" [max]="eleven"`;
+function picker(attributes = '', content = '') {
+  return `<div slTimePicker locale="en-US" [hourCycle]="24" [referenceTime]="tenTwenty" ${attributes} (valueChange)="requests.push($event)">${content}</div>`;
+}
 
-const root = (fixture: Fixture) =>
-  fixture.nativeElement.querySelector('[data-ui="time-picker"][data-part="root"]') as HTMLElement;
-const trigger = (fixture: Fixture) =>
-  fixture.nativeElement.querySelector('[data-part="trigger"]') as HTMLButtonElement;
-const content = (fixture: Fixture) =>
-  fixture.nativeElement.querySelector('[data-part="content"]') as HTMLElement | null;
-const options = (fixture: Fixture) =>
-  [...fixture.nativeElement.querySelectorAll('[data-part="option"]')] as HTMLElement[];
-const labels = (fixture: Fixture) =>
-  options(fixture).map((element) => (element.textContent ?? '').trim());
-const optionFor = (fixture: Fixture, label: string) =>
-  options(fixture).find((element) => (element.textContent ?? '').trim() === label) as HTMLElement;
-const highlighted = (fixture: Fixture) =>
-  fixture.nativeElement.querySelector('[data-part="option"][data-current]') as HTMLElement | null;
+function queryAll(fixture: Fixture, selector: string) {
+  return [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(selector)];
+}
 
-const pressList = (fixture: Fixture, key: string) => {
-  fixture.nativeElement
-    .querySelector('[data-part="list"]')
-    ?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key }));
+function query(fixture: Fixture, selector: string) {
+  return queryAll(fixture, selector)[0] ?? null;
+}
+
+function options(fixture: Fixture, name: string) {
+  return queryAll(fixture, `[role="listbox"][aria-label="${name}"] [role="option"]`);
+}
+
+function texts(elements: readonly HTMLElement[]) {
+  return elements.map((element) => element.textContent?.trim());
+}
+
+function text(fixture: Fixture, part: string) {
+  return query(fixture, `[data-part="${part}"]`)?.textContent?.trim();
+}
+
+function press(fixture: Fixture, element: HTMLElement) {
+  element.click();
   fixture.detectChanges();
-};
+}
 
-describe('what it is made of', () => {
-  it('renders the field, and keeps its identifier separate from its own', () => {
-    const fixture = renderTemplate(`<div slTimePicker ${BOUNDS} defaultOpen></div>`);
+function written(fixture: Fixture) {
+  return fixture.componentInstance.requests.map(({ value }) => value && toISOTime(value, 'minute'));
+}
 
-    expect(fixture.nativeElement.querySelector('[data-ui="time-field"]')).not.toBeNull();
-    expect(root(fixture).dataset['ui']).toBe(contract.ui);
-  });
-
-  it('declares every part the contract names', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen>
-         <div slTimePickerPresets><button type="button">Turno</button></div>
-         <div slTimePickerFooter><button type="button">Aplicar</button></div>
-       </div>`,
-    );
-
-    const present = [
-      ...fixture.nativeElement.querySelectorAll('[data-ui="time-picker"] [data-part]'),
-    ].map((element) => (element as HTMLElement).dataset['part']);
-    for (const part of [
-      'control',
-      'trigger',
-      'content',
-      'head',
-      'now',
-      'presets',
-      'list',
-      'option',
-      'footer',
-    ]) {
-      expect(present).toContain(part);
-    }
-  });
-
-  /**
-   * One shape, one role. A column per unit was drawn and withdrawn, so the
-   * trigger says the same thing in every configuration the family has.
-   */
-  it('is a listbox, and the trigger says so', () => {
-    const fixture = renderTemplate(`<div slTimePicker ${BOUNDS} defaultOpen></div>`);
-
-    expect(content(fixture)?.getAttribute('role')).toBe('listbox');
-    expect(trigger(fixture).getAttribute('aria-haspopup')).toBe('listbox');
-    expect(trigger(fixture).getAttribute('aria-expanded')).toBe('true');
-  });
-
-  it('draws a whole time on every row', () => {
-    const fixture = renderTemplate(`<div slTimePicker ${BOUNDS} defaultOpen step="1800"></div>`);
-    expect(labels(fixture)).toEqual(['09:00', '09:30', '10:00', '10:30', '11:00']);
-  });
-
-  /** The mark is a `Glyph` element inside an `Icon` box, never a mask. */
-  it('draws the clock on the trigger as a glyph element', () => {
-    const fixture = renderTemplate(`<div slTimePicker ${BOUNDS}></div>`);
-    const mark = trigger(fixture).querySelector("[data-ui='icon'] > svg[data-glyph]");
-    expect(mark?.getAttribute('data-glyph')).toBe('clock');
-  });
-});
-
-describe('the list the consumer configures', () => {
-  /**
-   * The half of the columns question a decline had to answer: no step describes
-   * a clinic open at 09:00, 09:20 and 13:45.
-   */
-  it('offers exactly the times it was given, in the order it was given them', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker locale="pt-BR" [referenceTime]="noon" defaultOpen [options]="clinic"></div>`,
-    );
-    expect(labels(fixture)).toEqual(['09:00', '09:20', '13:45']);
-  });
-
-  it('offers seconds when the consumer states them', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker locale="pt-BR" [referenceTime]="noon" defaultOpen granularity="second" [options]="marks"></div>`,
-    );
-    expect(labels(fixture)).toEqual(['00:00:15', '00:00:30']);
-  });
-
-  it('cuts a list that would run past the cap, and says so in the DOM', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker locale="pt-BR" [referenceTime]="noon" defaultOpen step="1"></div>`,
-    );
-
-    expect(options(fixture)).toHaveLength(1440);
-    expect(
-      fixture.nativeElement.querySelector('[data-part="list"]').hasAttribute('data-truncated'),
-    ).toBe(true);
-    expect(content(fixture)?.hasAttribute('aria-description')).toBe(true);
-  });
-
-  it('marks what a bound or the predicate refuses, and can hide it instead', () => {
-    const disabled = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="3600" [isTimeUnavailable]="refusesTen"></div>`,
-    );
-    expect(optionFor(disabled, '10:00').getAttribute('aria-disabled')).toBe('true');
-
-    const hidden = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="3600" unavailableOptions="hide" [isTimeUnavailable]="refusesTen"></div>`,
-    );
-    expect(labels(hidden)).toEqual(['09:00', '11:00']);
-  });
-
-  it('says so when no time is available at all, rather than drawing an empty box', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen unavailableOptions="hide" [isTimeUnavailable]="refusesAll"></div>`,
-    );
-
-    expect(fixture.nativeElement.querySelector('[data-part="empty"]')).not.toBeNull();
-    expect(options(fixture)).toHaveLength(0);
-  });
-
-  /** `NgTemplateOutlet`, because the row is re-rendered once per option. */
-  it('lets the consumer draw the row without owning it', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="3600">
-         <ng-template slTimePickerOption let-time let-label="label">
-           <span data-testid="row">{{ label }} ·</span>
-         </ng-template>
-       </div>`,
-    );
-
-    const first = fixture.nativeElement.querySelector('[data-testid="row"]');
-    expect((first.textContent ?? '').trim()).toBe('09:00 ·');
-  });
-});
-
-describe('opening, choosing and closing', () => {
-  it('opens on the chosen time', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="1800" [defaultValue]="ten"></div>`,
-    );
-    expect((highlighted(fixture)?.textContent ?? '').trim()).toBe('10:00');
-  });
-
-  it('chooses on a press and closes, because one press finished the value', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="3600" (valueChange)="onRequest($event)"></div>`,
-    );
-
-    optionFor(fixture, '10:00').click();
-    fixture.detectChanges();
-
-    expect(fixture.componentInstance.requests[0]?.value).toEqual(TEN);
-    expect(content(fixture)).toBeNull();
-  });
-
-  it('stays open when the consumer says never', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="3600" closeOnSelect="never"></div>`,
-    );
-
-    optionFor(fixture, '10:00').click();
-    fixture.detectChanges();
-    expect(content(fixture)).not.toBeNull();
-  });
-
-  it('refuses a press on a time a bound or the predicate refuses', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="3600" [isTimeUnavailable]="refusesTen" (valueChange)="onRequest($event)"></div>`,
-    );
-
-    optionFor(fixture, '10:00').click();
-    fixture.detectChanges();
-    expect(fixture.componentInstance.onRequest).not.toHaveBeenCalled();
-  });
-
-  it('writes the current time from the control at the head', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen (valueChange)="onRequest($event)"></div>`,
-    );
-
-    (fixture.nativeElement.querySelector('[data-part="now"]') as HTMLElement).click();
-    fixture.detectChanges();
-    expect(fixture.componentInstance.requests[0]?.value).toEqual(NOON);
-  });
-
-  it('names the trigger with the chosen time, which is where focus returns', () => {
-    const fixture = renderTemplate(`<div slTimePicker ${BOUNDS} [defaultValue]="ten"></div>`);
-    expect(trigger(fixture).getAttribute('aria-label')).toMatch(/10/);
-  });
-});
-
-describe('the keyboard the pattern lists', () => {
-  it('moves the highlight without moving the value', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="1800" [defaultValue]="ten" (valueChange)="onRequest($event)"></div>`,
-    );
-
-    pressList(fixture, 'ArrowDown');
-    expect((highlighted(fixture)?.textContent ?? '').trim()).toBe('10:30');
-    expect(fixture.componentInstance.onRequest).not.toHaveBeenCalled();
-  });
-
-  it('takes the highlight to either end', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="1800" [defaultValue]="ten"></div>`,
-    );
-
-    pressList(fixture, 'End');
-    expect((highlighted(fixture)?.textContent ?? '').trim()).toBe('11:00');
-    pressList(fixture, 'Home');
-    expect((highlighted(fixture)?.textContent ?? '').trim()).toBe('09:00');
-  });
-
-  /** The coarse axis, without spending a row of the list on a heading. */
-  it('pages one hour boundary at a time', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="900" [defaultValue]="ten"></div>`,
-    );
-
-    pressList(fixture, 'PageUp');
-    expect((highlighted(fixture)?.textContent ?? '').trim()).toBe('09:00');
-    pressList(fixture, 'PageDown');
-    expect((highlighted(fixture)?.textContent ?? '').trim()).toBe('10:00');
-  });
-
-  it('chooses on Enter', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen step="1800" [defaultValue]="ten" (valueChange)="onRequest($event)"></div>`,
-    );
-
-    pressList(fixture, 'ArrowDown');
-    pressList(fixture, 'Enter');
-    expect(fixture.componentInstance.requests[0]?.value).toEqual(plainTime(10, 30));
-  });
-
-  /**
-   * The panel complements the typing and does not replace it, which is what
-   * `docs/component-features.md` §6 asks for.
-   */
-  it('opens from the field and leaves focus in it', () => {
-    const fixture = renderTemplate(`<div slTimePicker ${BOUNDS} [defaultValue]="ten"></div>`);
-
-    const segment = fixture.nativeElement.querySelector('[data-part="segment"]') as HTMLElement;
-    segment.focus();
-    segment.dispatchEvent(
-      new KeyboardEvent('keydown', { altKey: true, bubbles: true, key: 'ArrowDown' }),
-    );
-    fixture.detectChanges();
-
-    expect(content(fixture)).not.toBeNull();
-    expect(document.activeElement).toBe(segment);
-  });
-});
-
-describe('what the consumer sets once', () => {
-  it('lets an application state the step once', () => {
-    const fixture = renderTemplate(`<div slTimePicker ${BOUNDS} defaultOpen></div>`, [
-      provideTimePickerDefaults({ step: 3600 }),
-    ]);
-
-    expect(labels(fixture)).toEqual(['09:00', '10:00', '11:00']);
-  });
-
-  it('changes its words and its time format together with the language in force', () => {
-    const locale = signal('pt-BR');
-    const fixture = renderTemplate(
-      `<div slTimePicker [referenceTime]="noon" [min]="nine" [max]="eleven" [defaultValue]="ten"></div>`,
-      [provideSlotted({ locale, catalogs: { 'pt-BR': PT_BR } })],
-    );
-    const name = () => trigger(fixture).getAttribute('aria-label') ?? '';
-
-    // language: pt-BR
-    expect(name()).toMatch(/^Alterar horário, /);
-    // language: en-US
-    expect(name()).toContain('10:00');
-
-    locale.set('en-US');
-    fixture.detectChanges();
-    expect(name()).toMatch(/^Change time, /);
-    expect(name()).toMatch(/10:00\sAM/);
-  });
-
-  it('lays its own messages over the language in force', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker ${BOUNDS} defaultOpen [messages]="{ now: 'Agora' }"></div>`,
-    );
-
-    expect(
-      (fixture.nativeElement.querySelector('[data-part="now"]').textContent ?? '').trim(),
-    ).toBe('Agora');
-  });
-
-  it('lets the picker outrank the provider', () => {
-    const fixture = renderTemplate(`<div slTimePicker ${BOUNDS} defaultOpen step="1800"></div>`, [
-      provideTimePickerDefaults({ step: 3600 }),
-    ]);
-    expect(labels(fixture)).toHaveLength(5);
-  });
-});
-
-describe('the escape hatches', () => {
-  it('opens and closes through the instance a template can reach', () => {
-    const fixture = renderTemplate(
-      `<div slTimePicker #picker="slTimePicker" ${BOUNDS}></div>
-       <button type="button" (click)="picker.openSurface()">open</button>`,
-    );
-
-    (fixture.nativeElement.querySelector('button:not([data-part])') as HTMLElement).click();
-    fixture.detectChanges();
-    expect(content(fixture)).not.toBeNull();
-  });
-
-  it('answers no press at all while it is disabled', () => {
-    const fixture = renderTemplate(`<div slTimePicker ${BOUNDS} disabled></div>`);
-    expect(trigger(fixture).disabled).toBe(true);
-  });
-});
+const trigger = (fixture: Fixture) => query(fixture, '[data-part="trigger"]') as HTMLButtonElement;
+const dialog = (fixture: Fixture) => query(fixture, '[role="dialog"]');
+const action = (fixture: Fixture, part: 'apply' | 'clear') =>
+  query(fixture, `[data-part="${part}"]`) as HTMLButtonElement;
+const selected = (fixture: Fixture) => texts(queryAll(fixture, '[aria-selected="true"]'));

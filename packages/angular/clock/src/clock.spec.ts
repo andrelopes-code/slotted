@@ -43,6 +43,7 @@ describe('what it is made of', () => {
 
   it('draws no minutes at the hour granularity, and the seconds at the second', () => {
     expect(options(render(clock('granularity="hour"')), 'Minutes')).toEqual([]);
+    expect(options(render(clock('step="7200"')), 'Minutes')).toEqual([]);
 
     const fixture = render(clock('granularity="second" step="15"'));
     expect(texts(options(fixture, 'Seconds'))).toEqual([':00', ':15', ':30', ':45']);

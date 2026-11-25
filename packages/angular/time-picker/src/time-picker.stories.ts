@@ -1,54 +1,39 @@
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { signal } from '@angular/core';
 import { plainTime } from '@slotted/core/date';
-import type { PlainTime } from '@slotted/core/date';
-import { SlField, SlFieldDescription, SlFieldError, SlFieldLabel } from '@slotted/angular/field';
+import type { PlainTime, TimeGranularity } from '@slotted/core/date';
 import { bindScenes, createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import type { Meta, StoryObj } from '@storybook/angular-vite';
 import { moduleMetadata } from '@storybook/angular-vite';
-
+import { SlField, SlFieldLabel } from '@slotted/angular/field';
+import { SlClockSlot } from '@slotted/angular/clock';
+import type { TimePickerSize, TimePickerVariant } from './time-picker-defaults';
+import { SlTimePickerFooter } from './time-picker-parts';
 import { SlTimePicker } from './time-picker';
-import type {
-  TimePickerCloseOnSelect,
-  TimePickerPlacement,
-  TimePickerSize,
-  TimePickerVariant,
-} from './time-picker-defaults';
-import { SlTimePickerOption } from './time-picker-option';
-import { SlTimePickerFooter, SlTimePickerPresets } from './time-picker-parts';
 import { ANGULAR_TIME_PICKER_DOCS, ANGULAR_TIME_PICKER_TOKENS } from './time-picker.docs';
 
 interface TimePickerStoryArgs {
-  clearable: boolean;
-  closeOnSelect: TimePickerCloseOnSelect;
-  locale: string;
-  placement: TimePickerPlacement;
+  granularity: TimeGranularity;
   size: TimePickerSize;
   step: number;
   variant: TimePickerVariant;
 }
 
-const TEN: PlainTime = plainTime(10, 0);
-const MORNING: PlainTime = plainTime(9, 0);
-const NOON: PlainTime = plainTime(12, 0);
-const EVENING: PlainTime = plainTime(18, 0);
-/** Stated rather than read from the clock, so every scene reads the same twice. */
-const NOW: PlainTime = plainTime(9, 47);
-
-/** A clinic's own hours: no step describes them, and `options` states them. */
-const CLINIC: PlainTime[] = [
-  plainTime(9, 0),
-  plainTime(9, 20),
-  plainTime(11, 40),
-  plainTime(13, 45),
-  plainTime(16, 0),
-];
-const MARKS: PlainTime[] = [
-  plainTime(0, 0, 15),
-  plainTime(0, 0, 30),
-  plainTime(0, 0, 45),
-  plainTime(0, 1, 0),
-];
+const props = () => ({
+  clinic: [plainTime(8, 40), plainTime(9), plainTime(9, 20), plainTime(13, 45), plainTime(18, 30)],
+  courier: [900, 3600],
+  evening: plainTime(18),
+  halfPastTwo: plainTime(14, 30),
+  isLunch: (time: PlainTime) => time.hour === 12,
+  presets: [
+    { label: 'Start of shift', value: plainTime(8) },
+    { label: 'Lunch', value: plainTime(12) },
+    { label: 'End of shift', value: plainTime(18) },
+  ],
+  tenPastEight: plainTime(8, 10),
+  tenTwenty: plainTime(10, 20),
+  time: signal<PlainTime | null>(plainTime(14, 30)),
+});
 
 const referenceScenes: ReferencePageConfig['scenes'] = () =>
   bindScenes(ANGULAR_TIME_PICKER_DOCS.timePicker.scenes, {
@@ -59,9 +44,10 @@ const referenceScenes: ReferencePageConfig['scenes'] = () =>
     step: Step,
     'range-bounds': RangeBounds,
     unavailable: Unavailable,
-    now: Now,
+    offsets: Offsets,
     relative: Relative,
     presets: Presets,
+    confirm: Confirm,
     sizes: Sizes,
     variants: Variants,
     placement: Placement,
@@ -72,29 +58,21 @@ const referenceScenes: ReferencePageConfig['scenes'] = () =>
     keyboard: Keyboard,
   }) as never;
 
-const DIRECTIVES = [
-  ReactiveFormsModule,
-  SlField,
-  SlFieldDescription,
-  SlFieldError,
-  SlFieldLabel,
-  SlTimePicker,
-  SlTimePickerFooter,
-  SlTimePickerOption,
-  SlTimePickerPresets,
-];
-
 const meta: Meta<TimePickerStoryArgs> = {
-  title: 'Components/TimePicker',
+  title: 'Components/Time Picker',
   component: SlTimePicker,
-  decorators: [moduleMetadata({ imports: DIRECTIVES })],
+  decorators: [
+    moduleMetadata({
+      imports: [SlClockSlot, SlField, SlFieldLabel, SlTimePicker, SlTimePickerFooter],
+    }),
+  ],
   parameters: {
     controls: { disable: true },
     docs: {
       page: createReferencePage({
         title: 'Time Picker',
         description:
-          'A time field, a trigger, and a list of times behind them. One panel shape at every step — a listbox of whole times — because the field beside it already types every second, and options states any set a step cannot describe. The panel complements the typing and never blocks it.',
+          'A time field with a clock behind it: every hour of the day and every minute of the step in view, shortcuts with the time they write, and a draft that Apply writes.',
         framework: 'Angular',
         ...ANGULAR_TIME_PICKER_DOCS.timePicker,
         tokens: ANGULAR_TIME_PICKER_TOKENS,
@@ -107,87 +85,38 @@ const meta: Meta<TimePickerStoryArgs> = {
 export default meta;
 type Story = StoryObj<TimePickerStoryArgs>;
 
-const scene = (
-  label: string,
-  note: string,
-  body: string,
-  layout: 'block' | 'row' | 'stack' | 'prose' = 'stack',
-  /**
-   * How small this scene's subject may legitimately be, in pixels.
-   * `tools/harness/audit.mjs` reports anything under 96 pixels in a wide stage
-   * as collapsed, which is right for a demonstration and wrong for a row of
-   * small buttons.
-   */
-  collapseFloor?: number,
-) => `
+/** One demonstration: what it is called, what to look at, and the stage it stands on. */
+const scene = (label: string, note: string, body: string) => `
   <section class="slotted-demo-scene">
     <header class="slotted-demo-scene__header">
       <span class="slotted-demo-scene__label">${label}</span>
       <span class="slotted-demo-scene__note">${note}</span>
     </header>
-    <div
-      class="slotted-demo-stage"
-      data-layout="${layout}"
-      ${collapseFloor === undefined ? '' : `data-collapse-floor="${String(collapseFloor)}"`}
-    >${body}</div>
+    <div class="slotted-demo-stage" data-layout="block">${body}</div>
   </section>`;
 
 const grid = (columns: 1 | 2 | 3, scenes: string) =>
   `<div class="slotted-demo-grid" data-columns="${String(columns)}">${scenes}</div>`;
 
-const measure = (body: string) => `<div class="slotted-demo-measure">${body}</div>`;
-/** Every open panel needs room under it, and the stage is what gives it. */
-const tall = (body: string) => `<div class="slotted-demo-viewport" data-size="tall">${body}</div>`;
-
-const BOUNDS = `[min]="morning" [max]="lateMorning" [referenceTime]="now"`;
-
 export const Playground: Story = {
-  args: {
-    clearable: true,
-    closeOnSelect: 'auto',
-    locale: 'pt-BR',
-    placement: 'bottom-start',
-    size: 'md',
-    step: 900,
-    variant: 'outline',
-  },
+  args: { granularity: 'minute', size: 'md', step: 900, variant: 'outline' },
   parameters: { ...scenario('playground'), controls: { disable: false } },
   render: (args) => ({
-    props: { ...args, now: NOW },
-    template: `
-      <div class="slotted-demo-stage" data-layout="block">
-        <div slField>
-          <label slFieldLabel>Start time</label>
-          <div
-            slTimePicker
-            name="start"
-            [locale]="locale"
-            [size]="size"
-            [variant]="variant"
-            [placement]="placement"
-            [closeOnSelect]="closeOnSelect"
-            [step]="step"
-            [clearable]="clearable"
-            [referenceTime]="now"
-          ></div>
-          <span slFieldDescription>Escolha na lista ou escreva no campo.</span>
-        </div>
-      </div>`,
+    props: { ...props(), ...args },
+    template: `<div class="slotted-demo-stage" data-layout="block"><div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" [granularity]="granularity" [size]="size" [step]="step" [variant]="variant"></div></div>`,
   }),
 };
 
 export const Panel: Story = {
   parameters: scenario('panel'),
   render: () => ({
-    props: { morning: MORNING, lateMorning: plainTime(11, 30), now: NOW, ten: TEN },
+    props: props(),
     template: grid(
       1,
       scene(
-        'A listbox of whole times',
-        'Every row says the whole time, which is what a reader choosing a slot reads at a glance. One axis is also what makes Home, End, type-ahead and the two arrows all mean something.',
-        tall(
-          `<div slTimePicker locale="pt-BR" defaultOpen aria-label="Hora" [step]="1800" [defaultValue]="ten" ${BOUNDS}></div>`,
-        ),
+        'A shift',
+        'Each shortcut says the time it writes.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" [presets]="presets"></div>`,
       ),
     ),
   }),
@@ -196,16 +125,19 @@ export const Panel: Story = {
 export const Explicit: Story = {
   parameters: scenario('explicit'),
   render: () => ({
-    props: { clinic: CLINIC, now: NOW, chosen: plainTime(11, 40) },
+    props: props(),
     template: grid(
-      1,
+      2,
       scene(
-        "A clinic's own hours",
-        '09:00, 09:20, 11:40, 13:45, 16:00. No step describes that, and a predicate can only subtract from times that fall on one — so options states them outright.',
-        tall(
-          `<div slTimePicker locale="pt-BR" defaultOpen aria-label="Hora da consulta" [options]="clinic" [defaultValue]="chosen" [referenceTime]="now"></div>`,
+        'Appointments',
+        'Whole times under the part of the day.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [options]="clinic"></div>`,
+      ) +
+        scene(
+          'A slot that says more',
+          'renderSlot draws what is in the button.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [options]="clinic"><ng-template slClockSlot let-state="state">{{ state.label }}</ng-template></div>`,
         ),
-      ),
     ),
   }),
 };
@@ -213,16 +145,19 @@ export const Explicit: Story = {
 export const Seconds: Story = {
   parameters: scenario('seconds'),
   render: () => ({
-    props: { marks: MARKS, now: NOW, chosen: plainTime(0, 0, 30) },
+    props: props(),
     template: grid(
-      1,
+      2,
       scene(
-        'Marks of a few seconds',
-        'A day at a one-second step is 86 400 rows and not a list; a stated set of marks is four, and the field types any second the list does not offer.',
-        tall(
-          `<div slTimePicker locale="pt-BR" granularity="second" defaultOpen aria-label="Marca do intervalo" [options]="marks" [defaultValue]="chosen" [referenceTime]="now"></div>`,
+        'A cue',
+        'Every five seconds.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" granularity="second" step="5"></div>`,
+      ) +
+        scene(
+          'The hour alone',
+          'One press is the whole time.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" granularity="hour"></div>`,
         ),
-      ),
     ),
   }),
 };
@@ -230,21 +165,18 @@ export const Seconds: Story = {
 export const Step: Story = {
   parameters: scenario('step'),
   render: () => ({
-    props: { now: NOW, base: plainTime(9, 7), lateMorning: plainTime(10, 30) },
+    props: props(),
     template: grid(
       2,
       scene(
-        'An hour, and a quarter of one',
-        'A step in seconds. The list is what the step makes it, and the field still accepts anything between two rows.',
-        `<div slTimePicker locale="pt-BR" aria-label="Hora cheia" [step]="3600" [referenceTime]="now"></div>
-         <div slTimePicker locale="pt-BR" aria-label="Quarto de hora" [step]="900" [referenceTime]="now"></div>`,
+        'Five minutes',
+        'Twelve minutes to an hour.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" step="300"></div>`,
       ) +
         scene(
-          'Counted from the lower bound',
-          'min 09:07 with a quarter-hour step offers 09:07, 09:22, 09:37 — the platform’s own rule for input[type=time].',
-          tall(
-            `<div slTimePicker locale="pt-BR" defaultOpen aria-label="Base" [min]="base" [max]="lateMorning" [step]="900" [referenceTime]="now"></div>`,
-          ),
+          'From ten past',
+          'min 08:10 and half an hour: :10 and :40.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [min]="tenPastEight" step="1800"></div>`,
         ),
     ),
   }),
@@ -253,24 +185,18 @@ export const Step: Story = {
 export const RangeBounds: Story = {
   parameters: scenario('range-bounds'),
   render: () => ({
-    props: {
-      opens: MORNING,
-      closes: EVENING,
-      inside: plainTime(11, 30),
-      outside: plainTime(20, 0),
-      now: NOW,
-    },
+    props: props(),
     template: grid(
       2,
       scene(
-        'Inside the hours',
-        'min and max fence the list and the value together: nothing outside them is offered, and nothing outside them is accepted.',
-        `<div slTimePicker locale="pt-BR" aria-label="Dentro" [min]="opens" [max]="closes" [defaultValue]="inside" [referenceTime]="now"></div>`,
+        'Business hours',
+        '08:10 to 18:00.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [max]="evening" [min]="tenPastEight"></div>`,
       ) +
         scene(
           'Outside them',
-          'A value past the fence is invalid whatever the field around the picker says, and the two rings retarget together.',
-          `<div slTimePicker locale="pt-BR" aria-label="Fora" [min]="opens" [max]="closes" [defaultValue]="outside" [referenceTime]="now"></div>`,
+          'The control is invalid, and so is Apply.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" [min]="evening"></div>`,
         ),
     ),
   }),
@@ -279,45 +205,34 @@ export const RangeBounds: Story = {
 export const Unavailable: Story = {
   parameters: scenario('unavailable'),
   render: () => ({
-    props: {
-      isLunch: (time: PlainTime) => time.hour === 12,
-      from: plainTime(11, 0),
-      to: plainTime(13, 0),
-      now: NOON,
-    },
+    props: props(),
     template: grid(
-      2,
+      1,
       scene(
-        'Disabled, which is the default',
-        'The noon hour stays in the list and answers nothing. A list that silently drops rows is a list whose step the reader cannot infer.',
-        tall(
-          `<div slTimePicker locale="pt-BR" defaultOpen aria-label="Desativadas" [isTimeUnavailable]="isLunch" [min]="from" [max]="to" [step]="1800" [referenceTime]="now"></div>`,
-        ),
-      ) +
-        scene(
-          "Hidden, which is the consumer's choice",
-          'The same predicate with unavailableOptions="hide". The rows are gone and the step is no longer readable from the list.',
-          tall(
-            `<div slTimePicker locale="pt-BR" defaultOpen unavailableOptions="hide" aria-label="Escondidas" [isTimeUnavailable]="isLunch" [min]="from" [max]="to" [step]="1800" [referenceTime]="now"></div>`,
-          ),
-        ),
+        'Lunch',
+        'Nothing between twelve and one.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [isTimeUnavailable]="isLunch"></div>`,
+      ),
     ),
   }),
 };
 
-export const Now: Story = {
-  parameters: scenario('now'),
+export const Offsets: Story = {
+  parameters: scenario('offsets'),
   render: () => ({
-    props: { morning: MORNING, lateMorning: plainTime(11, 0), now: NOW },
+    props: props(),
     template: grid(
-      1,
+      2,
       scene(
-        'One press for the current time',
-        'It is the zero case of the field’s relative expression, drawn as a labelled control so a reader who never discovers that + opens a duration still has the one press.',
-        tall(
-          `<div slTimePicker locale="pt-BR" defaultOpen [messages]="{ now: 'Agora' }" aria-label="Agora" ${BOUNDS}></div>`,
+        'A courier',
+        'A quarter of an hour, and an hour.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [offsets]="courier"></div>`,
+      ) +
+        scene(
+          'None',
+          'The clock alone.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [offsets]="[]"></div>`,
         ),
-      ),
     ),
   }),
 };
@@ -325,15 +240,13 @@ export const Now: Story = {
 export const Relative: Story = {
   parameters: scenario('relative'),
   render: () => ({
-    props: { morning: MORNING, lateMorning: plainTime(11, 0), now: NOW, ten: TEN },
+    props: props(),
     template: grid(
       1,
       scene(
-        'The panel complements the typing',
-        'Put focus in the field and press Alt+ArrowDown: the panel opens and focus stays on the segments. Press + and the duration expression opens with the panel still showing.',
-        tall(
-          `<div slTimePicker locale="pt-BR" aria-label="A escrever" [defaultValue]="ten" ${BOUNDS}></div>`,
-        ),
+        'Type +45m',
+        'From a segment.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" relative></div>`,
       ),
     ),
   }),
@@ -342,24 +255,34 @@ export const Relative: Story = {
 export const Presets: Story = {
   parameters: scenario('presets'),
   render: () => ({
-    props: { morning: MORNING, lateMorning: plainTime(11, 0), now: NOW },
+    props: props(),
     template: grid(
       1,
       scene(
-        'Shortcuts and actions the product owns',
-        'This family ships no list of shortcuts: "start of the shift" is a business clock. What it ships is the column they stand in.',
-        tall(
-          `<div slTimePicker locale="pt-BR" defaultOpen closeOnSelect="never" aria-label="With shortcuts" ${BOUNDS}>
-             <div slTimePickerPresets>
-               <button type="button">Shift start</button>
-               <button type="button">Lunch</button>
-             </div>
-             <div slTimePickerFooter>
-               <button type="button">Aplicar</button>
-             </div>
-           </div>`,
-        ),
+        'Shifts',
+        'Now, and three times of the day.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [presets]="presets"></div>`,
       ),
+    ),
+  }),
+};
+
+export const Confirm: Story = {
+  parameters: scenario('confirm'),
+  render: () => ({
+    props: props(),
+    template: grid(
+      2,
+      scene(
+        'With Apply',
+        'Escape leaves the value as it was.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo"></div>`,
+      ) +
+        scene(
+          'Without',
+          'The minute writes, and closes.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" confirm="false"></div>`,
+        ),
     ),
   }),
 };
@@ -367,23 +290,23 @@ export const Presets: Story = {
 export const Sizes: Story = {
   parameters: scenario('sizes'),
   render: () => ({
-    props: { ten: TEN, now: NOW },
+    props: props(),
     template: grid(
-      2,
+      3,
       scene(
-        'On its own',
-        'Three steps of type, height and inside padding, and the trigger’s own box follows each.',
-        `<div slTimePicker locale="pt-BR" size="sm" aria-label="Small" [defaultValue]="ten" [referenceTime]="now"></div>
-         <div slTimePicker locale="pt-BR" size="md" aria-label="Default" [defaultValue]="ten" [referenceTime]="now"></div>
-         <div slTimePicker locale="pt-BR" size="lg" aria-label="Large" [defaultValue]="ten" [referenceTime]="now"></div>`,
+        'sm',
+        'The panel is the same at the three.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" size="sm"></div>`,
       ) +
         scene(
-          'Inside a field',
-          'The picker takes the field’s step rather than its own default.',
-          `<div slField size="sm">
-             <label slFieldLabel>Start time</label>
-             <div slTimePicker locale="pt-BR" [defaultValue]="ten" [referenceTime]="now"></div>
-           </div>`,
+          'md',
+          'The panel is the same at the three.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" size="md"></div>`,
+        ) +
+        scene(
+          'lg',
+          'The panel is the same at the three.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" size="lg"></div>`,
         ),
     ),
   }),
@@ -392,16 +315,24 @@ export const Sizes: Story = {
 export const Variants: Story = {
   parameters: scenario('variants'),
   render: () => ({
-    props: { ten: TEN, now: NOW },
+    props: props(),
     template: grid(
-      1,
+      3,
       scene(
-        'The three frames',
-        'How much the control shows at rest. The panel does not change with it: a surface floating over the page has its own ground.',
-        `<div slTimePicker locale="pt-BR" variant="outline" aria-label="Outline" [defaultValue]="ten" [referenceTime]="now"></div>
-         <div slTimePicker locale="pt-BR" variant="subtle" aria-label="Subtle" [defaultValue]="ten" [referenceTime]="now"></div>
-         <div slTimePicker locale="pt-BR" variant="plain" aria-label="Plain" [defaultValue]="ten" [referenceTime]="now"></div>`,
-      ),
+        'outline',
+        'The frame the fields beside it draw.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" variant="outline"></div>`,
+      ) +
+        scene(
+          'subtle',
+          'The frame the fields beside it draw.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" variant="subtle"></div>`,
+        ) +
+        scene(
+          'plain',
+          'The frame the fields beside it draw.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" variant="plain"></div>`,
+        ),
     ),
   }),
 };
@@ -409,22 +340,18 @@ export const Variants: Story = {
 export const Placement: Story = {
   parameters: scenario('placement'),
   render: () => ({
-    props: { morning: MORNING, lateMorning: plainTime(11, 0), now: NOW },
+    props: props(),
     template: grid(
       2,
       scene(
-        'Below, from the start edge',
-        'The default, and where a form wants it. What the positioner actually resolved is written back as data-placement.',
-        tall(
-          `<div slTimePicker locale="pt-BR" defaultOpen placement="bottom-start" aria-label="Below" ${BOUNDS}></div>`,
-        ),
+        'Bottom, end',
+        'Under the end of the control.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" placement="bottom-end"></div>`,
       ) +
         scene(
-          'Above, from the end edge',
-          'The same surface asked to start elsewhere. It still moves if the room says so.',
-          tall(
-            `<div slTimePicker locale="pt-BR" defaultOpen placement="top-end" aria-label="Above" ${BOUNDS}></div>`,
-          ),
+          'Top, start',
+          'Over its start.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" placement="top-start"></div>`,
         ),
     ),
   }),
@@ -433,27 +360,28 @@ export const Placement: Story = {
 export const States: Story = {
   parameters: scenario('states'),
   render: () => ({
-    props: { ten: TEN, now: NOW, closes: EVENING, outside: plainTime(20, 0) },
+    props: props(),
     template: grid(
       2,
       scene(
-        'Read-only and disabled',
-        'Read-only keeps the value readable and the panel shut; disabled answers no press at all.',
-        `<div slTimePicker locale="pt-BR" readOnly aria-label="Read-only" [defaultValue]="ten" [referenceTime]="now"></div>
-         <div slTimePicker locale="pt-BR" disabled aria-label="Disabled" [defaultValue]="ten" [referenceTime]="now"></div>`,
+        'Disabled',
+        'Answers nothing.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" disabled></div>`,
       ) +
         scene(
-          'Invalid and required, in a field',
-          'The message is the field’s and the state is the control’s. The two rings retarget together, so they never disagree.',
-          `<div slField invalid>
-             <label slFieldLabel>Start time</label>
-             <div slTimePicker locale="pt-BR" [max]="closes" [defaultValue]="outside" [referenceTime]="now"></div>
-             <span slFieldError>Outside business hours.</span>
-           </div>
-           <div slField required>
-             <label slFieldLabel>Hora de fim</label>
-             <div slTimePicker locale="pt-BR" [referenceTime]="now"></div>
-           </div>`,
+          'Read only',
+          'Readable.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" readOnly></div>`,
+        ) +
+        scene(
+          'Invalid',
+          'Stated by the consumer.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" invalid></div>`,
+        ) +
+        scene(
+          'Required',
+          'The form needs it.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" required></div>`,
         ),
     ),
   }),
@@ -462,22 +390,13 @@ export const States: Story = {
 export const Forms: Story = {
   parameters: scenario('forms'),
   render: () => ({
-    props: {
-      form: new FormGroup({ start: new FormControl<PlainTime | null>(TEN) }),
-      now: NOW,
-    },
+    props: props(),
     template: grid(
       1,
       scene(
-        'A reactive form',
-        'The picker hands the value to the field it composes, and the field is the ControlValueAccessor — so a form reads one control rather than two.',
-        `<form [formGroup]="form">
-           <div slField>
-             <label slFieldLabel>Start time</label>
-             <div slTimePicker locale="pt-BR" formControlName="start" required [referenceTime]="now"></div>
-             <span slFieldDescription>Control value: {{ form.value.start | json }}</span>
-           </div>
-         </form>`,
+        'Departure',
+        'Named by its field.',
+        `<div slField><label slFieldLabel>Departure</label><div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" name="departure"></div></div>`,
       ),
     ),
   }),
@@ -486,17 +405,13 @@ export const Forms: Story = {
 export const Narrow: Story = {
   parameters: scenario('narrow'),
   render: () => ({
-    props: { morning: MORNING, lateMorning: plainTime(11, 0), now: NOW },
+    props: props(),
     template: grid(
       1,
       scene(
-        'In a narrow column',
-        'The panel takes the anchor’s width, floored so a narrow field never produces a column too tight to read a time in. Below 480 pixels on a finger it becomes a sheet instead.',
-        measure(
-          tall(
-            `<div slTimePicker locale="pt-BR" defaultOpen aria-label="Estreito" ${BOUNDS}></div>`,
-          ),
-        ),
+        'Narrow the window',
+        'The clock keeps its four rows.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo" [presets]="presets"></div>`,
       ),
     ),
   }),
@@ -505,31 +420,18 @@ export const Narrow: Story = {
 export const Composition: Story = {
   parameters: scenario('composition'),
   render: () => ({
-    props: { morning: MORNING, lateMorning: plainTime(11, 0), now: NOW, ten: TEN },
+    props: props(),
     template: grid(
       2,
       scene(
-        'The consumer draws the row',
-        'An ng-template rather than a projected slot, because it is re-rendered once per option — the case NgTemplateOutlet exists for. The row itself, with its role, its states and its keyboard, stays the family’s.',
-        tall(
-          `<div slTimePicker locale="pt-BR" defaultOpen aria-label="With own rows" [step]="1200" ${BOUNDS}>
-             <ng-template slTimePickerOption let-time let-label="label" let-selected="selected">
-               <span>{{ label }}</span>
-               @if (selected) {
-                 <span>·</span>
-               }
-             </ng-template>
-           </div>`,
-        ),
+        'An owned value',
+        'The picker asks.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [value]="time()" (valueChange)="time.set($event.value)"><span slTimePickerFooter>Gate B</span></div>`,
       ) +
         scene(
-          'The instance a template can reach',
-          'exportAs gives the template the component itself: openSurface() and closeSurface() move the surface without a pointer, and focus() puts the reader on the first segment.',
-          `<div slTimePicker #hora="slTimePicker" locale="pt-BR" aria-label="With instance" [defaultValue]="ten" [referenceTime]="now"></div>
-           <button type="button" (click)="hora.openSurface()">Open</button>
-           <button type="button" (click)="hora.focus()">Focus</button>`,
-          'row',
-          40,
+          'A provider',
+          'Twenty minutes to a slot.',
+          `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" step="1200"></div>`,
         ),
     ),
   }),
@@ -538,15 +440,13 @@ export const Composition: Story = {
 export const Keyboard: Story = {
   parameters: scenario('keyboard'),
   render: () => ({
-    props: { morning: MORNING, lateMorning: NOON, now: NOW, ten: TEN },
+    props: props(),
     template: grid(
       1,
       scene(
-        'Put focus in it and try them',
-        'Alt+ArrowDown from a segment opens the panel and leaves focus there. Tab to the trigger and press ArrowDown to move into the list; inside it the arrows walk, Home and End reach the ends, PageUp and PageDown cross one hour boundary each, digits jump to a time, and Enter chooses. Escape closes and puts focus back on the trigger.',
-        tall(
-          `<div slTimePicker locale="pt-BR" aria-label="Teclado" [step]="900" [defaultValue]="ten" ${BOUNDS}></div>`,
-        ),
+        'Alt and ArrowDown',
+        'Opens, and leaves focus in the field.',
+        `<div slTimePicker [hourCycle]="24" [referenceTime]="tenTwenty" [defaultValue]="halfPastTwo"></div>`,
       ),
     ),
   }),

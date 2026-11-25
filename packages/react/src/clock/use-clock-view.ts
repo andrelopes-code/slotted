@@ -1,4 +1,5 @@
 import {
+  clockFinest,
   clockHourGroups,
   clockModel,
   clockSlotGroups,
@@ -62,7 +63,10 @@ export function useClockView(options: ClockViewOptions) {
   return {
     model,
     hours: clockHourGroups({ format, held, model, now, periods }),
-    minutes: granularity === 'hour' ? [] : unitsOf(model.minutes(hour), held?.minute ?? null),
+    minutes:
+      clockFinest(granularity, step) === 'hour'
+        ? []
+        : unitsOf(model.minutes(hour), held?.minute ?? null),
     seconds:
       granularity === 'second'
         ? unitsOf(model.seconds(hour, held?.minute ?? 0), held?.second ?? null)

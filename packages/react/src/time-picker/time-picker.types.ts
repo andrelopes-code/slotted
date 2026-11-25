@@ -1,39 +1,29 @@
-import type { PlainTime, TimeGranularity, TimeOption } from '@slotted/core/date';
+import type { PickerPreset, PlainTime, TimeGranularity } from '@slotted/core/date';
 import type { PartialMessages, TimePickerMessages } from '@slotted/core/i18n';
 import type { ChangeRequest } from '@slotted/core/state';
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref } from 'react';
 
-import type { TimeFieldChangeRequest, TimeFieldHourCycle } from '../time-field';
+import type { ClockSlotState } from '../clock';
+import type { TimeFieldHourCycle } from '../time-field';
 
 /** Where the surface opens, before the positioner has read the room. */
 export type TimePickerPlacement =
   'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
-
-/**
- * Whether choosing a time closes the surface. `auto` closes, because one press
- * chooses a whole time — there is no second half to come back for.
- */
-export type TimePickerCloseOnSelect = 'auto' | 'always' | 'never';
-
-/** What a time a bound or the predicate refuses looks like in the list. */
-export type TimePickerUnavailableOptions = 'disable' | 'hide';
 
 export type TimePickerSize = 'sm' | 'md' | 'lg';
 export type TimePickerVariant = 'outline' | 'subtle' | 'plain';
 
 /** What an application sets once for every time picker under it. */
 export interface TimePickerDefaults {
-  closeOnSelect: TimePickerCloseOnSelect;
+  /** Whether the panel keeps a draft until Apply. */
+  confirm: boolean;
   granularity: TimeGranularity;
   hourCycle: TimeFieldHourCycle | undefined;
-  /** How many rows the list may reach before it is cut. */
-  maxOptions: number;
   placement: TimePickerPlacement;
   size: TimePickerSize;
   /** Seconds between two offered times. */
   step: number;
   timeZone: string | undefined;
-  unavailableOptions: TimePickerUnavailableOptions;
   variant: TimePickerVariant;
 }
 
@@ -63,34 +53,19 @@ export interface TimePickerHandle {
   close(): void;
 }
 
-/** What `renderOption` receives: the row's own state, and the time it holds. */
-export interface TimePickerOptionState {
-  readonly time: PlainTime;
-  /** The whole time in the locale's shape, which is what the row draws. */
-  readonly label: string;
-  readonly selected: boolean;
-  readonly current: boolean;
-  readonly unavailable: boolean;
-}
-
 export interface TimePickerProps extends Omit<
   ComponentPropsWithRef<'div'>,
   'defaultValue' | 'onChange' | 'ref'
 > {
   value?: PlainTime | null | undefined;
   defaultValue?: PlainTime | null | undefined;
-  onValueChange?: ((value: PlainTime | null, request: TimeFieldChangeRequest) => void) | undefined;
+  onValueChange?:
+    ((value: PlainTime | null, request: ChangeRequest<PlainTime | null>) => void) | undefined;
 
   /** Present means the consumer owns whether the surface is showing. */
   open?: boolean | undefined;
   defaultOpen?: boolean | undefined;
   onOpenChange?: ((open: boolean, request: ChangeRequest<boolean>) => void) | undefined;
-
-  /** Where the reader is in the list. Present means the consumer owns it. */
-  highlightedValue?: PlainTime | null | undefined;
-  defaultHighlightedValue?: PlainTime | null | undefined;
-  onHighlightedValueChange?:
-    ((value: PlainTime | null, request: ChangeRequest<PlainTime | null>) => void) | undefined;
 
   min?: PlainTime | undefined;
   max?: PlainTime | undefined;
@@ -99,17 +74,12 @@ export interface TimePickerProps extends Omit<
   /** Seconds between two offered times. Ignored when `options` states the list. */
   step?: number | undefined;
   /**
-   * The times to offer, stated rather than stepped.
-   *
-   * A step describes a regular list and a great many real ones are not: a
-   * clinic open at 09:00, 09:20 and 13:45, a broadcast schedule, a set of
-   * second-level marks. This is what makes every arrangement expressible, and
-   * it is why the family needs no column panel.
+   * The times to offer, stated rather than stepped: a clinic open at 09:00,
+   * 09:20 and 13:45, a broadcast schedule, a set of second-level marks.
    */
   options?: readonly PlainTime[] | undefined;
-  /** How many rows the list may reach before it is cut. */
-  maxOptions?: number | undefined;
-  unavailableOptions?: TimePickerUnavailableOptions | undefined;
+  /** What one whole time of `options` draws. The button around it is the clock's. */
+  renderSlot?: ((state: ClockSlotState) => ReactNode) | undefined;
 
   /** BCP 47. Unset, the language in force (`SlottedProvider`) decides. */
   locale?: string | undefined;
@@ -121,7 +91,11 @@ export interface TimePickerProps extends Omit<
   size?: TimePickerSize | undefined;
   variant?: TimePickerVariant | undefined;
   placement?: TimePickerPlacement | undefined;
-  closeOnSelect?: TimePickerCloseOnSelect | undefined;
+  /**
+   * Whether the panel keeps a draft until Apply. `false` writes the value on
+   * the press that completes the time, and closes. On by default.
+   */
+  confirm?: boolean | undefined;
 
   disabled?: boolean | undefined;
   readOnly?: boolean | undefined;
@@ -133,20 +107,17 @@ export interface TimePickerProps extends Omit<
   name?: string | undefined;
   /**
    * Words laid over the catalog of the language in force, key by key: the
-   * trigger's two names, the now control, and what the panel says when it is
-   * empty or cut short.
+   * trigger's two names, and what the panel says of a refused time.
    */
   messages?: PartialMessages<TimePickerMessages> | undefined;
 
-  /** The consumer's own shortcuts, in a column beside the list. */
-  presets?: ReactNode | undefined;
-  /** The consumer's own actions, under the list. */
+  /** The consumer's own shortcuts, after `Now`. The panel writes what each one is. */
+  presets?: readonly PickerPreset<PlainTime>[] | undefined;
+  /** Steps from now, in seconds. An empty list draws none. */
+  offsets?: readonly number[] | undefined;
+  /** What the footer says when nothing is wrong. */
   footer?: ReactNode | undefined;
-  /** What one row draws. The row is the family's; what is in it is not. */
-  renderOption?: ((state: TimePickerOptionState) => ReactNode) | undefined;
 
   render?: ((props: TimePickerRootProps) => ReactNode) | undefined;
   ref?: Ref<TimePickerHandle> | undefined;
 }
-
-export type { TimeOption };

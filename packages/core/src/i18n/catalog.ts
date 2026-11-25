@@ -58,6 +58,7 @@ import * as numberFieldModule from './messages/number-field';
 import * as pageModule from './messages/page';
 import * as pageHeaderModule from './messages/page-header';
 import * as paginationModule from './messages/pagination';
+import * as pickerPanelModule from './messages/picker-panel';
 import * as popoverModule from './messages/popover';
 import * as promptComposerModule from './messages/prompt-composer';
 import * as proseModule from './messages/prose';
@@ -144,6 +145,7 @@ export type { NumberFieldMessages } from './messages/number-field';
 export type { PageMessages } from './messages/page';
 export type { PageHeaderMessages } from './messages/page-header';
 export type { PaginationMessages } from './messages/pagination';
+export type { PickerPanelMessages } from './messages/picker-panel';
 export type { PopoverMessages } from './messages/popover';
 export type { PromptComposerMessages } from './messages/prompt-composer';
 export type { ProseMessages } from './messages/prose';
@@ -230,6 +232,7 @@ export { numberFieldMessages } from './messages/number-field';
 export { pageMessages } from './messages/page';
 export { pageHeaderMessages } from './messages/page-header';
 export { paginationMessages } from './messages/pagination';
+export { pickerPanelMessages } from './messages/picker-panel';
 export { popoverMessages } from './messages/popover';
 export { promptComposerMessages } from './messages/prompt-composer';
 export { proseMessages } from './messages/prose';
@@ -318,6 +321,7 @@ export interface SlottedMessages {
   readonly page: pageModule.PageMessages;
   readonly pageHeader: pageHeaderModule.PageHeaderMessages;
   readonly pagination: paginationModule.PaginationMessages;
+  readonly pickerPanel: pickerPanelModule.PickerPanelMessages;
   readonly popover: popoverModule.PopoverMessages;
   readonly promptComposer: promptComposerModule.PromptComposerMessages;
   readonly prose: proseModule.ProseMessages;
@@ -407,6 +411,7 @@ export const EN_US: SlottedMessages = {
   page: pageModule.en,
   pageHeader: pageHeaderModule.en,
   pagination: paginationModule.en,
+  pickerPanel: pickerPanelModule.en,
   popover: popoverModule.en,
   promptComposer: promptComposerModule.en,
   prose: proseModule.en,

@@ -6,7 +6,7 @@ import contract from '../../../../specs/components/time-picker/contract.json';
 import { REACT_TIME_PICKER_DOCS } from './time-picker.docs';
 import * as timePickerStories from './time-picker.stories';
 
-describe('TimePicker stories', () => {
+describe('Time Picker stories', () => {
   it('covers every required scenario', () => {
     expect(scenarioCoverageErrors(contract.scenarios.timePicker, timePickerStories)).toEqual([]);
   });
@@ -26,9 +26,9 @@ describe('TimePicker stories', () => {
   });
 
   /**
-   * The family holds three mutable values, so the page owes three event rows —
-   * the value, the surface and the highlight — as well as the import, the
-   * anatomy and one captioned demonstration per scenario with its source.
+   * The family holds one mutable value, so the page owes an event table as
+   * well as the import, the anatomy and one captioned demonstration per
+   * scenario with the code that produced it.
    */
   it('answers the reference-page contract', () => {
     expect(

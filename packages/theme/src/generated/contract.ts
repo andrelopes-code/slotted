@@ -4246,6 +4246,21 @@ export type ComponentToken =
   | '--slotted-pagination-surface-hover'
   | '--slotted-pagination-target'
   | '--slotted-pagination-text-gap'
+  | '--slotted-picker-panel-backdrop-filter'
+  | '--slotted-picker-panel-border-color'
+  | '--slotted-picker-panel-color'
+  | '--slotted-picker-panel-footer-size'
+  | '--slotted-picker-panel-group-size'
+  | '--slotted-picker-panel-head-size'
+  | '--slotted-picker-panel-module-size'
+  | '--slotted-picker-panel-padding'
+  | '--slotted-picker-panel-preset-size'
+  | '--slotted-picker-panel-radius'
+  | '--slotted-picker-panel-rail-size'
+  | '--slotted-picker-panel-selected-background'
+  | '--slotted-picker-panel-shadow'
+  | '--slotted-picker-panel-sunken-surface'
+  | '--slotted-picker-panel-surface'
   | '--slotted-popover-arrow-size'
   | '--slotted-popover-arrow-tip-radius'
   | '--slotted-popover-backdrop-filter'
@@ -4917,25 +4932,8 @@ export type ComponentToken =
   | '--slotted-time-field-subtle-background'
   | '--slotted-time-field-subtle-border-color'
   | '--slotted-time-field-subtle-hover-background'
-  | '--slotted-time-picker-content-border-color'
-  | '--slotted-time-picker-content-color'
-  | '--slotted-time-picker-content-min-inline-size'
-  | '--slotted-time-picker-content-padding'
-  | '--slotted-time-picker-content-radius'
-  | '--slotted-time-picker-content-shadow'
   | '--slotted-time-picker-invalid-focus-ring-color'
-  | '--slotted-time-picker-label-color'
-  | '--slotted-time-picker-list-block-size'
-  | '--slotted-time-picker-now-color'
-  | '--slotted-time-picker-option-current-background'
-  | '--slotted-time-picker-option-hover-background'
-  | '--slotted-time-picker-option-radius'
-  | '--slotted-time-picker-option-selected-background'
-  | '--slotted-time-picker-option-selected-color'
-  | '--slotted-time-picker-option-selected-hover-background'
   | '--slotted-time-picker-radius'
-  | '--slotted-time-picker-sheet-inline-size'
-  | '--slotted-time-picker-surface'
   | '--slotted-time-picker-trigger-active-background'
   | '--slotted-time-picker-trigger-color'
   | '--slotted-time-picker-trigger-hover-background'
@@ -6645,6 +6643,21 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-pagination-surface-hover",
   "--slotted-pagination-target",
   "--slotted-pagination-text-gap",
+  "--slotted-picker-panel-backdrop-filter",
+  "--slotted-picker-panel-border-color",
+  "--slotted-picker-panel-color",
+  "--slotted-picker-panel-footer-size",
+  "--slotted-picker-panel-group-size",
+  "--slotted-picker-panel-head-size",
+  "--slotted-picker-panel-module-size",
+  "--slotted-picker-panel-padding",
+  "--slotted-picker-panel-preset-size",
+  "--slotted-picker-panel-radius",
+  "--slotted-picker-panel-rail-size",
+  "--slotted-picker-panel-selected-background",
+  "--slotted-picker-panel-shadow",
+  "--slotted-picker-panel-sunken-surface",
+  "--slotted-picker-panel-surface",
   "--slotted-popover-arrow-size",
   "--slotted-popover-arrow-tip-radius",
   "--slotted-popover-backdrop-filter",
@@ -7316,25 +7329,8 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-time-field-subtle-background",
   "--slotted-time-field-subtle-border-color",
   "--slotted-time-field-subtle-hover-background",
-  "--slotted-time-picker-content-border-color",
-  "--slotted-time-picker-content-color",
-  "--slotted-time-picker-content-min-inline-size",
-  "--slotted-time-picker-content-padding",
-  "--slotted-time-picker-content-radius",
-  "--slotted-time-picker-content-shadow",
   "--slotted-time-picker-invalid-focus-ring-color",
-  "--slotted-time-picker-label-color",
-  "--slotted-time-picker-list-block-size",
-  "--slotted-time-picker-now-color",
-  "--slotted-time-picker-option-current-background",
-  "--slotted-time-picker-option-hover-background",
-  "--slotted-time-picker-option-radius",
-  "--slotted-time-picker-option-selected-background",
-  "--slotted-time-picker-option-selected-color",
-  "--slotted-time-picker-option-selected-hover-background",
   "--slotted-time-picker-radius",
-  "--slotted-time-picker-sheet-inline-size",
-  "--slotted-time-picker-surface",
   "--slotted-time-picker-trigger-active-background",
   "--slotted-time-picker-trigger-color",
   "--slotted-time-picker-trigger-hover-background",

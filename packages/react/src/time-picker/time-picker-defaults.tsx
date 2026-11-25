@@ -8,24 +8,14 @@ import type { TimePickerDefaults, TimePickerDefaultsProviderProps } from './time
  */
 export const TIME_PICKER_STEP = 900;
 
-/**
- * How long the list may get: a whole day at a one-minute step, which is the
- * finest whole-day list any surveyed implementation offers. A day at a
- * one-second step is 86 400 rows and a configuration mistake rather than a
- * list; it is cut rather than handed to the DOM.
- */
-export const TIME_PICKER_MAX_OPTIONS = 1440;
-
 const FALLBACK: TimePickerDefaults = {
-  closeOnSelect: 'auto',
+  confirm: true,
   granularity: 'minute',
   hourCycle: undefined,
-  maxOptions: TIME_PICKER_MAX_OPTIONS,
   placement: 'bottom-start',
   size: 'md',
   step: TIME_PICKER_STEP,
   timeZone: undefined,
-  unavailableOptions: 'disable',
   variant: 'outline',
 };
 
@@ -55,15 +45,13 @@ export function TimePickerDefaultsProvider({
   return (
     <TimePickerDefaultsContext.Provider
       value={{
-        closeOnSelect: defaults.closeOnSelect ?? inherited.closeOnSelect,
+        confirm: defaults.confirm ?? inherited.confirm,
         granularity: defaults.granularity ?? inherited.granularity,
         hourCycle: defaults.hourCycle ?? inherited.hourCycle,
-        maxOptions: defaults.maxOptions ?? inherited.maxOptions,
         placement: defaults.placement ?? inherited.placement,
         size: defaults.size ?? inherited.size,
         step: defaults.step ?? inherited.step,
         timeZone: defaults.timeZone ?? inherited.timeZone,
-        unavailableOptions: defaults.unavailableOptions ?? inherited.unavailableOptions,
         variant: defaults.variant ?? inherited.variant,
       }}
     >

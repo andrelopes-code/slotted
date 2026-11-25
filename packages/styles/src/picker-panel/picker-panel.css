@@ -1,0 +1,1019 @@
+@layer slotted.components {
+  /**
+   * ── The panel the date and time pickers share ──────────────────────────
+   *
+   *   ┌─ positioner ─ the layer ──────────────────────────────────────────┐
+   *   │ ┌─ content ─ role="dialog" ─────────────────────────────────────┐ │
+   *   │ │ ┌─ root ────────────────────────────────────────────────────┐ │ │
+   *   │ │ │ rail      │ main                        │ side            │ │ │
+   *   │ │ │ presets   │ head · range-head           │ time-head       │ │ │
+   *   │ │ │ group     │ body ─ calendar or clock    │ body ─ clock    │ │ │
+   *   │ │ │ jump      │ clocks ─ clock │ clock      │                 │ │ │
+   *   │ │ ├───────────┴─────────────────────────────┴─────────────────┤ │ │
+   *   │ │ │ footer ─ hint                              clear · apply  │ │ │
+   *   │ │ └───────────────────────────────────────────────────────────┘ │ │
+   *   │ └───────────────────────────────────────────────────────────────┘ │
+   *   └───────────────────────────────────────────────────────────────────┘
+   *
+   * One grid in six families: a rail of shortcuts, and modules of one width.
+   * A module holds one month or one clock, so a panel is as wide as what it
+   * asks for: one module for a day or a time, two for both, or for a run.
+   *
+   * `calendar`, `clock` and the fields inside keep their own `data-ui`, and
+   * nothing here restyles a day, an hour or a segment.
+   */
+
+  /* ── The layer ────────────────────────────────────────────────────────
+   *
+   * What `packages/core/src/positioner` writes `position`, `left` and `top`
+   * onto. The painted surface is one element in, as `tooltip`, `popover`,
+   * `menu` and `select` are all built.
+   */
+  [data-ui-picker-panel][data-part-positioner] {
+    /* Only the block inset: the positioner writes `left` and never `right`,
+       and `inset-inline-start` would resolve to `right` in a right-to-left
+       document and win over the measured value. */
+    position: absolute;
+    inset-block-start: 0;
+
+    box-sizing: border-box;
+    isolation: isolate;
+    /* The layer is only a frame around the surface; the surface takes the
+       pointer, and the frame must not swallow a press meant for the page. */
+    pointer-events: none;
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+
+    /* The layer arrives along the axis it opens on and never along the inline
+       one, which is the rule `select` records: a scale from the corner the
+       positioner named as origin moved the far edge and read as an entrance
+       from the side. */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-picker-panel][data-part-positioner][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  /* A lateral side has no block direction to arrive from, so it only fades. */
+  [data-ui-picker-panel][data-part-positioner]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  [data-ui-picker-panel][data-part-positioner][data-open] {
+    translate: 0 0;
+    transition: none;
+  }
+
+  /**
+   * The entrance is a keyframe animation and not a transition, for the reason
+   * `select` records: a transition starts from the style the browser computed
+   * last, and the positioner writes `data-side` in the same style update as
+   * the family opens the layer.
+   *
+   * Only a layer the positioner placed arrives. A layer written open in static
+   * markup — the harness, a docs snippet — is simply there, and is
+   * photographed where it stands.
+   */
+  [data-ui-picker-panel][data-part-positioner][data-open][data-positioned] {
+    animation: slotted-picker-panel-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  [data-ui-picker-panel][data-part-positioner][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-picker-panel-enter-up;
+  }
+
+  @keyframes slotted-picker-panel-enter-down {
+    from {
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-picker-panel-enter-up {
+    from {
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-picker-panel-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * The fade belongs to the part that paints the surface, and the layer only
+   * moves. In Chromium an ancestor with `opacity` below one is the Backdrop Root
+   * of what it holds, so a `backdrop-filter` on the content blurs nothing until
+   * the layer is opaque and then appears at once. The content's own opacity
+   * leaves its own filter drawn on every frame of the motion.
+   */
+  [data-ui-picker-panel][data-part-positioner] > [data-part-content] {
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-picker-panel][data-part-positioner][data-open] > [data-part-content] {
+    opacity: 1;
+    transition: none;
+  }
+
+  [data-ui-picker-panel][data-part-positioner][data-open][data-positioned] > [data-part-content] {
+    animation: slotted-picker-panel-fade var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /* Stillness keeps the fade and drops the movement. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-picker-panel][data-part-positioner],
+    [data-ui-picker-panel][data-part-positioner][data-side='top'],
+    [data-ui-picker-panel][data-part-positioner][data-side='left'],
+    [data-ui-picker-panel][data-part-positioner][data-side='right'] {
+      translate: 0 0;
+      transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-picker-panel][data-part-positioner][data-open][data-positioned],
+    [data-ui-picker-panel][data-part-positioner][data-open][data-positioned][data-side='top'],
+    [data-ui-picker-panel][data-part-positioner][data-open][data-positioned][data-side='left'],
+    [data-ui-picker-panel][data-part-positioner][data-open][data-positioned][data-side='right'] {
+      animation-name: none;
+    }
+  }
+
+  /* The anchor scrolled out of its own clipper. The calendar is still open and
+     still belongs to a control the reader can no longer see. */
+  [data-ui-picker-panel][data-part-positioner][data-detached] {
+    visibility: hidden;
+  }
+
+  /**
+   * The surface. It is sized by the panel inside it rather than by the control
+   * it hangs from, and what a low screen cannot hold it scrolls.
+   */
+  [data-ui-picker-panel] [data-part-content] {
+    background-color: var(--slotted-picker-panel-surface, var(--slotted-surface-raised, Canvas));
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-picker-panel-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-picker-panel-radius, var(--slotted-radius-lg, 8px));
+    box-shadow: var(--slotted-picker-panel-shadow, var(--slotted-shadow-lg));
+    box-sizing: border-box;
+    color: var(--slotted-picker-panel-color, var(--slotted-text, CanvasText));
+    inline-size: max-content;
+    max-block-size: var(--slotted-positioner-available-height, 100dvh);
+    max-inline-size: var(--slotted-positioner-available-width, 100vw);
+    overflow: auto;
+    /* The layer above gave up the pointer; the surface takes it back. */
+    pointer-events: auto;
+    scrollbar-width: thin;
+    /* A theme that paints this surface as a translucent material blurs what moves behind it. */
+    -webkit-backdrop-filter: var(--slotted-picker-panel-backdrop-filter, none);
+    backdrop-filter: var(--slotted-picker-panel-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-picker-panel] [data-part-content] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* ── The grid of the panel ──────────────────────────────────────────── */
+  [data-ui-picker-panel][data-part-root] {
+    /* One month or one clock: seven cells of a calendar and the air beside them. */
+    --_module: var(--slotted-picker-panel-module-size, 280px);
+    --_rail: var(--slotted-picker-panel-rail-size, 148px);
+    /* What is left of a module by seven days of two pixels over the control. */
+    --_pad: var(--slotted-picker-panel-padding, 14px);
+    --_head: var(--slotted-picker-panel-head-size, 54px);
+    --_footer: var(--slotted-picker-panel-footer-size, 46px);
+    --_control: max(
+      var(--slotted-target-min, 24px),
+      calc(var(--slotted-control-height-md, 34px) - 6px)
+    );
+    --_icon: var(--slotted-control-icon-size-md, 16px);
+    --_edge: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-picker-panel-border-color, var(--slotted-border-subtle, ButtonBorder));
+    --_tint: var(
+      --slotted-picker-panel-selected-background,
+      color-mix(
+        in oklab,
+        var(--slotted-tone-accent-solid) calc(var(--slotted-highlight-tint-opacity, 0.075) * 200%),
+        transparent
+      )
+    );
+
+    box-sizing: border-box;
+    display: grid;
+    font-family: var(--slotted-font-family-sans, sans-serif);
+    font-size: var(--slotted-control-font-size-md, 13px);
+    font-variant-numeric: tabular-nums;
+    grid-template-areas: 'rail main side' 'footer footer footer';
+    grid-template-columns: auto auto auto;
+    line-height: 1.3;
+  }
+
+  [data-ui-picker-panel]
+    :is(
+      [data-part-preset],
+      [data-part-step],
+      [data-part-jump-month],
+      [data-part-chip],
+      [data-part-half-day],
+      [data-part-half-time],
+      [data-part-clear],
+      [data-part-apply]
+    ) {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--slotted-radius-sm, 4px);
+    box-sizing: border-box;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    font-variant-numeric: inherit;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-picker-panel]
+    :is(
+      [data-part-preset],
+      [data-part-step],
+      [data-part-jump-month],
+      [data-part-chip],
+      [data-part-half-day],
+      [data-part-half-time],
+      [data-part-clear],
+      [data-part-apply],
+      [data-part-ruler-handle]
+    ):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-border-width-thin, 1px);
+    position: relative;
+  }
+
+  [data-ui-picker-panel]
+    :is([data-part-preset], [data-part-step], [data-part-jump-month], [data-part-chip]):disabled {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  [data-ui-picker-panel] [data-part-step] {
+    --slotted-icon-size: var(--_icon);
+
+    block-size: var(--_control);
+    color: var(--slotted-text-muted, GrayText);
+    display: grid;
+    flex: none;
+    inline-size: var(--_control);
+    place-items: center;
+  }
+
+  /* One glyph, turned: the icon's own mirror composes with it under dir="rtl". */
+  [data-ui-picker-panel] [data-part-step][data-direction='previous'] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  [data-ui-picker-panel]
+    :is(
+      [data-part-step],
+      [data-part-chip],
+      [data-part-clear],
+      [data-part-jump-month],
+      [data-part-half-day],
+      [data-part-half-time]
+    ):hover:not(:disabled):not([data-disabled]):not([data-selected]):not([data-current]) {
+    background-color: var(--slotted-tone-secondary-subtle-hover);
+  }
+
+  [data-ui-picker-panel]
+    :is(
+      [data-part-step],
+      [data-part-chip],
+      [data-part-clear],
+      [data-part-jump-month],
+      [data-part-half-day],
+      [data-part-half-time]
+    ):active:not(:disabled):not([data-disabled]):not([data-selected]):not([data-current]) {
+    background-color: var(--slotted-tone-secondary-subtle-active);
+  }
+
+  /* ── The rail: shortcuts with their result, and the jump that closes it ── */
+  [data-ui-picker-panel] [data-part-rail] {
+    background-color: var(
+      --slotted-picker-panel-sunken-surface,
+      var(--slotted-surface-sunken, ButtonFace)
+    );
+    border-inline-end: var(--_edge);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-4, 0.5rem);
+    grid-area: rail;
+    inline-size: var(--_rail);
+    justify-content: space-between;
+    padding: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-picker-panel] [data-part-presets] {
+    display: grid;
+    gap: var(--slotted-border-width-thin, 1px);
+  }
+
+  /* Two fixed lines: the name, and what a press writes. */
+  [data-ui-picker-panel] [data-part-preset] {
+    --slotted-icon-size: var(--_icon);
+
+    align-content: center;
+    block-size: var(--slotted-picker-panel-preset-size, 38px);
+    column-gap: var(--slotted-space-2, 0.25rem);
+    display: grid;
+    grid-template-areas: 'label icon' 'result icon';
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    text-align: start;
+  }
+
+  [data-ui-picker-panel] [data-part-preset] > [data-ui-icon] {
+    align-self: center;
+    grid-area: icon;
+  }
+
+  [data-ui-picker-panel] :is([data-part-preset-label], [data-part-preset-result]) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  [data-ui-picker-panel] [data-part-preset-label] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+    grid-area: label;
+  }
+
+  [data-ui-picker-panel] [data-part-preset-result] {
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    grid-area: result;
+  }
+
+  [data-ui-picker-panel] [data-part-preset]:hover:not(:disabled):not([data-selected]) {
+    background-color: var(--slotted-tone-accent-subtle-hover);
+  }
+
+  [data-ui-picker-panel] [data-part-preset]:active:not(:disabled):not([data-selected]) {
+    background-color: var(--slotted-tone-accent-subtle-active);
+  }
+
+  [data-ui-picker-panel] [data-part-preset][data-selected] {
+    background-color: var(--_tint);
+    color: var(--slotted-tone-accent-text);
+  }
+
+  [data-ui-picker-panel]
+    [data-part-preset]:is([data-selected], :disabled)
+    [data-part-preset-result] {
+    color: inherit;
+  }
+
+  /* A group takes the height the presets leave, up to the tallest it reads well at. */
+  [data-ui-picker-panel] :is([data-part-jump], [data-part-group]) {
+    display: grid;
+    flex: 1 1 auto;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-template-rows: auto 1fr;
+    max-block-size: var(--slotted-picker-panel-group-size, 144px);
+  }
+
+  [data-ui-picker-panel] [data-part-group-label] {
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    white-space: nowrap;
+  }
+
+  [data-ui-picker-panel] [data-part-jump-head] {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  [data-ui-picker-panel] [data-part-jump-year] {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  [data-ui-picker-panel] :is([data-part-jump-grid], [data-part-chips]) {
+    display: grid;
+    grid-auto-rows: minmax(calc(var(--slotted-target-min, 24px) + 2px), 1fr);
+  }
+
+  [data-ui-picker-panel] [data-part-jump-grid] {
+    gap: var(--slotted-border-width-thin, 1px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  [data-ui-picker-panel] [data-part-chips] {
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-ui-picker-panel] :is([data-part-jump-month], [data-part-chip]) {
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+  }
+
+  [data-ui-picker-panel] [data-part-jump-month]:not(:disabled, [data-selected], [data-current]) {
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  [data-ui-picker-panel] [data-part-jump-month][data-today] {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  /* On screen, and holding the value: an outline, and the tint of the value. */
+  [data-ui-picker-panel] [data-part-jump-month][data-current] {
+    background-color: var(--slotted-surface-raised, Canvas);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-control-border-color, ButtonBorder);
+  }
+
+  [data-ui-picker-panel] [data-part-jump-month][data-selected] {
+    background-color: var(--_tint);
+    color: var(--slotted-tone-accent-text);
+  }
+
+  [data-ui-picker-panel] [data-part-jump-month][data-selected][data-current] {
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-tone-accent-border, Highlight);
+  }
+
+  [data-ui-picker-panel] [data-part-chip] {
+    background-color: var(--slotted-surface-raised, Canvas);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-border-subtle, ButtonBorder);
+  }
+
+  [data-ui-picker-panel] [data-part-chip][data-selected] {
+    background-color: var(--slotted-tone-accent-solid);
+    color: var(--slotted-tone-accent-on-solid);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  /* ── The head: the value in words ──────────────────────────────────── */
+  [data-ui-picker-panel] [data-part-main] {
+    display: flex;
+    flex-direction: column;
+    grid-area: main;
+    min-inline-size: var(--_module);
+  }
+
+  [data-ui-picker-panel] :is([data-part-head], [data-part-time-head]) {
+    align-items: center;
+    block-size: var(--_head);
+    border-block-end: var(--_edge);
+    box-sizing: border-box;
+    column-gap: var(--slotted-space-4, 0.5rem);
+    display: grid;
+    flex: none;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-inline: var(--_pad);
+  }
+
+  [data-ui-picker-panel] :is([data-part-value], [data-part-time-label]) {
+    align-self: end;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-picker-panel] [data-part-value] {
+    font-size: var(--slotted-font-size-lg, 1rem);
+  }
+
+  [data-ui-picker-panel] :is([data-part-meta], [data-part-time-meta]) {
+    align-self: start;
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    grid-row: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-picker-panel] :is([data-part-steps], [data-part-time-value]) {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+
+  [data-ui-picker-panel] [data-part-steps] {
+    align-items: center;
+    display: flex;
+  }
+
+  [data-ui-picker-panel] :is([data-part-value], [data-part-half-value])[data-empty] {
+    color: var(--slotted-text-muted, GrayText);
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-picker-panel] :is([data-part-value], [data-part-half-value])[data-invalid] {
+    color: var(--slotted-tone-danger-text);
+  }
+
+  /* The field of a time, drawn at the size of a value: the field's own tokens. */
+  [data-ui-picker-panel] [data-part-time-value] {
+    --slotted-control-font-size-sm: var(--slotted-font-size-xl, 1.125rem);
+    --slotted-control-padding-inline-sm: var(--slotted-space-2, 0.25rem);
+    --slotted-time-field-segment-min-inline-size: 2.4ch;
+
+    background-color: var(
+      --slotted-picker-panel-sunken-surface,
+      var(--slotted-surface-sunken, ButtonFace)
+    );
+    border-radius: var(--slotted-radius-sm, 4px);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  /* ── The head of a run: two halves, and its length between them ────── */
+  [data-ui-picker-panel] [data-part-range-head] {
+    block-size: var(--_head);
+    border-block-end: var(--_edge);
+    box-sizing: border-box;
+    display: grid;
+    flex: none;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  [data-ui-picker-panel] [data-part-half] {
+    align-content: center;
+    display: grid;
+    gap: var(--slotted-border-width-thin, 1px) var(--slotted-space-4, 0.5rem);
+    grid-template-columns: auto minmax(0, 1fr);
+    padding-inline: var(--_pad);
+  }
+
+  [data-ui-picker-panel] :is([data-part-half-label], [data-part-half-meta]) {
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-picker-panel] [data-part-half-meta] {
+    text-align: end;
+  }
+
+  [data-ui-picker-panel] [data-part-half-value] {
+    --slotted-control-font-size-sm: var(--slotted-font-size-md, 0.875rem);
+    --slotted-control-height-sm: var(--slotted-target-min, 24px);
+    --slotted-control-padding-inline-sm: var(--slotted-space-1, 0.125rem);
+
+    display: flex;
+    font-size: var(--slotted-font-size-md, 0.875rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-inline: calc(-1 * var(--slotted-space-2, 0.25rem));
+    min-inline-size: 0;
+  }
+
+  [data-ui-picker-panel] :is([data-part-half-day], [data-part-half-time]) {
+    block-size: var(--slotted-target-min, 24px);
+    font-weight: inherit;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* The end the next press writes: the tint, and a line that says it without color. */
+  [data-ui-picker-panel] [data-part-half][data-current] {
+    background-color: var(--_tint);
+    box-shadow: inset 0 calc(-1 * var(--slotted-border-width-thick, 2px)) 0
+      var(--slotted-tone-accent-solid, Highlight);
+  }
+
+  [data-ui-picker-panel]
+    [data-part-half][data-current]
+    :is([data-part-half-label], [data-part-half-meta]) {
+    color: var(--slotted-tone-accent-text);
+  }
+
+  [data-ui-picker-panel] [data-part-span] {
+    align-items: center;
+    border-inline: var(--_edge);
+    display: flex;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* As wide as the longest length, so the steppers stay put under a press. */
+  [data-ui-picker-panel] [data-part-span-text] {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    min-inline-size: 7.5em;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  [data-ui-picker-panel] [data-part-span-text][data-empty] {
+    color: var(--slotted-text-muted, GrayText);
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /* ── The modules ───────────────────────────────────────────────────── */
+  [data-ui-picker-panel] [data-part-body] {
+    display: grid;
+    flex: 1;
+    justify-items: center;
+    padding: var(--slotted-space-3, 0.375rem) var(--_pad) var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-picker-panel] [data-part-body] > [data-ui-clock] {
+    inline-size: 100%;
+  }
+
+  [data-ui-picker-panel] [data-part-side] {
+    border-inline-start: var(--_edge);
+    display: flex;
+    flex-direction: column;
+    grid-area: side;
+    inline-size: var(--_module);
+  }
+
+  /* Two clocks, each under the half of its own end. */
+  [data-ui-picker-panel] [data-part-clocks] {
+    border-block-start: var(--_edge);
+    display: grid;
+    flex: 1;
+    grid-template-columns: repeat(2, minmax(var(--_module), 1fr));
+  }
+
+  [data-ui-picker-panel] [data-part-clocks] > [data-ui-clock] {
+    padding: var(--slotted-space-4, 0.5rem) var(--_pad);
+  }
+
+  [data-ui-picker-panel] [data-part-clocks] > [data-ui-clock] + [data-ui-clock] {
+    border-inline-start: var(--_edge);
+  }
+
+  /* The steps from now, on the label column of the clock over them. */
+  [data-ui-picker-panel] [data-part-offsets] {
+    border-block-start: var(--_edge);
+    display: grid;
+    gap: var(--slotted-space-1, 0.125rem);
+    grid-template-columns: var(--slotted-clock-label-inline-size, 62px) minmax(0, 1fr);
+    inline-size: 100%;
+    margin-block-start: var(--slotted-space-4, 0.5rem);
+    padding-block-start: var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-picker-panel] [data-part-offsets] > [data-part-group-label] {
+    align-self: center;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    overflow: hidden;
+    padding-inline: 0;
+    text-overflow: ellipsis;
+  }
+
+  [data-ui-picker-panel] [data-part-offsets] > [data-part-chips] {
+    grid-auto-rows: var(--_control);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* ── The ruler: the day as one axis ────────────────────────────────── */
+  [data-ui-picker-panel] [data-part-ruler] {
+    display: grid;
+    flex: none;
+    gap: var(--slotted-space-2, 0.25rem);
+    padding: var(--slotted-space-4, 0.5rem) var(--_pad) var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-picker-panel] [data-part-ruler-track] {
+    background-color: var(
+      --slotted-picker-panel-sunken-surface,
+      var(--slotted-surface-sunken, ButtonFace)
+    );
+    block-size: var(--_control);
+    border-radius: var(--slotted-radius-md, 6px);
+    display: grid;
+    grid-template-columns: repeat(24, minmax(0, 1fr));
+    position: relative;
+  }
+
+  [data-ui-picker-panel] [data-part-ruler-hour]:not(:last-of-type) {
+    border-inline-end: var(--_edge);
+  }
+
+  [data-ui-picker-panel] [data-part-ruler-hour][data-unavailable] {
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 3px,
+      var(--slotted-border-subtle, ButtonBorder) 3px 4px
+    );
+  }
+
+  [data-ui-picker-panel] [data-part-ruler-band] {
+    background-color: var(--slotted-tone-accent-solid, Highlight);
+    inset-block: 0;
+    position: absolute;
+  }
+
+  [data-ui-picker-panel] [data-part-ruler-handle] {
+    block-size: 100%;
+    cursor: ew-resize;
+    inline-size: var(--slotted-target-min, 24px);
+    inset-block: 0;
+    margin-inline-start: calc(var(--slotted-target-min, 24px) / -2);
+    position: absolute;
+    touch-action: none;
+  }
+
+  [data-ui-picker-panel] [data-part-ruler-handle]:focus-visible {
+    border-radius: var(--slotted-radius-sm, 4px);
+    position: absolute;
+    z-index: 1;
+  }
+
+  [data-ui-picker-panel] [data-part-ruler-scale] {
+    color: var(--slotted-text-muted, GrayText);
+    display: grid;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  /* ── The footer ────────────────────────────────────────────────────── */
+  [data-ui-picker-panel] [data-part-footer] {
+    align-items: center;
+    background-color: var(
+      --slotted-picker-panel-sunken-surface,
+      var(--slotted-surface-sunken, ButtonFace)
+    );
+    block-size: var(--_footer);
+    border-block-start: var(--_edge);
+    box-sizing: border-box;
+    display: flex;
+    gap: var(--slotted-space-4, 0.5rem);
+    grid-area: footer;
+    inset-block-end: 0;
+    padding-inline: var(--_pad) var(--slotted-space-4, 0.5rem);
+    position: sticky;
+  }
+
+  [data-ui-picker-panel] [data-part-hint] {
+    align-items: center;
+    color: var(--slotted-text-muted, GrayText);
+    display: flex;
+    flex: 1;
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    /* A hint never widens the panel: it takes what the actions leave. */
+    inline-size: 0;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-picker-panel] [data-part-hint][data-invalid] {
+    color: var(--slotted-tone-danger-text);
+  }
+
+  [data-ui-picker-panel] :is([data-part-clear], [data-part-apply]) {
+    block-size: var(--slotted-control-height-sm, 30px);
+    flex: none;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    padding-inline: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-picker-panel] [data-part-apply] {
+    background-color: var(--slotted-tone-accent-solid);
+    color: var(--slotted-tone-accent-on-solid);
+  }
+
+  [data-ui-picker-panel] [data-part-apply]:hover:not(:disabled) {
+    background-color: var(--slotted-tone-accent-solid-hover);
+  }
+
+  [data-ui-picker-panel] [data-part-apply]:active:not(:disabled) {
+    background-color: var(--slotted-tone-accent-solid-active);
+  }
+
+  [data-ui-picker-panel] :is([data-part-clear], [data-part-apply]):disabled {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  [data-ui-picker-panel] [data-part-apply]:disabled {
+    background-color: var(--slotted-disabled-background, ButtonFace);
+  }
+
+  /* ── One column ────────────────────────────────────────────────────────
+   *
+   * Under the widest panel and its margins, one month or one clock at a time:
+   * the day and the time of the head say which, and the shortcuts become a
+   * strip over the footer. The parts are the same; the stylesheet decides.
+   */
+  @media (max-width: 760px) {
+    [data-ui-picker-panel][data-part-root] {
+      --_footer: var(--slotted-picker-panel-footer-size, 60px);
+      --_module: 0px;
+
+      grid-template-areas: 'main' 'side' 'rail' 'footer';
+      grid-template-columns: minmax(0, 1fr);
+      inline-size: min(358px, 100vw);
+    }
+
+    [data-ui-picker-panel] [data-part-rail] {
+      border-block-start: var(--_edge);
+      border-inline-end: 0;
+      inline-size: auto;
+    }
+
+    [data-ui-picker-panel] :is([data-part-presets], [data-part-group] > [data-part-chips]) {
+      display: flex;
+      gap: var(--slotted-space-2, 0.25rem);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    [data-ui-picker-panel] :is([data-part-preset], [data-part-chip]) {
+      block-size: var(--slotted-target-comfortable, 44px);
+      flex: none;
+      padding-inline: var(--slotted-space-5, 0.75rem);
+    }
+
+    [data-ui-picker-panel] [data-part-preset]:not([data-selected]) {
+      background-color: var(--slotted-surface-raised, Canvas);
+      box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+        var(--slotted-border-subtle, ButtonBorder);
+    }
+
+    [data-ui-picker-panel]
+      :is(
+        [data-part-jump],
+        [data-part-steps],
+        [data-part-group] > [data-part-group-label],
+        [data-part-span],
+        [data-part-ruler],
+        [data-part-half-meta]
+      ) {
+      display: none;
+    }
+
+    [data-ui-picker-panel] [data-part-body] > [data-ui-calendar] {
+      /* A day fills a seventh of the column, and six weeks keep one screen. */
+      --slotted-calendar-cell-block-size: calc(var(--slotted-target-comfortable, 44px) - 2px);
+      --slotted-calendar-cell-size: calc(var(--slotted-target-comfortable, 44px) + 4px);
+    }
+
+    [data-ui-picker-panel] [data-part-range-head] {
+      block-size: 64px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    [data-ui-picker-panel] [data-part-half] ~ [data-part-half] {
+      border-inline-start: var(--_edge);
+    }
+
+    [data-ui-picker-panel] [data-part-half-value] {
+      gap: 0;
+    }
+
+    [data-ui-picker-panel] :is([data-part-half-day], [data-part-half-time]) {
+      block-size: 36px;
+    }
+
+    /* The half that is being chosen, of the two the active end has. */
+    [data-ui-picker-panel][data-showing='day'] [data-current] [data-part-half-day][data-current],
+    [data-ui-picker-panel][data-showing='time'] [data-current] [data-part-half-time][data-current] {
+      background-color: var(--slotted-tone-accent-solid);
+      color: var(--slotted-tone-accent-on-solid);
+    }
+
+    /* What is not being chosen leaves; its button in the head brings it back. */
+    [data-ui-picker-panel][data-kind='datetime'][data-showing='day']
+      [data-part-side]
+      > [data-part-body],
+    [data-ui-picker-panel][data-kind='datetime'][data-showing='time']
+      [data-part-main]
+      > [data-part-body],
+    [data-ui-picker-panel][data-kind='datetime-range'][data-showing='day'] [data-part-clocks],
+    [data-ui-picker-panel][data-kind='datetime-range'][data-showing='time']
+      [data-part-main]
+      > [data-part-body],
+    [data-ui-picker-panel] [data-part-clocks] > [data-ui-clock]:not([data-current]) {
+      display: none;
+    }
+
+    [data-ui-picker-panel] [data-part-side] {
+      border-block-start: var(--_edge);
+      border-inline-start: 0;
+      inline-size: auto;
+    }
+
+    [data-ui-picker-panel] [data-part-clocks] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    [data-ui-picker-panel] [data-part-clocks] > [data-ui-clock] + [data-ui-clock] {
+      border-inline-start: 0;
+    }
+
+    [data-ui-picker-panel] [data-part-offsets] > [data-part-chips] {
+      grid-auto-rows: var(--slotted-target-comfortable, 44px);
+    }
+
+    [data-ui-picker-panel] :is([data-part-clear], [data-part-apply]) {
+      block-size: var(--slotted-target-comfortable, 44px);
+    }
+  }
+
+  /* ── Narrow, on a finger ──────────────────────────────────────────────
+   *
+   * A popover on the desktop and a sheet in a narrow viewport. The query is on
+   * the viewport rather than on a container because a layer in a portal has no
+   * container to ask, and the question really is how much screen there is.
+   */
+  @media (max-width: 480px) and (pointer: coarse) {
+    [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'] {
+      /* A sheet is not placed against an anchor, it is placed against the screen. */
+      inset: auto 0 0;
+      position: fixed;
+      translate: 0 var(--slotted-space-9, 2rem);
+    }
+
+    [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'][data-open] {
+      translate: 0 0;
+    }
+
+    [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'] > [data-part-content] {
+      border-block-end: 0;
+      border-end-end-radius: 0;
+      border-end-start-radius: 0;
+      border-inline: 0;
+      inline-size: 100%;
+      max-block-size: 90dvh;
+      max-inline-size: none;
+    }
+
+    [data-ui-picker-panel][data-presentation='sheet'] [data-ui-picker-panel][data-part-root] {
+      inline-size: 100%;
+    }
+
+    /**
+     * The grip every bottom sheet carries, in the drawer's geometry and line
+     * color: a pill three rem by a quarter, centerd in a row one target tall
+     * that the content keeps clear at its top. A pull down on it dismisses the
+     * sheet; Escape and the press outside stay the accessible ways out.
+     */
+    [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'] > [data-part-content] {
+      padding-block-start: var(--slotted-target-min, 24px);
+      position: relative;
+    }
+
+    [data-ui-picker-panel][data-part-positioner][data-presentation='sheet']
+      > [data-part-content]
+      > [data-part-grip] {
+      background-clip: content-box;
+      background-color: var(
+        --slotted-drawer-resizer-line-color,
+        var(--slotted-border-strong, ButtonBorder)
+      );
+      block-size: var(--slotted-space-2, 0.25rem);
+      border-radius: var(--slotted-radius-full, 9999px);
+      box-sizing: content-box;
+      cursor: grab;
+      inline-size: var(--slotted-space-11, 3rem);
+      inset-block-start: 0;
+      inset-inline: 0;
+      margin-inline: auto;
+      padding-block: calc((var(--slotted-target-min, 24px) - var(--slotted-space-2, 0.25rem)) / 2);
+      position: absolute;
+      touch-action: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-picker-panel]
+      :is(
+        [data-part-chip][data-selected],
+        [data-part-apply]:not(:disabled),
+        [data-part-ruler-band]
+      ) {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-picker-panel] :is([data-part-preset], [data-part-jump-month])[data-selected],
+    [data-ui-picker-panel] [data-part-half][data-current] {
+      outline: var(--slotted-border-width-thin, 1px) solid Highlight;
+      outline-offset: calc(-1 * var(--slotted-border-width-thin, 1px));
+    }
+  }
+}

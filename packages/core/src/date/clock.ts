@@ -11,7 +11,7 @@
  */
 
 import { isTimeInRange, secondsOfDay, SECONDS_PER_DAY, timeOfSeconds } from './plain-time';
-import type { PlainTime } from './plain-time';
+import type { PlainTime, TimeGranularity } from './plain-time';
 import type { TimeOption } from './time-list';
 
 const MINUTE = 60;
@@ -130,6 +130,14 @@ export function withClockSecond(
   const at = held.hour * HOUR + held.minute * MINUTE + second;
 
   return model.nearest({ ...held, second }, at, at + 1);
+}
+
+/**
+ * The finest unit a clock draws: the press that completes a time. A step of
+ * whole hours leaves one minute to an hour, and the hour alone writes it.
+ */
+export function clockFinest(granularity: TimeGranularity, step: number): TimeGranularity {
+  return granularity === 'minute' && step % HOUR === 0 ? 'hour' : granularity;
 }
 
 /** How many units stand side by side: a quarter of an hour, five minutes, one minute. */

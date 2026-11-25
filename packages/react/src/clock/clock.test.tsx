@@ -60,6 +60,12 @@ describe('what it is made of', () => {
     ]);
   });
 
+  it('draws the hours alone under a step of whole hours', () => {
+    render(<Clock {...base} step={7200} />);
+
+    expect(screen.queryByRole('listbox', { name: 'Minutes' })).toBeNull();
+  });
+
   it('names the parts of the day, and the halves of a twelve-hour clock', () => {
     const { rerender } = render(<Clock {...base} defaultValue={HALF_PAST_TWO} />);
     expect(groups()).toEqual(['Night', 'Morning', 'Afternoon', 'Evening']);
