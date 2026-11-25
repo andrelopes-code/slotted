@@ -39,7 +39,7 @@ Pass `checked` to own the state. A press calls `onCheckedChange` in React and em
 
 ## Saving a change
 
-When a change is saved to a server, set `loading` until the save returns and move the switch only when it succeeds. While loading, the thumb draws a turning arc in place of its check, the switch keeps its size and refuses a second press, and the control carries `aria-busy`. A screen reader hears `messages.loading` only if the wait passes two seconds. Press the switch: the save takes 2.5 seconds.
+A switch that saves at the press shows the asked value at once and returns to the stored one when the write fails. Set `loading` instead when the server decides the value or when the value cannot be asked again: the switch then holds the stored value and moves when the answer arrives. While loading, the thumb becomes the morphing shape of `Loader`, the switch keeps its size and refuses a second press, and the control carries `aria-busy`. `loadingDelay` holds the shape back for that many milliseconds, so a write that answers sooner draws nothing; the press is refused and `aria-busy` is set from the start. A screen reader hears `messages.loading` only if the wait passes two seconds. Press the switch: the save takes 2.5 seconds.
 
 <Example name="loading" />
 

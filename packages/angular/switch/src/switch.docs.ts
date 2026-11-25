@@ -171,7 +171,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'loading',
     title: 'A setting that has not landed yet',
-    note: 'The thumb draws an arc where its mark was, the pill keeps its size so the row does not move, and a second press is refused before the DOM can show a state the server does not have.',
+    note: 'The thumb becomes the morphing shape of Loader, its mark gone, and the pill keeps its size so the row does not move. A second press is refused before the DOM can show a state the server does not have. loadingDelay holds the shape back while a write answers fast.',
     snippet: defineSnippet({
       id: 'switch-angular-loading',
       language: 'angular',
@@ -326,7 +326,14 @@ export const ANGULAR_SWITCH_DOCS = {
         'boolean',
         'false',
         '[slSwitch]',
-        'The value is not settled yet. The switch refuses every press, keeps its size, sets aria-busy, and announces the pending label politely once the wait passes two seconds.',
+        'The value is not settled yet. The switch refuses every press, keeps its size, sets aria-busy, draws the morphing shape of Loader in the place of the thumb, and announces the pending label politely once the wait passes two seconds.',
+      ],
+      [
+        'loadingDelay',
+        'number',
+        '0',
+        '[slSwitch], provideSwitchDefaults',
+        'Milliseconds before the shape appears, so a write that answers sooner draws nothing. The switch refuses a press and sets aria-busy from the start of the wait, and keeps its mark and its cursor until the delay has passed.',
       ],
       [
         'messages',

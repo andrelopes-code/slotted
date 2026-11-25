@@ -16,6 +16,7 @@ export const SWITCH_LOADING_ANNOUNCE_DELAY = 2000;
 const FALLBACK: SwitchDefaults = {
   indicator: 'mark',
   labelPlacement: 'end',
+  loadingDelay: 0,
   size: 'md',
   variant: 'plain',
 };
@@ -47,6 +48,7 @@ export function SwitchDefaultsProvider({ children, ...defaults }: SwitchDefaults
       value={{
         indicator: defaults.indicator ?? inherited.indicator,
         labelPlacement: defaults.labelPlacement ?? inherited.labelPlacement,
+        loadingDelay: defaults.loadingDelay ?? inherited.loadingDelay,
         size: defaults.size ?? inherited.size,
         variant: defaults.variant ?? inherited.variant,
       }}

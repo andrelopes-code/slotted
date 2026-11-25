@@ -250,7 +250,7 @@ export const Loading: Story = {
     <Grid columns={2}>
       <Scene
         label="A write that has not returned"
-        note="Press it: the thumb holds its place, the arc turns where the mark was, and a second press is refused before the DOM can show a state the server does not have."
+        note="Press it: the thumb holds its place, it becomes the shape of Loader, and a second press is refused before the DOM can show a state the server does not have."
         layout="block"
       >
         <PessimisticSwitch />

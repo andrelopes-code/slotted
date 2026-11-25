@@ -14,6 +14,7 @@ import {
   HostAttributeToken,
   inject,
   input,
+  numberAttribute,
   output,
   signal,
   viewChild,
@@ -22,6 +23,7 @@ import {
 import type { OnInit } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { ControlValueAccessor } from '@angular/forms';
+import { resolveLoadingIndicator } from '@slotted/angular/button';
 import { injectMessages } from '@slotted/angular/i18n';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 import { SlField } from '@slotted/angular/field';
@@ -117,7 +119,10 @@ export function activationReason(activation: { detail: number; isTrusted: boolea
     <label data-part="label" data-part-label="" [attr.for]="controlId"><ng-content /></label>
     <ng-content select="[slSwitchDescription]" />
     <span slVisuallyHidden role="status" [attr.id]="pendingId">{{ announcement() }}</span>`,
-  styleUrl: '../../../styles/src/switch/switch.css',
+  styleUrls: [
+    '../../../styles/src/switch/switch.css',
+    '../../../styles/src/loader-shape/loader-shape.css',
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => SlSwitch), multi: true }],
@@ -134,7 +139,7 @@ export function activationReason(activation: { detail: number; isTrusted: boolea
     '[attr.data-disabled]': "resolvedDisabled() === true ? '' : null",
     '[attr.data-readonly]': "resolvedReadOnly() === true ? '' : null",
     '[attr.data-invalid]': "resolvedInvalid() === true ? '' : null",
-    '[attr.data-loading]': "loading() ? '' : null",
+    '[attr.data-loading]': "waiting() ? '' : null",
   },
 })
 export class SlSwitch implements ControlValueAccessor, OnInit {
@@ -162,6 +167,15 @@ export class SlSwitch implements ControlValueAccessor, OnInit {
    * announcing.
    */
   readonly loading = input(false, { transform: booleanAttribute });
+  /**
+   * How long, in milliseconds, a wait runs before the thumb shows it, so a
+   * write that answers at once draws nothing. The press is refused and
+   * `aria-busy` is set from the first instant. Defaults to the provider, then
+   * to nought.
+   */
+  readonly loadingDelay = input<number | undefined, unknown>(undefined, {
+    transform: (value: unknown) => (value === undefined ? undefined : numberAttribute(value)),
+  });
   /**
    * Words laid over the catalog of the language in force, key by key:
    * `loading` is what a reader hears while the switch is pending.
@@ -235,6 +249,9 @@ export class SlSwitch implements ControlValueAccessor, OnInit {
     () => this.labelPlacement() ?? this.defaults.labelPlacement,
   );
   readonly resolvedVariant = computed(() => this.variant() ?? this.defaults.variant);
+  readonly resolvedLoadingDelay = computed(() => this.loadingDelay() ?? this.defaults.loadingDelay);
+  /** Whether the wait is drawn, which is `loading` once the delay has passed. */
+  readonly waiting = resolveLoadingIndicator(this.loading, this.resolvedLoadingDelay);
   readonly resolvedDisabled = computed(
     () => this.disabled() ?? this.formDisabled() ?? this.field?.resolvedDisabled(),
   );

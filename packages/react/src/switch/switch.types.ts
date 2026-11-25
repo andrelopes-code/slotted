@@ -41,6 +41,8 @@ export type SwitchCheckedReason = Extract<
 export interface SwitchDefaults {
   indicator: SwitchIndicator;
   labelPlacement: SwitchLabelPlacement;
+  /** How long a wait runs before the thumb shows it, in milliseconds. */
+  loadingDelay: number;
   size: SwitchSize;
   variant: SwitchVariant;
 }
@@ -127,6 +129,13 @@ export interface SwitchProps extends Omit<
    * change, and the pending label is announced politely after two seconds.
    */
   loading?: boolean | undefined;
+  /**
+   * How long, in milliseconds, a wait runs before the thumb shows it, so a
+   * write that answers at once draws nothing. The press is refused and
+   * `aria-busy` is set from the first instant. Defaults to the provider, then
+   * to `0`.
+   */
+  loadingDelay?: number | undefined;
   /**
    * Words laid over the catalog of the language in force, key by key:
    * `loading` is what a reader hears while the switch is pending.

@@ -213,7 +213,8 @@
       background-color var(--slotted-control-transition-duration)
         var(--slotted-control-transition-easing),
       border-color var(--slotted-control-transition-duration)
-        var(--slotted-control-transition-easing);
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
   }
 
   /**
@@ -605,8 +606,9 @@
   /**
    * Loading. The geometry does not change — the thumb stays where it is and
    * the track keeps its size — because a control that resizes while it saves
-   * moves the row under the pointer. The mark gives way to the arc, which is
-   * the one thing in the family that says the value is not settled yet.
+   * moves the row under the pointer. The mark gives way to the shape, which is
+   * the one thing in the family that says the value is not settled yet: the
+   * position of the thumb and the ground of the track carry the state.
    */
   [data-ui-switch][data-part-root][data-loading] > [data-part-control] {
     cursor: progress;
@@ -620,43 +622,83 @@
   }
 
   /**
-   * The arc. It is geometry rather than an icon — a ring with one quarter of
-   * its border left transparent — so no glyph token is invented for a shape
-   * the border already draws. `progress-indicator` is wave 2 and not built;
-   * when it is, this is the first thing it should replace.
-   *
-   * Three quarters rather than one. A single colored side read as a shape
-   * rather than as a spinner in a still image, and a still image is what a
-   * reader under `prefers-reduced-motion` is looking at.
+   * The ink of the shape. On the checked track it is the thumb's own. On the
+   * unchecked one the thumb is told from the track by its border, which the
+   * shape does not have, so the ink is one the theme holds above 3:1 there.
    */
-  [data-ui-switch][data-part-root][data-loading] > [data-part-track] > [data-part-thumb]::after {
-    animation: slotted-switch-pending var(--slotted-duration-loop) linear infinite;
-    border: var(--slotted-border-width-thin, 1px) solid
-      var(--slotted-switch-pending-color, var(--slotted-tone-accent-solid));
-    border-inline-start-color: transparent;
-    border-radius: var(--slotted-radius-full, 9999px);
-    box-sizing: border-box;
-    content: '';
-    display: block;
-    /* Inset by an eighth so the arc sits inside the thumb's own edge. */
-    inset: 12.5%;
-    position: absolute;
+  [data-ui-switch][data-part-root] {
+    --_pending-ink: var(--slotted-switch-pending-color, var(--slotted-text-muted));
   }
 
-  @keyframes slotted-switch-pending {
-    to {
-      rotate: 360deg;
+  @media (forced-colors: active) {
+    [data-ui-switch][data-part-root] {
+      --_pending-ink: CanvasText;
+    }
+  }
+
+  [data-ui-switch][data-part-root]:is([data-checked], :has(> [data-part-control]:checked)) {
+    --_pending-ink: var(--slotted-switch-thumb-background, var(--slotted-tone-accent-on-solid));
+  }
+
+  [data-ui-switch][data-part-root]:is([data-disabled], :has(> [data-part-control]:disabled)) {
+    --_pending-ink: var(
+      --slotted-switch-disabled-thumb-background,
+      var(--slotted-disabled-foreground)
+    );
+  }
+
+  /**
+   * The thumb becomes the shape of `Loader`, on a layer of its own: a
+   * `clip-path` on the thumb would cut its border and its shadow, and the turn
+   * would carry the mark with it. The box is the thumb's border box, the three
+   * animations are `Loader`'s at its periods and easing, and the sequence
+   * starts at the circle, so the disc does not jump into another form.
+   *
+   * The layer outlives the wait by one transition: `display` turns to `none`
+   * at its end, the animations stand paused on the form they reached and the
+   * disc returns under it. A browser that does not transition `display` drops
+   * the layer at once.
+   */
+  [data-ui-switch] > [data-part-track] > [data-part-thumb]::after {
+    animation:
+      slotted-loader-morph calc(2 * var(--slotted-duration-loop-slow))
+        var(--slotted-easing-emphasized) infinite paused,
+      slotted-loader-lurch calc(2 * var(--slotted-duration-loop-slow))
+        var(--slotted-easing-emphasized) infinite paused,
+      slotted-loader-drift calc(2 * var(--slotted-duration-loop-slow)) linear infinite paused;
+    background-color: var(--_pending-ink);
+    content: '';
+    display: none;
+    inset: calc(-1 * var(--_border));
+    opacity: 0;
+    position: absolute;
+    transition:
+      opacity var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      display var(--slotted-control-transition-duration) allow-discrete;
+  }
+
+  [data-ui-switch][data-part-root][data-loading] > [data-part-track] > [data-part-thumb]::after {
+    animation-play-state: running;
+    display: block;
+    opacity: 1;
+  }
+
+  @starting-style {
+    [data-ui-switch][data-part-root][data-loading] > [data-part-track] > [data-part-thumb]::after {
+      background-color: var(--slotted-switch-thumb-background, var(--slotted-tone-accent-on-solid));
     }
   }
 
   /**
    * An animation that repeats forever has to stop rather than hurry, which is
    * what `docs/token-foundation.md` requires and what the motion scale cannot
-   * do for a loop. The arc stays drawn, so the pending state is still visible
-   * without anything moving.
+   * do for a loop. The shape stays drawn at its form at rest, so the pending
+   * state is still visible without anything moving.
    */
   @media (prefers-reduced-motion: reduce) {
-    [data-ui-switch][data-part-root][data-loading] > [data-part-track] > [data-part-thumb]::after {
+    [data-ui-switch] > [data-part-track] > [data-part-thumb]::after {
       animation: none;
     }
   }
@@ -702,6 +744,19 @@
       var(--slotted-disabled-foreground)
     );
     border-color: var(--slotted-switch-disabled-border-color, var(--slotted-disabled-border));
+    box-shadow: none;
+  }
+
+  /* The shape is the thumb, so the disc gives up its ground, edge and lift. A
+     disabled knob does as well, which is what the second condition weighs. */
+  [data-ui-switch][data-part-root][data-loading]:is(
+      [data-loading],
+      :has(> [data-part-control]:disabled)
+    )
+    > [data-part-track]
+    > [data-part-thumb] {
+    background-color: transparent;
+    border-color: transparent;
     box-shadow: none;
   }
 

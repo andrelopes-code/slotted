@@ -274,7 +274,7 @@ export const Loading: Story = {
         2,
         scene(
           'A write that has not returned',
-          'Press it: the thumb holds its place, the arc turns where the mark was, and a second press is refused before the DOM can show a state the server does not have.',
+          'Press it: the thumb holds its place, it becomes the shape of Loader, and a second press is refused before the DOM can show a state the server does not have.',
           `<span
              slSwitch
              [checked]="on()"

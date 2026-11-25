@@ -128,6 +128,22 @@ test('tells an invalid control from a valid one by width where color cannot', ()
   assert.ok(Number.parseFloat(base['--slotted-control-invalid-edge-width']) >= 1);
 });
 
+/**
+ * The shape of a pending switch has no border to be told from the track by:
+ * it takes `on-solid` on the checked track and the muted text on the other.
+ */
+test('tells the shape of a pending switch from its track in every scheme', () => {
+  for (const [scheme, values] of Object.entries(theme.schemes)) {
+    for (const [ink, track] of [
+      ['--slotted-tone-accent-on-solid', '--slotted-tone-accent-solid'],
+      ['--slotted-text-muted', '--slotted-tone-secondary-solid'],
+    ]) {
+      const ratio = contrast(values[ink], values[track]);
+      assert.ok(ratio >= 3, `${ink} reads ${ratio.toFixed(2)}:1 on ${track} in ${scheme}`);
+    }
+  }
+});
+
 test('danger remains a strong surface with white text', () => {
   for (const values of Object.values(theme.schemes)) {
     assert.equal(values['--slotted-tone-danger-on-solid'], '#ffffff');

@@ -1,4 +1,5 @@
 import '@slotted/styles/progress-indicator/progress-indicator.css';
+import '@slotted/styles/loader-shape/loader-shape.css';
 import '@slotted/styles/visually-hidden/visually-hidden.css';
 
 import { progressLabel } from './progress-parts';

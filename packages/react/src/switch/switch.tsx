@@ -1,5 +1,6 @@
 import { keyedProps } from '@slotted/core/selector-key';
 import '@slotted/styles/switch/switch.css';
+import '@slotted/styles/loader-shape/loader-shape.css';
 
 import { switchMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
@@ -7,6 +8,7 @@ import type { ChangeReason } from '@slotted/core/state';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { ChangeEvent, MouseEvent, ReactNode } from 'react';
 
+import { useLoadingIndicator } from '../button/button-root';
 import { useField } from '../field';
 import { useMessages } from '../i18n';
 import { Glyph, Icon } from '../icon';
@@ -73,6 +75,7 @@ export function Switch({
   invalid,
   labelPlacement,
   loading = false,
+  loadingDelay,
   messages,
   onChange,
   onCheckedChange,
@@ -125,6 +128,10 @@ export function Switch({
   const resolvedIndicator = indicator ?? defaults.indicator;
   const resolvedPlacement = labelPlacement ?? defaults.labelPlacement;
   const resolvedVariant = variant ?? defaults.variant;
+  const waiting = useLoadingIndicator({
+    loading,
+    loadingDelay: loadingDelay ?? defaults.loadingDelay,
+  });
   const resolvedDisabled = disabled ?? field?.disabled;
   const resolvedReadOnly = readOnly ?? field?.readOnly;
   const resolvedInvalid = invalid ?? field?.invalid;
@@ -283,7 +290,7 @@ export function Switch({
     ...(resolvedDisabled === true ? { 'data-disabled': '' } : {}),
     'data-indicator': resolvedIndicator,
     ...(resolvedInvalid === true ? { 'data-invalid': '' } : {}),
-    ...(loading ? { 'data-loading': '' } : {}),
+    ...(waiting ? { 'data-loading': '' } : {}),
     'data-label-placement': resolvedPlacement,
     'data-variant': resolvedVariant,
     'data-part': 'root',

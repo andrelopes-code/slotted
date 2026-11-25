@@ -328,16 +328,16 @@ test('paints read-only as hollow rather than as grey, in both states', () => {
 });
 
 /**
- * The pending arc is the one thing in the family that loops, and an animation
+ * The pending shape is the one thing in the family that loops, and an animation
  * that repeats forever has to stop under reduced motion rather than hurry.
  * The geometry does not change while it runs: a control that resizes while it
  * saves moves the row under the pointer.
  */
-test('stops the pending arc under reduced motion, and never resizes while it runs', () => {
-  const arc = rule(`${root}[data-loading]>[data-part-track]>[data-part-thumb]::after`);
-  assert.match(arc, /animation:slotted-switch-pending var\(--slotted-duration-loop\)/);
-  assert.match(arc, /infinite/);
-  assert.doesNotMatch(arc, /inline-size|block-size/, 'the arc changes the thumb’s box');
+test('stops the pending shape under reduced motion, and never resizes while it runs', () => {
+  const shape = rule('[data-ui-switch]>[data-part-track]>[data-part-thumb]::after');
+  assert.match(shape, /slotted-loader-morph calc\(2 \* var\(--slotted-duration-loop-slow\)\)/);
+  assert.match(shape, /infinite paused/);
+  assert.doesNotMatch(shape, /inline-size|block-size/, 'the shape changes the thumb’s box');
   const reduced = normalized.slice(normalized.indexOf('@media (prefers-reduced-motion:reduce)'));
   assert.match(reduced, /animation:none/);
 });

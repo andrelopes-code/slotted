@@ -40,6 +40,8 @@ export const SWITCH_LOADING_ANNOUNCE_DELAY = 2000;
 export interface SwitchDefaults {
   indicator: SwitchIndicator;
   labelPlacement: SwitchLabelPlacement;
+  /** How long a wait runs before the thumb shows it, in milliseconds. */
+  loadingDelay: number;
   size: SwitchSize;
   variant: SwitchVariant;
 }
@@ -47,6 +49,7 @@ export interface SwitchDefaults {
 const FALLBACK: SwitchDefaults = {
   indicator: 'mark',
   labelPlacement: 'end',
+  loadingDelay: 0,
   size: 'md',
   variant: 'plain',
 };

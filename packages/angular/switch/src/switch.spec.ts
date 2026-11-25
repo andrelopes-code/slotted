@@ -26,6 +26,7 @@ import { SlSwitchDescription } from './switch-parts';
 class Host {
   readonly checked = signal<boolean | undefined>(undefined);
   readonly loading = signal(false);
+  readonly loadingDelay = signal<number | undefined>(undefined);
   readonly seen = signal<string[]>([]);
   readonly cancel = signal(false);
   readonly control = new FormControl(true);
@@ -203,6 +204,38 @@ describe('SlSwitch', () => {
     expect(control(fixture).getAttribute('aria-busy')).toBe('true');
     expect(root(fixture).getAttribute('data-loading')).toBe('');
     expect(control(fixture).getAttribute('aria-describedby')).toContain('-pending');
+  });
+
+  it('refuses a press from the first instant and draws the wait once the delay passes', () => {
+    vi.useFakeTimers();
+    try {
+      const fixture = renderTemplate(
+        `<span slSwitch [loading]="loading()" [loadingDelay]="loadingDelay()" (checkedChange)="record($event.reason, $event.cancel)">Daily backup</span>`,
+        [provideSwitchDefaults({ loadingDelay: 300 })],
+      );
+      fixture.componentInstance.loading.set(true);
+      fixture.detectChanges();
+      press(control(fixture));
+      vi.advanceTimersByTime(299);
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.seen()).toEqual([]);
+      expect(control(fixture).getAttribute('aria-busy')).toBe('true');
+      expect(root(fixture).hasAttribute('data-loading')).toBe(false);
+
+      vi.advanceTimersByTime(1);
+      fixture.detectChanges();
+      expect(root(fixture).hasAttribute('data-loading')).toBe(true);
+
+      fixture.componentInstance.loadingDelay.set(0);
+      fixture.componentInstance.loading.set(false);
+      fixture.detectChanges();
+      fixture.componentInstance.loading.set(true);
+      fixture.detectChanges();
+      expect(root(fixture).hasAttribute('data-loading')).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('announces the pending word of the language in force, and follows a change of it in place', () => {

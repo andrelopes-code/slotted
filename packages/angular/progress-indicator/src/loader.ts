@@ -50,6 +50,7 @@ import type { ProgressShape } from './progress-indicator.constants';
     <ng-content />`,
   styleUrls: [
     '../../../styles/src/progress-indicator/progress-indicator.css',
+    '../../../styles/src/loader-shape/loader-shape.css',
     '../../../styles/src/visually-hidden/visually-hidden.css',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

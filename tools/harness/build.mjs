@@ -321,8 +321,9 @@ async function main() {
   const read = (path) => readFile(new URL(path, root), 'utf8');
 
   const fragment = await read(`packages/styles/src/${family}/${family}.harness.html`);
+  /* `loader-shape` has no `data-ui` of its own: it is read by `switch` and `progress-indicator`. */
   const composed = await Promise.all(
-    composedFamilies(fragment, family).map((name) =>
+    [...composedFamilies(fragment, family), 'loader-shape'].map((name) =>
       read(`packages/styles/src/${name}/${name}.css`).catch(() => ''),
     ),
   );
