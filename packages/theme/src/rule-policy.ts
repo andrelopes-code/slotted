@@ -4,11 +4,12 @@ import hooks from './generated/hooks.json';
 import { SEED_NAMES } from './seeds';
 
 /**
- * What a theme rule may select and read (design §10.2, ADR 0004). A rule
+ * What a theme rule may select, read and write (design §10.2, ADR 0004). A rule
  * selects only what a binding renders on purpose — a family by `data-ui`, its
  * parts by `data-part`, and the `data-*` attributes a family or the theme
- * axes set — and reads only tokens. Everything else is an implementation
- * detail of a family stylesheet, which changes without notice.
+ * axes set — and reads and writes only tokens, or properties of its own.
+ * Everything else is an implementation detail of a family stylesheet, which
+ * changes without notice.
  *
  * `defineTheme` (every rule given as text) and `slotted-build-theme` (every
  * rule, after lightningcss has parsed it) both call `ruleErrors`, so the two
@@ -525,6 +526,7 @@ export function selectorErrors(selector: string, nested = false): string[] {
 export function propertyWriteError(name: string): string | undefined {
   if (name.startsWith('--_'))
     return `${name}: a theme rule cannot write a private property of a family`;
+  if (isUnknownToken(name)) return `${name} is not a token; the nearest is ${nearestToken(name)}`;
   return undefined;
 }
 
@@ -537,9 +539,42 @@ const COMPILER_AT_RULES = /^@(scope|import|layer)\b/i;
  */
 export function tokenReadError(name: string, reader: 'var' | 'style' = 'var'): string | undefined {
   if (name.startsWith('--_')) return `${reader}(${name}) reads a private property of a family`;
-  if (name.startsWith('--slotted-') && !TOKENS.has(name))
-    return `${reader}(${name}) is not a token`;
+  if (isUnknownToken(name))
+    return `${reader}(${name}) is not a token; the nearest is ${nearestToken(name)}`;
   return undefined;
+}
+
+const isUnknownToken = (name: string) => name.startsWith('--slotted-') && !TOKENS.has(name);
+
+/** The token with the fewest edits from `name`, the first of equals. */
+function nearestToken(name: string): string {
+  let nearest = '';
+  let fewest = Number.POSITIVE_INFINITY;
+  for (const token of TOKENS) {
+    const edits = editDistance(name, token);
+    if (edits >= fewest) continue;
+
+    fewest = edits;
+    nearest = token;
+  }
+
+  return nearest;
+}
+
+/** Levenshtein distance, one row at a time. */
+function editDistance(from: string, to: string): number {
+  let row = Array.from({ length: to.length + 1 }, (_, index) => index);
+  for (let at = 1; at <= from.length; at += 1) {
+    const next = [at];
+    for (let index = 1; index <= to.length; index += 1) {
+      const replaced = row[index - 1]! + (from[at - 1] === to[index - 1] ? 0 : 1);
+      next.push(Math.min(replaced, row[index]! + 1, next[index - 1]! + 1));
+    }
+
+    row = next;
+  }
+
+  return row[to.length]!;
 }
 
 /**
@@ -600,8 +635,8 @@ function declaredProperty(text: string): string | undefined {
  * Every policy violation in a theme's CSS text: each style rule's selector,
  * nested rules and rules in conditional groups included; every `@scope`,
  * `@import` and `@layer`, at any depth; every `@property` naming a private
- * property or a token; every declaration that writes a private property or
- * stands outside a style rule; and every `var()` and `style()` query the text
+ * property or a token; every declaration that writes a private property or an
+ * unknown token, or stands outside a style rule; and every `var()` and `style()` query the text
  * reads, outside strings and comments, with escapes in the function and
  * property names decoded. The
  * text is taken to be balanced; `splitTopLevel` refuses one that is not.

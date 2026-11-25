@@ -102,8 +102,9 @@ has.
    token.
 3. Else a theme rule. It lives in `slotted.theme-rules`, selects only
    `data-ui`, `data-part`, the attributes a family writes and the theme's
-   attributes, and reads only tokens; the compiler names the file, the line
-   and the selector of a rule it refuses. A rule for one scheme begins with
+   attributes, and reads and writes only tokens, or a property with a prefix
+   of the application's; the compiler names the file, the line and the
+   selector of a rule it refuses. A rule for one scheme begins with
    the nesting selector, which names the theme root that carries the scheme.
    The same selector without it asks for a descendant of the root and is
    refused:

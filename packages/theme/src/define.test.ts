@@ -218,6 +218,28 @@ describe('defineTheme rules', () => {
     );
   });
 
+  it('refuses a rule that writes a token the contract does not declare', () => {
+    const write = (property: string) => `[data-ui='date-picker'] {\n  ${property}: red;\n}`;
+
+    expect(failsWith([write('--slotted-date-picker-surface')])).toContain(
+      "rules[0]:2 [data-ui='date-picker']: --slotted-date-picker-surface is not a token; the nearest is --slotted-",
+    );
+    expect(failsWith([write('--slotted-picker-panel-surfase')])).toContain(
+      '--slotted-picker-panel-surfase is not a token; the nearest is --slotted-picker-panel-surface',
+    );
+    expect(() =>
+      defineTheme(
+        definition({
+          rules: [
+            write('--slotted-picker-panel-surface'),
+            write('--slotted-seed-accent'),
+            write('--app-anything'),
+          ],
+        }),
+      ),
+    ).not.toThrow();
+  });
+
   it('refuses a rule whose braces do not balance before reading its selectors', () => {
     expect(failsWith(['[data-ui="card"] { color: red; } } .evil { color: blue; }'])).toMatch(
       /rules\[0\]: theme rule has an unbalanced `\}`/,
