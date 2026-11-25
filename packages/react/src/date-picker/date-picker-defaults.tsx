@@ -4,7 +4,7 @@ import type { DatePickerDefaults, DatePickerDefaultsProviderProps } from './date
 
 const FALLBACK: DatePickerDefaults = {
   calendar: 'gregory',
-  closeOnSelect: 'auto',
+  confirm: undefined,
   placement: 'bottom-start',
   size: 'md',
   timeZone: undefined,
@@ -34,7 +34,7 @@ export function DatePickerDefaultsProvider({
     <DatePickerDefaultsContext.Provider
       value={{
         calendar: defaults.calendar ?? inherited.calendar,
-        closeOnSelect: defaults.closeOnSelect ?? inherited.closeOnSelect,
+        confirm: defaults.confirm ?? inherited.confirm,
         placement: defaults.placement ?? inherited.placement,
         size: defaults.size ?? inherited.size,
         timeZone: defaults.timeZone ?? inherited.timeZone,

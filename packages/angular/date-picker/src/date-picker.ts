@@ -1,23 +1,19 @@
 import {
+  addDays,
   createDateFormat,
   firstDayOf,
   isDateInRange,
   isPlainDate,
   isPlainYearMonth,
   lastDayOf,
+  presetValue,
+  todayIn,
   yearMonthOf,
 } from '@slotted/core/date';
-import type { PlainDate, PlainYearMonth } from '@slotted/core/date';
-import { createDismissableLayer } from '@slotted/core/dismissable-layer';
-import { tabbables } from '@slotted/core/focus';
-import type { DismissableLayerHandle } from '@slotted/core/dismissable-layer';
-import { attachGripDismiss } from '@slotted/core/extent';
-import { createPositioner } from '@slotted/core/positioner';
-import type { PositionerHandle } from '@slotted/core/positioner';
+import type { PickerPreset, PlainDate, PlainYearMonth } from '@slotted/core/date';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeReason, ChangeRequest } from '@slotted/core/state';
 import {
-  afterNextRender,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
@@ -27,7 +23,6 @@ import {
   ElementRef,
   forwardRef,
   inject,
-  Injector,
   input,
   numberAttribute,
   output,
@@ -44,41 +39,40 @@ import type {
   Validator,
 } from '@angular/forms';
 import { injectLocale, injectMessages } from '@slotted/angular/i18n';
-import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 import {
   datePickerMessages,
+  pickerPanelMessages,
   type DatePickerMessages,
   type PartialMessages,
 } from '@slotted/core/i18n';
-import { SlCalendar, asDates } from '@slotted/angular/calendar';
+import { SlCalendar, asDates, isRange, isSameValue } from '@slotted/angular/calendar';
 import type { CalendarSelectionMode, CalendarValue, CalendarView } from '@slotted/angular/calendar';
 import { SlDateField, SlDateFieldEnd } from '@slotted/angular/date-field';
 import { SlField } from '@slotted/angular/field';
+import {
+  isOpenChord,
+  pickerDraft,
+  PickerLayer,
+  SlPickerBody,
+  SlPickerFooter,
+  SlPickerHead,
+  SlPickerJump,
+  SlPickerLayer,
+  SlPickerPanel,
+  SlPickerRail,
+  SlPickerStep,
+  SlPickerTrigger,
+} from '@slotted/angular/picker-panel';
+import type { PickerPresetView } from '@slotted/angular/picker-panel';
 
+import { dateHead, dateResult, isRefusedDate, isWholeDate, monthsOf } from './date-panel';
 import { injectDatePickerDefaults } from './date-picker-defaults';
 import type {
   DatePickerCalendar,
-  DatePickerCloseOnSelect,
   DatePickerPlacement,
   DatePickerSize,
   DatePickerVariant,
 } from './date-picker-defaults';
-
-/** The reasons the contract's `stateModel.open` lists, and no other. */
-type OpenReason = Extract<
-  ChangeReason,
-  'pointer' | 'keyboard' | 'escape' | 'outsidePress' | 'select'
->;
-
-/**
- * Below this width, on a finger, the surface is a sheet rather than a popover.
- * §2.7 of `docs/component-features.md` asks for it by name. The query is here
- * as well as in the stylesheet because the DOM has to say which presentation it
- * is in, and a media query cannot write an attribute.
- */
-const SHEET_QUERY = '(max-width: 480px) and (pointer: coarse)';
-/** The surface needs an identifier the trigger can point `aria-controls` at. */
-let sequence = 0;
 
 /**
  * A date field, a trigger, and a calendar behind them.
@@ -101,7 +95,20 @@ let sequence = 0;
   selector: '[slDatePicker]',
   standalone: true,
   exportAs: 'slDatePicker',
-  imports: [SlCalendar, SlDateField, SlDateFieldEnd, SlGlyph, SlIcon],
+  imports: [
+    SlCalendar,
+    SlDateField,
+    SlDateFieldEnd,
+    SlPickerBody,
+    SlPickerFooter,
+    SlPickerHead,
+    SlPickerJump,
+    SlPickerLayer,
+    SlPickerPanel,
+    SlPickerRail,
+    SlPickerStep,
+    SlPickerTrigger,
+  ],
   template: `<div data-part="control" data-part-control="" (keydown)="onControlKeyDown($event)">
       <div
         slDateField
@@ -130,64 +137,95 @@ let sequence = 0;
         <span slDateFieldEnd>
           <button
             #trigger
-            data-part="trigger"
-            data-part-trigger=""
-            type="button"
-            aria-haspopup="dialog"
-            [attr.aria-label]="triggerLabel()"
-            [attr.aria-expanded]="isOpen()"
-            [attr.aria-controls]="isOpen() ? contentId : null"
+            slPickerTrigger
+            glyph="calendar"
             [disabled]="!editable()"
-            (click)="toggle($event)"
-          >
-            <span slIcon><svg slGlyph name="calendar"></svg></span>
-          </button>
+            [label]="triggerLabel()"
+            [layer]="layer"
+          ></button>
         </span>
       </div>
     </div>
 
-    @if (isOpen()) {
-      <div
-        #layer
-        data-ui="date-picker"
-        data-ui-date-picker=""
-        data-part="positioner"
-        data-part-positioner=""
-        data-open
-        [attr.data-presentation]="sheet() ? 'sheet' : 'popover'"
-      >
-        <div
-          data-part="content"
-          data-part-content=""
-          role="dialog"
-          [attr.id]="contentId"
-          [attr.aria-label]="triggerLabel()"
-          (keydown)="onContentKeyDown($event)"
-        >
-          @if (sheet()) {
-            <span aria-hidden="true" data-part="grip" data-part-grip=""></span>
+    @if (layer.isOpen()) {
+      <div slPickerLayer [label]="triggerLabel()" [layer]="layer" (applied)="apply($event)">
+        <div slPickerPanel kind="date">
+          @if (presetViews().length > 0) {
+            <div slPickerRail [presets]="presetViews()">
+              @if (!monthly()) {
+                <div
+                  slPickerJump
+                  [locale]="resolvedLocale()"
+                  [max]="maxDay()"
+                  [min]="minDay()"
+                  [months]="shownMonths()"
+                  [selected]="selectedMonths()"
+                  [shown]="shownPage()"
+                  [today]="today()"
+                  (jump)="jump($event)"
+                ></div>
+              }
+            </div>
           }
-          <ng-content select="[slDatePickerPresets]" />
+
           <div
-            slCalendar
-            [locale]="resolvedLocale()"
-            [timeZone]="resolvedTimeZone()"
-            [firstDayOfWeek]="firstDayOfWeek()"
-            [min]="minDay()"
-            [max]="maxDay()"
-            [granularity]="granularity()"
-            [isDateUnavailable]="isDateUnavailable()"
-            [selectionMode]="selectionMode()"
-            [months]="months()"
-            [weekNumbers]="weekNumbers()"
-            [fixedWeeks]="fixedWeeks()"
-            [readOnly]="readOnly()"
-            [value]="held()"
-            [view]="view()"
-            (viewChange)="view.set($event)"
-            (valueChange)="onCalendarValue($event)"
-          ></div>
-          <ng-content select="[slDatePickerFooter]" />
+            slPickerHead
+            [empty]="head().empty"
+            [invalid]="refused()"
+            [meta]="head().meta"
+            [value]="head().value"
+          >
+            @if (editable() && single() && !monthly()) {
+              <button
+                slPickerStep="previous"
+                [label]="words('previousDay')"
+                (click)="stepDay(-1, $event)"
+              ></button>
+              <button
+                slPickerStep="next"
+                [label]="words('nextDay')"
+                (click)="stepDay(1, $event)"
+              ></button>
+            }
+          </div>
+
+          <div slPickerBody>
+            <div
+              slCalendar
+              [locale]="resolvedLocale()"
+              [timeZone]="resolvedTimeZone()"
+              [firstDayOfWeek]="firstDayOfWeek()"
+              [min]="minDay()"
+              [max]="maxDay()"
+              [granularity]="granularity()"
+              [isDateUnavailable]="isDateUnavailable()"
+              [selectionMode]="selectionMode()"
+              [months]="shownMonths()"
+              [weekNumbers]="weekNumbers()"
+              [fixedWeeks]="fixedWeeks() && shownMonths() === 1"
+              [readOnly]="!editable()"
+              [focusedDate]="focused()"
+              [value]="draft()"
+              [view]="view()"
+              (focusedDateChange)="focused.set($event.value)"
+              (pageChange)="page.set($event)"
+              (viewChange)="view.set($event)"
+              (valueChange)="take($event)"
+            ></div>
+          </div>
+
+          <div
+            slPickerFooter
+            [canApply]="canApply()"
+            [canClear]="hasDraft()"
+            [confirm]="resolvedConfirm()"
+            [hint]="hint()"
+            [invalid]="refused()"
+            (applied)="apply($event)"
+            (cleared)="clear($event)"
+          >
+            <ng-content select="[slDatePickerFooter]">{{ hint() }}</ng-content>
+          </div>
         </div>
       </div>
     }`,
@@ -206,7 +244,7 @@ let sequence = 0;
     '[attr.data-size]': 'resolvedSize()',
     '[attr.data-variant]': 'resolvedVariant()',
     '[attr.data-calendar]': 'resolvedCalendar()',
-    '[attr.data-open]': "isOpen() ? '' : null",
+    '[attr.data-open]': "layer.isOpen() ? '' : null",
     '[attr.data-disabled]': "resolvedDisabled() === true ? '' : null",
     '[attr.data-invalid]': "resolvedInvalid() === true ? '' : null",
     '[attr.data-readonly]': "resolvedReadOnly() === true ? '' : null",
@@ -274,7 +312,13 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   readonly size = input<DatePickerSize | undefined>(undefined);
   readonly variant = input<DatePickerVariant | undefined>(undefined);
   readonly placement = input<DatePickerPlacement | undefined>(undefined);
-  readonly closeOnSelect = input<DatePickerCloseOnSelect | undefined>(undefined);
+  /**
+   * Whether the panel keeps a draft until Apply. Off for one date or one
+   * month, which a press finishes; on for a run and for a set.
+   */
+  readonly confirm = input<boolean | undefined, boolean | string | undefined>(undefined, {
+    transform: (value) => (value === undefined ? undefined : booleanAttribute(value)),
+  });
 
   readonly disabled = input<boolean | undefined, boolean | string | undefined>(undefined, {
     transform: (value) => (value === undefined ? undefined : booleanAttribute(value)),
@@ -296,11 +340,12 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
    * trigger's name before (`choose`) and after (`change`) a date is chosen.
    */
   readonly messages = input<PartialMessages<DatePickerMessages> | undefined>(undefined);
+  /** The consumer's own shortcuts. The panel writes what each one is. */
+  readonly presets = input<readonly PickerPreset<CalendarValue | PlainYearMonth>[]>([]);
 
   readonly valueChange = output<ChangeRequest<V | null>>();
   readonly openChange = output<ChangeRequest<boolean>>();
 
-  @ViewChild('layer') protected layer?: ElementRef<HTMLElement>;
   @ViewChild('trigger') protected triggerRef?: ElementRef<HTMLButtonElement>;
   @ViewChild('field') protected field?: SlDateField;
 
@@ -309,16 +354,15 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   private readonly appLocale = injectLocale();
   /** The family's words in the language in force, with this picker's `messages` laid over them. */
   readonly t = injectMessages(datePickerMessages, this.messages);
-  private readonly injector = inject(Injector);
+  protected readonly words = injectMessages(pickerPanelMessages);
   private readonly destroyRef = inject(DestroyRef);
   private readonly enclosing = inject(SlField, { optional: true });
 
-  protected readonly contentId = `sl-date-picker-${String((sequence += 1))}`;
-
-  private readonly ownOpen = signal(false);
   private readonly ownValue = signal<CalendarValue>(null);
   protected readonly view = signal<CalendarView>('day');
-  protected readonly sheet = signal(false);
+  protected readonly focused = signal<PlainDate | undefined>(undefined);
+  protected readonly page = signal<PlainYearMonth | null>(null);
+  protected readonly today = signal<PlainDate>({ year: 2026, month: 1, day: 1 });
   private readonly formDisabled = signal<boolean | undefined>(undefined);
 
   private onChangeFn: (value: V | null) => void = () => undefined;
@@ -327,18 +371,22 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   private onTouchedFn: () => void = () => undefined;
   private onValidatorChangeFn: () => void = () => undefined;
 
-  /**
-   * Whether the next opening moves focus into the calendar. Set by a request
-   * to open — the trigger, the chord, `openSurface()` — and never by a first
-   * render that starts open, which would take focus from wherever the page put
-   * it.
-   */
-  private focusOnOpen = false;
-  private positioner: PositionerHandle | null = null;
-  private dismissable: DismissableLayerHandle | null = null;
-  private releaseGrip: (() => void) | null = null;
+  protected readonly layer = new PickerLayer({
+    focusPanel: (panel) =>
+      panel
+        .querySelector<HTMLElement>(
+          '[data-part="day"][tabindex="0"], [data-part="period"][tabindex="0"]',
+        )
+        ?.focus({ preventScroll: true }),
+    left: () => this.draft.set(this.held()),
+    onEscape: () => this.walkDown(),
+    open: this.open,
+    placement: computed(() => this.placement() ?? this.defaults.placement),
+    requested: (request) => this.openChange.emit(request),
+    root: this.element,
+    trigger: () => this.triggerRef?.nativeElement,
+  });
 
-  protected readonly isOpen = computed(() => this.open() ?? this.ownOpen());
   /**
    * A month is its own value. Under `granularity="month"` the picker holds a
    * `PlainYearMonth`; the field and the calendar below it hold the first day of
@@ -378,9 +426,6 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
     () => this.size() ?? this.enclosing?.resolvedSize() ?? this.defaults.size,
   );
   protected readonly resolvedVariant = computed(() => this.variant() ?? this.defaults.variant);
-  protected readonly resolvedPlacement = computed(
-    () => this.placement() ?? this.defaults.placement,
-  );
   protected readonly resolvedDisabled = computed(
     () => this.disabled() ?? this.formDisabled() ?? this.enclosing?.resolvedDisabled(),
   );
@@ -434,24 +479,74 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
     return this.t('change', { date: chosen.map(words).join(' – ') });
   });
 
-  private readonly closesOnSelect = computed(() => {
-    const axis = this.closeOnSelect() ?? this.defaults.closeOnSelect;
-    return axis === 'always' || (axis === 'auto' && this.selectionMode() === 'single');
+  protected readonly single = computed(() => this.selectionMode() === 'single');
+  protected readonly resolvedConfirm = computed(
+    () => this.confirm() ?? this.defaults.confirm ?? !this.single(),
+  );
+
+  /* ── What the panel composes ───────────────────────────────────────── */
+
+  protected readonly draft = pickerDraft(this.held, isSameValue);
+  protected readonly hasDraft = computed(() => asDates(this.draft()).length > 0);
+  protected readonly shownMonths = computed(() =>
+    this.layer.narrow() ? 1 : Math.max(1, this.months() ?? 1),
+  );
+
+  private readonly rules = computed(() => ({
+    isDateUnavailable: this.isDateUnavailable(),
+    max: this.maxDay(),
+    min: this.minDay(),
+  }));
+
+  private readonly dateWords = computed(() => ({
+    format: createDateFormat({ locale: this.resolvedLocale() }),
+    locale: this.resolvedLocale(),
+    monthly: this.monthly(),
+    t: this.words,
+    today: this.today(),
+  }));
+
+  protected readonly refused = computed(() => isRefusedDate(this.draft(), this.rules()));
+  protected readonly head = computed(() => dateHead(this.draft(), this.dateWords()));
+  protected readonly selectedMonths = computed(() => monthsOf(this.draft()));
+
+  protected readonly shownPage = computed(
+    () => this.page() ?? this.focused() ?? asDates(this.draft())[0] ?? this.today(),
+  );
+
+  protected readonly canApply = computed(
+    () =>
+      !this.refused() && (isWholeDate(this.draft()) || (!this.hasDraft() && this.held() !== null)),
+  );
+
+  protected readonly hint = computed(() => {
+    if (this.refused()) return this.t('refused');
+    if (this.layer.narrow()) return '';
+
+    return this.words(this.monthly() ? 'yearKeys' : 'pageKeys');
+  });
+
+  protected readonly presetViews = computed(() => {
+    const stated = this.presets();
+    if (stated.length === 0) return [];
+
+    const today = { label: this.words('today'), value: this.today() as CalendarValue };
+    const first = this.single() && !this.monthly() ? [today] : [];
+
+    return [...first, ...stated].map((preset): PickerPresetView => {
+      const value = this.toDay(presetValue(preset as PickerPreset<CalendarValue | PlainYearMonth>));
+
+      return {
+        disabled: isRefusedDate(value, this.rules()),
+        label: preset.label,
+        press: (event) => this.choose(value, event),
+        result: dateResult(value, this.dateWords()),
+        selected: isSameValue(this.draft(), value),
+      };
+    });
   });
 
   constructor() {
-    /* The layer is created and torn down with the surface, not with the
-       component: a layer that outlived its content would hold a place in the
-       single stack that nothing occupies. */
-    effect(() => {
-      const open = this.isOpen();
-      if (!open) {
-        this.release();
-        return;
-      }
-      afterNextRender(() => this.attach(), { injector: this.injector });
-    });
-
     /* A bound that changed is a validity that changed, and the form is told. */
     effect(() => {
       this.min();
@@ -459,8 +554,6 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
       this.isDateUnavailable();
       this.onValidatorChangeFn();
     });
-
-    this.destroyRef.onDestroy(() => this.release());
   }
 
   /* ── Forms ─────────────────────────────────────────────────────────── */
@@ -502,7 +595,8 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   }
 
   ngOnInit() {
-    this.ownOpen.set(this.defaultOpen());
+    this.layer.start(this.defaultOpen());
+    this.today.set(todayIn(this.resolvedTimeZone()));
     this.ownValue.set(this.toDay(this.defaultValue()));
     this.view.set(this.defaultView() ?? this.lowestView());
 
@@ -519,15 +613,6 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
       form.addEventListener('reset', onReset);
       this.destroyRef.onDestroy(() => form.removeEventListener('reset', onReset));
     }
-
-    /* `matchMedia` is absent in a server render and in some test environments,
-       and the popover is the right answer wherever it cannot be asked. */
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-    const query = window.matchMedia(SHEET_QUERY);
-    const read = () => this.sheet.set(query.matches);
-    read();
-    query.addEventListener('change', read);
-    this.destroyRef.onDestroy(() => query.removeEventListener('change', read));
   }
 
   /** Puts focus on the first segment of the field. */
@@ -536,44 +621,18 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   }
 
   openSurface(source?: Event) {
-    this.setOpen(true, 'keyboard', source);
+    this.layer.show('keyboard', source);
   }
 
   closeSurface(source?: Event) {
-    this.setOpen(false, 'keyboard', source);
-  }
-
-  protected toggle(source: Event) {
-    this.setOpen(!this.isOpen(), 'pointer', source);
+    this.layer.setOpen(false, 'keyboard', source);
   }
 
   protected onControlKeyDown(event: KeyboardEvent) {
-    if (!this.editable()) return;
-    /* Angular Material records the platform note this inherits: ChromeOS turns
-       the chord into PageDown before the browser sees it, which is why the
-       trigger button is always drawn and this is only a shortcut. */
-    if (event.altKey && event.key === 'ArrowDown') {
-      event.preventDefault();
-      this.setOpen(true, 'keyboard', event);
-    }
-  }
+    if (!this.editable() || !isOpenChord(event)) return;
 
-  /** Tab and Shift+Tab wrap inside the surface while it is open. */
-  protected onContentKeyDown(event: KeyboardEvent) {
-    if (event.key !== 'Tab' || event.altKey || event.ctrlKey || event.metaKey) return;
-    const content = event.currentTarget as HTMLElement;
-    const items = tabbables(content);
-    const first = items[0];
-    const last = items[items.length - 1];
-    if (first === undefined || last === undefined) return;
-    const current = content.ownerDocument.activeElement;
-    if (event.shiftKey && current === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && current === last) {
-      event.preventDefault();
-      first.focus();
-    }
+    event.preventDefault();
+    this.layer.show('keyboard', event);
   }
 
   protected onControlFocusOut(event: FocusEvent) {
@@ -590,11 +649,59 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
     this.commit(request.value, request.reason, request.source);
   }
 
-  protected onCalendarValue(request: ChangeRequest<CalendarValue>) {
-    this.commit(request.value, request.reason, request.source);
-    if (!this.closesOnSelect()) return;
-    this.setOpen(false, 'select', request.source as Event | undefined);
-    this.triggerRef?.nativeElement.focus({ preventScroll: true });
+  /* Without a draft to confirm, what a press completes is written: one date and
+     a whole run close the panel, and a set stays open for the next press. */
+  protected take({ reason, source, value }: ChangeRequest<CalendarValue>) {
+    this.draft.set(value);
+    if (this.resolvedConfirm() || (isRange(value) && !isWholeDate(value))) return;
+    if (this.selectionMode() === 'multiple') this.commit(value, reason, source);
+    else this.write(value, source, reason);
+  }
+
+  protected apply(source: Event) {
+    if (this.canApply()) this.write(this.draft(), source);
+  }
+
+  protected clear(source: Event) {
+    this.draft.set(null);
+    if (!this.resolvedConfirm()) this.write(null, source, 'clear');
+  }
+
+  protected jump({ month, year }: PlainYearMonth) {
+    this.view.set('day');
+    this.focused.set({ year, month, day: 1 });
+  }
+
+  /** One day either way, over the days the rules refuse. The panel stays. */
+  protected stepDay(direction: 1 | -1, source: Event) {
+    const from = asDates(this.draft())[0] ?? addDays(this.today(), -direction);
+    const days = Array.from({ length: 366 }, (_, index) => addDays(from, (index + 1) * direction));
+    const next = days.find((date) => !isRefusedDate(date, this.rules()));
+    if (next === undefined) return;
+
+    this.focused.set(next);
+    this.draft.set(next);
+    if (!this.resolvedConfirm()) this.commit(next, 'select', source);
+  }
+
+  private choose(next: CalendarValue, source: Event) {
+    this.focused.set(asDates(next)[0]);
+    if (this.resolvedConfirm()) this.draft.set(next);
+    else this.write(next, source);
+  }
+
+  private write(next: CalendarValue, source: unknown, reason: ChangeReason = 'select') {
+    this.commit(next, reason, source);
+    this.layer.finish(source);
+  }
+
+  /** Escape walks the calendar's view down before it closes the panel. */
+  private walkDown(): boolean {
+    if (this.view() === this.lowestView()) return false;
+
+    this.view.set(this.view() === 'year' ? 'month' : this.lowestView());
+
+    return true;
   }
 
   /** The lowest view is where a choice is made: the days, or the months. */
@@ -625,102 +732,5 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
     if (cancelled) return;
     if (this.value() === undefined) this.ownValue.set(next);
     this.onChangeFn(this.outward(next));
-  }
-
-  private setOpen(next: boolean, reason: OpenReason, source: unknown) {
-    const state = createControllable<boolean>({
-      controlled: this.open(),
-      initial: this.isOpen(),
-      onRequest: (request) => {
-        this.openChange.emit(request);
-        this.focusOnOpen = request.value && !request.cancelled;
-      },
-    });
-    if (state.request(next, reason, source)) this.ownOpen.set(next);
-  }
-
-  /** Places the layer and puts it in the single stack. */
-  private attach() {
-    const layer = this.layer?.nativeElement;
-    if (layer === undefined) return;
-    this.release();
-
-    /* A pull down on the sheet's grip dismisses it, as the grip of every other sheet does. */
-    const grip = this.sheet()
-      ? layer.querySelector<HTMLElement>(':scope > [data-part="content"] > [data-part="grip"]')
-      : null;
-    if (grip !== null) {
-      this.releaseGrip = attachGripDismiss({
-        grip,
-        sheet: layer,
-        onDismiss: (event) => {
-          this.setOpen(false, 'pointer', event);
-        },
-      });
-    }
-
-    if (!this.sheet()) {
-      const anchor =
-        this.element.querySelector<HTMLElement>('[data-part="control"]') ?? this.element;
-      const [side, align] = this.resolvedPlacement().split('-') as [
-        'top' | 'bottom',
-        'start' | 'end' | undefined,
-      ];
-      this.positioner = createPositioner(anchor, layer, { align: align ?? 'center', side });
-      /* The positioner writes `data-positioned` with the side, on the element, in
-         the task that opened the layer; a binding to say it again was a frame later. */
-      void this.positioner.update();
-    }
-
-    /* The dialog takes focus when it opens, on the day that holds the roving
-       tab stop: the chosen date, or today. */
-    if (this.focusOnOpen) {
-      this.focusOnOpen = false;
-      layer
-        .querySelector<HTMLElement>(
-          '[data-part="day"][tabindex="0"], [data-part="period"][tabindex="0"]',
-        )
-        ?.focus({ preventScroll: true });
-    }
-
-    const trigger = this.triggerRef?.nativeElement;
-    this.dismissable = createDismissableLayer(layer, {
-      branches: trigger === undefined ? [] : [trigger],
-      escape: true,
-      focusOutside: false,
-      modal: false,
-      outsidePress: true,
-      scrollLock: false,
-      onDismiss: (request) => {
-        /**
-         * The view first, the surface second. The layer listens in the capture
-         * phase, so a handler on the calendar would already have lost the
-         * surface by the time it ran; the decision is taken here, and the layer
-         * is simply not asked to close.
-         */
-        if (request.reason === 'escape' && this.view() !== this.lowestView()) {
-          this.view.set(this.view() === 'year' ? 'month' : 'day');
-          return;
-        }
-        this.setOpen(
-          false,
-          request.reason === 'escape' ? 'escape' : 'outsidePress',
-          request.source,
-        );
-        if (request.reason === 'escape') {
-          this.triggerRef?.nativeElement.focus({ preventScroll: true });
-        }
-      },
-    });
-  }
-
-  private release() {
-    this.releaseGrip?.();
-    this.releaseGrip = null;
-    this.positioner?.destroy();
-    this.positioner = null;
-    this.dismissable?.destroy();
-    this.dismissable = null;
-    this.layer?.nativeElement.removeAttribute('data-positioned');
   }
 }

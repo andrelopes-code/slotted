@@ -6,10 +6,9 @@ export {
 } from './date-picker-defaults';
 export type {
   DatePickerCalendar,
-  DatePickerCloseOnSelect,
   DatePickerDefaults,
   DatePickerPlacement,
   DatePickerSize,
   DatePickerVariant,
 } from './date-picker-defaults';
-export { SlDatePickerFooter, SlDatePickerPresets } from './date-picker-parts';
+export { SlDatePickerFooter } from './date-picker-parts';

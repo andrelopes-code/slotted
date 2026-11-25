@@ -25,7 +25,12 @@ export interface PickerPanelMessages {
   /** The two ends of the ruler. */
   readonly startHandle: Message;
   readonly endHandle: Message;
-  readonly week: Message<{ week: number }>;
+  /** How far a date is from today, already in words, and the week it is in. */
+  readonly dayInWeek: Message<{ day: string; week: number }>;
+  /** What stands under an empty head. */
+  readonly todayIs: Message<{ day: string }>;
+  /** The head of a run: its two ends, and how many days it holds. */
+  readonly runOfDays: Message<{ run: string; count: number }>;
   /** How far a time is from now, its length already written in the locale. */
   readonly ahead: Message<{ length: string }>;
   readonly behind: Message<{ length: string }>;
@@ -59,7 +64,9 @@ export const en: PickerPanelMessages = {
   increase: 'Lengthen',
   startHandle: 'Start',
   endHandle: 'End',
-  week: 'week {week}',
+  dayInWeek: '{day}, week {week}',
+  todayIs: 'Today: {day}',
+  runOfDays: '{run}, {count, plural, one {# day} other {# days}}',
   ahead: 'in {length}',
   behind: '{length} ago',
   days: '{count, plural, one {# day} other {# days}}',

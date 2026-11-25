@@ -86,8 +86,6 @@ test('reflows the two panels without a query it cannot ask', () => {
   assert.ok(member.parts.includes('panels'));
   assert.match(contract.responsive.why, /container-type/);
   assert.match(contract.responsive.why, /shrink-wrapped/);
-  assert.equal(contract.responsive.sheet, datePicker.responsive.sheet);
-  assert.equal(contract.responsive.decidedIn, datePicker.responsive.decidedIn);
 });
 
 /**
@@ -119,7 +117,6 @@ test('states where focus goes after each press, in all five cases', () => {
  */
 test('closes on the press that completes the value, and needs no confirm button', () => {
   assert.match(contract.dismissal.closeOnSelect, /completes/);
-  assert.deepEqual(contract.axes.closeOnSelect, datePicker.axes.closeOnSelect);
   assert.equal(member.defaults.closeOnSelect, 'auto');
   const declined = contract.declined.confirmButton;
   assert.ok(declined.shipsIt.length >= 2);

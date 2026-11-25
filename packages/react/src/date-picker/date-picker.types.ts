@@ -1,4 +1,4 @@
-import type { PlainDate, PlainYearMonth } from '@slotted/core/date';
+import type { PlainDate, PlainYearMonth, PickerPreset } from '@slotted/core/date';
 import type { DatePickerMessages, PartialMessages } from '@slotted/core/i18n';
 import type { ChangeRequest } from '@slotted/core/state';
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref } from 'react';
@@ -9,15 +9,6 @@ import type { CalendarSelectionMode, CalendarValue, CalendarView } from '../cale
 export type DatePickerPlacement =
   'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
 
-/**
- * Whether choosing a date closes the surface.
- *
- * `auto` closes for one date and stays open for a range or a set, which is the
- * only combination that is not a trap: a second press has to reach the same
- * surface.
- */
-export type DatePickerCloseOnSelect = 'auto' | 'always' | 'never';
-
 export type DatePickerSize = 'sm' | 'md' | 'lg';
 export type DatePickerVariant = 'outline' | 'subtle' | 'plain';
 export type DatePickerCalendar = 'gregory';
@@ -25,7 +16,8 @@ export type DatePickerCalendar = 'gregory';
 /** What an application sets once for every date picker under it. */
 export interface DatePickerDefaults {
   calendar: DatePickerCalendar;
-  closeOnSelect: DatePickerCloseOnSelect;
+  /** Whether the panel keeps a draft until Apply. Unset, only a run or a set does. */
+  confirm: boolean | undefined;
   placement: DatePickerPlacement;
   size: DatePickerSize;
   timeZone: string | undefined;
@@ -100,7 +92,11 @@ export interface DatePickerDayProps extends Omit<
   size?: DatePickerSize | undefined;
   variant?: DatePickerVariant | undefined;
   placement?: DatePickerPlacement | undefined;
-  closeOnSelect?: DatePickerCloseOnSelect | undefined;
+  /**
+   * Whether the panel keeps a draft until Apply. Off for one date or one
+   * month, which a press finishes; on for a run and for a set.
+   */
+  confirm?: boolean | undefined;
 
   disabled?: boolean | undefined;
   readOnly?: boolean | undefined;
@@ -111,13 +107,14 @@ export interface DatePickerDayProps extends Omit<
   name?: string | undefined;
   /**
    * Words laid over the catalog of the language in force, key by key: the
-   * trigger's name before (`choose`) and after (`change`) a date is chosen.
+   * trigger's name before (`choose`) and after (`change`) a date is chosen,
+   * and what the panel says of a refused one.
    */
   messages?: PartialMessages<DatePickerMessages> | undefined;
 
-  /** The consumer's own shortcuts, in a column beside the grid. */
-  presets?: ReactNode | undefined;
-  /** The consumer's own actions, under whatever the surface is holding. */
+  /** The consumer's own shortcuts. The panel writes what each one is. */
+  presets?: readonly PickerPreset<CalendarValue>[] | undefined;
+  /** What the footer says when nothing is wrong. */
   footer?: ReactNode | undefined;
 
   render?: ((props: DatePickerRootProps) => ReactNode) | undefined;
@@ -142,6 +139,7 @@ export interface DatePickerMonthProps extends Omit<
   | 'min'
   | 'months'
   | 'onValueChange'
+  | 'presets'
   | 'selectionMode'
   | 'value'
   | 'weekNumbers'
@@ -154,6 +152,7 @@ export interface DatePickerMonthProps extends Omit<
     | undefined;
   min?: PlainYearMonth | undefined;
   max?: PlainYearMonth | undefined;
+  presets?: readonly PickerPreset<PlainYearMonth>[] | undefined;
 }
 
 export type DatePickerProps = DatePickerDayProps | DatePickerMonthProps;

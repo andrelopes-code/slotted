@@ -4,22 +4,14 @@ import { inject, InjectionToken } from '@angular/core';
 export type DatePickerPlacement =
   'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
 
-/**
- * Whether choosing a date closes the surface.
- *
- * `auto` closes for one date and stays open for a range or a set, which is the
- * only combination that is not a trap: a second press has to reach the same
- * surface.
- */
-export type DatePickerCloseOnSelect = 'auto' | 'always' | 'never';
-
 export type DatePickerSize = 'sm' | 'md' | 'lg';
 export type DatePickerVariant = 'outline' | 'subtle' | 'plain';
 export type DatePickerCalendar = 'gregory';
 
 export interface DatePickerDefaults {
   calendar: DatePickerCalendar;
-  closeOnSelect: DatePickerCloseOnSelect;
+  /** Whether the panel keeps a draft until Apply. Unset, only a run or a set does. */
+  confirm: boolean | undefined;
   placement: DatePickerPlacement;
   size: DatePickerSize;
   timeZone: string | undefined;
@@ -28,7 +20,7 @@ export interface DatePickerDefaults {
 
 const FALLBACK: DatePickerDefaults = {
   calendar: 'gregory',
-  closeOnSelect: 'auto',
+  confirm: undefined,
   placement: 'bottom-start',
   size: 'md',
   timeZone: undefined,

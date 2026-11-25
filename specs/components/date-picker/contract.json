@@ -10,7 +10,7 @@
   "rootRole": null,
   "contentRole": "dialog",
   "valueType": "PlainDate | null",
-  "composes": ["date-field", "calendar"],
+  "composes": ["date-field", "calendar", "picker-panel"],
   "core": [
     "@slotted/core/date",
     "@slotted/core/state",
@@ -34,14 +34,22 @@
     "why": "Focus returns to the trigger when the popup closes, so the name is where the reader is told what was chosen. The APG's own example names this as an accessibility feature."
   },
   "keyboard": [
-    { "key": "Alt+ArrowDown", "effect": "open", "from": "the field" },
+    {
+      "key": "Alt+ArrowDown",
+      "effect": "open",
+      "from": "the field"
+    },
     {
       "key": "Escape",
       "effect": "close",
       "focusTo": "trigger",
       "staged": "the calendar takes it first while its view is month or year"
     },
-    { "key": "Tab", "effect": "contained", "while": "open" }
+    {
+      "key": "Tab",
+      "effect": "contained",
+      "while": "open"
+    }
   ],
   "platformNotes": {
     "altArrowDown": "ChromeOS turns Alt+ArrowDown into PageDown before the browser sees it, which Angular Material records for its own input. The trigger button is therefore the guaranteed path and the chord is a shortcut, never the only way in."
@@ -49,32 +57,28 @@
   "dismissal": {
     "escape": "through dismissable-layer, in the capture phase",
     "outsidePress": true,
-    "closeOnSelect": "single only, by default"
-  },
-  "responsive": {
-    "sheet": "below 480px on a coarse pointer, the content takes the sheet presentation",
-    "decidedIn": "the stylesheet; the DOM does not change"
+    "discards": "the draft"
   },
   "axes": {
     "size": ["sm", "md", "lg"],
     "variant": ["outline", "subtle", "plain"],
     "placement": ["bottom-start", "bottom", "bottom-end", "top-start", "top", "top-end"],
-    "closeOnSelect": ["auto", "always", "never"],
-    "calendar": ["gregory"]
+    "calendar": ["gregory"],
+    "confirm": ["on", "off"]
   },
   "resolution": {
     "size": ["prop", "field", "defaults", "md"],
     "variant": ["prop", "defaults", "outline"],
     "placement": ["prop", "defaults", "bottom-start"],
-    "closeOnSelect": ["prop", "defaults", "auto"],
     "locale": ["prop", "slotted", "en-US"],
     "timeZone": ["prop", "defaults", "runtime"],
-    "calendar": ["prop", "defaults", "gregory"]
+    "calendar": ["prop", "defaults", "gregory"],
+    "confirm": ["prop", "defaults", "off for one date or one month, on for a run or a set"]
   },
   "provides": {
-    "datePickerDefaults": ["calendar", "closeOnSelect", "placement", "size", "timeZone", "variant"]
+    "datePickerDefaults": ["calendar", "confirm", "placement", "size", "timeZone", "variant"]
   },
-  "messages": ["change", "choose"],
+  "messages": ["change", "choose", "refused"],
   "imperative": ["focus", "open", "close"],
   "stateAttributes": {
     "disabled": "data-disabled",
@@ -103,9 +107,7 @@
       "carries": ["value", "previous", "reason", "event"]
     }
   },
-  "literals": {
-    "--slotted-date-picker-sheet-inline-size": "100%, which the shared exemption list already holds."
-  },
+  "literals": {},
   "members": {
     "datePicker": {
       "nativeElement": "div",
@@ -113,7 +115,6 @@
         "size": "md",
         "variant": "outline",
         "placement": "bottom-start",
-        "closeOnSelect": "auto",
         "calendar": "gregory",
         "clearable": false
       },
@@ -141,23 +142,41 @@
         "required",
         "open"
       ],
-      "parts": ["root", "control", "trigger", "positioner", "content", "grip", "presets", "footer"]
+      "parts": ["root", "control", "trigger"]
     }
   },
   "scenarios": {
     "datePicker": [
       "playground",
+      "presets",
+      "range-and-set",
+      "month",
+      "confirm",
+      "range-bounds",
+      "unavailable",
       "sizes",
       "variants",
       "placement",
-      "range-bounds",
-      "unavailable",
-      "presets",
       "states",
       "forms",
       "narrow",
       "composition",
       "keyboard"
     ]
+  },
+  "panel": {
+    "shape": "a rail of shortcuts and the twelve months of the year beside one month; the month alone without shortcuts",
+    "head": "the value in words, what it means beside today, and a step of one day either way for one date",
+    "months": "one below 760px, whatever months asks for"
+  },
+  "draft": {
+    "rule": "without confirm a press that finishes the value writes it and closes; with it a press writes a draft and Apply writes the value",
+    "dayStep": "a step of the head writes and keeps the panel open, over the days the rules refuse"
+  },
+  "presets": {
+    "prop": "presets",
+    "type": "readonly { label, value | () => value }[]",
+    "first": "Today, for one date",
+    "result": "the date in words; a run as its two ends"
   }
 }

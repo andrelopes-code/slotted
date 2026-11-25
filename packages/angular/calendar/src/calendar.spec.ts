@@ -37,6 +37,7 @@ class Host {
   readonly run: DateRange = { start: plainDate(2026, 9, 7), end: plainDate(2026, 9, 11) };
   readonly openRun: DateRange = { start: plainDate(2026, 9, 7), end: null };
   readonly openFromEleventh: DateRange = { start: plainDate(2026, 9, 11), end: null };
+  readonly pages: { year: number; month: number }[] = [];
   readonly overNinth = (date: PlainDate) => date.day > 9;
   readonly refuseTenth = (date: PlainDate) => date.day === 10;
   readonly marks = new Map([['2026-09-12', { count: 2, tone: 'info' as const }]]);
@@ -992,4 +993,15 @@ describe('a run past its limit', () => {
     expect(dayFor(fixture, 12).closest('td')?.hasAttribute('data-weekend')).toBe(true);
     expect(dayFor(fixture, 11).closest('td')?.hasAttribute('data-weekend')).toBe(false);
   });
+});
+
+it('says which month the page starts on, and when it turns', () => {
+  const fixture = renderTemplate(
+    `<div slCalendar locale="en-US" months="2" [defaultFocusedDate]="ninth" (pageChange)="pages.push($event)"></div>`,
+  );
+  const { pages } = fixture.componentInstance;
+  expect(pages.at(-1)).toEqual({ year: 2026, month: 9 });
+
+  click(fixture, fixture.nativeElement.querySelector('[data-part="next"]') as HTMLElement);
+  expect(pages.at(-1)).toEqual({ year: 2026, month: 11 });
 });

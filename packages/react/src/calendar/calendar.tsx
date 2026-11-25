@@ -17,7 +17,7 @@ import {
   visibleMonths,
   yearPage,
 } from '@slotted/core/date';
-import type { CalendarWeek, MonthYearPart, PlainDate } from '@slotted/core/date';
+import type { CalendarWeek, MonthYearPart, PlainDate, PlainYearMonth } from '@slotted/core/date';
 import { calendarMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
 import {
@@ -99,6 +99,7 @@ export function Calendar({
   months,
   onFocusedDateChange,
   onKeyDown,
+  onPageChange,
   onPreviewChange,
   onValueChange,
   onViewChange,
@@ -245,6 +246,14 @@ export function Calendar({
     },
     [resolvedMonths],
   );
+
+  const reportedPage = useRef<PlainYearMonth | null>(null);
+  useEffect(() => {
+    const last = reportedPage.current;
+    if (last !== null && last.year === page.year && last.month === page.month) return;
+    reportedPage.current = page;
+    onPageChange?.(page);
+  }, [onPageChange, page]);
 
   /* The reader's first calendar opens on today rather than on an arbitrary
      month, and only while nobody has said otherwise. */

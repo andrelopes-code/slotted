@@ -97,13 +97,13 @@ An API that carries dates as ISO 8601 text, such as `"2026-10-19"`, converts at 
 
 ## Shortcuts
 
-`presets` in React and an element with `slDatePickerPresets` in Angular add a column of shortcuts beside the calendar. The date picker ships no list of shortcuts: the labels and dates come from your product. Here each shortcut sets the value and closes the calendar through the date picker's `close()` in React and `closeSurface()` in Angular.
+`presets` adds a column of shortcuts beside the calendar, as a list of labels and dates. The panel writes under each label the date it sets, offers Today before them, and adds the twelve months of the year. A value may be a function, which is resolved when the panel draws it, and a shortcut outside the bounds is unavailable. Without `presets`, the panel is the calendar alone. Here each shortcut sets the date and closes the panel.
 
 <Example name="presets" />
 
-## Footer actions
+## Footer and confirmation
 
-`footer` in React and an element with `slDatePickerFooter` in Angular add a row of actions under the calendar. `closeOnSelect` decides whether choosing a day closes the calendar: `auto`, the default, closes it for one date; `always` closes it; `never` keeps it open. Here `never` keeps the calendar open while the reader compares days, and the Done button closes it.
+The footer carries a hint and the Clear button. `footer` in React and an element with `slDatePickerFooter` in Angular replace the hint; a refused date replaces both with the reason. `confirm` decides when the value changes: off, the default for one date, a press sets it and closes the panel; on, the default for a range and for several dates, the panel keeps a draft that Apply sets and that Escape or a press outside discards. Here `confirm` keeps one date as a draft.
 
 <Example name="footer" />
 
@@ -121,13 +121,13 @@ The value is a `PlainDate`, an object with `year`, `month` and `day` and no time
 
 ## Keyboard and the trigger's name
 
-Alt+ArrowDown opens the calendar from the field; Enter or Space on the calendar button opens it too. Opening moves focus to the chosen day, or to today when no date is set, and Tab and Shift+Tab cycle through the shortcuts, the calendar and the footer until the calendar closes. The arrow keys move between days, PageUp and PageDown move by a month, Shift with either moves by a year, and Enter or Space chooses the focused day. Escape closes the calendar and returns focus to the calendar button; while the calendar shows the month or year grid, Escape first returns to the day grid. The calendar button's accessible name carries the chosen date, so a screen reader announces it when focus returns. `messages` replaces that name: `choose` while no date is set and `change`, with the date in its `{date}` slot, once one is. `onOpenChange` in React and `(openChange)` in Angular report why the calendar opened or closed.
+Alt+ArrowDown opens the calendar from the field; Enter or Space on the calendar button opens it too. Opening moves focus to the chosen day, or to today when no date is set, and Tab and Shift+Tab cycle through the shortcuts, the calendar and the footer until the panel closes. Ctrl+Enter applies a draft. The arrow keys move between days, PageUp and PageDown move by a month, Shift with either moves by a year, and Enter or Space chooses the focused day. Escape closes the calendar and returns focus to the calendar button; while the calendar shows the month or year grid, Escape first returns to the day grid. The calendar button's accessible name carries the chosen date, so a screen reader announces it when focus returns. `messages` replaces that name: `choose` while no date is set and `change`, with the date in its `{date}` slot, once one is. `onOpenChange` in React and `(openChange)` in Angular report why the calendar opened or closed.
 
 <Example name="keyboard" />
 
 ## Narrow screens
 
-Under 480 pixels on a touch screen, the calendar opens as a sheet attached to the bottom of the viewport instead of a popover under the field, and the shortcuts move into a row above the calendar. The markup stays the same; the positioner carries `data-presentation="sheet"`.
+Under 480 pixels on a touch screen, the calendar opens as a sheet attached to the bottom of the viewport instead of a popover under the field. Under 760 pixels, on any screen, the panel is one column: one month, and the shortcuts in a row above the footer. The positioner carries `data-presentation="sheet"` for the sheet.
 
 <Example name="narrow" />
 
@@ -139,7 +139,7 @@ The date picker's handle has `focus()`, which puts focus on the first segment of
 
 ## Defaults for a section
 
-`DatePickerDefaultsProvider` in React and `provideDatePickerDefaults` in Angular set `size`, `variant`, `placement`, `closeOnSelect`, `timeZone` and `calendar` once for every date picker under them, such as a filter panel. A value set on one date picker still wins.
+`DatePickerDefaultsProvider` in React and `provideDatePickerDefaults` in Angular set `size`, `variant`, `placement`, `confirm`, `timeZone` and `calendar` once for every date picker under them, such as a filter panel. A value set on one date picker still wins.
 
 <Example name="defaults" />
 

@@ -3412,15 +3412,8 @@ export type ComponentToken =
   | '--slotted-date-field-subtle-background'
   | '--slotted-date-field-subtle-border-color'
   | '--slotted-date-field-subtle-hover-background'
-  | '--slotted-date-picker-content-backdrop-filter'
-  | '--slotted-date-picker-content-border-color'
-  | '--slotted-date-picker-content-color'
-  | '--slotted-date-picker-content-padding'
-  | '--slotted-date-picker-content-radius'
-  | '--slotted-date-picker-content-shadow'
   | '--slotted-date-picker-invalid-focus-ring-color'
   | '--slotted-date-picker-radius'
-  | '--slotted-date-picker-surface'
   | '--slotted-date-picker-trigger-active-background'
   | '--slotted-date-picker-trigger-color'
   | '--slotted-date-picker-trigger-hover-background'
@@ -5809,15 +5802,8 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-date-field-subtle-background",
   "--slotted-date-field-subtle-border-color",
   "--slotted-date-field-subtle-hover-background",
-  "--slotted-date-picker-content-backdrop-filter",
-  "--slotted-date-picker-content-border-color",
-  "--slotted-date-picker-content-color",
-  "--slotted-date-picker-content-padding",
-  "--slotted-date-picker-content-radius",
-  "--slotted-date-picker-content-shadow",
   "--slotted-date-picker-invalid-focus-ring-color",
   "--slotted-date-picker-radius",
-  "--slotted-date-picker-surface",
   "--slotted-date-picker-trigger-active-background",
   "--slotted-date-picker-trigger-color",
   "--slotted-date-picker-trigger-hover-background",

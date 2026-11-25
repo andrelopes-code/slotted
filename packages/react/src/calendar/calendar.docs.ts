@@ -595,6 +595,11 @@ const events: EventRow[] = [
     payload: '(view: CalendarView)',
     when: 'When the heading walks up a view or Escape walks down one.',
   },
+  {
+    name: 'onPageChange',
+    payload: '(month: PlainYearMonth)',
+    when: 'When the first month on screen changes, for a month control beside the calendar.',
+  },
 ];
 
 const composition: ApiRow[] = apiRows([

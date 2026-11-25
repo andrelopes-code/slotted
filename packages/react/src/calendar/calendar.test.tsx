@@ -892,3 +892,12 @@ describe('the weekend', () => {
     expect(saturday?.previousElementSibling).not.toHaveAttribute('data-weekend');
   });
 });
+
+it('says which month the page starts on, and when it turns', () => {
+  const pages = vi.fn();
+  render(<Calendar defaultFocusedDate={NINTH} locale="en-US" months={2} onPageChange={pages} />);
+  expect(pages.mock.lastCall?.[0]).toEqual({ year: 2026, month: 9 });
+
+  fireEvent.click(screen.getByRole('button', { name: 'Next month' }));
+  expect(pages.mock.lastCall?.[0]).toEqual({ year: 2026, month: 11 });
+});

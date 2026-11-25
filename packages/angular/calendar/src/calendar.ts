@@ -16,7 +16,13 @@ import {
   visibleMonths,
   yearPage,
 } from '@slotted/core/date';
-import type { CalendarDay, CalendarWeek, MonthYearPart, PlainDate } from '@slotted/core/date';
+import type {
+  CalendarDay,
+  CalendarWeek,
+  MonthYearPart,
+  PlainDate,
+  PlainYearMonth,
+} from '@slotted/core/date';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeReason, ChangeRequest } from '@slotted/core/state';
 import {
@@ -616,6 +622,12 @@ export class SlCalendar implements OnInit {
    * long the run would be.
    */
   readonly previewChange = output<PlainDate | null>();
+  /**
+   * The first month on screen, which is not the month the reader is on: two
+   * months hold their page while the reader moves between them. A fact the
+   * grid states, for a month control beside it.
+   */
+  readonly pageChange = output<PlainYearMonth>();
 
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly injector = inject(Injector);
@@ -739,6 +751,13 @@ export class SlCalendar implements OnInit {
     /* The pending end, reported once per change and never while it is the
        same day: a pointer crossing a cell twice is one fact, not two. */
     let reported: PlainDate | null = null;
+    let reportedPage: PlainYearMonth | null = null;
+    effect(() => {
+      const page = this.page();
+      if (reportedPage?.year === page.year && reportedPage.month === page.month) return;
+      reportedPage = page;
+      this.pageChange.emit(page);
+    });
     effect(() => {
       const end = this.previewEnd();
       if (isSameDate(reported, end)) return;

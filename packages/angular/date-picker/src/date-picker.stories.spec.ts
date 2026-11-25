@@ -6,7 +6,7 @@ import contract from '../../../../specs/components/date-picker/contract.json';
 import { ANGULAR_DATE_PICKER_DOCS } from './date-picker.docs';
 import * as datePickerStories from './date-picker.stories';
 
-describe('Angular DatePicker stories', () => {
+describe('Angular Date Picker stories', () => {
   it('covers every required scenario', () => {
     expect(scenarioCoverageErrors(contract.scenarios.datePicker, datePickerStories)).toEqual([]);
   });
@@ -43,21 +43,5 @@ describe('Angular DatePicker stories', () => {
       ...docs.scenes.map((scene) => scene.snippet),
     ]);
     expect(await snippetFormatErrors(snippets)).toEqual([]);
-  });
-});
-
-/**
- * An application whose API carries ISO dates could not find where PlainDate
- * comes from. The `value` row names the entry point and the two conversions.
- */
-describe('Angular DatePicker docs, an ISO date', () => {
-  it('names @slotted/core/date and the conversions under value', () => {
-    const rows = Object.values(ANGULAR_DATE_PICKER_DOCS).flatMap((docs) => docs.api);
-    const value = rows.find((row) => row.name === 'value');
-
-    expect(value?.description).toMatch(/PlainDate is exported by @slotted\/core\/date/);
-    expect(value?.description).toMatch(/parseISODate\(text\) returns a PlainDate or null/);
-    expect(value?.description).toMatch(/toISODate\(date\) returns .YYYY-MM-DD./);
-    expect(value?.description).toMatch(/isPlainDate\(value\) narrows the CalendarValue/);
   });
 });

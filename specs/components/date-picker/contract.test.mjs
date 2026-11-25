@@ -31,8 +31,8 @@ test('names the identifier a consumer selects the family by', () => {
  * field and a second month grid would be two places to fix one defect, and the
  * two families would drift the way `alert` and `tag` drifted from `badge`.
  */
-test('composes the two families instead of drawing a field and a grid again', () => {
-  assert.deepEqual(contract.composes, ['date-field', 'calendar']);
+test('composes the field, the grid and the panel instead of drawing its own', () => {
+  assert.deepEqual(contract.composes, ['date-field', 'calendar', 'picker-panel']);
   assert.equal(dateField.family, 'date-field');
   assert.equal(calendar.family, 'calendar');
   for (const part of ['segment', 'cell', 'week-header']) {
@@ -105,21 +105,14 @@ test('closes on Escape, and lets the calendar take the key first', () => {
  * Closing on selection is right for one date and a trap for a range, where the
  * second press has to reach the same surface.
  */
-test('closes on selection only where closing is not a trap', () => {
-  assert.deepEqual(contract.axes.closeOnSelect, ['auto', 'always', 'never']);
-  assert.equal(member.defaults.closeOnSelect, 'auto');
-  assert.match(contract.dismissal.closeOnSelect, /single only/);
+test('asks for a confirmation only where a press does not finish the value', () => {
+  assert.deepEqual(contract.axes.confirm, ['on', 'off']);
+  assert.match(contract.resolution.confirm.at(-1), /off for one date/);
+  assert.equal(contract.dismissal.discards, 'the draft');
 });
 
-/**
- * §2.7 of `docs/component-features.md` asks for it by name: a popover on the
- * desktop and a sheet in a narrow viewport. The DOM is the same either way, so
- * the decision is testable without a device.
- */
-test('answers a narrow coarse-pointer viewport without changing the DOM', () => {
-  assert.match(contract.responsive.sheet, /coarse pointer/);
-  assert.equal(contract.responsive.decidedIn, 'the stylesheet; the DOM does not change');
-  assert.ok('data-presentation' in contract.dataAttributes);
+test('writes what a shortcut is, rather than its name alone', () => {
+  assert.match(contract.presets.result, /in words/);
 });
 
 test('declares both mutable values, each with a reason vocabulary', () => {

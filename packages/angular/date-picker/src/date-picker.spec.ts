@@ -14,13 +14,13 @@ import { describe, expect, it, vi } from 'vitest';
 import contract from '../../../../specs/components/date-picker/contract.json';
 import { SlDatePicker } from './date-picker';
 import { provideDatePickerDefaults } from './date-picker-defaults';
-import { SlDatePickerFooter, SlDatePickerPresets } from './date-picker-parts';
+import { SlDatePickerFooter } from './date-picker-parts';
 
 const NINTH = plainDate(2026, 9, 9);
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, SlDatePicker, SlDatePickerFooter, SlDatePickerPresets],
+  imports: [ReactiveFormsModule, SlDatePicker, SlDatePickerFooter],
   template: `<div slDatePicker></div>`,
 })
 class Host {
@@ -39,6 +39,13 @@ class Host {
   readonly onOpen = vi.fn((request: ChangeRequest<boolean>) => {
     this.opens.push(request.value);
   });
+  readonly lastDay = plainDate(2026, 12, 31);
+  readonly presets = [
+    { label: 'End of month', value: plainDate(2026, 9, 30) },
+    { label: 'Renewal', value: () => plainDate(2027, 3, 1) },
+  ];
+  readonly run = { start: plainDate(2026, 9, 7), end: plainDate(2026, 9, 11) };
+  readonly refuseTenth = (date: PlainDate) => date.day === 10;
   readonly refuseNinth = (date: PlainDate) => date.day === 9;
 }
 
@@ -91,28 +98,17 @@ describe('what it is made of', () => {
     expect(root(fixture).getAttribute('data-ui')).toBe(contract.ui);
   });
 
-  it('declares every part the contract names', () => {
+  it('declares every part the contract names, and opens the shared panel', () => {
     const fixture = renderTemplate(
-      `<div slDatePicker defaultOpen locale="pt-BR" [defaultValue]="ninth">
-         <div slDatePickerPresets><button type="button">Today</button></div>
-         <div slDatePickerFooter><button type="button">Apply</button></div>
-       </div>`,
+      `<div slDatePicker defaultOpen locale="en-US" [defaultValue]="ninth"></div>`,
     );
 
-    const present = [...fixture.nativeElement.querySelectorAll('[data-part]')].map(
-      (element: Element) => (element as HTMLElement).dataset['part'],
-    );
-    for (const part of [
-      'root',
-      'control',
-      'trigger',
-      'positioner',
-      'content',
-      'presets',
-      'footer',
-    ]) {
-      expect(present).toContain(part);
+    for (const part of contract.members.datePicker.parts) {
+      expect(fixture.nativeElement.querySelector(`[data-part="${part}"]`), part).not.toBeNull();
     }
+    expect(
+      fixture.nativeElement.querySelector('[data-ui="picker-panel"][data-kind="date"]'),
+    ).not.toBeNull();
   });
 
   it('carries the dialog role and points the trigger at it while it is open', () => {
@@ -242,13 +238,17 @@ describe('choosing a date', () => {
     expect(surface(fixture)).not.toBeNull();
   });
 
-  it('takes the axis over the default when a product asks', () => {
+  it('keeps a draft for one date when a product asks', () => {
     const fixture = renderTemplate(
-      `<div slDatePicker defaultOpen locale="pt-BR" closeOnSelect="never" [defaultValue]="ninth"></div>`,
+      `<div slDatePicker confirm defaultOpen locale="en-US" [defaultValue]="ninth" (valueChange)="onValue($event)"></div>`,
     );
 
     click(fixture, dayFor(fixture, 17));
-    expect(surface(fixture)).not.toBeNull();
+    expect(fixture.componentInstance.values).toEqual([]);
+
+    click(fixture, fixture.nativeElement.querySelector('[data-part="apply"]') as HTMLElement);
+    expect(fixture.componentInstance.values).toEqual([plainDate(2026, 9, 17)]);
+    expect(surface(fixture)).toBeNull();
   });
 });
 
@@ -379,20 +379,72 @@ describe('the composition surface', () => {
     expect(contract.stateModel.open.reasons).toEqual(expect.arrayContaining(reasons));
   });
 
-  it('takes the consumer’s own slots into the surface', () => {
+  it('writes what each shortcut is, and what the consumer says in the footer', () => {
     const fixture = renderTemplate(
-      `<div slDatePicker defaultOpen locale="pt-BR">
-         <div slDatePickerPresets><button type="button">Today</button></div>
-         <div slDatePickerFooter><button type="button">Apply</button></div>
+      `<div slDatePicker defaultOpen locale="en-US" [presets]="presets">
+         <span slDatePickerFooter>Closed on Sundays</span>
        </div>`,
     );
+    const results = [
+      ...fixture.nativeElement.querySelectorAll('[data-part="preset-result"]'),
+    ] as HTMLElement[];
 
-    expect(fixture.nativeElement.querySelector('[data-part="presets"]')?.textContent).toContain(
-      'Today',
+    expect(results.slice(1).map((result) => result.textContent)).toEqual([
+      'Wed, Sep 30',
+      'Mon, Mar 1',
+    ]);
+    expect(fixture.nativeElement.querySelector('[data-part="hint"]').textContent.trim()).toBe(
+      'Closed on Sundays',
     );
-    expect(fixture.nativeElement.querySelector('[data-part="footer"]')?.textContent).toContain(
-      'Apply',
+  });
+
+  it('writes a shortcut and closes, and refuses one out of bounds', () => {
+    const fixture = renderTemplate(
+      `<div slDatePicker defaultOpen locale="en-US" [max]="lastDay" [presets]="presets" (valueChange)="onValue($event)"></div>`,
     );
+    const presets = [
+      ...fixture.nativeElement.querySelectorAll('[data-part="preset"]'),
+    ] as HTMLButtonElement[];
+    expect(presets[2]?.disabled).toBe(true);
+
+    click(fixture, presets[1]!);
+    expect(fixture.componentInstance.values).toEqual([plainDate(2026, 9, 30)]);
+    expect(surface(fixture)).toBeNull();
+  });
+
+  it('jumps to a month of the year, and steps the date over the days it refuses', () => {
+    const fixture = renderTemplate(
+      `<div slDatePicker defaultOpen locale="en-US" [defaultValue]="ninth" [isDateUnavailable]="refuseTenth" [presets]="presets" (valueChange)="onValue($event)"></div>`,
+    );
+    const query = (selector: string) =>
+      fixture.nativeElement.querySelector(selector) as HTMLElement;
+
+    click(fixture, query('[data-part="step"][aria-label="Next day"]'));
+    expect(fixture.componentInstance.values).toEqual([plainDate(2026, 9, 11)]);
+    expect(query('[data-part="value"]').textContent).toContain('September 11');
+
+    click(fixture, query('[data-part="jump-month"][aria-label="March 2026"]'));
+    expect(query('[data-part="heading"]').textContent).toBe('March 2026');
+    expect(query('[data-part="jump-month"][data-selected]').textContent?.trim()).toBe('Sep');
+  });
+
+  it('drops the draft of a run on Escape, and empties the value from the footer', () => {
+    const fixture = renderTemplate(
+      `<div slDatePicker defaultOpen locale="en-US" selectionMode="range" [defaultValue]="run" (valueChange)="onValue($event)"></div>`,
+    );
+    const head = () => fixture.nativeElement.querySelector('[data-part="value"]').textContent;
+    click(fixture, dayFor(fixture, 14));
+    click(fixture, dayFor(fixture, 18));
+    expect(head()).toContain('5 days');
+
+    escape(fixture);
+    click(fixture, trigger(fixture));
+    expect(head()).toContain('Sep 7');
+    expect(fixture.componentInstance.values).toEqual([]);
+
+    click(fixture, fixture.nativeElement.querySelector('[data-part="clear"]') as HTMLElement);
+    click(fixture, fixture.nativeElement.querySelector('[data-part="apply"]') as HTMLElement);
+    expect(fixture.componentInstance.values).toEqual([null]);
   });
 });
 
@@ -523,13 +575,10 @@ describe('where focus goes when it opens', () => {
 
   it('keeps Tab inside the surface while it is open', () => {
     const fixture = renderTemplate(
-      `<div slDatePicker defaultOpen locale="en-US" [defaultValue]="ninth">
-         <div slDatePickerPresets><button type="button" id="first">Today</button></div>
-         <div slDatePickerFooter><button type="button" id="last">Done</button></div>
-       </div>`,
+      `<div slDatePicker defaultOpen locale="en-US" [defaultValue]="ninth" [presets]="presets"></div>`,
     );
-    const first = fixture.nativeElement.querySelector('#first') as HTMLButtonElement;
-    const last = fixture.nativeElement.querySelector('#last') as HTMLButtonElement;
+    const first = fixture.nativeElement.querySelector('[data-part="preset"]') as HTMLButtonElement;
+    const last = fixture.nativeElement.querySelector('[data-part="clear"]') as HTMLButtonElement;
 
     last.focus();
     last.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));

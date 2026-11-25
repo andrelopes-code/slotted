@@ -6,7 +6,7 @@ import type {
   ReferenceImport,
   ReferenceSceneMeta,
 } from '@slotted/storybook-workbench';
-import datePickerTokens from '@slotted/styles/date-picker/tokens.json';
+import tokens from '@slotted/styles/date-picker/tokens.json';
 
 type ApiTuple = readonly [string, string, string, string, string];
 const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
@@ -18,14 +18,13 @@ const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
     description,
   }));
 
-export const ANGULAR_DATE_PICKER_TOKENS = datePickerTokens.map((name) => ({
+export const ANGULAR_DATE_PICKER_TOKENS = tokens.map((name) => ({
   name,
-  purpose: 'A Date Picker value the theme sets.',
+  purpose: 'Theme-owned Date Picker decision',
 }));
 
 const imports: ReferenceImport = {
-  source:
-    "import { SlDatePicker, SlDatePickerPresets, SlDatePickerFooter } from '@slotted/angular/date-picker';",
+  source: "import { SlDatePicker } from '@slotted/angular/date-picker';",
   selector: '[slDatePicker]',
   exportAs: 'slDatePicker',
 };
@@ -33,58 +32,23 @@ const imports: ReferenceImport = {
 const anatomy: AnatomyRow[] = [
   {
     part: 'root',
-    element: 'your own element carrying slDatePicker',
+    element: 'the consumer’s own element',
     required: true,
     purpose:
-      'The outer box, carrying data-ui="date-picker", the size, variant and calendar axes, data-open and the state attributes. You write this element, so its classes, attributes and other directives stay yours.',
+      'The frame of the picker. Carries data-ui="date-picker", data-size, data-variant, data-calendar, data-open and the state attributes.',
   },
   {
     part: 'control',
     element: 'div',
     required: true,
-    purpose:
-      'The box the calendar is positioned against. It draws no frame: the date field inside it draws its own border, focus ring and states.',
+    purpose: 'The box the panel hangs from, around the field and the trigger.',
   },
   {
     part: 'trigger',
     element: 'button',
     required: true,
     purpose:
-      'The calendar button, in the slDateFieldEnd slot of the date field. Its accessible name carries the chosen date in words, because focus returns to it when the calendar closes. It is always drawn, because ChromeOS turns Alt+ArrowDown into PageDown before the browser receives it.',
-  },
-  {
-    part: 'positioner',
-    element: 'div, after the control inside the root',
-    required: true,
-    purpose:
-      'The layer the calendar stands on, drawn while the calendar is open. It carries data-ui="date-picker" again, data-presentation (popover or sheet) and the position the positioner writes. It takes no pointer events of its own, so a press on the page around the surface reaches the page.',
-  },
-  {
-    part: 'content',
-    element: 'div with role="dialog"',
-    required: true,
-    purpose:
-      'The painted surface, with the same accessible name as the trigger. Its width comes from the calendar inside it, not from the field it opens from.',
-  },
-  {
-    part: 'grip',
-    element: 'span, aria-hidden',
-    required: false,
-    purpose:
-      'The pill at the top of the sheet, drawn only while data-presentation is sheet, in the drawer grip’s geometry and line color. A pull down past half the sheet, or a flick down, closes it with the reason pointer; Escape and the press outside stay the accessible ways out.',
-  },
-  {
-    part: 'presets',
-    element: 'your own element carrying slDatePickerPresets',
-    required: false,
-    purpose:
-      'A column beside the calendar for your own shortcuts. The Date Picker ships no list of shortcuts: the labels and dates belong to your product.',
-  },
-  {
-    part: 'footer',
-    element: 'your own element carrying slDatePickerFooter',
-    required: false,
-    purpose: 'A row under the calendar for your own actions.',
+      'The button that opens the panel. It says aria-haspopup="dialog", and its name carries the date written.',
   },
 ];
 
@@ -92,157 +56,177 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'A field, a trigger and a calendar, driven by the controls below the canvas. Type into the field, or press the trigger and move through the calendar with the arrow keys: both write the same value.',
+    note: 'A field that types every date, and a panel that writes one on a press. The controls of the story answer the axes a product sets.',
     snippet: defineSnippet({
       id: 'date-picker-angular-playground',
-      label: 'Usage',
+      label: 'Playground',
       language: 'angular',
-      source: `<div slField>
-  <label slFieldLabel>Due date</label>
-  <div slDatePicker name="dueDate" (valueChange)="onValue($event)"></div>
-</div>`,
+      source: `<div slDatePicker [defaultValue]="thirtieth"></div>`,
     }),
   },
   {
-    id: 'sizes',
-    title: 'Size',
-    note: 'The three steps of the control scale. The trigger follows the field: its box is the icon plus one step of space, inside the frame, as in every other control with an inner button.',
+    id: 'presets',
+    title: 'Shortcuts',
+    note: 'A label and a value, or a function that resolves one when it is pressed. The panel writes the date each one is, and a shortcut the rules refuse is off.',
     snippet: defineSnippet({
-      id: 'date-picker-angular-sizes',
-      label: 'The three steps',
+      id: 'date-picker-angular-presets',
+      label: 'Shortcuts',
       language: 'angular',
-      source: `<div slDatePicker size="sm"></div>
-<div slDatePicker size="md"></div>
-<div slDatePicker size="lg"></div>`,
+      source: `<div slDatePicker [defaultValue]="thirtieth" [presets]="presets"></div>`,
     }),
   },
   {
-    id: 'variants',
-    title: 'Variant',
-    note: 'How much frame the field draws at rest. The trigger keeps its calendar icon in all three.',
+    id: 'range-and-set',
+    title: 'A run, and a set',
+    note: 'selectionMode decides what the value is. A run and a set keep a draft until Apply, because a press does not finish them.',
     snippet: defineSnippet({
-      id: 'date-picker-angular-variants',
-      label: 'The three frames',
+      id: 'date-picker-angular-range-and-set',
+      label: 'A run, and a set',
       language: 'angular',
-      source: `<div slDatePicker variant="outline"></div>
-<div slDatePicker variant="subtle"></div>
-<div slDatePicker variant="plain"></div>`,
+      source: `<div slDatePicker [defaultValue]="run" selectionMode="range" weekNumbers></div>`,
     }),
   },
   {
-    id: 'placement',
-    title: 'Where the surface opens',
-    note: 'A preference: when the calendar does not fit on that side, it opens on the other, and data-placement on the positioner records the side it took.',
+    id: 'month',
+    title: 'A month as the value',
+    note: 'granularity="month" holds a PlainYearMonth: the panel opens on the months of a year, and the bounds are months.',
     snippet: defineSnippet({
-      id: 'date-picker-angular-placement',
-      label: 'Placement',
+      id: 'date-picker-angular-month',
+      label: 'A month as the value',
       language: 'angular',
-      source: `<div slDatePicker placement="bottom-start"></div>
-<div slDatePicker placement="top-end"></div>`,
+      source: `<div slDatePicker [defaultValue]="december" granularity="month"></div>`,
+    }),
+  },
+  {
+    id: 'confirm',
+    title: 'With and without a confirmation',
+    note: 'One date is written by its press, and the panel closes. confirm keeps a draft until Apply.',
+    snippet: defineSnippet({
+      id: 'date-picker-angular-confirm',
+      label: 'With and without a confirmation',
+      language: 'angular',
+      source: `<div slDatePicker [defaultValue]="thirtieth"></div>`,
     }),
   },
   {
     id: 'range-bounds',
     title: 'Bounds',
-    note: 'min and max bound the field and the calendar together: the calendar disables the days outside them, and a typed date outside them marks the date picker invalid.',
+    note: 'A day outside the bounds is struck through and keeps its focus. A typed date outside them is invalid.',
     snippet: defineSnippet({
       id: 'date-picker-angular-range-bounds',
-      label: 'min and max',
+      label: 'Bounds',
       language: 'angular',
-      source: `<div slDatePicker [min]="first" [max]="last"></div>`,
+      source: `<div slDatePicker [defaultValue]="thirtieth" [max]="lastDay" [min]="firstDay"></div>`,
     }),
   },
   {
     id: 'unavailable',
-    title: 'Days that are refused',
-    note: 'One function reaches the field and the calendar. A refused date marks the date picker invalid when it is typed, and is disabled in the calendar.',
+    title: 'Days the product refuses',
+    note: 'A predicate refuses particular days. The steps of the head skip them.',
     snippet: defineSnippet({
       id: 'date-picker-angular-unavailable',
-      label: 'A predicate',
+      label: 'Days the product refuses',
       language: 'angular',
-      source: `<div slDatePicker [isDateUnavailable]="isWeekend"></div>`,
+      source: `<div slDatePicker [defaultValue]="thirtieth" [isDateUnavailable]="isWeekend"></div>`,
     }),
   },
   {
-    id: 'presets',
-    title: 'Shortcuts and actions',
-    note: 'The two slots you fill: shortcuts beside the calendar and actions under it. The Date Picker ships no list of shortcuts, because the labels and dates belong to your product.',
+    id: 'sizes',
+    title: 'Size',
+    note: 'The three heights every control has. The panel keeps its own measures at each of them.',
     snippet: defineSnippet({
-      id: 'date-picker-angular-presets',
-      label: 'Presets and footer',
+      id: 'date-picker-angular-sizes',
+      label: 'Size',
       language: 'angular',
-      source: `<div slDatePicker>
-  <div slDatePickerPresets>
-    <button type="button" (click)="today()">Today</button>
-  </div>
-  <div slDatePickerFooter>
-    <button type="button" (click)="apply()">Apply</button>
-  </div>
-</div>`,
+      source: `<div slDatePicker [defaultValue]="thirtieth" size="sm"></div>`,
+    }),
+  },
+  {
+    id: 'variants',
+    title: 'Variant',
+    note: 'The three frames every field has, so a picker stands beside a field of its own variant.',
+    snippet: defineSnippet({
+      id: 'date-picker-angular-variants',
+      label: 'Variant',
+      language: 'angular',
+      source: `<div slDatePicker [defaultValue]="thirtieth" variant="outline"></div>`,
+    }),
+  },
+  {
+    id: 'placement',
+    title: 'Where it opens',
+    note: 'A side and an alignment. The positioner turns the panel when there is no room for it.',
+    snippet: defineSnippet({
+      id: 'date-picker-angular-placement',
+      label: 'Where it opens',
+      language: 'angular',
+      source: `<div slDatePicker [defaultValue]="thirtieth" placement="bottom-end"></div>`,
     }),
   },
   {
     id: 'states',
     title: 'States',
-    note: 'Disabled and read-only both disable the trigger, so the calendar cannot open. Invalid draws the frame and the focus ring in the danger tone.',
+    note: 'Each is the field’s own, and the trigger answers it.',
     snippet: defineSnippet({
       id: 'date-picker-angular-states',
-      label: 'The four states',
+      label: 'States',
       language: 'angular',
-      source: `<div slDatePicker readOnly></div>
-<div slDatePicker invalid></div>
-<div slDatePicker disabled></div>
-<div slDatePicker required></div>`,
+      source: `<div slDatePicker [defaultValue]="thirtieth" disabled></div>`,
     }),
   },
   {
     id: 'forms',
     title: 'In a form',
-    note: 'name adds a hidden input that submits the date as an ISO 8601 string, so a plain form post sends 2026-09-09 whether the reader typed the date or chose it. formControlName binds it to a reactive form.',
+    note: 'name posts the date, a reset returns to the first one, and a Field names the control and not the panel.',
     snippet: defineSnippet({
       id: 'date-picker-angular-forms',
-      label: 'A plain form post',
+      label: 'In a form',
       language: 'angular',
-      source: `<form action="/bookings" method="post">
-  <div slDatePicker name="checkIn" required></div>
-  <button type="submit">Book</button>
-</form>`,
+      source: `<div slField>
+  <label slFieldLabel>Delivery</label>
+  <div slDatePicker name="delivery"></div>
+</div>`,
     }),
   },
   {
     id: 'narrow',
-    title: 'On a narrow touch screen',
-    note: 'Under 480 pixels on a coarse pointer, the calendar opens as a sheet attached to the bottom of the viewport. The markup stays the same, and data-presentation on the positioner records which presentation is showing.',
+    title: 'One column',
+    note: 'Under 760 pixels the shortcuts become a strip over the footer, and on a finger the panel is a sheet.',
     snippet: defineSnippet({
       id: 'date-picker-angular-narrow',
-      label: 'Sheet',
+      label: 'One column',
       language: 'angular',
-      source: `<div slDatePicker fixedWeeks></div>`,
+      source: `<div slDatePicker [defaultValue]="thirtieth" [presets]="presets"></div>`,
     }),
   },
   {
     id: 'composition',
     title: 'Composition and escape hatches',
-    note: 'provideDatePickerDefaults sets the time zone and the placement once, provideSlotted sets the language and the trigger’s names, exportAs returns focus(), openSurface() and closeSurface(), and cancel() refuses a value before it is applied.',
+    note: 'The consumer may own the value and the open state, a provider states the shape once, and footer writes what the panel says when nothing is wrong.',
     snippet: defineSnippet({
       id: 'date-picker-angular-composition',
-      label: 'Provider and exportAs',
+      label: 'Composition and escape hatches',
       language: 'angular',
-      source: `<div slDatePicker #picker="slDatePicker" (valueChange)="$event.cancel()"></div>
-<button type="button" (click)="picker.openSurface()">Open calendar</button>`,
+      source: `<div slDatePicker [value]="date()" (valueChange)="date.set($event.value)">
+  <span slDatePickerFooter>Closed on Sundays</span>
+</div>`,
     }),
   },
   {
     id: 'keyboard',
     title: 'The keyboard',
-    note: 'Alt+ArrowDown opens the calendar from the field and moves focus to the chosen day. Escape closes it and returns focus to the trigger; while the calendar shows months or years, Escape first returns to the day grid.',
+    note: 'The field keeps its keys, and the panel adds the calendar’s.',
     snippet: defineSnippet({
       id: 'date-picker-angular-keyboard',
-      label: 'The keys',
+      label: 'The keyboard',
       language: 'angular',
-      source: `<!-- Alt + ArrowDown  opens the surface from the field -->
-<!-- Escape           returns to the day grid, or closes and returns focus -->
-<!-- Tab              cycles inside the surface while it is open -->
+      source: `<!-- Alt + ArrowDown         opens, from a segment -->
+<!-- ArrowDown / ArrowUp     on the trigger, opens on the chosen day -->
+<!-- Arrows, Home, End       move in the month -->
+<!-- PageUp / PageDown       turn the month, and with Shift the year -->
+<!-- Enter / Space           chooses -->
+<!-- Ctrl + Enter            applies -->
+<!-- Escape                  walks down a view, then discards and closes -->
 <div slDatePicker></div>`,
     }),
   },
@@ -251,214 +235,141 @@ const scenes: ReferenceSceneMeta[] = [
 const api: ApiRow[] = apiRows([
   [
     'value',
-    'PlainDate | DateRange | PlainDate[] | PlainYearMonth | null',
+    'PlainDate | DateRange | PlainDate[] | null',
     '—',
     'SlDatePicker',
-    "The selected value, whose shape follows selectionMode. Binding it makes the value controlled. PlainDate is exported by @slotted/core/date. parseISODate(text) returns a PlainDate or null, toISODate(date) returns 'YYYY-MM-DD', and isPlainDate(value) narrows the CalendarValue (valueChange) reports.",
+    'The value held, which depends on selectionMode. Present means the consumer owns it. Under granularity="month", a PlainYearMonth.',
   ],
   [
     'defaultValue',
-    'PlainDate | DateRange | PlainDate[] | PlainYearMonth | null',
-    '—',
+    'PlainDate | DateRange | PlainDate[] | null',
+    'null',
     'SlDatePicker',
-    'The starting value of an uncontrolled date picker. Read once, when the date picker initializes.',
+    'What it starts from, and returns to on a form reset. Read once.',
   ],
-  [
-    'open',
-    'boolean',
-    '—',
-    'SlDatePicker',
-    'Whether the calendar is showing. Binding it makes the open state controlled.',
-  ],
-  [
-    'defaultOpen',
-    'boolean',
-    'false',
-    'SlDatePicker',
-    'Whether the calendar shows when the date picker initializes. Focus does not move into it.',
-  ],
-  [
-    'min',
-    'PlainDate | PlainYearMonth',
-    '—',
-    'SlDatePicker',
-    'The earliest date the field and the calendar accept. Earlier days are disabled in the calendar, an earlier typed date marks the date picker invalid, and a form reports slottedDateRange.',
-  ],
-  [
-    'max',
-    'PlainDate | PlainYearMonth',
-    '—',
-    'SlDatePicker',
-    'The latest date the field and the calendar accept. Later days are disabled in the calendar, a later typed date marks the date picker invalid, and a form reports slottedDateRange.',
-  ],
-  [
-    'isDateUnavailable',
-    '(date: PlainDate) => boolean',
-    '—',
-    'SlDatePicker',
-    'Returns true for a date the reader cannot choose. The calendar disables it, a typed unavailable date marks the date picker invalid, and a form reports slottedDateUnavailable.',
-  ],
-  [
-    'granularity',
-    "'day' | 'month'",
-    'day',
-    'SlDatePicker',
-    'What a choice is. month opens the calendar on the months of a year and chooses a month cell; the field shows the month and the year segments; value, defaultValue, min and max are PlainYearMonth from @slotted/core/date ({ year, month }), (valueChange) reports one, and name submits YYYY-MM. parseISOYearMonth and toISOYearMonth convert to and from that text. selectionMode, months, isDateUnavailable and the week inputs do not apply.',
-  ],
+  ['granularity', "'day' | 'month'", 'day', 'SlDatePicker', 'What a choice is.'],
   [
     'selectionMode',
     "'single' | 'range' | 'multiple'",
     'single',
     'SlDatePicker',
-    'How many dates the calendar selects, and so the shape of the value. The field shows a single date only; for a start and an end, use slDateRangePicker.',
+    'How many dates the value holds.',
   ],
-  ['months', 'number', '1', 'SlDatePicker', 'How many months the calendar draws side by side.'],
+  [
+    'months',
+    'number',
+    '1',
+    'SlDatePicker',
+    'How many months the panel shows. One below 760 pixels.',
+  ],
   [
     'defaultView',
     "'day' | 'month' | 'year'",
     'day',
     'SlDatePicker',
-    'The grid the calendar opens on.',
+    'The view the calendar opens on.',
+  ],
+  ['min', 'PlainDate', '—', 'SlDatePicker', 'The earliest accepted date.'],
+  ['max', 'PlainDate', '—', 'SlDatePicker', 'The latest accepted date.'],
+  [
+    'isDateUnavailable',
+    '(date: PlainDate) => boolean',
+    '—',
+    'SlDatePicker',
+    'Refuses particular dates.',
+  ],
+  [
+    'presets',
+    'readonly PickerPreset<CalendarValue>[]',
+    '—',
+    'SlDatePicker',
+    'The consumer’s own shortcuts, after Today. Without any, the panel is the month alone.',
+  ],
+  [
+    'confirm',
+    'boolean',
+    'off for one date',
+    'SlDatePicker',
+    'Whether the panel keeps a draft until Apply.',
   ],
   [
     'weekNumbers',
     'boolean',
     'false',
     'SlDatePicker',
-    'Adds a column of ISO 8601 week numbers to the calendar.',
+    'Draws the ISO week number; in a run, a press on it chooses the week.',
   ],
   [
     'fixedWeeks',
     'boolean',
     'true',
     'SlDatePicker',
-    'Draws six rows for every month, so the surface keeps its height as the reader pages between months.',
+    'Six rows whatever the month needs, with one month.',
+  ],
+  ['firstDayOfWeek', 'number', 'the locale’s', 'SlDatePicker', '0 is Sunday.'],
+  ['yearPivot', 'number', '—', 'SlDatePicker', 'How a two-digit typed year resolves.'],
+  ['calendar', "'gregory'", 'gregory', 'SlDatePicker', 'The calendar system.'],
+  ['name', 'string', '—', 'SlDatePicker', 'The name a form posts the date under.'],
+  [
+    'invalid',
+    'boolean',
+    '—',
+    'SlDatePicker',
+    'Stated by the consumer; a refused date is invalid without it.',
+  ],
+  [
+    'open',
+    'boolean',
+    '—',
+    'SlDatePicker',
+    'Whether the panel is showing. Present means the consumer owns it.',
+  ],
+  [
+    'defaultOpen',
+    'boolean',
+    'false',
+    'SlDatePicker',
+    'Whether it starts open when nobody else says. Read once.',
   ],
   [
     'placement',
     "'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end'",
     'bottom-start',
     'SlDatePicker',
-    'Where the calendar opens relative to the field. When it does not fit on that side, it opens on the other.',
-  ],
-  [
-    'closeOnSelect',
-    "'auto' | 'always' | 'never'",
-    'auto',
-    'SlDatePicker',
-    'Whether choosing a day closes the calendar. auto closes it for a single date and keeps it open for a range or several dates, which need more than one press.',
-  ],
-  [
-    'locale',
-    'string',
-    'the provideSlotted locale, else en-US',
-    'SlDatePicker',
-    'A BCP 47 tag. Sets the order, separators and placeholders of the segments, the month and weekday names, the first day of the week and the date the trigger announces.',
-  ],
-  [
-    'timeZone',
-    'string',
-    'the browser’s time zone',
-    'SlDatePicker',
-    'The IANA time zone that decides which day is today. The value itself has no time zone.',
-  ],
-  [
-    'firstDayOfWeek',
-    'number',
-    'the locale’s',
-    'SlDatePicker',
-    'The day the calendar starts each week on, from 0 for Sunday to 6 for Saturday.',
-  ],
-  [
-    'yearPivot',
-    'number',
-    '20',
-    'SlDatePicker',
-    'How a two-digit typed year resolves: a year up to this many years ahead of today is read in this century, and a later one in the previous century.',
-  ],
-  [
-    'calendar',
-    "'gregory'",
-    'gregory',
-    'SlDatePicker',
-    'The calendar system. gregory is the only value today.',
+    'Where the panel opens, before the positioner has read the room.',
   ],
   [
     'size',
     "'sm' | 'md' | 'lg'",
     'md',
     'SlDatePicker',
-    'One step of the control scale for the field and the trigger. Inside slField, an unset size follows the field.',
+    'The height of the control. The field around it answers when the picker does not.',
   ],
   [
     'variant',
     "'outline' | 'subtle' | 'plain'",
     'outline',
     'SlDatePicker',
-    'How much frame the field draws at rest: a border, a filled ground, or neither.',
+    'How the control draws its frame.',
   ],
   [
-    'disabled',
-    'boolean',
-    '—',
-    'SlDatePicker',
-    'Disables the segments and the trigger, and takes both out of the tab order. Read from the form control, then from the enclosing slField, when unset.',
-  ],
-  [
-    'readOnly',
-    'boolean',
-    '—',
-    'SlDatePicker',
-    'Keeps the date legible and focusable and disables the trigger, so the calendar cannot open. Read from the enclosing slField when unset.',
-  ],
-  [
-    'invalid',
-    'boolean',
-    '—',
-    'SlDatePicker',
-    'Draws the frame and the focus ring in the danger tone and sets aria-invalid. A date outside min and max, or refused by isDateUnavailable, sets it on its own.',
-  ],
-  [
-    'required',
-    'boolean',
-    '—',
-    'SlDatePicker',
-    'Sets aria-required on the field. Read from the enclosing slField when unset. In a form, add Validators.required.',
-  ],
-  [
-    'clearable',
-    'boolean',
-    'false',
-    'SlDatePicker',
-    'Adds a clear button to the field while it holds a date. It sets the value to null and returns focus to the field.',
-  ],
-  [
-    'name',
+    'locale',
     'string',
-    '—',
+    'the language in force',
     'SlDatePicker',
-    'Adds a hidden input with this name that submits the date as an ISO 8601 string, such as 2026-09-30.',
+    'BCP 47. Writes the field, the panel and the trigger’s name.',
   ],
+  ['timeZone', 'string', 'the runtime’s', 'SlDatePicker', 'Which zone answers "what is now".'],
+  ['disabled', 'boolean', '—', 'SlDatePicker', 'Answers no key and no press.'],
+  ['readOnly', 'boolean', '—', 'SlDatePicker', 'Readable and not changeable.'],
+  ['required', 'boolean', '—', 'SlDatePicker', 'The form needs a value.'],
+  ['clearable', 'boolean', 'false', 'SlDatePicker', 'Draws a clear on the control.'],
   [
     'messages',
     'Partial<DatePickerMessages>',
     '—',
     'SlDatePicker',
-    'Replaces the trigger’s accessible name, key by key: choose while no date is set, and change, with the date in its {date} slot, once one is.',
-  ],
-  [
-    'slDatePickerPresets',
-    'Directive',
-    '—',
-    'SlDatePicker',
-    'Marks your own element as the shortcuts column beside the calendar.',
-  ],
-  [
-    'slDatePickerFooter',
-    'Directive',
-    '—',
-    'SlDatePicker',
-    'Marks your own element as the actions row under the calendar.',
+    'Words laid over the language in force: the trigger’s two names, and what is said of a refused date.',
   ],
 ]);
 
@@ -466,71 +377,55 @@ const events: EventRow[] = [
   {
     name: 'valueChange',
     payload: 'ChangeRequest<CalendarValue>',
-    when: 'Before the value changes, from the field or the calendar. reason is keyboard for typing and for the calendar’s keys, pointer for a press on a day, clear for the clear button and blur for a date completed when the field loses focus. cancel() keeps the current value. There is no [(value)] two-way binding: bind [value] and update it from this output.',
+    when: 'Before the value moves, and cancellable: from a key in the field, from a press, from Apply, from Clear.',
   },
   {
     name: 'openChange',
     payload: 'ChangeRequest<boolean>',
-    when: 'Before the calendar opens or closes. reason is pointer for the trigger, keyboard for Alt+ArrowDown, programmatic for openSurface() and closeSurface(), escape for the Escape key, outsidePress for a press outside the surface and select for a chosen day. cancel() keeps the current state.',
+    when: 'Before the panel opens or closes, with the reason.',
   },
 ];
 
 const composition: ApiRow[] = apiRows([
   [
     'provideDatePickerDefaults',
-    'Provider',
+    'function',
     '—',
     'application',
-    'Sets timeZone, placement, closeOnSelect, calendar, size and variant for every slDatePicker under the injector. An input on one date picker wins.',
+    'Sets calendar, confirm, placement, size, timeZone and variant once.',
   ],
   [
-    'ControlValueAccessor',
-    'NG_VALUE_ACCESSOR',
-    '—',
+    'slDatePickerFooter',
+    'directive',
+    'the page keys',
     'SlDatePicker',
-    'formControl, formControlName and ngModel bind the value, a form reset empties the field, and the form’s disabled state reaches the date picker.',
+    'What the footer says when nothing is wrong.',
   ],
   [
-    'Validator',
-    'NG_VALIDATORS',
+    'formControl, ngModel',
+    'forms',
     '—',
     'SlDatePicker',
-    'Reports slottedDateRange, with min, max and the date, for a date outside the bounds, and slottedDateUnavailable for a date isDateUnavailable refuses. required is left to Validators.required.',
+    'The picker is a ControlValueAccessor and a Validator.',
   ],
   [
-    'exportAs',
-    'slDatePicker',
+    'focus(), openSurface(), closeSurface()',
+    'methods',
     '—',
     'SlDatePicker',
-    'A template reference to the instance, with focus(), which focuses the first segment, and openSurface() and closeSurface(), which show and hide the calendar without a bound open input. openSurface() moves focus into the calendar.',
-  ],
-  [
-    'ng-content slots',
-    'slDatePickerPresets, slDatePickerFooter',
-    '—',
-    'SlDatePicker',
-    'The two places you fill, as directives on your own elements, so a button, a list or a toolbar keeps its own semantics.',
+    'Reached through exportAs.',
   ],
 ]);
 
 const accessibility: string[] = [
-  'The trigger’s accessible name carries the chosen date in words, such as “Change date, Wednesday, September 30, 2026”. Focus returns to the trigger when the calendar closes from a chosen day or from Escape, so a screen reader announces the date there.',
-  'Opening the calendar from the trigger, from Alt+ArrowDown or from openSurface() moves focus to the chosen day, or to today when no date is set. While the calendar is open, Tab and Shift+Tab cycle through the shortcuts, the calendar and the footer.',
-  'Escape closes in steps: while the calendar shows the month or year grid, Escape returns to the day grid; on the day grid, it closes the calendar and returns focus to the trigger.',
-  'Alt+ArrowDown is a shortcut, never the only way in. ChromeOS turns it into PageDown before the browser receives it, so the trigger is always drawn.',
-  'The surface has role="dialog" and the same accessible name as the trigger. The trigger sets aria-expanded, and sets aria-controls only while the surface exists.',
-  'The field and the calendar refuse the same dates, from the same min, max and isDateUnavailable, so a date the calendar disables marks the field invalid when it is typed.',
+  'The trigger says aria-haspopup="dialog" and its name carries the value written, which is where focus returns when the panel closes.',
+  'The panel is a dialog with its Tab wrapped, and each grid inside it is one stop.',
+  'Escape discards the draft and returns focus to the trigger. Ctrl+Enter applies from anywhere in the panel.',
+  'The footer’s hint is a status region, so the reason Apply is off is spoken as well as drawn.',
+  'Alt+ArrowDown opens the panel and takes focus to the chosen day.',
+  'Escape walks the calendar’s view down before it closes the panel, so a reader in the years is not thrown out of it.',
 ];
 
 export const ANGULAR_DATE_PICKER_DOCS = {
-  datePicker: {
-    accessibility,
-    anatomy,
-    api,
-    composition,
-    events,
-    imports,
-    scenes,
-    snippets: [],
-  },
+  datePicker: { accessibility, anatomy, api, composition, events, imports, scenes, snippets: [] },
 };

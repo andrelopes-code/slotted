@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
 import { createTranslator, pickerPanelMessages } from '../i18n';
-import { dayMeta, momentMeta, stepLabel, timeMeta } from './picker-words';
+import {
+  dayMeta,
+  headDay,
+  momentMeta,
+  monthMeta,
+  shortDay,
+  shortRun,
+  stepLabel,
+  timeMeta,
+} from './picker-words';
 import { plainDate } from './plain-date';
 import { plainDateTime } from './plain-date-time';
 import { plainTime } from './plain-time';
@@ -33,5 +42,18 @@ describe('the words of a panel', () => {
   it('name a step by its length', () => {
     expect(stepLabel(900, 'en-US')).toBe('+15 min');
     expect(stepLabel(86400, 'en-US')).toBe('+1 day');
+  });
+
+  it('write a day, a run of days and a month', () => {
+    const today = plainDate(2026, 11, 25);
+
+    expect(shortDay(plainDate(2026, 11, 30), 'en-US')).toBe('Mon, Nov 30');
+    expect(headDay(plainDate(2026, 11, 30), today, 'en-US')).toBe('Mon, November 30');
+    expect(headDay(plainDate(2027, 1, 4), today, 'en-US')).toBe('Mon, January 4, 2027');
+    expect(shortRun(plainDate(2026, 11, 27), plainDate(2026, 12, 4), 'en-US')).toBe(
+      'Nov 27\u2009–\u2009Dec 4',
+    );
+    expect(monthMeta(plainDate(2026, 12, 1), today, 'en-US')).toBe('next month');
+    expect(monthMeta(plainDate(2027, 2, 1), today, 'en-US')).toBe('in 3 months');
   });
 });

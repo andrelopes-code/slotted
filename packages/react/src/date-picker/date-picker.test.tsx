@@ -43,23 +43,16 @@ describe('what it is made of', () => {
     expect(root()).toHaveAttribute('data-ui', contract.ui);
   });
 
-  it('declares every part the contract names', () => {
-    render(
-      <DatePicker
-        defaultOpen
-        defaultValue={NINTH}
-        footer={<button type="button">Apply</button>}
-        locale="pt-BR"
-        presets={<button type="button">Today</button>}
-      />,
-    );
+  it('declares every part the contract names, and opens the shared panel', () => {
+    render(<DatePicker defaultOpen defaultValue={NINTH} locale="en-US" />);
 
-    const present = [...document.querySelectorAll('[data-ui="date-picker"] [data-part]')].map(
-      (element) => (element as HTMLElement).dataset['part'],
-    );
-    for (const part of ['control', 'trigger', 'content', 'presets', 'footer']) {
-      expect(present).toContain(part);
+    for (const part of contract.members.datePicker.parts) {
+      expect(document.querySelector(`[data-part="${part}"]`), part).toBeInTheDocument();
     }
+    expect(document.querySelector('[data-ui="picker-panel"][data-part="root"]')).toHaveAttribute(
+      'data-kind',
+      'date',
+    );
   });
 
   it('carries the dialog role and points the trigger at it while it is open', () => {
@@ -190,11 +183,23 @@ describe('choosing a date', () => {
     expect(surface()).toBeInTheDocument();
   });
 
-  it('takes the axis over the default when a product asks', () => {
-    render(<DatePicker closeOnSelect="never" defaultOpen defaultValue={NINTH} locale="pt-BR" />);
+  it('keeps a draft for one date when a product asks', () => {
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker
+        confirm
+        defaultOpen
+        defaultValue={NINTH}
+        locale="en-US"
+        onValueChange={onValueChange}
+      />,
+    );
 
     fireEvent.click(dayFor(17));
-    expect(surface()).toBeInTheDocument();
+    expect(onValueChange).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    expect(onValueChange.mock.lastCall?.[0]).toEqual(plainDate(2026, 9, 17));
   });
 
   it('returns to its default value when its form is reset', () => {
@@ -346,22 +351,49 @@ describe('the composition surface', () => {
     expect(container.querySelector('section[data-ui="date-picker"]')).toBeInTheDocument();
   });
 
-  it('takes the consumer’s own slots into the surface', () => {
+  it('writes what each shortcut is, and what the consumer says in the footer', () => {
     render(
       <DatePicker
         defaultOpen
-        footer={<button type="button">Apply</button>}
-        locale="pt-BR"
-        presets={<button type="button">Today</button>}
+        defaultValue={NINTH}
+        footer="Closed on Sundays"
+        locale="en-US"
+        presets={[
+          { label: 'End of month', value: plainDate(2026, 9, 30) },
+          { label: 'Renewal', value: () => plainDate(2027, 3, 1) },
+        ]}
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Today' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument();
+    expect(
+      [...document.querySelectorAll('[data-part="preset-result"]')]
+        .slice(1)
+        .map((x) => x.textContent),
+    ).toEqual(['Wed, Sep 30', 'Mon, Mar 1']);
+    expect(document.querySelector('[data-part="hint"]')).toHaveTextContent('Closed on Sundays');
   });
-});
 
-describe('where focus and the page go when it opens', () => {
+  it('writes a shortcut and closes, and refuses one out of bounds', () => {
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker
+        defaultOpen
+        locale="en-US"
+        max={plainDate(2026, 12, 31)}
+        onValueChange={onValueChange}
+        presets={[
+          { label: 'End of month', value: plainDate(2026, 9, 30) },
+          { label: 'Renewal', value: plainDate(2027, 3, 1) },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: /^Renewal/ })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: /^End of month/ }));
+    expect(onValueChange.mock.lastCall?.[0]).toEqual(plainDate(2026, 9, 30));
+    expect(surface()?.parentElement).not.toHaveAttribute('data-open');
+  });
+
   it('opens on the month of a controlled value', () => {
     render(<DatePicker defaultOpen locale="en-US" value={plainDate(2024, 3, 15)} />);
 
@@ -390,13 +422,12 @@ describe('where focus and the page go when it opens', () => {
       <DatePicker
         defaultOpen
         defaultValue={NINTH}
-        footer={<button type="button">Done</button>}
         locale="en-US"
-        presets={<button type="button">Today</button>}
+        presets={[{ label: 'End of month', value: plainDate(2026, 9, 30) }]}
       />,
     );
-    const first = screen.getByRole('button', { name: 'Today' });
-    const last = screen.getByRole('button', { name: 'Done' });
+    const first = screen.getByRole('button', { name: /^Today/ });
+    const last = screen.getByRole('button', { name: 'Clear' });
 
     act(() => last.focus());
     fireEvent.keyDown(last, { key: 'Tab' });
@@ -405,9 +436,6 @@ describe('where focus and the page go when it opens', () => {
     fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
     expect(last).toHaveFocus();
   });
-});
-
-describe('inside a field', () => {
   it('registers as the field’s control, so the field does not warn', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     render(
@@ -569,5 +597,113 @@ describe('what each segment is called', () => {
     for (const [index, segment] of screen.getAllByRole('spinbutton').entries()) {
       expect(segment).toHaveAccessibleName(expected[index]);
     }
+  });
+});
+
+describe('the panel', () => {
+  const head = () => document.querySelector('[data-part="value"]')?.textContent;
+
+  it('is the month alone without shortcuts, and has a rail with them', () => {
+    const { rerender } = render(<DatePicker defaultOpen defaultValue={NINTH} locale="en-US" />);
+    expect(document.querySelector('[data-part="rail"]')).toBeNull();
+
+    rerender(
+      <DatePicker
+        defaultOpen
+        locale="en-US"
+        presets={[{ label: 'End of month', value: plainDate(2026, 9, 30) }]}
+      />,
+    );
+    expect(document.querySelectorAll('[data-part="jump-month"]')).toHaveLength(12);
+  });
+
+  it('jumps to a month of the year, and marks the one on screen and the one of the value', () => {
+    render(
+      <DatePicker
+        defaultOpen
+        defaultValue={NINTH}
+        locale="en-US"
+        max={plainDate(2026, 11, 30)}
+        presets={[{ label: 'End of month', value: plainDate(2026, 9, 30) }]}
+      />,
+    );
+    const month = (name: string) =>
+      document.querySelector(`[data-part="jump-month"][aria-label="${name} 2026"]`)!;
+    expect(month('December')).toBeDisabled();
+
+    fireEvent.click(month('March'));
+    expect(screen.getByRole('grid', { name: 'March 2026' })).toBeInTheDocument();
+    expect(month('March')).toHaveAttribute('data-current');
+    expect(document.querySelector('[data-part="jump-month"][data-selected]')).toHaveTextContent(
+      'Sep',
+    );
+  });
+
+  it('says the date in words, and steps it a day over the days it refuses', () => {
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker
+        defaultOpen
+        defaultValue={NINTH}
+        isDateUnavailable={(date) => date.day === 10}
+        locale="en-US"
+        onValueChange={onValueChange}
+      />,
+    );
+    expect(head()).toContain('September 9');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next day' }));
+    expect(onValueChange.mock.lastCall?.[0]).toEqual(plainDate(2026, 9, 11));
+    expect(head()).toContain('September 11');
+  });
+
+  it('says why Apply is off', () => {
+    render(
+      <DatePicker
+        confirm
+        defaultOpen
+        defaultValue={NINTH}
+        locale="en-US"
+        min={plainDate(2026, 10, 1)}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled();
+    expect(document.querySelector('[data-part="hint"]')).toHaveTextContent('Not an accepted date');
+  });
+
+  it('drops the draft of a run on Escape, and keeps it while the view walks down', () => {
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker
+        defaultOpen
+        defaultValue={{ start: plainDate(2026, 9, 7), end: plainDate(2026, 9, 11) }}
+        locale="en-US"
+        onValueChange={onValueChange}
+        selectionMode="range"
+      />,
+    );
+    fireEvent.click(dayFor(14));
+    fireEvent.click(dayFor(18));
+    expect(head()).toContain('5 days');
+
+    fireEvent.click(screen.getByRole('button', { name: /September 2026/ }));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(head()).toContain('Sep 14');
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    fireEvent.click(trigger());
+    expect(head()).toContain('Sep 7');
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it('empties the value from the footer', () => {
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker defaultOpen defaultValue={NINTH} locale="en-US" onValueChange={onValueChange} />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(onValueChange.mock.lastCall?.[0]).toBeNull();
   });
 });

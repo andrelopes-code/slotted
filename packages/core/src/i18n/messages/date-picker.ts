@@ -11,11 +11,14 @@ export interface DatePickerMessages {
   readonly change: Message<{ date: string }>;
   /** The trigger's name while nothing is chosen. */
   readonly choose: Message;
+  /** What the panel says of a date a bound or the predicate refuses. */
+  readonly refused: Message;
 }
 
 export const en: DatePickerMessages = {
   change: 'Change date, {date}',
   choose: 'Choose date',
+  refused: 'Not an accepted date',
 };
 
 export const datePickerMessages: MessageFamily<'datePicker', DatePickerMessages> = {

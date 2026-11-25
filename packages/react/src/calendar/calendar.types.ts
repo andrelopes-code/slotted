@@ -1,5 +1,5 @@
 import type { CalendarMessages, PartialMessages } from '@slotted/core/i18n';
-import type { PlainDate } from '@slotted/core/date';
+import type { PlainDate, PlainYearMonth } from '@slotted/core/date';
 import type { ChangeRequest } from '@slotted/core/state';
 import type {
   ComponentPropsWithoutRef,
@@ -199,6 +199,12 @@ export interface CalendarProps extends Omit<
    * run would be.
    */
   onPreviewChange?: ((date: PlainDate | null) => void) | undefined;
+  /**
+   * The first month on screen, which is not the month the reader is on: two
+   * months hold their page while the reader moves between them. A fact the
+   * grid states, for a month control beside it.
+   */
+  onPageChange?: ((month: PlainYearMonth) => void) | undefined;
 
   weekNumbers?: boolean | undefined;
   fixedWeeks?: boolean | undefined;

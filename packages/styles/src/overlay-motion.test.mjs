@@ -45,8 +45,8 @@ const LAYERS = [
     content: true,
   },
   {
-    family: 'date-picker',
-    layer: '[data-ui-date-picker][data-part-positioner]',
+    family: 'picker-panel',
+    layer: '[data-ui-picker-panel][data-part-positioner]',
     lateral: 'fade',
     content: true,
   },
