@@ -3,7 +3,13 @@ import { describe, expect, it } from 'vitest';
 
 import { Button } from '../button';
 import { MenuItem } from '../menu';
-import { ActionBar, ActionBarAction, ActionBarActions, ActionBarOverflow } from './index';
+import {
+  ActionBar,
+  ActionBarAction,
+  ActionBarActions,
+  ActionBarOverflow,
+  ActionBarStatus,
+} from './index';
 
 const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
@@ -53,5 +59,58 @@ describe('an action bar with an overflow control on a phone', () => {
     expect(folded.length).toBeGreaterThanOrEqual(1);
     expect(save.closest('[data-part="action"]')!.hasAttribute('hidden')).toBe(false);
     expect(actions.scrollWidth).toBeLessThanOrEqual(actions.clientWidth);
+  });
+});
+
+/** The status took all the free room, so the margins that place the run had none left. */
+describe('the align of an action bar beside a status', () => {
+  function placed(align: 'start' | 'center' | 'end') {
+    const { container } = render(
+      <div style={{ inlineSize: 1148 }}>
+        <ActionBar align={align} aria-label="Selected records">
+          <ActionBarStatus>
+            <span>3 selected</span>
+          </ActionBarStatus>
+          <ActionBarActions>
+            <ActionBarAction>
+              <Button variant="outline">Archive</Button>
+            </ActionBarAction>
+            <ActionBarAction>
+              <Button variant="ghost">Clear</Button>
+            </ActionBarAction>
+          </ActionBarActions>
+        </ActionBar>
+      </div>,
+    );
+    const bar = container.querySelector<HTMLElement>('[data-ui="action-bar"]')!;
+    const style = getComputedStyle(bar);
+    const text = bar.querySelector('[data-part="status"] > span')!.getBoundingClientRect();
+
+    return {
+      actions: bar.querySelector('[data-part="actions"]')!.getBoundingClientRect(),
+      end: bar.getBoundingClientRect().right - parseFloat(style.paddingRight),
+      gap: parseFloat(style.columnGap),
+      text,
+    };
+  }
+
+  it('starts the run one gap after the status', () => {
+    const { actions, gap, text } = placed('start');
+
+    expect(Math.abs(actions.left - text.right - gap)).toBeLessThanOrEqual(1);
+  });
+
+  it('centers the run in the room left after the status', () => {
+    const { actions, end, gap, text } = placed('center');
+
+    expect(Math.abs(actions.left - (text.right + gap) - (end - actions.right))).toBeLessThanOrEqual(
+      1,
+    );
+  });
+
+  it('keeps the run against the end edge', () => {
+    const { actions, end } = placed('end');
+
+    expect(Math.abs(actions.right - end)).toBeLessThanOrEqual(1);
   });
 });
