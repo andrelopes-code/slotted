@@ -13,6 +13,16 @@ The packages are a `0.x` public beta on npm. The public API changes between beta
 - **Themes as data.** Tokens, schemes (light, dark, high contrast) and densities come from a theme module; every rule ships in the `slotted` cascade layer, so application CSS overrides it without specificity fights.
 - **Internationalization.** One message catalog with ICU plurals; en-US is built in and pt-BR ships as a catalog.
 
+## Documentation
+
+| Site                                                                              | Content                                                               |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [Documentation](https://andrelopes-code.github.io/slotted/)                       | Foundations and one page per documented family, in React and Angular. |
+| [React Storybook](https://andrelopes-code.github.io/slotted/storybook/react/)     | The stories of every React family.                                    |
+| [Angular Storybook](https://andrelopes-code.github.io/slotted/storybook/angular/) | The stories of every Angular family.                                  |
+
+Each release publishes the three sites from the released commit.
+
 ## Packages
 
 | Package                                | Content                                                                             |
