@@ -9,4 +9,5 @@ export const ptBR: CalendarMessages = {
   previousYears: 'Anos anteriores',
   markCount: '{count, plural, one {# item} other {# itens}}',
   marked: 'com itens',
+  chooseWeek: 'Escolher semana {week}',
 };

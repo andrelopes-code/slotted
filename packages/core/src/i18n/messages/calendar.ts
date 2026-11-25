@@ -15,6 +15,8 @@ export interface CalendarMessages {
   /** A day's mark, said after its number: with a count, and without one. */
   readonly markCount: Message;
   readonly marked: Message;
+  /** The press on a week number that chooses the whole week. */
+  readonly chooseWeek: Message<{ week: number }>;
 }
 
 export const en: CalendarMessages = {
@@ -26,6 +28,7 @@ export const en: CalendarMessages = {
   previousYears: 'Previous years',
   markCount: '{count, plural, one {# item} other {# items}}',
   marked: 'has items',
+  chooseWeek: 'Choose week {week}',
 };
 
 export const calendarMessages: MessageFamily<'calendar', CalendarMessages> = {

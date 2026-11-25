@@ -54,7 +54,7 @@ export function CalendarPeriods({
 
   return (
     <div data-part="months" data-part-months="">
-      {format.monthNames('short').map((name, index) => {
+      {format.monthNames('long').map((name, index) => {
         const month = index + 1;
         const reached = focused.month === month;
         const chosen = monthly ? held?.year === focused.year && held.month === month : reached;

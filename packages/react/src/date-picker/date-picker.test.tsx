@@ -512,7 +512,7 @@ describe('month granularity', () => {
     fireEvent.keyDown(document.activeElement as Element, { key: 'ArrowDown' });
     fireEvent.keyDown(document.activeElement as Element, { key: 'Enter' });
 
-    expect(onValueChange.mock.calls[0]?.[0]).toEqual({ year: 2027, month: 3 });
+    expect(onValueChange.mock.calls[0]?.[0]).toEqual({ year: 2027, month: 2 });
   });
 
   it('names the paging buttons for the year they step, and pages a year back', () => {

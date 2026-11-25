@@ -145,7 +145,7 @@ test('previews the open run to the pending end, and reports that end', () => {
 
 test('ships the three views, and the columns each one is drawn in', () => {
   assert.deepEqual(contract.views.order, ['day', 'month', 'year']);
-  assert.deepEqual(contract.views.columns, { day: 7, month: 4, year: 4 });
+  assert.deepEqual(contract.views.columns, { day: 7, month: 3, year: 3 });
   assert.equal(contract.views.reachedBy, 'the heading');
 });
 

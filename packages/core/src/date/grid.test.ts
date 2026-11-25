@@ -81,4 +81,11 @@ describe('the pages either side of the day view', () => {
     expect(yearPage(2027)).toEqual(yearPage(2026));
     expect(yearPage(2028)[0]).toBe(2028);
   });
+
+  it('names a week that starts on Sunday by the days after it', () => {
+    const weeks = monthGrid({ year: 2026, month: 9, firstDayOfWeek: 0 });
+
+    expect(weeks.map((week) => week.weekNumber)).toEqual([36, 37, 38, 39, 40]);
+    expect(weeks[1]?.days[0]?.date).toEqual({ year: 2026, month: 9, day: 6 });
+  });
 });

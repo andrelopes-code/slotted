@@ -17,7 +17,7 @@ import {
   visibleMonths,
   yearPage,
 } from '@slotted/core/date';
-import type { PlainDate } from '@slotted/core/date';
+import type { CalendarWeek, MonthYearPart, PlainDate } from '@slotted/core/date';
 import { calendarMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
 import {
@@ -44,8 +44,8 @@ import type {
   CalendarView,
 } from './calendar.types';
 
-/** The month and year views are drawn four across; a week is seven. */
-const VIEW_COLUMNS: Record<CalendarView, number> = { day: 7, month: 4, year: 4 };
+/** The month and year views are drawn three across; a week is seven. */
+const VIEW_COLUMNS: Record<CalendarView, number> = { day: 7, month: 3, year: 3 };
 /** How many years one page of the year view holds. */
 const YEAR_PAGE = 12;
 
@@ -88,6 +88,7 @@ export function Calendar({
   dayLabel,
   invalid,
   isDateInert,
+  isDateOver,
   isDateUnavailable,
   layout = 'cells',
   lines = false,
@@ -363,6 +364,15 @@ export function Calendar({
     requestFocused(date, reason, source);
   };
 
+  /** A press on a week number, which chooses the week whole, inside the bounds. */
+  const selectWeek = (week: CalendarWeek, event: MouseEvent) => {
+    const days = week.days.map((day) => day.date);
+    const start = clampDate(days[0]!, min, max);
+    const end = clampDate(days.at(-1)!, min, max);
+    requestValue({ start, end }, 'pointer', event);
+    requestFocused(start, 'pointer', event);
+  };
+
   /**
    * A month the bounds leave no day of. The bounds are days, so a month is
    * refused only when it ends before `min` or starts after `max`; a month
@@ -417,7 +427,7 @@ export function Calendar({
     };
 
     /**
-     * The months of a year, as a grid of four columns: the arrows move one
+     * The months of a year, as a grid of three columns: the arrows move one
      * month or one row, Home and End reach January and December, the page
      * keys move a year, and Enter or Space chooses. Escape is left alone, so
      * the surface above the calendar may close on it.
@@ -508,20 +518,39 @@ export function Calendar({
     );
   };
 
-  const pageStart = plainDate(page.year, page.month, 1);
-  const heading =
+  /* Each paging button is named for the step it takes in the view showing. */
+  const [previousName, nextName] =
     currentView === 'day'
-      ? resolvedMonths === 1
-        ? format.monthYear(pageStart)
-        : `${format.monthYear(pageStart, 'short')} – ${format.monthYear(stepMonth(pageStart, resolvedMonths - 1).date, 'short')}`
+      ? [t('previousMonth'), t('nextMonth')]
       : currentView === 'month'
-        ? String(focused.year)
-        : `${String(yearPage(focused.year, YEAR_PAGE)[0] ?? focused.year)} – ${String(yearPage(focused.year, YEAR_PAGE).at(-1) ?? focused.year)}`;
+        ? [t('previousYear'), t('nextYear')]
+        : [t('previousYears'), t('nextYears')];
 
-  const grids: ReactNode =
+  const shown = visibleMonths(page, resolvedMonths);
+  const years = yearPage(focused.year, YEAR_PAGE);
+  const period =
+    currentView === 'month'
+      ? String(focused.year)
+      : `${String(years[0] ?? focused.year)} – ${String(years.at(-1) ?? focused.year)}`;
+
+  const headerOf = (heading: readonly MonthYearPart[], index: number, count: number) =>
+    header ? (
+      <CalendarHeader
+        editable={editable}
+        heading={heading}
+        headingId={`${headingId}-${String(index)}`}
+        nextName={index === count - 1 ? nextName : undefined}
+        onTurn={turnPage}
+        onWalkUp={() => changeView(currentView === 'day' ? 'month' : 'year')}
+        previousName={index === 0 ? previousName : undefined}
+        view={currentView}
+      />
+    ) : null;
+
+  const children: ReactNode =
     currentView === 'day' ? (
       <div data-part="grids" data-part-grids="">
-        {visibleMonths(page, resolvedMonths).map((month) => (
+        {shown.map((month, index) => (
           <CalendarMonthTable
             editable={editable}
             firstDayOfWeek={format.firstDayOfWeek}
@@ -529,11 +558,17 @@ export function Calendar({
             focused={focused}
             format={format}
             filled={layout === 'fill'}
-            headingId={header ? headingId : undefined}
+            header={headerOf(
+              format.monthYearParts(plainDate(month.year, month.month, 1)),
+              index,
+              shown.length,
+            )}
+            headingId={header ? `${headingId}-${String(index)}` : undefined}
             inert={inert}
             key={`${String(month.year)}-${String(month.month)}`}
             month={month}
             onHover={setHovered}
+            onWeek={selectionMode === 'range' && editable ? selectWeek : undefined}
             dayLabel={dayLabel}
             marks={marks}
             renderDay={renderDay}
@@ -543,56 +578,35 @@ export function Calendar({
             }
             onSelect={select}
             outsideDays={resolvedOutsideDays}
+            over={isDateOver}
             pending={pending}
             today={today}
             unavailable={unavailable}
             value={held}
+            weekName={(week) => t('chooseWeek', { week })}
             weekNumbers={resolvedWeekNumbers}
           />
         ))}
       </div>
     ) : (
-      <CalendarPeriods
-        focused={focused}
-        format={format}
-        held={heldMonth}
-        monthly={monthly}
-        onMonth={(month, event) => selectMonth(focused.year, month, 'pointer', event)}
-        onWalkDown={(date, next, event) => {
-          requestFocused(date, 'pointer', event);
-          changeView(next);
-        }}
-        refused={(month) => monthUnavailable(focused.year, month)}
-        view={currentView}
-        years={yearPage(focused.year, YEAR_PAGE)}
-      />
-    );
-
-  /* Each paging button is named for the step it takes in the view showing. */
-  const [previousName, nextName] =
-    currentView === 'day'
-      ? [t('previousMonth'), t('nextMonth')]
-      : currentView === 'month'
-        ? [t('previousYear'), t('nextYear')]
-        : [t('previousYears'), t('nextYears')];
-
-  const children: ReactNode = (
-    <>
-      {header ? (
-        <CalendarHeader
-          editable={editable}
-          heading={heading}
-          headingId={headingId}
-          nextName={nextName}
-          onTurn={turnPage}
-          onWalkUp={() => changeView(currentView === 'day' ? 'month' : 'year')}
-          previousName={previousName}
+      <>
+        {headerOf([{ type: 'month', value: period }], 0, 1)}
+        <CalendarPeriods
+          focused={focused}
+          format={format}
+          held={heldMonth}
+          monthly={monthly}
+          onMonth={(month, event) => selectMonth(focused.year, month, 'pointer', event)}
+          onWalkDown={(date, next, event) => {
+            requestFocused(date, 'pointer', event);
+            changeView(next);
+          }}
+          refused={(month) => monthUnavailable(focused.year, month)}
           view={currentView}
+          years={years}
         />
-      ) : null}
-      {grids}
-    </>
-  );
+      </>
+    );
 
   const rootProps: CalendarRootProps = keyedProps({
     ...nativeProps,

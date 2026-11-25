@@ -37,6 +37,7 @@ class Host {
   readonly run: DateRange = { start: plainDate(2026, 9, 7), end: plainDate(2026, 9, 11) };
   readonly openRun: DateRange = { start: plainDate(2026, 9, 7), end: null };
   readonly openFromEleventh: DateRange = { start: plainDate(2026, 9, 11), end: null };
+  readonly overNinth = (date: PlainDate) => date.day > 9;
   readonly refuseTenth = (date: PlainDate) => date.day === 10;
   readonly marks = new Map([['2026-09-12', { count: 2, tone: 'info' as const }]]);
   readonly values: CalendarValue[] = [];
@@ -457,7 +458,7 @@ describe('the three views', () => {
       expect(icon(part)?.hasAttribute('data-directional')).toBe(true);
       expect(icon(part)?.querySelector('svg')?.getAttribute('data-glyph')).toBe('chevron-right');
     }
-    expect(icon('heading')?.querySelector('svg')?.getAttribute('data-glyph')).toBe('chevron-down');
+    expect(icon('heading')).toBeNull();
 
     click(fixture, root(fixture).querySelector('[data-part="heading"]') as HTMLElement);
     click(fixture, root(fixture).querySelector('[data-part="heading"]') as HTMLElement);
@@ -876,12 +877,12 @@ describe('what a chosen day says to assistive technology', () => {
     [
       'a month',
       `<div slCalendar granularity="month" locale="en-US" [defaultValue]="ninth"></div>`,
-      ['Sep'],
+      ['September'],
     ],
     [
       'the month the reader is on',
       `<div slCalendar defaultView="month" locale="en-US" [defaultFocusedDate]="ninth"></div>`,
-      ['Sep'],
+      ['September'],
     ],
     [
       'a year',
@@ -927,3 +928,68 @@ class Chosen {
   readonly held = [this.october, plainDate(2026, 10, 12)];
   readonly inert = (date: PlainDate) => date.day !== 20 || date.month !== 10;
 }
+
+describe('a header per month', () => {
+  it('names each month, and turns the page from the first and from the last', () => {
+    const fixture = renderTemplate(
+      `<div slCalendar locale="en-US" months="2" [defaultFocusedDate]="ninth"></div>`,
+    );
+    const months = [
+      ...fixture.nativeElement.querySelectorAll('[data-part="month"]'),
+    ] as HTMLElement[];
+    const has = (month: HTMLElement, part: string) =>
+      month.querySelector(`[data-part="${part}"]`) !== null;
+
+    expect(
+      months.map((month) => month.querySelector('[data-part="heading"]')?.textContent),
+    ).toEqual(['September 2026', 'October 2026']);
+    expect(months.map((month) => [has(month, 'previous'), has(month, 'next')])).toEqual([
+      [true, false],
+      [false, true],
+    ]);
+    const label = months[1]?.querySelector('table')?.getAttribute('aria-labelledby');
+    expect(fixture.nativeElement.querySelector(`#${label}`)?.textContent).toBe('October 2026');
+  });
+});
+
+describe('a week chosen whole', () => {
+  const week = (fixture: Fixture, number: number) =>
+    fixture.nativeElement.querySelector(
+      `[aria-label="Choose week ${String(number)}"]`,
+    ) as HTMLElement | null;
+
+  it('writes the seven days of a week from its number', () => {
+    const fixture = renderTemplate(
+      `<div slCalendar locale="en-US" selectionMode="range" weekNumbers [defaultFocusedDate]="ninth" (valueChange)="onValue($event)"></div>`,
+    );
+
+    click(fixture, week(fixture, 37)!);
+    expect(fixture.componentInstance.values.at(-1)).toEqual({
+      start: plainDate(2026, 9, 6),
+      end: plainDate(2026, 9, 12),
+    });
+  });
+
+  it('draws the number as text where one day is the choice', () => {
+    const fixture = renderTemplate(
+      `<div slCalendar locale="en-US" weekNumbers [defaultFocusedDate]="ninth"></div>`,
+    );
+
+    expect(week(fixture, 37)).toBeNull();
+  });
+});
+
+describe('a run past its limit', () => {
+  it('marks the days of the run that are over, and the weekend apart', () => {
+    const fixture = renderTemplate(
+      `<div slCalendar locale="en-US" selectionMode="range" [defaultFocusedDate]="ninth" [defaultValue]="run" [isDateOver]="overNinth"></div>`,
+    );
+    const over = [
+      ...fixture.nativeElement.querySelectorAll('[data-part="cell"][data-over]'),
+    ] as HTMLElement[];
+
+    expect(over.map((cell) => cell.textContent?.trim())).toEqual(['10', '11']);
+    expect(dayFor(fixture, 12).closest('td')?.hasAttribute('data-weekend')).toBe(true);
+    expect(dayFor(fixture, 11).closest('td')?.hasAttribute('data-weekend')).toBe(false);
+  });
+});

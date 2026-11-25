@@ -394,21 +394,17 @@ describe('the three selection modes', () => {
 describe('the three views', () => {
   /**
    * The chevrons are `Glyph` elements inside `Icon` boxes, never masks: the
-   * page triggers mirror under `dir="rtl"`, and the year view, with no way
-   * up, draws no chevron on its heading.
+   * page triggers mirror under `dir="rtl"`. The heading draws none: two
+   * chevrons beside it already say the row turns.
    */
-  it('draws the page chevrons and the way up as glyph elements', () => {
-    const { unmount } = render(<Calendar defaultFocusedDate={NINTH} locale="pt-BR" />);
+  it('draws the page chevrons as glyph elements, and none on the heading', () => {
+    render(<Calendar defaultFocusedDate={NINTH} locale="pt-BR" />);
     const icon = (part: string) =>
       document.querySelector(`[data-part="${part}"] > [data-ui="icon"]`);
     for (const part of ['previous', 'next']) {
       expect(icon(part)).toHaveAttribute('data-directional');
       expect(icon(part)?.querySelector('svg')).toHaveAttribute('data-glyph', 'chevron-right');
     }
-    expect(icon('heading')?.querySelector('svg')).toHaveAttribute('data-glyph', 'chevron-down');
-
-    unmount();
-    render(<Calendar defaultFocusedDate={NINTH} defaultView="year" locale="pt-BR" />);
     expect(icon('heading')).toBeNull();
   });
 
@@ -457,7 +453,7 @@ describe('the three views', () => {
       <Calendar defaultFocusedDate={NINTH} defaultView="month" locale="pt-BR" />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'jan.' }));
+    fireEvent.click(screen.getByRole('button', { name: 'janeiro' }));
     expect(container.querySelector('[data-ui="calendar"]')).toHaveAttribute('data-view', 'day');
     expect(screen.getByRole('button', { name: /janeiro de 2026/ })).toBeInTheDocument();
   });
@@ -649,14 +645,12 @@ describe('the composition surface', () => {
 
 describe('the page it opens on with nothing stated', () => {
   it('starts two months on today’s month', () => {
-    const thisMonth = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(
+    const thisMonth = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(
       new Date(),
     );
     render(<Calendar locale="en-US" months={2} />);
 
-    expect(document.querySelector('[data-part="heading"]')?.textContent).toMatch(
-      new RegExp(`^${thisMonth} – `),
-    );
+    expect(document.querySelector('[data-part="heading"]')).toHaveTextContent(thisMonth);
   });
 });
 
@@ -702,10 +696,10 @@ describe('the months of a year', () => {
       />,
     );
 
-    expect(selected()).toEqual(['Mar']);
+    expect(selected()).toEqual(['March']);
     expect(document.querySelector('[data-focused]')?.textContent).toBe('May');
     expect(document.querySelector('[data-part="period"][data-unavailable]')?.textContent).toBe(
-      'Jan',
+      'January',
     );
   });
 
@@ -721,7 +715,7 @@ describe('the months of a year', () => {
 
     expect(selected()).toEqual(['May']);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Jul' }));
+    fireEvent.click(screen.getByRole('button', { name: 'July' }));
 
     expect(screen.getByRole('grid', { name: /July 2026/ })).toBeInTheDocument();
   });
@@ -774,7 +768,7 @@ describe('what a chosen day says to assistive technology', () => {
     const { unmount } = render(
       <Calendar defaultValue={plainDate(2026, 3, 1)} granularity="month" locale="en-US" />,
     );
-    expect(pressed()).toEqual(['Mar']);
+    expect(pressed()).toEqual(['March']);
     expect(await violations()).toEqual([]);
     unmount();
 
@@ -789,5 +783,112 @@ describe('what a chosen day says to assistive technology', () => {
 
     expect(dayFor(9)).not.toHaveAttribute('aria-pressed');
     expect(await violations()).toEqual([]);
+  });
+});
+
+describe('a header per month', () => {
+  const headings = () =>
+    [...document.querySelectorAll('[data-part="heading"]')].map((heading) => heading.textContent);
+
+  it('names each month, and turns the page from the first and from the last', () => {
+    render(<Calendar defaultFocusedDate={NINTH} locale="en-US" months={2} />);
+
+    expect(headings()).toEqual(['September 2026', 'October 2026']);
+    const [first, last] = document.querySelectorAll('[data-part="month"]');
+    expect(first?.querySelector('[data-part="previous"]')).not.toBeNull();
+    expect(first?.querySelector('[data-part="next"]')).toBeNull();
+    expect(last?.querySelector('[data-part="previous"]')).toBeNull();
+    expect(last?.querySelector('[data-part="next"]')).not.toBeNull();
+  });
+
+  it('labels each grid by the name of its own month', () => {
+    render(<Calendar defaultFocusedDate={NINTH} locale="en-US" months={2} />);
+
+    expect(screen.getByRole('grid', { name: 'October 2026' })).toBeInTheDocument();
+  });
+
+  it('draws the year apart from the name of the month', () => {
+    render(<Calendar defaultFocusedDate={NINTH} locale="en-US" />);
+
+    expect(document.querySelector('[data-part="heading-rest"]')?.textContent).toBe('2026');
+  });
+});
+
+describe('a week chosen whole', () => {
+  const week = (number: number) => screen.getByRole('button', { name: `Choose week ${number}` });
+
+  it('writes the seven days of a week from its number', () => {
+    const change = vi.fn();
+    render(
+      <Calendar
+        defaultFocusedDate={NINTH}
+        locale="en-US"
+        onValueChange={change}
+        selectionMode="range"
+        weekNumbers
+      />,
+    );
+
+    fireEvent.click(week(37));
+    expect(change.mock.lastCall?.[0]).toEqual({
+      start: plainDate(2026, 9, 6),
+      end: plainDate(2026, 9, 12),
+    });
+    expect(week(37)).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('stays inside the bounds', () => {
+    const change = vi.fn();
+    render(
+      <Calendar
+        defaultFocusedDate={NINTH}
+        locale="en-US"
+        max={plainDate(2026, 9, 10)}
+        min={plainDate(2026, 9, 8)}
+        onValueChange={change}
+        selectionMode="range"
+        weekNumbers
+      />,
+    );
+
+    fireEvent.click(week(37));
+    expect(change.mock.lastCall?.[0]).toEqual({
+      start: plainDate(2026, 9, 8),
+      end: plainDate(2026, 9, 10),
+    });
+  });
+
+  it('draws the number as text where one day is the choice', () => {
+    render(<Calendar defaultFocusedDate={NINTH} locale="en-US" weekNumbers />);
+
+    expect(screen.queryByRole('button', { name: 'Choose week 37' })).toBeNull();
+    expect(document.querySelectorAll('[data-part="week-number"]')[2]).toHaveTextContent('37');
+  });
+});
+
+describe('a run past its limit', () => {
+  it('marks the days of the run that are over, and no other day', () => {
+    render(
+      <Calendar
+        defaultFocusedDate={NINTH}
+        defaultValue={{ start: plainDate(2026, 9, 7), end: plainDate(2026, 9, 11) }}
+        isDateOver={(date) => date.day > 9}
+        locale="en-US"
+        selectionMode="range"
+      />,
+    );
+
+    const over = [...document.querySelectorAll('[data-part="cell"][data-over]')];
+    expect(over.map((cell) => cell.textContent)).toEqual(['10', '11']);
+  });
+});
+
+describe('the weekend', () => {
+  it('is marked on its days', () => {
+    render(<Calendar defaultFocusedDate={NINTH} locale="en-US" />);
+
+    const saturday = document.querySelectorAll('[data-part="week"]')[1]?.lastElementChild;
+    expect(saturday).toHaveAttribute('data-weekend');
+    expect(saturday?.previousElementSibling).not.toHaveAttribute('data-weekend');
   });
 });

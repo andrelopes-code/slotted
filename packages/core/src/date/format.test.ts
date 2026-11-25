@@ -128,4 +128,15 @@ describe('names', () => {
     expect(brazil.describe(NINTH)).toContain('setembro');
     expect(brazil.describe(NINTH)).toContain('2026');
   });
+
+  it('writes the heading of a month in pieces, the name apart from the year', () => {
+    const november = plainDate(2026, 11, 1);
+
+    expect(createDateFormat({ locale: 'en-US' }).monthYearParts(november)).toEqual([
+      { type: 'month', value: 'November' },
+      { type: 'space', value: ' ' },
+      { type: 'rest', value: '2026' },
+    ]);
+    expect(createDateFormat({ locale: 'ja-JP' }).monthYearParts(november)[0]?.type).toBe('rest');
+  });
 });

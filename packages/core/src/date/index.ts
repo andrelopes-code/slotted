@@ -92,6 +92,7 @@ export type {
   FieldContext,
   NameStyle,
   SegmentFieldName,
+  MonthYearPart,
 } from './format';
 export { createTimeFormat, hourCycleRange } from './time-format';
 export type {

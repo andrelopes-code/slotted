@@ -2,6 +2,7 @@ import {
   addDays,
   clampDate,
   createDateFormat,
+  dayOfWeek,
   endOfWeek,
   isDateInRange,
   isSameDate,
@@ -15,7 +16,7 @@ import {
   visibleMonths,
   yearPage,
 } from '@slotted/core/date';
-import type { CalendarDay, CalendarWeek, PlainDate } from '@slotted/core/date';
+import type { CalendarDay, CalendarWeek, MonthYearPart, PlainDate } from '@slotted/core/date';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeReason, ChangeRequest } from '@slotted/core/state';
 import {
@@ -167,122 +168,122 @@ export class SlCalendarDayValue {}
     SlTooltipLayer,
     SlTooltipTrigger,
   ],
-  template: `@if (header()) {
-      <div data-part="header" data-part-header="">
-        <button
-          data-part="previous"
-          data-part-previous=""
-          type="button"
-          [attr.aria-label]="pageNames()[0]"
-          [disabled]="!editable()"
-          (click)="turnPage(-1, $event)"
-        >
-          <span slIcon directional><svg slGlyph name="chevron-right"></svg></span>
-        </button>
-        <!--
-          The heading is a live region: paging with a key changes nothing that
-          focus lands on, so without this nothing announces the new month.
-        -->
-        <button
-          data-part="heading"
-          data-part-heading=""
-          type="button"
-          aria-live="polite"
-          [attr.id]="headingId"
-          [disabled]="!editable() || currentView() === 'year'"
-          (click)="walkUp()"
-        >
-          {{ heading() }}
-          @if (currentView() !== 'year') {
-            <span slIcon><svg slGlyph name="chevron-down"></svg></span>
-          }
-        </button>
-        <button
-          data-part="next"
-          data-part-next=""
-          type="button"
-          [attr.aria-label]="pageNames()[1]"
-          [disabled]="!editable()"
-          (click)="turnPage(1, $event)"
-        >
-          <span slIcon directional><svg slGlyph name="chevron-right"></svg></span>
-        </button>
-      </div>
+  template: `@if (header() && currentView() !== 'day') {
+      <ng-container
+        [ngTemplateOutlet]="monthHeader"
+        [ngTemplateOutletContext]="{
+          $implicit: periodHeading(),
+          id: headingId,
+          first: true,
+          last: true,
+        }"
+      />
     }
 
     @switch (currentView()) {
       @case ('day') {
         <div data-part="grids" data-part-grids="">
-          @for (month of shownMonths(); track month.year * 12 + month.month) {
-            <table
-              data-part="grid"
-              data-part-grid=""
-              role="grid"
-              [attr.aria-labelledby]="header() ? headingId : null"
-            >
-              <caption data-part="grid-caption" data-part-grid-caption="">
-                {{
-                  captionOf(month)
-                }}
-              </caption>
-              <thead>
-                <tr data-part="week-headers" data-part-week-headers="">
-                  @if (resolvedWeekNumbers()) {
-                    <th data-part="week-number" data-part-week-number="" aria-hidden="true"></th>
-                  }
-                  @for (name of weekdayNames(); track $index) {
-                    <th
-                      data-part="week-header"
-                      data-part-week-header=""
-                      scope="col"
-                      [attr.abbr]="weekdayLong()[$index]"
-                    >
-                      {{ name }}
-                    </th>
-                  }
-                </tr>
-              </thead>
-              <tbody>
-                @for (week of weeksOf(month); track week.weekNumber) {
-                  <tr data-part="week" data-part-week="">
+          @for (
+            month of shownMonths();
+            track month.year * 12 + month.month;
+            let index = $index, first = $first, last = $last
+          ) {
+            <div data-part="month" data-part-month="">
+              @if (header()) {
+                <ng-container
+                  [ngTemplateOutlet]="monthHeader"
+                  [ngTemplateOutletContext]="{
+                    $implicit: headingOf(month),
+                    id: headingId + '-' + index,
+                    first,
+                    last,
+                  }"
+                />
+              }
+              <table
+                data-part="grid"
+                data-part-grid=""
+                role="grid"
+                [attr.aria-labelledby]="header() ? headingId + '-' + index : null"
+              >
+                <caption data-part="grid-caption" data-part-grid-caption="">
+                  {{
+                    captionOf(month)
+                  }}
+                </caption>
+                <thead>
+                  <tr data-part="week-headers" data-part-week-headers="">
                     @if (resolvedWeekNumbers()) {
-                      <th data-part="week-number" data-part-week-number="" scope="row">
-                        {{ week.weekNumber }}
+                      <th data-part="week-number" data-part-week-number="" aria-hidden="true"></th>
+                    }
+                    @for (name of weekdayNames(); track $index) {
+                      <th
+                        data-part="week-header"
+                        data-part-week-header=""
+                        scope="col"
+                        [attr.abbr]="weekdayLong()[$index]"
+                      >
+                        {{ name }}
                       </th>
                     }
-                    @for (
-                      day of week.days;
-                      track day.date.year * 400 + day.date.month * 32 + day.date.day
-                    ) {
-                      <!-- A hidden day is an empty cell and nothing else. It
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (week of weeksOf(month); track week.weekNumber) {
+                    <tr data-part="week" data-part-week="">
+                      @if (resolvedWeekNumbers()) {
+                        <th data-part="week-number" data-part-week-number="" scope="row">
+                          @if (weekChoice()) {
+                            <button
+                              data-part="week-choice"
+                              data-part-week-choice=""
+                              tabindex="-1"
+                              type="button"
+                              [attr.aria-label]="t('chooseWeek', { week: week.weekNumber })"
+                              (click)="selectWeek(week, $event)"
+                            >
+                              {{ week.weekNumber }}
+                            </button>
+                          } @else {
+                            {{ week.weekNumber }}
+                          }
+                        </th>
+                      }
+                      @for (
+                        day of week.days;
+                        track day.date.year * 400 + day.date.month * 32 + day.date.day
+                      ) {
+                        <!-- A hidden day is an empty cell and nothing else. It
                            carried the marks of the date it stood for, so a
                            range across a month boundary painted a band with no
                            digits under it. -->
-                      <td
-                        data-part="cell"
-                        data-part-cell=""
-                        [attr.data-outside-month]="day.outsideMonth ? '' : null"
-                        [attr.data-inert]="drawn(day) && inert(day.date) ? '' : null"
-                        [attr.data-unavailable]="
-                          !drawn(day) ? null : unavailable(day.date) ? '' : null
-                        "
-                        [attr.data-selected]="!drawn(day) ? null : chosen(day.date) ? '' : null"
-                        [attr.data-range-start]="
-                          drawn(day) && rangeState(day.date) === 'start' ? '' : null
-                        "
-                        [attr.data-range-end]="
-                          drawn(day) && rangeState(day.date) === 'end' ? '' : null
-                        "
-                        [attr.data-in-range]="
-                          drawn(day) && rangeState(day.date) === 'inside' ? '' : null
-                        "
-                        [attr.data-preview]="drawn(day) && proposed(day.date) ? '' : null"
-                      >
-                        @if (drawn(day)) {
-                          @if (tooltipOf(day.date); as tooltip) {
-                            <ng-container slTooltip>
-                              <!-- prettier-ignore -->
-                              <span
+                        <td
+                          data-part="cell"
+                          data-part-cell=""
+                          [attr.data-outside-month]="day.outsideMonth ? '' : null"
+                          [attr.data-inert]="drawn(day) && inert(day.date) ? '' : null"
+                          [attr.data-unavailable]="
+                            !drawn(day) ? null : unavailable(day.date) ? '' : null
+                          "
+                          [attr.data-selected]="!drawn(day) ? null : chosen(day.date) ? '' : null"
+                          [attr.data-range-start]="
+                            drawn(day) && rangeState(day.date) === 'start' ? '' : null
+                          "
+                          [attr.data-range-end]="
+                            drawn(day) && rangeState(day.date) === 'end' ? '' : null
+                          "
+                          [attr.data-in-range]="
+                            drawn(day) && rangeState(day.date) === 'inside' ? '' : null
+                          "
+                          [attr.data-preview]="drawn(day) && proposed(day.date) ? '' : null"
+                          [attr.data-over]="drawn(day) && over(day.date) ? '' : null"
+                          [attr.data-weekend]="drawn(day) && weekend(day.date) ? '' : null"
+                        >
+                          @if (drawn(day)) {
+                            @if (tooltipOf(day.date); as tooltip) {
+                              <ng-container slTooltip>
+                                <!-- prettier-ignore -->
+                                <span
                               slTooltipTrigger
                               data-part="day"
                               data-part-day=""
@@ -296,21 +297,21 @@ export class SlCalendarDayValue {}
                               (pointerleave)="hovered.set(null)"
                               [attr.aria-label]="dayLabel()?.(day.date) ?? null"
                             ><ng-container [ngTemplateOutlet]="dayBody" [ngTemplateOutletContext]="{ $implicit: day }" /></span>
-                              <ng-template slTooltipLayer>
-                                <span slTooltipContent>
-                                  <ng-container
-                                    [ngTemplateOutlet]="tooltip.template"
-                                    [ngTemplateOutletContext]="{
-                                      $implicit: day.date,
-                                      state: dayState(day),
-                                    }"
-                                  />
-                                </span>
-                              </ng-template>
-                            </ng-container>
-                          } @else {
-                            <!-- prettier-ignore -->
-                            <span
+                                <ng-template slTooltipLayer>
+                                  <span slTooltipContent>
+                                    <ng-container
+                                      [ngTemplateOutlet]="tooltip.template"
+                                      [ngTemplateOutletContext]="{
+                                        $implicit: day.date,
+                                        state: dayState(day),
+                                      }"
+                                    />
+                                  </span>
+                                </ng-template>
+                              </ng-container>
+                            } @else {
+                              <!-- prettier-ignore -->
+                              <span
                               data-part="day"
                               data-part-day=""
                               [attr.role]="inert(day.date) ? null : 'button'"
@@ -323,14 +324,15 @@ export class SlCalendarDayValue {}
                               (pointerleave)="hovered.set(null)"
                               [attr.aria-label]="inert(day.date) ? null : (dayLabel()?.(day.date) ?? null)"
                             ><ng-container [ngTemplateOutlet]="dayBody" [ngTemplateOutletContext]="{ $implicit: day }" /></span>
+                            }
                           }
-                        }
-                      </td>
-                    }
-                  </tr>
-                }
-              </tbody>
-            </table>
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
           }
         </div>
       }
@@ -390,6 +392,49 @@ export class SlCalendarDayValue {}
       }
     }
 
+    <!--
+      The heading is a live region: paging with a key changes nothing that
+      focus lands on, so without this nothing announces the new month.
+    -->
+    <ng-template #monthHeader let-heading let-id="id" let-first="first" let-last="last">
+      <div data-part="header" data-part-header="">
+        @if (first) {
+          <button
+            data-part="previous"
+            data-part-previous=""
+            type="button"
+            [attr.aria-label]="pageNames()[0]"
+            [disabled]="!editable()"
+            (click)="turnPage(-1, $event)"
+          >
+            <span slIcon directional><svg slGlyph name="chevron-right"></svg></span>
+          </button>
+        }
+        <!-- prettier-ignore -->
+        <button
+          data-part="heading"
+          data-part-heading=""
+          type="button"
+          aria-live="polite"
+          [attr.id]="id"
+          [disabled]="!editable() || currentView() === 'year'"
+          (click)="walkUp()"
+        >@for (part of heading; track $index) {@if (part.type === 'rest') {<span data-part="heading-rest" data-part-heading-rest="">{{ part.value }}</span>} @else {{{ part.value }}}}</button>
+        @if (last) {
+          <button
+            data-part="next"
+            data-part-next=""
+            type="button"
+            [attr.aria-label]="pageNames()[1]"
+            [disabled]="!editable()"
+            (click)="turnPage(1, $event)"
+          >
+            <span slIcon directional><svg slGlyph name="chevron-right"></svg></span>
+          </button>
+        }
+      </div>
+    </ng-template>
+
     <!-- The mark's words follow the number with no space, so the name reads "12, 2 items". -->
     <!-- prettier-ignore -->
     <ng-template #dayBody let-day>@if (layout() === 'fill') {<span
@@ -448,6 +493,12 @@ export class SlCalendar implements OnInit {
    * The arrow keys cross them. A day that is both is inert, not unavailable.
    */
   readonly isDateInert = input<((date: PlainDate) => boolean) | undefined>(undefined);
+
+  /**
+   * The days of a run that are past its limit: the band and its end are drawn
+   * in the danger tone there. It refuses nothing.
+   */
+  readonly isDateOver = input<((date: PlainDate) => boolean) | undefined>(undefined);
 
   readonly selectionMode = input<CalendarSelectionMode>('single');
   readonly months = input<number | undefined, unknown>(undefined, {
@@ -654,7 +705,7 @@ export class SlCalendar implements OnInit {
   protected readonly weekdayNames = computed(() =>
     this.format().weekdayNames(this.layout() === 'fill' ? 'short' : 'narrow'),
   );
-  protected readonly monthNames = computed(() => this.format().monthNames('short'));
+  protected readonly monthNames = computed(() => this.format().monthNames('long'));
   /** Each paging button is named for the step it takes in the view showing. */
   protected readonly pageNames = computed(() => {
     const view = this.currentView();
@@ -667,20 +718,16 @@ export class SlCalendar implements OnInit {
     visibleMonths(this.page(), this.resolvedMonths()),
   );
 
-  protected readonly heading = computed(() => {
+  /** The year of the month view, or the page of years. */
+  protected readonly periodHeading = computed((): MonthYearPart[] => {
     const focused = this.focused();
-    const format = this.format();
-    if (this.currentView() === 'year') {
-      const years = this.years();
-      return `${String(years[0] ?? focused.year)} – ${String(years.at(-1) ?? focused.year)}`;
-    }
-    if (this.currentView() === 'month') return String(focused.year);
+    const years = yearPage(focused.year, YEAR_PAGE);
+    const value =
+      this.currentView() === 'month'
+        ? String(focused.year)
+        : `${String(years[0] ?? focused.year)} – ${String(years.at(-1) ?? focused.year)}`;
 
-    const page = this.page();
-    const start = plainDate(page.year, page.month, 1);
-    if (this.resolvedMonths() === 1) return format.monthYear(start);
-    const last = stepMonth(start, this.resolvedMonths() - 1).date;
-    return `${format.monthYear(start, 'short')} – ${format.monthYear(last, 'short')}`;
+    return [{ type: 'month', value }];
   });
 
   constructor() {
@@ -827,6 +874,32 @@ export class SlCalendar implements OnInit {
     this.requestFocused(date, reason, source);
   }
 
+  /** The name of a month in pieces, the year apart from it. */
+  protected headingOf(month: { year: number; month: number }): readonly MonthYearPart[] {
+    return this.format().monthYearParts(plainDate(month.year, month.month, 1));
+  }
+
+  protected over(date: PlainDate): boolean {
+    return this.rangeState(date) !== null && this.isDateOver()?.(date) === true;
+  }
+
+  protected weekend(date: PlainDate): boolean {
+    return dayOfWeek(date) % 6 === 0;
+  }
+
+  protected weekChoice(): boolean {
+    return this.selectionMode() === 'range' && this.editable();
+  }
+
+  /** A press on a week number, which chooses the week whole, inside the bounds. */
+  protected selectWeek(week: CalendarWeek, source: Event) {
+    const days = week.days.map((day) => day.date);
+    const start = clampDate(days[0]!, this.min(), this.max());
+    const end = clampDate(days.at(-1)!, this.min(), this.max());
+    this.requestValue({ start, end }, 'pointer', source);
+    this.requestFocused(start, 'pointer', source);
+  }
+
   /** A month cell's name: the month and the year, which the cell alone does not say. */
   protected monthLabel(month: number): string {
     return this.format().monthYear(plainDate(this.focused().year, month, 1));
@@ -919,7 +992,7 @@ export class SlCalendar implements OnInit {
     };
 
     /**
-     * The months of a year, as a grid of four columns: the arrows move one
+     * The months of a year, as a grid of three columns: the arrows move one
      * month or one row, Home and End reach January and December, the page
      * keys move a year, and Enter or Space chooses. Escape is left alone, so
      * the surface above the calendar may close on it.
@@ -935,9 +1008,9 @@ export class SlCalendar implements OnInit {
         case backward:
           return move(toMonth(-1));
         case 'ArrowUp':
-          return move(toMonth(-4));
+          return move(toMonth(-3));
         case 'ArrowDown':
-          return move(toMonth(4));
+          return move(toMonth(3));
         case 'Home':
           return move(plainDate(focused.year, 1, 1));
         case 'End':

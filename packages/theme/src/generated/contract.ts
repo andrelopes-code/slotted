@@ -2983,18 +2983,26 @@ export type ComponentToken =
   | '--slotted-button-widest-start'
   | '--slotted-calendar-active-background'
   | '--slotted-calendar-background'
+  | '--slotted-calendar-cell-block-size'
   | '--slotted-calendar-cell-size'
   | '--slotted-calendar-color'
   | '--slotted-calendar-day-height'
   | '--slotted-calendar-day-mark-size'
   | '--slotted-calendar-day-radius'
   | '--slotted-calendar-disabled-color'
+  | '--slotted-calendar-heading-rest-color'
   | '--slotted-calendar-hover-background'
   | '--slotted-calendar-in-range-color'
   | '--slotted-calendar-invalid-edge-width'
   | '--slotted-calendar-invalid-focus-ring-color'
   | '--slotted-calendar-line-color'
   | '--slotted-calendar-outside-color'
+  | '--slotted-calendar-over-background'
+  | '--slotted-calendar-over-color'
+  | '--slotted-calendar-over-selected-background'
+  | '--slotted-calendar-over-selected-color'
+  | '--slotted-calendar-period-background'
+  | '--slotted-calendar-period-block-size'
   | '--slotted-calendar-preview-background'
   | '--slotted-calendar-preview-border-color'
   | '--slotted-calendar-radius'
@@ -3005,12 +3013,13 @@ export type ComponentToken =
   | '--slotted-calendar-selected-background'
   | '--slotted-calendar-selected-color'
   | '--slotted-calendar-today-background'
+  | '--slotted-calendar-today-border-color'
   | '--slotted-calendar-today-color'
   | '--slotted-calendar-trigger-color'
   | '--slotted-calendar-unavailable-color'
-  | '--slotted-calendar-week-number-border-color'
   | '--slotted-calendar-week-number-color'
   | '--slotted-calendar-weekday-color'
+  | '--slotted-calendar-weekend-color'
   | '--slotted-card-actions-gap'
   | '--slotted-card-background'
   | '--slotted-card-background-disabled'
@@ -5373,18 +5382,26 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-button-widest-start",
   "--slotted-calendar-active-background",
   "--slotted-calendar-background",
+  "--slotted-calendar-cell-block-size",
   "--slotted-calendar-cell-size",
   "--slotted-calendar-color",
   "--slotted-calendar-day-height",
   "--slotted-calendar-day-mark-size",
   "--slotted-calendar-day-radius",
   "--slotted-calendar-disabled-color",
+  "--slotted-calendar-heading-rest-color",
   "--slotted-calendar-hover-background",
   "--slotted-calendar-in-range-color",
   "--slotted-calendar-invalid-edge-width",
   "--slotted-calendar-invalid-focus-ring-color",
   "--slotted-calendar-line-color",
   "--slotted-calendar-outside-color",
+  "--slotted-calendar-over-background",
+  "--slotted-calendar-over-color",
+  "--slotted-calendar-over-selected-background",
+  "--slotted-calendar-over-selected-color",
+  "--slotted-calendar-period-background",
+  "--slotted-calendar-period-block-size",
   "--slotted-calendar-preview-background",
   "--slotted-calendar-preview-border-color",
   "--slotted-calendar-radius",
@@ -5395,12 +5412,13 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-calendar-selected-background",
   "--slotted-calendar-selected-color",
   "--slotted-calendar-today-background",
+  "--slotted-calendar-today-border-color",
   "--slotted-calendar-today-color",
   "--slotted-calendar-trigger-color",
   "--slotted-calendar-unavailable-color",
-  "--slotted-calendar-week-number-border-color",
   "--slotted-calendar-week-number-color",
   "--slotted-calendar-weekday-color",
+  "--slotted-calendar-weekend-color",
   "--slotted-card-actions-gap",
   "--slotted-card-background",
   "--slotted-card-background-disabled",

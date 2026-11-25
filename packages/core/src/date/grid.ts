@@ -9,7 +9,14 @@
  * Nothing here touches the DOM or a framework.
  */
 
-import { addDays, daysBetween, daysInMonth, isoWeekNumber, startOfWeek } from './plain-date';
+import {
+  addDays,
+  dayOfWeek,
+  daysBetween,
+  daysInMonth,
+  isoWeekNumber,
+  startOfWeek,
+} from './plain-date';
 import type { PlainDate } from './plain-date';
 
 export interface CalendarDay {
@@ -60,7 +67,11 @@ export function monthGrid({
       const date = addDays(start, week * 7 + index);
       return { date, outsideMonth: date.year !== year || date.month !== month };
     });
-    return { weekNumber: isoWeekNumber((days[0] as CalendarDay).date), days };
+    /* The Thursday names the week: a row that starts on Sunday holds one day of
+       the week before and six of the week it is read as. */
+    const thursday = days.find((day) => dayOfWeek(day.date) === 4) as CalendarDay;
+
+    return { weekNumber: isoWeekNumber(thursday.date), days };
   });
 }
 

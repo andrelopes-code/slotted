@@ -36,11 +36,18 @@ const anatomy: AnatomyRow[] = [
       'The box everything stands in, and the query container the cell size is measured against. Carries data-ui="calendar", data-view, data-months, data-week-numbers and the state attributes. className, style and every native attribute reach it.',
   },
   {
+    part: 'month',
+    element: 'div',
+    required: true,
+    purpose:
+      'One month: its header over its grid. Two months stand side by side and each carries its own name.',
+  },
+  {
     part: 'header',
     element: 'div',
     required: true,
     purpose:
-      'The row above the grid: the two page triggers with the heading between them. The heading is between rather than beside, because it is the thing being changed and a label at one end would make the pair read as two unrelated buttons.',
+      'The row above a grid: the heading between the page triggers, previous on the first month of the page and next on the last. The heading is between rather than beside, because it is the thing being changed and a label at one end would make the pair read as two unrelated buttons.',
   },
   {
     part: 'previous',
@@ -63,6 +70,13 @@ const anatomy: AnatomyRow[] = [
       'The month and year, and the way up to the month and year views. It is aria-live="polite" because paging with a key changes nothing that focus lands on, so without it nothing announces the new month. It is also what every grid points aria-labelledby at.',
   },
   {
+    part: 'heading-rest',
+    element: 'span',
+    required: false,
+    purpose:
+      'What the locale writes around the name of the month: the year, drawn lighter than the name.',
+  },
+  {
     part: 'grids',
     element: 'div',
     required: true,
@@ -81,7 +95,7 @@ const anatomy: AnatomyRow[] = [
     element: 'caption',
     required: true,
     purpose:
-      'The month’s own name. Out of the picture while one month is drawn, because the heading already shows it; visible once two or three are, because the heading then names the span and nothing else would say where October starts.',
+      'The month’s own name. Out of the picture, because the heading over the grid already shows it; it names the grid where header is false.',
   },
   {
     part: 'week-headers',
@@ -103,6 +117,13 @@ const anatomy: AnatomyRow[] = [
     required: false,
     purpose:
       'The ISO 8601 week number, as a row header. Narrower than a day and separated by a rule, so it reads as an annotation rather than as an eighth day.',
+  },
+  {
+    part: 'week-choice',
+    element: 'button',
+    required: false,
+    purpose:
+      'The week number as a press that chooses its seven days, under selectionMode range. It is out of the tab sequence: the keyboard chooses a week by its two ends.',
   },
   {
     part: 'cell',
@@ -428,6 +449,13 @@ const api: ApiRow[] = apiRows([
     'The days that hold nothing to choose, as the days of a month of records that have none: plain text with no button role, tooltip or label, in the ink of any day. The arrow keys cross them, a run may hold them, and a date that is also unavailable is inert.',
   ],
   [
+    'isDateOver',
+    '(date: PlainDate) => boolean',
+    '—',
+    'Calendar',
+    'The days of a run that are past its limit: the band and its end are drawn in the danger tone there. It refuses nothing.',
+  ],
+  [
     'weekNumbers',
     'boolean',
     'false',
@@ -606,7 +634,7 @@ const accessibility: string[] = [
   'The heading is a polite live region, because paging with a key changes nothing that focus lands on and nothing else would announce the new month.',
   'A column header shows the locale’s narrow weekday and carries the full name in abbr, which is the difference between a screen reader saying "Mo" and saying "Monday".',
   'A date the predicate refuses carries aria-disabled rather than being removed, so a reader can arrow onto it and be told why it is out; and it is struck through as well as dimmed, because color alone says nothing under forced colors.',
-  'Today is a dot under the number and focus is a ring around it. They were the same ring once, and a reader arrowing onto today saw one box and could not tell which of the two facts it was.',
+  'Today is a thin outline inside the day and focus is a ring outside it, so a reader arrowing onto today sees both facts.',
 ];
 
 export const REACT_CALENDAR_DOCS = {

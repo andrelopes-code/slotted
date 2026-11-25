@@ -1,4 +1,4 @@
-import { isSameDate, toISODate } from '@slotted/core/date';
+import { dayOfWeek, isSameDate, toISODate } from '@slotted/core/date';
 import type { CalendarDay, PlainDate } from '@slotted/core/date';
 
 import { CalendarDayButton } from './calendar-day-button';
@@ -25,6 +25,8 @@ export interface CalendarDayContext {
   readonly onHover: (date: PlainDate | null) => void;
   readonly onSelect: (date: PlainDate, reason: 'pointer' | 'keyboard', source: unknown) => void;
   readonly outsideDays: CalendarOutsideDays;
+  /** The days of the run that are past its limit. */
+  readonly over: ((date: PlainDate) => boolean) | undefined;
   /** The run as drawn, which is the value's own once the run is whole. */
   readonly pending: DateRange | null;
   readonly renderDay: CalendarProps['renderDay'];
@@ -51,6 +53,7 @@ export function CalendarDayCell({
   onHover,
   onSelect,
   outsideDays,
+  over,
   pending,
   renderDay,
   renderDayTooltip,
@@ -103,6 +106,8 @@ export function CalendarDayCell({
       {...(run === 'end' ? { 'data-range-end': '' } : {})}
       {...(run === 'inside' ? { 'data-in-range': '' } : {})}
       {...(proposed ? { 'data-preview': '' } : {})}
+      {...(run !== null && over?.(date) === true ? { 'data-over': '' } : {})}
+      {...(dayOfWeek(date) % 6 === 0 ? { 'data-weekend': '' } : {})}
     >
       <CalendarDayButton
         data-part="day"

@@ -75,10 +75,18 @@ export interface DateFormat {
   weekdayNames(style: NameStyle): string[];
   /** The calendar heading. */
   monthYear(date: PlainDate, style?: 'long' | 'short'): string;
+  /** The same heading in the pieces the locale writes, so the year may be drawn apart. */
+  monthYearParts(date: PlainDate): readonly MonthYearPart[];
   /** The whole date in words, which is what a screen reader is given. */
   describe(date: PlainDate): string;
   /** Resolves two typed digits into a year, through the pivot. */
   resolveYear(typed: number): number;
+}
+
+/** A piece of a month's heading: the month's name, what stands around it, or the space between. */
+export interface MonthYearPart {
+  readonly type: 'month' | 'rest' | 'space';
+  readonly value: string;
 }
 
 const FIELD_WIDTH: Record<DateFieldName, number> = { year: 4, month: 2, day: 2 };
@@ -269,6 +277,28 @@ export function createDateFormat(options: DateFormatOptions = {}): DateFormat {
         year: 'numeric',
         timeZone: 'UTC',
       }).format(new Date(Date.UTC(date.year, date.month - 1, 1)));
+    },
+
+    monthYearParts(date) {
+      const parts = new Intl.DateTimeFormat(locale, {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      }).formatToParts(new Date(Date.UTC(date.year, date.month - 1, 1)));
+      const at = parts.findIndex((part) => part.type === 'month');
+      const rest = (pieces: readonly { value: string }[]) =>
+        pieces
+          .map((piece) => piece.value)
+          .join('')
+          .split(/^(\s+)|(\s+)$/)
+          .filter((value) => value !== undefined && value !== '')
+          .map((value) => ({ type: value.trim() === '' ? 'space' : 'rest', value }) as const);
+
+      return [
+        ...rest(parts.slice(0, at)),
+        { type: 'month', value: parts[at]?.value ?? '' },
+        ...rest(parts.slice(at + 1)),
+      ];
     },
 
     describe(date) {

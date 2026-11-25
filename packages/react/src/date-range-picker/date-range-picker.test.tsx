@@ -719,7 +719,7 @@ describe('where focus goes when it opens', () => {
 
 describe('where it opens with nothing chosen', () => {
   const now = new Date();
-  const thisMonth = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(
+  const thisMonth = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(
     now,
   );
 
@@ -728,9 +728,7 @@ describe('where it opens with nothing chosen', () => {
 
     open();
 
-    expect(document.querySelector('[data-part="heading"]')?.textContent).toMatch(
-      new RegExp(`^${thisMonth} – `),
-    );
+    expect(document.querySelector('[data-part="heading"]')).toHaveTextContent(thisMonth);
   });
 
   it('moves focus to today when the trigger opens it', async () => {

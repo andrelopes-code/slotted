@@ -177,6 +177,12 @@ export interface CalendarProps extends Omit<
    */
   isDateInert?: ((date: PlainDate) => boolean) | undefined;
 
+  /**
+   * The days of a run that are past its limit: the band and its end are drawn
+   * in the danger tone there. It refuses nothing.
+   */
+  isDateOver?: ((date: PlainDate) => boolean) | undefined;
+
   selectionMode?: CalendarSelectionMode | undefined;
   /** How many months are drawn side by side. They wrap when they do not fit. */
   months?: number | undefined;
