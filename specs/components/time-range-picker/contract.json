@@ -16,8 +16,8 @@
     "reversed": "an end typed before its start is invalid and stays as typed",
     "midnight": "a shift from 22:00 to 06:00 is an end before its start: a PlainTime has no day, and a run that crosses midnight has two of them. datetime-range-picker is the family that writes it."
   },
-  "composes": ["time-field"],
-  "fields": 1,
+  "composes": ["time-field", "clock", "picker-panel"],
+  "fields": 2,
   "core": [
     "@slotted/core/date",
     "@slotted/core/state",
@@ -25,69 +25,50 @@
     "@slotted/core/portal",
     "@slotted/core/positioner",
     "@slotted/core/dismissable-layer",
-    "@slotted/core/typeahead",
     "@slotted/core/focus"
   ],
   "stateSource": "field",
   "mirrorsState": true,
   "pattern": {
-    "url": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
-    "title": "Listbox Pattern, for the list; Tabs Pattern, for the two ends; Date Picker Dialog Example, for the popup",
+    "url": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/",
+    "title": "Date Picker Dialog Example, for the popup; Slider Pattern, for the two handles of the day; Listbox Pattern, for the grids of the clocks, which clock draws",
     "readOn": "2026-09-15",
-    "rangePattern": "none exists; the dialog example for the popup, the tabs pattern for the two ends and the listbox pattern for the list, as time-picker",
-    "departure": "the dialog example closes on the first press and this family closes when the work is whole, because a range is at least two presses; closeOnSelect names the rest"
+    "rangePattern": "none exists; the dialog example for the popup and the slider pattern for each handle",
+    "departure": "the dialog example closes on the first press and this family closes on Apply, because a range is at least two presses; confirm=false names the rest"
   },
   "panel": {
-    "perEnd": false,
-    "current": "one panel, the current end's: the list of that end, refusing what the other end of the work refuses",
-    "role": "listbox",
-    "labelledBy": "the current tab, so a screen reader hears \"Start, 14:00\" before the first option",
-    "why": "One end at a time. Two lists side by side, under two fields, were refused at the release gate as too much interface at once for a lay reader and for a phone: two lists of ninety-six rows with 32-pixel targets, a full-screen sheet with no way out, nested scrolling. The tab says which end, the panel shows only that end, and choosing one end moves to the other; the end list appears already striking what the chosen start refuses, in the same gesture.",
-    "reversed": "the first contract declined \"one list that swaps with the position, as MUI and Ant ship\" because what the start refuses of the end was discovered only after switching; the switch is now automatic at the moment the start is chosen, and the argument fell"
-  },
-  "list": {
-    "shape": "time-picker's list, unchanged: step, options, maxOptions, min, max, isTimeUnavailable, unavailableOptions",
-    "otherEnd": "the end list refuses the options before the start, those whose duration falls outside minLength and maxLength, and with contiguous those beyond the first unavailable option after the start; the start list refuses the options after the end, the same length rule, and those before the first unavailable option before the end",
-    "refusedDrawn": "a refused option is still drawn with aria-disabled, or hidden with unavailableOptions=hide, the rule of time-picker",
-    "duration": "each option in the list of one end carries, beside its time, the duration the run would have with the other end as it stands — \"15:00 · 1 hr\" — the way a calendar application lists the end times of an event; a refused option carries none. The band's length says the same for the pending end, in a live region, so a screen reader hears what the rows show."
+    "shape": "a rail of shortcuts and lengths, the two ends and the length between them, the day as one axis, and a clock for each end",
+    "aria-haspopup": "dialog",
+    "halves": "a time field in each at 760 px and above, a button with the time below, because a field would open a keyboard",
+    "ruler": "twenty-four hours, the run as a band, and a handle on each end",
+    "clocks": "one for each end, under its half; below 760 px the one of the end being edited",
+    "why": "One end at a time hid the other behind a tab, and a list of times showed nine in a hundred of them. Both ends, the length and the day are on screen, and a time is two presses, a drag or four keys."
   },
   "focusRule": {
-    "rule": "the press that leaves the work incomplete carries focus to the end that is missing, swapping the tab to it; the press that completes the work closes the panel",
-    "whole": "with the work already whole, a press writes the value and the panel stays open; focus stays where the reader put it",
-    "source": "datetime-picker's rule, once per end"
+    "rule": "the press that leaves the other end missing moves the position and focus to its clock",
+    "open": "the chosen hour of the clock of the current end, or the hour it is"
   },
   "draft": {
-    "rule": "while the panel is open the family holds the work: the two ends as the reader left them. A press that leaves the work with one end emits no value; the press that completes it emits the whole run with reason select, and every later press that changes a whole work emits again",
-    "abandonedBy": "Escape, an outside press and the trigger abandon the work and keep the previous value",
-    "openEndValue": "a panel opened over { start, end: null } opens on the end tab with that work, and the first press in the list completes it"
+    "rule": "a press, a typed end, a handle, a step, a length and a shortcut write a draft; Apply writes the value with reason select",
+    "abandonedBy": "Escape, an outside press and the trigger abandon the draft and keep the previous value",
+    "confirm": "false writes a whole run on every change the rules take, and closes on the press that completes it",
+    "openEndValue": "a panel opened over { start, end: null } keeps the start, and the first time chosen for the end completes it"
   },
   "length": {
     "liveRegion": "polite",
-    "pending": "the duration of the run that would exist if the pending end were chosen — the option under the pointer, or the highlighted option of the list that has focus — with the other end taken from the work; with no pending end, the duration of the work",
+    "drawnBy": "picker-panel",
+    "between": "the two halves of the head, with one step of the clock of the end either way",
     "unit": "seconds between the two ends, turned into words",
     "label": "durationLabel(seconds, locale, granularity) from @slotted/core/date by default, replaceable per instance and per provider as lengthLabel(seconds, locale)",
-    "sameTime": "the same time at both ends is 0 min, and the band says so"
-  },
-  "highlight": {
-    "shape": "{ start: PlainTime | null, end: PlainTime | null }: the highlighted option of each list",
-    "why": "One model for two lists, because the two are one capability — where the reader is — and a family holding two current models would be two names for one place. The option under the pointer is not the highlight: it enters length and nothing else."
+    "sameTime": "the same time at both ends is 0 min, and the head says so"
   },
   "position": {
-    "meaning": "the end whose tab carries aria-selected and data-current, whose field and panel are shown, and which focus enters when the panel opens",
-    "onOpen": "the first end that is missing; with a whole value, where it was",
-    "afterListWritesOtherEmpty": "the other end",
-    "afterListWritesWhole": "the end that was written",
-    "afterTab": "the pressed end, reason pointer or keyboard",
-    "afterNow": "the rule of a list press",
+    "meaning": "the end whose half and clock carry data-current, and the one clock a narrow panel shows",
+    "afterStartOtherEmpty": "end",
+    "afterHalf": "the half that was pressed or focused",
     "afterPreset": "start",
+    "afterApply": "start",
     "afterClear": "start"
-  },
-  "now": {
-    "part": "now",
-    "perEnd": false,
-    "writes": "the current time into the current end, and follows the focus rule",
-    "equals": "the zero case of time-field's relative expression",
-    "why": "one now, because one end is shown at a time"
   },
   "step": {
     "unit": "seconds",
@@ -100,21 +81,18 @@
     "offStepReason": "A step of 900 with min 09:07 offers 09:07, 09:22, 09:37. The field still accepts 09:15 by typing, and the family reports invalid only when a bound or the predicate refuses the value — never because it fell between two options.",
     "notTheFieldArrows": "The panel's step is the panel's. A segment steps by one of its own unit and pages by the page step, whatever the panel offers. input[type=time] ties the two and this family does not: a minute arrow that moved fifteen at a time would put :07 out of reach of the arrows, and the field's promise is that every value is reachable there."
   },
-  "opensOn": ["the chosen time", "the nearest step to now", "the first available option"],
-  "selectionFollowsFocus": false,
-  "selectionFollowsFocusReason": "The listbox pattern lists it as optional and warns it can degrade accessibility. Here a reader arrowing through ninety-six quarter-hours would emit ninety-six requests; the highlight moves, and Enter, Space or a press moves the work.",
   "limits": {
     "bounds": ["min", "max"],
-    "crossed": "the start field and list take max = min(max, end); the end field and list take min = max(min, start)",
+    "crossed": "the clock of the end starts after the start",
     "length": ["minLength", "maxLength"],
     "unit": "seconds",
     "contiguous": {
       "default": true,
-      "list": "with a start chosen, the options beyond the first unavailable option after it are refused in the end list; with an end chosen, the options before the first unavailable option before it are refused in the start list",
-      "search": "over the list, once per chosen end, never over the seconds: a list holds at most maxOptions entries",
+      "clock": "with a start chosen, the times past the first unavailable one after it are refused in the clock of the end",
+      "search": "over the offered times, once per chosen start, never over the seconds",
       "typed": "the predicate runs over the two typed ends once per value change"
     },
-    "explained": "the limit part names minLength and maxLength while either is set, through the limit.between, limit.atLeast and limit.atMost messages, each duration written by lengthLabel"
+    "explained": "the footer names minLength and maxLength while either is set, through the limit.between, limit.atLeast and limit.atMost messages, each duration written by lengthLabel; over them, it says by how much"
   },
   "validity": {
     "owned": "bounds, unavailable times, the order of the two ends, and the duration",
@@ -129,12 +107,6 @@
   },
   "clear": {
     "fields": "the two fields do not draw their own clear; one button on the frame empties both ends with reason clear"
-  },
-  "preset": {
-    "reason": "select",
-    "selectedAttribute": "data-selected",
-    "value": "a TimeRange, or a function returning one, resolved on press",
-    "invalid": "a preset whose range fails a rule still writes it and the value is invalid; the preset is not hidden"
   },
   "wiring": {
     "aria-haspopup": "dialog",
@@ -153,57 +125,34 @@
       "key": "Enter, Space",
       "effect": "open",
       "from": "the trigger",
-      "focusTo": "the first segment of the current end's field, or its list where the field is not drawn"
+      "focusTo": "the clock of the current end"
     },
     {
-      "key": "ArrowDown, Alt+ArrowDown",
+      "key": "ArrowDown, ArrowUp",
       "effect": "open",
       "from": "the trigger",
-      "focusTo": "the list of the current end, on its time or on the nearest offered step"
+      "focusTo": "the clock of the current end"
     },
     {
-      "key": "ArrowLeft, ArrowRight, Home, End",
-      "effect": "the other tab, with automatic activation: position moves and the panel swaps",
-      "from": "a tab"
+      "key": "ArrowRight, ArrowLeft, PageUp, PageDown, Home, End",
+      "effect": "move the end",
+      "from": "a handle of the day"
     },
     {
-      "key": "the field's own keys",
-      "effect": "time-field's, unchanged, the relative expression included",
-      "from": "the field"
-    },
-    {
-      "key": "ArrowDown, ArrowUp, Home, End, PageDown, PageUp, a-z0-9",
-      "effect": "time-picker's list keys: the next or previous option, the first or last, one hour, type-ahead; each move is the pending end and length says the duration",
-      "from": "the list"
-    },
-    {
-      "key": "Enter, Space",
-      "effect": "writes the current end; then the focus rule",
-      "from": "an option"
-    },
-    {
-      "key": "Enter, Space",
-      "effect": "writes the value",
-      "from": "a preset",
-      "closes": "when closeOnSelect says so"
-    },
-    {
-      "key": "Enter, Space",
-      "effect": "close, emitting a whole work first",
-      "from": "done",
-      "focusTo": "trigger"
+      "key": "Ctrl+Enter",
+      "effect": "apply"
     },
     {
       "key": "Escape",
       "effect": "close",
       "focusTo": "trigger",
-      "staged": "the relative expression of the field first; then the panel closes and the work is abandoned"
+      "discards": "the draft",
+      "staged": "the relative expression of a field first"
     },
     {
       "key": "Tab",
       "effect": "contained",
-      "while": "open",
-      "sequence": "the tabs (one stop), the field, now, presets, the list, footer, done"
+      "while": "open"
     }
   ],
   "platformNotes": {
@@ -212,7 +161,7 @@
   "dismissal": {
     "escape": "through dismissable-layer, in the capture phase",
     "outsidePress": true,
-    "closeOnSelect": "auto closes when the work becomes whole, by a press in a list, by now or by a preset; always closes on any press that changes the value; never closes on none"
+    "discards": "the draft"
   },
   "layer": {
     "modal": false,
@@ -222,16 +171,13 @@
     "zIndexToken": "--slotted-z-index-popover"
   },
   "responsive": {
+    "below760": "one clock at a time, the one of the end being edited; the halves are buttons; the length and the day are not drawn",
     "sheet": "below 480px on a coarse pointer, the content takes the sheet presentation",
-    "decidedIn": "the stylesheet; the DOM does not change",
-    "coarsePointer": "the rows and the tabs stand at the control height the theme raises to --slotted-target-comfortable; the field is not drawn",
-    "sheetList": "six rows and a half, the only thing that scrolls; the content is capped at 100dvh and scrolls as one when it does not fit, ending with the safe-area inset and done",
-    "presets": "a wrapping row of chips between the head and the panel, at every width"
+    "decidedIn": "the stylesheet, except the halves, whose field would open a keyboard"
   },
   "portalledIdentity": {
-    "attribute": "data-ui",
-    "on": ["root", "positioner"],
-    "reason": "The family is two subtrees: the control where the consumer wrote it, and the popup portalled to the end of the document. A stylesheet cannot reach a subtree that is no longer inside the root, so data-ui is written on both."
+    "elements": ["root"],
+    "reason": "The popup is picker-panel's: its positioner carries that family's data-ui, and the control carries this one's."
   },
   "forms": {
     "react": ["startName", "endName"],
@@ -242,37 +188,32 @@
     "size": ["sm", "md", "lg"],
     "variant": ["outline", "subtle", "plain"],
     "placement": ["bottom-start", "bottom", "bottom-end", "top-start", "top", "top-end"],
-    "closeOnSelect": ["auto", "always", "never"],
-    "unavailableOptions": ["disable", "hide"],
     "hourCycle": [12, 24],
     "granularity": ["hour", "minute", "second"],
-    "position": ["start", "end"]
+    "position": ["start", "end"],
+    "confirm": ["on", "off"]
   },
   "resolution": {
     "size": ["prop", "field", "defaults", "md"],
     "variant": ["prop", "defaults", "outline"],
     "placement": ["prop", "defaults", "bottom-start"],
-    "closeOnSelect": ["prop", "defaults", "auto"],
     "step": ["prop", "defaults", "900"],
-    "maxOptions": ["prop", "defaults", "1440"],
-    "unavailableOptions": ["prop", "defaults", "disable"],
     "locale": ["prop", "slotted", "en-US"],
     "timeZone": ["prop", "defaults", "runtime"],
     "hourCycle": ["prop", "defaults", "locale"],
-    "granularity": ["prop", "defaults", "minute"]
+    "granularity": ["prop", "defaults", "minute"],
+    "confirm": ["prop", "defaults", "on"]
   },
   "provides": {
     "timeRangePickerDefaults": [
-      "closeOnSelect",
+      "confirm",
       "granularity",
       "hourCycle",
       "lengthLabel",
-      "maxOptions",
       "placement",
       "size",
       "step",
       "timeZone",
-      "unavailableOptions",
       "variant"
     ]
   },
@@ -281,19 +222,13 @@
     "change",
     "changeReversed",
     "choose",
-    "chooseTime",
     "clear",
-    "done",
-    "empty",
     "end",
-    "length",
     "limit.between",
     "limit.atLeast",
     "limit.atMost",
-    "now",
     "order",
     "start",
-    "truncated",
     "unavailable"
   ],
   "imperative": ["focus", "open", "close"],
@@ -302,22 +237,11 @@
     "invalid": "data-invalid",
     "readonly": "data-readonly",
     "required": "data-required",
-    "open": "data-open",
-    "current": "data-current",
-    "selected": "data-selected"
+    "open": "data-open"
   },
   "dataAttributes": {
-    "data-position": "on a tab, the field and the panel: start or end",
     "data-granularity": "hour, minute or second, on the root",
-    "data-truncated": "on a list: it stops short of the times the configuration asked for, at maxOptions",
-    "data-placement": "the side and alignment the positioner resolved",
-    "data-presentation": "popover or sheet",
-    "data-placeholder": "on summary and on a tab: there is no value and the text is the placeholder",
-    "data-pending": "on length: what is shown is the duration for the pending end, not the work"
-  },
-  "statePrecedence": {
-    "order": ["disabled", "selected", "current", "hover"],
-    "guard": "every weaker rule carries a :not() for each stronger state it can meet, because specificity rather than source order is what decides between them — the rule time-picker recorded at its visual gate"
+    "data-placeholder": "on summary: there is no value and the text is the placeholder"
   },
   "stateModel": {
     "value": {
@@ -335,26 +259,14 @@
       "carries": ["value", "previous", "reason", "event"]
     },
     "current": {
-      "position": {
-        "controlled": "position",
-        "uncontrolled": "defaultPosition",
-        "request": "onPositionChange",
-        "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"],
-        "carries": ["value", "previous", "reason", "event"]
-      },
-      "highlighted": {
-        "controlled": "highlighted",
-        "uncontrolled": "defaultHighlighted",
-        "request": "onHighlightedChange",
-        "reasons": ["pointer", "keyboard", "programmatic"],
-        "carries": ["value", "previous", "reason", "event"]
-      }
+      "controlled": "position",
+      "uncontrolled": "defaultPosition",
+      "request": "onPositionChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"],
+      "carries": ["value", "previous", "reason", "event"]
     }
   },
-  "literals": {
-    "--slotted-time-range-picker-sheet-inline-size": "100%, which the shared exemption list already holds.",
-    "--slotted-time-range-picker-list-block-size": "Eight rows and half of the ninth, counted in the row height the panel states once — the literal time-picker records, for the same reason: a list cut on a row boundary looks like the whole list."
-  },
+  "literals": {},
   "members": {
     "timeRangePicker": {
       "nativeElement": "div",
@@ -362,10 +274,8 @@
         "size": "md",
         "variant": "outline",
         "placement": "bottom-start",
-        "closeOnSelect": "auto",
+        "confirm": true,
         "step": 900,
-        "maxOptions": 1440,
-        "unavailableOptions": "disable",
         "granularity": "minute",
         "contiguous": true,
         "clearable": false
@@ -393,40 +303,9 @@
         "invalid",
         "readonly",
         "required",
-        "open",
-        "current",
-        "selected"
+        "open"
       ],
-      "parts": [
-        "root",
-        "control",
-        "trigger",
-        "summary",
-        "clear",
-        "hidden-input",
-        "positioner",
-        "content",
-        "grip",
-        "head",
-        "tabs",
-        "tab",
-        "tab-label",
-        "tab-value",
-        "field",
-        "now",
-        "hint",
-        "length",
-        "limit",
-        "presets",
-        "preset",
-        "panel",
-        "list",
-        "option",
-        "option-duration",
-        "empty",
-        "footer",
-        "done"
-      ]
+      "parts": ["root", "control", "trigger", "summary", "clear", "hidden-input"]
     }
   },
   "scenarios": {
@@ -434,11 +313,13 @@
       "playground",
       "panel",
       "length",
+      "durations",
       "limits",
       "unavailable",
       "step",
-      "now",
+      "explicit",
       "presets",
+      "confirm",
       "open-end",
       "sizes",
       "variants",
@@ -455,34 +336,28 @@
     "why": "two time fields in one frame need about 220 pixels on one line, a segment cannot shrink, and below that the frame broke into two lines against the control height every form counts on. Withdrawn at the visual gate on the reviewer's reading",
     "fullName": "the trigger carries both ends in words and the duration, so the ellipsis removes nothing a reader cannot hear"
   },
-  "head": {
-    "holds": "three rows: the two tabs; the current end's field and now; the hint, then the length and the limit",
-    "current": "data-current and aria-selected on the current tab, painted whenever the panel is open",
-    "fieldsSubmit": "the field carries no name; the two hidden-input parts on the frame submit startName and endName"
+  "closing": {
+    "clock": "the clock of the end refuses the times up to the start, those whose run is too short or too long, and with contiguous those past the first unavailable time after the start",
+    "start": "the clock of the start refuses what the bounds and the predicate refuse, and nothing else: a start after its end says so, and the end is chosen again",
+    "refusedDrawn": "struck and aria-disabled, where it stands"
   },
-  "tabs": {
-    "role": "tablist",
-    "tab": "role=\"tab\" on a button, one per end, carrying tab-label and tab-value; aria-selected and data-current on the current end; data-placeholder while the end has no value",
-    "activation": "automatic: ArrowLeft, ArrowRight, Home and End move position with reason keyboard; a press moves it with reason pointer",
-    "value": "the end written short in the locale, or a dash"
+  "durations": {
+    "prop": "durations",
+    "unit": "seconds from the start",
+    "default": [900, 1800, 2700, 3600, 5400, 7200, 10800, 14400],
+    "empty": "no group",
+    "refused": "disabled without a start, past midnight or refused by a rule",
+    "selected": "the one the run is"
   },
-  "hint": {
-    "part": "hint",
-    "says": "what the next press should be, or what is wrong: choose while the current end is missing; order, length, unavailable or bounds while the work is whole and invalid; empty while the work is whole and valid, when length says the duration",
-    "messages": "chooseTime, with {end} for the end's name; order, length, unavailable, bounds",
-    "wiring": "aria-describedby of the list and of the field",
-    "why": "a panel that only refuses — struck rows, a red frame — does not say what can be done; the hint does"
+  "presets": {
+    "prop": "presets",
+    "type": "readonly { label, value | () => value }[]",
+    "result": "the two ends, the parts they share written once",
+    "refused": "disabled"
   },
-  "done": {
-    "part": "done",
-    "label": "the done message",
-    "effect": "closes with reason pointer; a whole work is emitted with reason select before closing; one end alone stays as it is",
-    "always": true,
-    "why": "a sheet that fills the screen has no outside to press and no Escape key; on the desktop it is the way out of an edit left half way"
-  },
-  "field": {
-    "one": "the current end's time-field in variant plain, under the tabs, with now beside it",
-    "finePointerOnly": "a segment is a spinbutton, not an input, and raises no keyboard on a phone; the stylesheet does not draw the field under (pointer: coarse)",
-    "writes": "the current end of the work at every request the field emits, with the field's reason; a whole work is emitted as the value"
+  "ruler": {
+    "role": "slider, one per end, with aria-valuetext in words",
+    "keys": "the arrows move one step, mirrored in a right-to-left document; Page Up and Page Down one hour; Home and End to the ends of the day",
+    "crossing": "a handle moves up to the other one and no further"
   }
 }

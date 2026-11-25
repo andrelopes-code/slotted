@@ -200,6 +200,7 @@ export {
   shortDay,
   shortMoment,
   shortRun,
+  shortTimeRun,
   stepLabel,
   timeMeta,
 } from './picker-words';
@@ -215,7 +216,9 @@ export {
 export type { DayTimes, MomentDraft, MomentRules } from './moment';
 export { isPastLimit, lengthOf, refusalOf, stepRun } from './range-panel';
 export type { RunRefusal } from './range-panel';
-export { rulerKeyTarget, rulerShare, rulerTimeAt } from './ruler';
+export { closingTimes, refusalOfSeconds, refusalOfTimes, stepTimeRun, timeRunOf } from './time-run';
+export type { TimeRunRules } from './time-run';
+export { rulerKeyTarget, rulerScale, rulerShare, rulerTimeAt } from './ruler';
 export { presetValue, relativeDays } from './relative';
 export type { PickerPreset } from './relative';
 export { monthGrid, visibleMonths, yearPage } from './grid';

@@ -39,7 +39,6 @@ import { SlStatusIndicator } from '@slotted/angular/status-indicator';
 import { SlSwitch } from '@slotted/angular/switch';
 import { SlTag, SlTagBody } from '@slotted/angular/tag';
 import { SlTextField, SlTextFieldInput } from '@slotted/angular/text-field';
-import { SlTimeRangePickerPreset } from '@slotted/angular/time-range-picker';
 import { bindScenes, createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import type { Meta, StoryObj } from '@storybook/angular-vite';
@@ -107,7 +106,6 @@ const meta: Meta<TableStoryArgs> = {
         SlTableContent,
         ...SL_TABLE_PARTS,
         SlDateTimeRangePickerPreset,
-        SlTimeRangePickerPreset,
         SlSelect,
         SlSelectItem,
         SlTableBooleanFilter,
@@ -898,8 +896,10 @@ function timeProps() {
       kind: 'time',
     } as TimeFilter | null,
     /** The range picker's presets: the desk's own shifts, in its own words. */
-    morning: { end: plainTime(14), start: plainTime(6) },
-    afternoon: { end: plainTime(22), start: plainTime(14) },
+    shifts: [
+      { label: 'Morning', value: { end: plainTime(14), start: plainTime(6) } },
+      { label: 'Afternoon', value: { end: plainTime(22), start: plainTime(14) } },
+    ],
     visible(this: { cutoff: TimeFilter | null }) {
       const keep = createFilterPredicate(this.cutoff);
       return DELIVERIES.filter((row) => keep(row.cutoff));
@@ -908,10 +908,6 @@ function timeProps() {
 }
 
 const TIME = `
-  <ng-template #shifts>
-    <button slTimeRangePickerPreset [range]="morning">Morning</button>
-    <button slTimeRangePickerPreset [range]="afternoon">Afternoon</button>
-  </ng-template>
   <div slTable [columns]="3" variant="framed">
     <div slTableContent>
       <thead slTableHead>

@@ -3,12 +3,13 @@ import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 
 import type { PickerLayer } from './picker-layer';
 
-/** The button that opens the panel, inside the field's end slot. */
+/** The button that opens the panel: in the field's end slot, or as the frame. */
 @Component({
   selector: 'button[slPickerTrigger]',
   standalone: true,
   imports: [SlGlyph, SlIcon],
   template: `
+    <ng-content />
     @if (glyph() === 'clock') {
       <span slIcon><svg slGlyph name="clock"></svg></span>
     } @else {

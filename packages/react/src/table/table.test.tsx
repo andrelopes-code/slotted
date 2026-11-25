@@ -2,7 +2,7 @@ import { operatorsFor, setFilter } from '@slotted/core/filter';
 import type { FilterDescriptor, SetFilter } from '@slotted/core/filter';
 import { tableMessages } from '@slotted/core/i18n';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/table/contract.json';
@@ -749,18 +749,14 @@ describe('the column filter', () => {
     const frame = screen.getByRole('button', { name: /^Change range, 10:00 PM/ });
     fireEvent.keyDown(frame, { key: 'Enter' });
     expect(onValueChange).not.toHaveBeenCalled();
-    /* One end at a time: the From and To tabs, and the field and the list of
-       the end the picker is on, which opens on the start. */
-    const start = await waitFor(() => {
-      const found = document.querySelector(
-        '[data-part="field"][data-position="start"] [role="spinbutton"]',
-      );
-      expect(found).not.toBeNull();
-      return found as HTMLElement;
-    });
-    expect(screen.getByRole('tab', { name: /^From/ })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tab', { name: /^To/ })).toHaveAttribute('aria-selected', 'false');
-    expect(screen.getByRole('listbox', { name: /^From/ })).toBeInTheDocument();
+
+    /* Both ends are typed in the head of the panel, under the filter's words,
+       and the panel has no Apply beside the filter's. */
+    fireEvent.click(frame);
+    const panel = await screen.findByRole('dialog', { name: /^Change range/ });
+    const [from] = within(panel).getAllByRole('group', { name: 'From' });
+    const start = within(from!).getAllByRole('spinbutton')[0] as HTMLElement;
+    expect(screen.getAllByRole('button', { name: 'Apply' })).toHaveLength(1);
 
     /* The start field's hour segment, stepped once: the picker writes the
        minute it is set to, and the descriptor receives `HH:MM` rather than a

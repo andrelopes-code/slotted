@@ -496,8 +496,14 @@ describe('the draft', () => {
     expect(written(fixture)).toEqual([at(18, 15, 20)]);
     expect(panel(fixture)).not.toBeNull();
 
+    const hour = fixture.nativeElement.querySelector(
+      '[data-part="time-value"] [role="spinbutton"]',
+    ) as HTMLElement;
+    key(fixture, hour, 'ArrowUp');
+    expect(written(fixture).at(-1)).toEqual(at(18, 16, 20));
+
     click(fixture, options(fixture, 'Minutes')[0]!);
-    expect(written(fixture).at(-1)).toEqual(at(18, 15));
+    expect(written(fixture).at(-1)).toEqual(at(18, 16));
     expect(panel(fixture)).toBeNull();
   });
 });

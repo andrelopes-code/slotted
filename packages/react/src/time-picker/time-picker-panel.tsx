@@ -65,7 +65,7 @@ export function TimePickerPanel({
         <TimeField
           {...field}
           aria-label={t('time')}
-          onValueChange={(next) => panel.setDraft(next)}
+          onValueChange={(next, request) => panel.type(next, request.source)}
           size="sm"
           value={panel.draft}
           variant="plain"

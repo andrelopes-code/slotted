@@ -1,6 +1,8 @@
 import type { ClockModel } from './clock';
-import { SECONDS_PER_DAY, secondsOfDay, timeOfSeconds } from './plain-time';
+import { plainTime, SECONDS_PER_DAY, secondsOfDay, timeOfSeconds } from './plain-time';
 import type { PlainTime } from './plain-time';
+import { createTimeFormat } from './time-format';
+import type { TimeFormat } from './time-format';
 
 const HOUR = 3600;
 
@@ -44,6 +46,16 @@ export function rulerKeyTarget(
 /** The accepted time at a share of the day, counted from where the day starts. */
 export function rulerTimeAt(share: number, model: ClockModel): PlainTime | null {
   return model.nearest(inDay(share * SECONDS_PER_DAY));
+}
+
+/** Every second hour as the scale writes it: "08:00", and "8 AM" where the day has halves. */
+export function rulerScale(format: TimeFormat): string[] {
+  const halves = format.hourCycle === 'h11' || format.hourCycle === 'h12';
+  const hours = halves
+    ? createTimeFormat({ granularity: 'hour', hourCycle: 12, locale: format.locale })
+    : format;
+
+  return Array.from({ length: 12 }, (_, index) => hours.format(plainTime(index * 2)));
 }
 
 /** Where a time stands on the day, as a percentage. */

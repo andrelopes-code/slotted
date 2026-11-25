@@ -210,7 +210,13 @@ export function useDateTimePanel(options: DateTimePanelOptions) {
     takeTime,
     timeMeta: options.timeZone ?? (moment === null ? '' : momentMeta(moment, now, locale, t)),
     times: dayTimes(draft.date, rules),
-    typeTime: (time: PlainTime | null) => setDraft({ ...draft, time }),
+    /* Typed in the head: without a draft to confirm, a whole moment is written as it is. */
+    typeTime: (time: PlainTime | null, source: unknown) => {
+      const next = { ...draft, time };
+      const whole = momentOf(next);
+      setDraft(next);
+      if (!confirm && whole !== null) onWrite(whole, 'select', source);
+    },
     view,
     write,
   };

@@ -381,7 +381,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'tsx',
       label: 'A time filter, and the rows it keeps',
       source:
-        "const [cutoff, setCutoff] = useState<TimeFilter | null>({\n  conditions: [{ end: '02:00', operator: 'between', value: '22:00' }],\n  join: 'and',\n  kind: 'time',\n});\nconst keep = useMemo(() => createFilterPredicate(cutoff), [cutoff]);\nconst rows = deliveries.filter((row) => keep(row.cutoff));\n\n<TableTimeFilter\n  columnLabel=\"cut-off\"\n  granularity=\"minute\"\n  onValueChange={setCutoff}\n  presets={<TimeRangePickerPreset value={MORNING_SHIFT}>Morning</TimeRangePickerPreset>}\n  value={cutoff}\n/>;",
+        "const [cutoff, setCutoff] = useState<TimeFilter | null>({\n  conditions: [{ end: '02:00', operator: 'between', value: '22:00' }],\n  join: 'and',\n  kind: 'time',\n});\nconst keep = useMemo(() => createFilterPredicate(cutoff), [cutoff]);\nconst rows = deliveries.filter((row) => keep(row.cutoff));\n\n<TableTimeFilter\n  columnLabel=\"cut-off\"\n  granularity=\"minute\"\n  onValueChange={setCutoff}\n  presets={[{ label: 'Morning', value: MORNING_SHIFT }]}\n  value={cutoff}\n/>;",
     }),
   },
   {

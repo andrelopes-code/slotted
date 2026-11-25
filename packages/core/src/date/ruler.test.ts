@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { clockModel } from './clock';
 import { plainTime, toISOTime } from './plain-time';
-import { rulerKeyTarget, rulerShare, rulerTimeAt } from './ruler';
+import { rulerKeyTarget, rulerScale, rulerShare, rulerTimeAt } from './ruler';
 
 const model = clockModel({ step: 900, min: plainTime(8), max: plainTime(18) });
 const NINE = plainTime(9);
+import { createTimeFormat } from './time-format';
 
 describe('a handle of the ruler', () => {
   const move = (key: string, rtl = false) => {
@@ -37,4 +38,15 @@ it('reads a share of the day, and says one', () => {
   expect(rulerTimeAt(0.5, model)).toEqual(plainTime(12));
   expect(rulerTimeAt(0, model)).toEqual(plainTime(8));
   expect(rulerShare(plainTime(6))).toBe(25);
+});
+
+describe('the scale', () => {
+  it('writes every second hour, and no minutes where the day has halves', () => {
+    const scale = (hourCycle: 12 | 24) =>
+      rulerScale(createTimeFormat({ hourCycle, locale: 'en-US' }));
+
+    expect(scale(24)).toHaveLength(12);
+    expect(scale(24).slice(0, 2)).toEqual(['00:00', '02:00']);
+    expect(scale(12).slice(5, 8)).toEqual(['10 AM', '12 PM', '02 PM']);
+  });
 });

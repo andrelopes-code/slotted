@@ -1056,10 +1056,10 @@ describe('the column filter', () => {
     await fixture.whenStable();
     expect(document.querySelector('[data-part="filter-panel"]')).not.toBeNull();
 
-    /* One end at a time: the surface opens on the start's field. */
-    const hour = document.querySelector(
-      '[data-part="field"][data-position="start"] [role="spinbutton"]',
-    ) as HTMLElement;
+    /* Both ends are typed in the head of the panel; the start is first. */
+    frame.click();
+    fixture.detectChanges();
+    const hour = document.querySelector('[data-part="half"] [role="spinbutton"]') as HTMLElement;
     hour.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'ArrowUp' }));
     fixture.detectChanges();
     panelButton('Apply').click();

@@ -1,7 +1,6 @@
 import { keyedProps } from '@slotted/core/selector-key';
 import '@slotted/styles/clock/clock.css';
 
-import { isSameTime } from '@slotted/core/date';
 import type { PlainTime } from '@slotted/core/date';
 import { clockMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
@@ -72,7 +71,8 @@ export function Clock({
     const state = createControllable<PlainTime | null>({
       controlled: value,
       initial: held,
-      equals: isSameTime,
+      /* A press on the time held is still an answer: the reader is done with it. */
+      equals: () => false,
       onRequest: (asked) => onValueChange?.(asked.value, Object.assign(asked, { unit })),
     });
     /* A press from a key carries no click count. */

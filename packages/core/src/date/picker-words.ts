@@ -60,6 +60,23 @@ export function shortMoment(
   }).format(new Date(utc(date).getTime() + secondsOfDay(time) * 1000));
 }
 
+/** A run of times as a shortcut writes it: "9:00 – 11:45 AM". */
+export function shortTimeRun(
+  start: PlainTime,
+  end: PlainTime,
+  locale: string,
+  { granularity = 'minute', hourCycle }: MomentShape = {},
+): string {
+  const format = dayFormat(locale, {
+    hour: hourCycle === 12 ? 'numeric' : '2-digit',
+    ...(granularity === 'hour' ? {} : { minute: '2-digit' }),
+    ...(granularity === 'second' ? { second: '2-digit' } : {}),
+    ...(hourCycle === undefined ? {} : { hourCycle: hourCycle === 24 ? 'h23' : 'h12' }),
+  });
+
+  return format.formatRange(secondsOfDay(start) * 1000, secondsOfDay(end) * 1000);
+}
+
 /** How far a month is from this one: "next month", "in 3 months". */
 export function monthMeta(date: PlainDate, today: PlainDate, locale: string): string {
   const months = (date.year - today.year) * 12 + (date.month - today.month);

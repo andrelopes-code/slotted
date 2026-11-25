@@ -426,6 +426,7 @@ export interface FilterBarEnvironment {
             @case ('time') {
               <div
                 slTimePicker
+                confirm="false"
                 [size]="size()"
                 [value]="time(operand(slot))"
                 [attr.aria-label]="operandLabel(slot)"
@@ -436,6 +437,7 @@ export interface FilterBarEnvironment {
             @case ('datetime') {
               <div
                 slDateTimePicker
+                confirm="false"
                 [size]="size()"
                 [value]="dateTime(operand(slot))"
                 [attr.aria-label]="operandLabel(slot)"

@@ -78,7 +78,7 @@ export function DateTimePickerPanel(props: DateTimePickerPanelProps) {
             <TimeField
               {...field}
               aria-label={t('time')}
-              onValueChange={panel.typeTime}
+              onValueChange={(next, request) => panel.typeTime(next, request.source)}
               size="sm"
               value={panel.draft.time}
               variant="plain"

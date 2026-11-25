@@ -23,7 +23,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { StatusIndicator } from '../status-indicator';
 import { Switch } from '../switch';
 import { TextField } from '../text-field';
-import { TimeRangePickerPreset } from '../time-range-picker';
 import { Pagination, PaginationItems, PaginationNext, PaginationPrevious } from '../pagination';
 import { ResultState, ResultStateContent, ResultStateTitle } from '../result-state';
 import { Tag } from '../tag';
@@ -908,14 +907,10 @@ function TimeFilterDemo() {
                   columnLabel="cut-off"
                   hourCycle={24}
                   onValueChange={setCutoff}
-                  presets={
-                    <>
-                      <TimeRangePickerPreset value={MORNING_SHIFT}>Morning</TimeRangePickerPreset>
-                      <TimeRangePickerPreset value={AFTERNOON_SHIFT}>
-                        Afternoon
-                      </TimeRangePickerPreset>
-                    </>
-                  }
+                  presets={[
+                    { label: 'Morning', value: MORNING_SHIFT },
+                    { label: 'Afternoon', value: AFTERNOON_SHIFT },
+                  ]}
                   value={cutoff}
                 />
               </TableColumnActions>

@@ -1,7 +1,7 @@
 import {
   createTimeFormat,
-  plainTime,
   rulerKeyTarget,
+  rulerScale,
   rulerShare,
   rulerTimeAt,
   SECONDS_PER_DAY,
@@ -23,8 +23,6 @@ interface PickerRulerProps {
   readonly start: PlainTime | null;
   readonly step: number;
 }
-
-const HOURS = Array.from({ length: 12 }, (_, index) => index * 2);
 
 /** The day as one axis: the run as a band with a handle on each end. */
 export function PickerRuler(props: PickerRulerProps) {
@@ -104,8 +102,8 @@ export function PickerRuler(props: PickerRulerProps) {
       </div>
 
       <div aria-hidden="true" data-part="ruler-scale" data-part-ruler-scale="">
-        {HOURS.map((hour) => (
-          <span key={hour}>{format.format(plainTime(hour))}</span>
+        {rulerScale(format).map((hour) => (
+          <span key={hour}>{hour}</span>
         ))}
       </div>
     </div>

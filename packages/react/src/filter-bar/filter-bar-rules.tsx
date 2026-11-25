@@ -211,6 +211,7 @@ export function Operand(
     case 'time':
       return (
         <TimePicker
+          confirm={false}
           aria-label={label}
           onKeyDown={applyOnEnter(apply)}
           onValueChange={(next) =>
@@ -223,6 +224,7 @@ export function Operand(
     case 'datetime':
       return (
         <DateTimePicker
+          confirm={false}
           aria-label={label}
           onKeyDown={applyOnEnter(apply)}
           onValueChange={(next) =>

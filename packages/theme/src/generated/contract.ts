@@ -4900,55 +4900,21 @@ export type ComponentToken =
   | '--slotted-time-range-picker-background'
   | '--slotted-time-range-picker-border-color'
   | '--slotted-time-range-picker-color'
-  | '--slotted-time-range-picker-content-border-color'
-  | '--slotted-time-range-picker-content-color'
-  | '--slotted-time-range-picker-content-min-inline-size'
-  | '--slotted-time-range-picker-content-padding'
-  | '--slotted-time-range-picker-content-radius'
-  | '--slotted-time-range-picker-content-shadow'
-  | '--slotted-time-range-picker-current-color'
-  | '--slotted-time-range-picker-current-size'
   | '--slotted-time-range-picker-disabled-background'
   | '--slotted-time-range-picker-disabled-border-color'
   | '--slotted-time-range-picker-disabled-color'
-  | '--slotted-time-range-picker-done-active-background'
-  | '--slotted-time-range-picker-done-background'
-  | '--slotted-time-range-picker-done-color'
-  | '--slotted-time-range-picker-done-hover-background'
-  | '--slotted-time-range-picker-hint-color'
   | '--slotted-time-range-picker-hover-border-color'
   | '--slotted-time-range-picker-invalid-border-color'
-  | '--slotted-time-range-picker-invalid-color'
   | '--slotted-time-range-picker-invalid-edge-width'
   | '--slotted-time-range-picker-invalid-focus-ring-color'
-  | '--slotted-time-range-picker-label-color'
-  | '--slotted-time-range-picker-length-color'
-  | '--slotted-time-range-picker-limit-color'
-  | '--slotted-time-range-picker-list-block-size'
-  | '--slotted-time-range-picker-now-color'
-  | '--slotted-time-range-picker-option-current-background'
-  | '--slotted-time-range-picker-option-hover-background'
-  | '--slotted-time-range-picker-option-radius'
-  | '--slotted-time-range-picker-option-selected-background'
-  | '--slotted-time-range-picker-option-selected-color'
-  | '--slotted-time-range-picker-option-selected-hover-background'
   | '--slotted-time-range-picker-placeholder-color'
   | '--slotted-time-range-picker-plain-hover-background'
-  | '--slotted-time-range-picker-preset-active-background'
-  | '--slotted-time-range-picker-preset-background'
-  | '--slotted-time-range-picker-preset-hover-background'
-  | '--slotted-time-range-picker-preset-radius'
-  | '--slotted-time-range-picker-preset-selected-background'
-  | '--slotted-time-range-picker-preset-selected-color'
   | '--slotted-time-range-picker-radius'
   | '--slotted-time-range-picker-readonly-background'
   | '--slotted-time-range-picker-shadow'
-  | '--slotted-time-range-picker-sheet-inline-size'
   | '--slotted-time-range-picker-subtle-background'
   | '--slotted-time-range-picker-subtle-border-color'
   | '--slotted-time-range-picker-subtle-hover-background'
-  | '--slotted-time-range-picker-surface'
-  | '--slotted-time-range-picker-tab-block-size'
   | '--slotted-timeline-color'
   | '--slotted-timeline-color-muted'
   | '--slotted-timeline-connector-color'
@@ -7252,55 +7218,21 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-time-range-picker-background",
   "--slotted-time-range-picker-border-color",
   "--slotted-time-range-picker-color",
-  "--slotted-time-range-picker-content-border-color",
-  "--slotted-time-range-picker-content-color",
-  "--slotted-time-range-picker-content-min-inline-size",
-  "--slotted-time-range-picker-content-padding",
-  "--slotted-time-range-picker-content-radius",
-  "--slotted-time-range-picker-content-shadow",
-  "--slotted-time-range-picker-current-color",
-  "--slotted-time-range-picker-current-size",
   "--slotted-time-range-picker-disabled-background",
   "--slotted-time-range-picker-disabled-border-color",
   "--slotted-time-range-picker-disabled-color",
-  "--slotted-time-range-picker-done-active-background",
-  "--slotted-time-range-picker-done-background",
-  "--slotted-time-range-picker-done-color",
-  "--slotted-time-range-picker-done-hover-background",
-  "--slotted-time-range-picker-hint-color",
   "--slotted-time-range-picker-hover-border-color",
   "--slotted-time-range-picker-invalid-border-color",
-  "--slotted-time-range-picker-invalid-color",
   "--slotted-time-range-picker-invalid-edge-width",
   "--slotted-time-range-picker-invalid-focus-ring-color",
-  "--slotted-time-range-picker-label-color",
-  "--slotted-time-range-picker-length-color",
-  "--slotted-time-range-picker-limit-color",
-  "--slotted-time-range-picker-list-block-size",
-  "--slotted-time-range-picker-now-color",
-  "--slotted-time-range-picker-option-current-background",
-  "--slotted-time-range-picker-option-hover-background",
-  "--slotted-time-range-picker-option-radius",
-  "--slotted-time-range-picker-option-selected-background",
-  "--slotted-time-range-picker-option-selected-color",
-  "--slotted-time-range-picker-option-selected-hover-background",
   "--slotted-time-range-picker-placeholder-color",
   "--slotted-time-range-picker-plain-hover-background",
-  "--slotted-time-range-picker-preset-active-background",
-  "--slotted-time-range-picker-preset-background",
-  "--slotted-time-range-picker-preset-hover-background",
-  "--slotted-time-range-picker-preset-radius",
-  "--slotted-time-range-picker-preset-selected-background",
-  "--slotted-time-range-picker-preset-selected-color",
   "--slotted-time-range-picker-radius",
   "--slotted-time-range-picker-readonly-background",
   "--slotted-time-range-picker-shadow",
-  "--slotted-time-range-picker-sheet-inline-size",
   "--slotted-time-range-picker-subtle-background",
   "--slotted-time-range-picker-subtle-border-color",
   "--slotted-time-range-picker-subtle-hover-background",
-  "--slotted-time-range-picker-surface",
-  "--slotted-time-range-picker-tab-block-size",
   "--slotted-timeline-color",
   "--slotted-timeline-color-muted",
   "--slotted-timeline-connector-color",

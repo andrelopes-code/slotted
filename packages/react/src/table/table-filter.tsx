@@ -567,6 +567,7 @@ export function TableDateFilter(props: TableDateFilterProps) {
              run's length while it is drawn, takes the ends in either order and
              carries the application's presets. The descriptor is unchanged. */
           <DateRangePicker
+            confirm={false}
             messages={{ end: t('filterTo'), start: t('filterFrom') }}
             onKeyDown={applyOnEnter(apply)}
             onValueChange={(next) => setOperands(iso(next?.start), iso(next?.end))}
@@ -650,6 +651,7 @@ export function TableTimeFilter(props: TableTimeFilterProps) {
              `applyOnEnter`: the frame is a button, and `Enter` on it opens
              the picker. */
           <TimeRangePicker
+            confirm={false}
             messages={{ start: t('filterFrom'), end: t('filterTo') }}
             onValueChange={(next) => setOperands(iso(next?.start), iso(next?.end))}
             size="sm"
@@ -659,6 +661,7 @@ export function TableTimeFilter(props: TableTimeFilterProps) {
           />
         ) : (
           <TimePicker
+            confirm={false}
             aria-label={t('filterValue')}
             onKeyDown={applyOnEnter(apply)}
             onValueChange={(next) => setOperand(0, iso(next))}
@@ -719,6 +722,7 @@ export function TableDateTimeFilter(props: TableDateTimeFilterProps) {
           />
         ) : (
           <DateTimePicker
+            confirm={false}
             aria-label={t('filterValue')}
             onKeyDown={applyOnEnter(apply)}
             onValueChange={(next) => setOperand(0, iso(next))}

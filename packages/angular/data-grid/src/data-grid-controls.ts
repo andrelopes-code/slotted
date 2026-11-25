@@ -157,6 +157,7 @@ function sameFilter(a: FilterDescriptor | null, b: FilterDescriptor | null) {
       @case ('time') {
         <div
           slTimePicker
+          confirm="false"
           size="sm"
           [variant]="variant()"
           [value]="timeValue()"
@@ -169,6 +170,7 @@ function sameFilter(a: FilterDescriptor | null, b: FilterDescriptor | null) {
       @case ('datetime') {
         <div
           slDateTimePicker
+          confirm="false"
           size="sm"
           [variant]="variant()"
           [value]="dateTimeValue()"
@@ -324,6 +326,7 @@ export function isRangeOperand(kind: FilterKind, operator: string) {
       @case ('time') {
         <div
           slTimeRangePicker
+          confirm="false"
           size="sm"
           [variant]="variant()"
           [locale]="locale()"
@@ -340,6 +343,7 @@ export function isRangeOperand(kind: FilterKind, operator: string) {
       @case ('datetime') {
         <div
           slDateTimeRangePicker
+          confirm="false"
           size="sm"
           [variant]="variant()"
           [locale]="locale()"
@@ -356,6 +360,7 @@ export function isRangeOperand(kind: FilterKind, operator: string) {
       @default {
         <div
           slDateRangePicker
+          confirm="false"
           size="sm"
           [variant]="variant()"
           [locale]="locale()"

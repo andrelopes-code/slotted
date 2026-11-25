@@ -138,6 +138,7 @@ function RangeOperand({
   if (kind === 'time') {
     return (
       <TimeRangePicker
+        confirm={false}
         {...shared}
         {...ends}
         onValueChange={(next) =>
@@ -167,6 +168,7 @@ function RangeOperand({
   }
   return (
     <DateRangePicker
+      confirm={false}
       {...shared}
       messages={{ end: t('filterTo'), start: t('filterFrom') }}
       onValueChange={(next) =>
@@ -233,6 +235,7 @@ function Operand<Row>({
     case 'time':
       return (
         <TimePicker
+          confirm={false}
           {...shared}
           onValueChange={(next) => onChange(isPlainTime(next) ? toISOTime(next, 'minute') : null)}
           value={timeOf(value)}
@@ -241,6 +244,7 @@ function Operand<Row>({
     case 'datetime':
       return (
         <DateTimePicker
+          confirm={false}
           {...shared}
           onValueChange={(next) => onChange(isPlainDateTime(next) ? toISODateTime(next) : null)}
           value={dateTimeOf(value)}

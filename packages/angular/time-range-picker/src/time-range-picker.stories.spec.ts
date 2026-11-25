@@ -6,7 +6,7 @@ import contract from '../../../../specs/components/time-range-picker/contract.js
 import { ANGULAR_TIME_RANGE_PICKER_DOCS } from './time-range-picker.docs';
 import * as timeRangePickerStories from './time-range-picker.stories';
 
-describe('Angular TimeRangePicker stories', () => {
+describe('Angular Time Range Picker stories', () => {
   it('covers every required scenario', () => {
     expect(
       scenarioCoverageErrors(contract.scenarios.timeRangePicker, timeRangePickerStories),

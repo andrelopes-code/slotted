@@ -105,6 +105,11 @@ export function useTimePanel(options: TimePanelOptions) {
     presets: (stated.length > 0 || offsets.length > 0 ? presets : []).map(presetOf),
     refused,
     setDraft,
+    /* Typed in the head: without a draft to confirm, it is written as it is. */
+    type: (next: PlainTime | null, source: unknown) => {
+      setDraft(next);
+      if (!confirm) onWrite(next, source);
+    },
     write,
   };
 }

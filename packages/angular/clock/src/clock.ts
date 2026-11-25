@@ -24,7 +24,6 @@ import {
   clockSlotGroups,
   clockUnitCells,
   createTimeFormat,
-  isSameTime,
   plainTime,
   timeList,
   timeOfSeconds,
@@ -313,7 +312,8 @@ export class SlClock implements OnInit {
     const state = createControllable<PlainTime | null>({
       controlled: this.value(),
       initial: this.held(),
-      equals: isSameTime,
+      /* A press on the time held is still an answer: the reader is done with it. */
+      equals: () => false,
       onRequest: (asked) => this.valueChange.emit(Object.assign(asked, { unit })),
     });
     /* A press from a key carries no click count. */

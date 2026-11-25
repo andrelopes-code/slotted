@@ -11,8 +11,8 @@ import {
 import { injectLocale, injectMessages } from '@slotted/angular/i18n';
 import {
   createTimeFormat,
-  plainTime,
   rulerKeyTarget,
+  rulerScale,
   rulerShare,
   rulerTimeAt,
   SECONDS_PER_DAY,
@@ -29,7 +29,6 @@ export interface PickerRulerMove {
 }
 
 const POSITIONS = ['start', 'end'] as const;
-const HOURS = Array.from({ length: 12 }, (_, index) => plainTime(index * 2));
 
 /** The day as one axis: the run as a band with a handle on each end. */
 @Component({
@@ -99,7 +98,7 @@ export class SlPickerRuler {
     createTimeFormat({ locale: this.locale() ?? this.appLocale(), hourCycle: this.hourCycle() }),
   );
 
-  protected readonly scale = computed(() => HOURS.map((hour) => this.format().format(hour)));
+  protected readonly scale = computed(() => rulerScale(this.format()));
 
   protected readonly band = computed(() => {
     const [start, end] = [this.start(), this.end()];

@@ -272,7 +272,7 @@ function optionalBoolean(value: boolean | string | undefined): boolean | undefin
                 [granularity]="resolvedGranularity()"
                 [readOnly]="!editable()"
                 [value]="draft().time"
-                (valueChange)="typeTime($event.value)"
+                (valueChange)="typeTime($event.value, $event.source)"
               ></div>
             </div>
 
@@ -756,15 +756,19 @@ export class SlDateTimePicker implements AfterViewInit, ControlValueAccessor, Va
   protected takeTime({ source, unit, value }: ClockChangeRequest): void {
     const finest = clockFinest(this.resolvedGranularity(), this.resolvedStep());
     const complete = unit === 'slot' || unit === finest;
-    this.typeTime(value);
+    this.draft.set({ ...this.draft(), time: value });
 
     const moment = this.moment();
     if (complete && moment === null && this.layer.narrow()) this.showing.set('day');
     if (complete && moment !== null && !this.resolvedConfirm()) this.write(moment, source);
   }
 
-  protected typeTime(time: PlainTime | null): void {
+  /** Typed in the head: without a draft to confirm, a whole moment is written as it is. */
+  protected typeTime(time: PlainTime | null, source: unknown): void {
     this.draft.set({ ...this.draft(), time });
+
+    const moment = this.moment();
+    if (!this.resolvedConfirm() && moment !== null) this.request(moment, 'select', source);
   }
 
   protected stepDay(direction: 1 | -1, source: Event): void {

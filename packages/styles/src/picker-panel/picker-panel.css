@@ -430,6 +430,15 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  /* Alone in the rail, the group is the rail: one length a row, down to the footer. */
+  [data-ui-picker-panel] [data-part-group]:only-child {
+    max-block-size: none;
+  }
+
+  [data-ui-picker-panel] [data-part-group]:only-child > [data-part-chips] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   [data-ui-picker-panel] :is([data-part-jump-month], [data-part-chip]) {
     font-size: var(--slotted-font-size-sm, 0.8125rem);
   }
@@ -947,6 +956,7 @@
     }
 
     [data-ui-picker-panel] [data-part-clocks] {
+      border-block-start: 0;
       grid-template-columns: minmax(0, 1fr);
     }
 

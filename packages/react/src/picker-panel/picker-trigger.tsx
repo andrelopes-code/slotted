@@ -1,17 +1,19 @@
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 
 import { Glyph, Icon } from '../icon';
 import type { PickerLayer } from './use-picker-layer';
 
 interface PickerTriggerProps {
+  /** The value in words, where the trigger is the whole frame. */
+  readonly children?: ReactNode;
   readonly disabled: boolean;
   readonly glyph: 'calendar' | 'clock';
   readonly label: string;
   readonly layer: PickerLayer;
 }
 
-/** The button that opens the panel, inside the field's end slot. */
-export function PickerTrigger({ disabled, glyph, label, layer }: PickerTriggerProps) {
+/** The button that opens the panel: in the field's end slot, or as the frame. */
+export function PickerTrigger({ children, disabled, glyph, label, layer }: PickerTriggerProps) {
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.defaultPrevented || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) return;
 
@@ -36,6 +38,7 @@ export function PickerTrigger({ disabled, glyph, label, layer }: PickerTriggerPr
       ref={layer.triggerRef}
       type="button"
     >
+      {children}
       <Icon>
         <Glyph name={glyph} />
       </Icon>

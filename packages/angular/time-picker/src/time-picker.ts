@@ -156,7 +156,7 @@ function optionalBoolean(value: boolean | string | undefined): boolean | undefin
               [isTimeUnavailable]="isTimeUnavailable()"
               [readOnly]="!editable()"
               [value]="draft()"
-              (valueChange)="draft.set($event.value)"
+              (valueChange)="type($event.value, $event.source)"
             ></div>
           </div>
 
@@ -500,6 +500,12 @@ export class SlTimePicker implements OnInit {
     const complete = request.unit === 'slot' || request.unit === finest;
     if (this.resolvedConfirm() || !complete) this.draft.set(request.value);
     else this.write(request.value, request.source);
+  }
+
+  /** Typed in the head: without a draft to confirm, it is written as it is. */
+  protected type(next: PlainTime | null, source: unknown): void {
+    this.draft.set(next);
+    if (!this.resolvedConfirm()) this.state.request(next, 'select', source);
   }
 
   protected apply(source: Event): void {

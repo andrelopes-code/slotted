@@ -9,6 +9,7 @@ import {
   shortDay,
   shortMoment,
   shortRun,
+  shortTimeRun,
   stepLabel,
   timeMeta,
 } from './picker-words';
@@ -51,6 +52,16 @@ describe('the words of a panel', () => {
     expect(shortMoment(moment, 'en-US')).toBe('Nov 30, 2:30 PM');
     expect(shortMoment(moment, 'en-US', { hourCycle: 24 })).toBe('Nov 30, 14:30');
     expect(shortMoment(moment, 'en-US', { granularity: 'hour', hourCycle: 24 })).toBe('Nov 30, 14');
+  });
+
+  it('write a run of times, the half of the day they share written once', () => {
+    const write = (...parts: Parameters<typeof shortTimeRun>) =>
+      shortTimeRun(...parts).replaceAll(/\s/g, ' ');
+
+    expect(write(plainTime(9), plainTime(11, 45), 'en-US', { hourCycle: 12 })).toBe(
+      '9:00 – 11:45 AM',
+    );
+    expect(write(plainTime(9), plainTime(13), 'pt-BR')).toBe('09:00 – 13:00');
   });
 
   it('write a day, a run of days and a month', () => {

@@ -229,6 +229,14 @@ describe('without a confirmation', () => {
     expect(onOpenChange).not.toHaveBeenCalled();
   });
 
+  it('writes a time typed in the panel', () => {
+    const { onValueChange } = draw({ confirm: false, defaultOpen: true, defaultValue: VALUE });
+    const [hour] = within(part('time-value')).getAllByRole('spinbutton');
+
+    fireEvent.keyDown(hour!, { key: 'ArrowUp' });
+    expect(onValueChange).toHaveBeenCalledWith(at(17, 15, 30), expect.anything());
+  });
+
   it('writes a shortcut', () => {
     const { onValueChange } = draw({
       confirm: false,

@@ -85,7 +85,8 @@ import { SlSelect, SlSelectItem } from '@slotted/angular/select';
 import { SlTagsInput } from '@slotted/angular/tags-input';
 import { SlTextField, SlTextFieldInput } from '@slotted/angular/text-field';
 import { SlTimePicker } from '@slotted/angular/time-picker';
-import { SlTimeRangePicker, SlTimeRangePickerPresets } from '@slotted/angular/time-range-picker';
+import { SlTimeRangePicker } from '@slotted/angular/time-range-picker';
+import type { TimeRange } from '@slotted/angular/time-range-picker';
 
 import { SlTable } from './table';
 import { SlTableColumnHeader } from './table-parts';
@@ -650,6 +651,7 @@ export class SlTableNumberFilter extends SlTableFilterBase {
       @if (context.slots.length === 2) {
         <div
           slDateRangePicker
+          confirm="false"
           size="sm"
           [locale]="locale()"
           [messages]="{ start: context.label(0), end: context.label(1) }"
@@ -746,18 +748,13 @@ function dateTimeOf(text: unknown): PlainDateTime | null {
 @Component({
   selector: 'span[slTableTimeFilter]',
   exportAs: 'slTableTimeFilter',
-  imports: [
-    NgTemplateOutlet,
-    SlTableFilterShell,
-    SlTimePicker,
-    SlTimeRangePicker,
-    SlTimeRangePickerPresets,
-  ],
+  imports: [SlTableFilterShell, SlTimePicker, SlTimeRangePicker],
   template: `<span [slTableFilterShell]="this" [operand]="operand"></span>
     <ng-template #operand let-context>
       @if (context.slots.length === 2) {
         <div
           slTimeRangePicker
+          confirm="false"
           size="sm"
           [locale]="locale()"
           [hourCycle]="hourCycle()"
@@ -767,18 +764,14 @@ function dateTimeOf(text: unknown): PlainDateTime | null {
           [min]="timeOf(min())"
           [max]="timeOf(max())"
           [messages]="{ start: context.label(0), end: context.label(1) }"
+          [presets]="presets()"
           [value]="range(context.condition)"
           (valueChange)="context.setBoth(iso($event.value?.start), iso($event.value?.end))"
-        >
-          @if (presets(); as presetsTemplate) {
-            <div slTimeRangePickerPresets>
-              <ng-container [ngTemplateOutlet]="presetsTemplate" />
-            </div>
-          }
-        </div>
+        ></div>
       } @else {
         <div
           slTimePicker
+          confirm="false"
           size="sm"
           [locale]="locale()"
           [hourCycle]="hourCycle()"
@@ -818,11 +811,11 @@ export class SlTableTimeFilter extends SlTableFilterBase {
   /** The latest, as ISO time text. */
   readonly max = input<string | undefined>(undefined);
   /**
-   * The application's own windows — the morning shift, the night shift — as
-   * `slTimeRangePickerPreset` buttons in a template, offered inside the range
-   * picker `between` draws. The descriptor still receives two ISO times.
+   * The application's own windows — the morning shift, the night shift —
+   * offered inside the range picker `between` draws. The descriptor still
+   * receives two ISO times.
    */
-  readonly presets = input<TemplateRef<unknown> | undefined>(undefined);
+  readonly presets = input<readonly PickerPreset<TimeRange>[]>([]);
 
   protected override rangeOperand() {
     return true;
@@ -876,6 +869,7 @@ export class SlTableTimeFilter extends SlTableFilterBase {
       @if (context.slots.length === 2) {
         <div
           slDateTimeRangePicker
+          confirm="false"
           size="sm"
           [locale]="locale()"
           [timeZone]="timeZone()"
@@ -897,6 +891,7 @@ export class SlTableTimeFilter extends SlTableFilterBase {
       } @else {
         <div
           slDateTimePicker
+          confirm="false"
           size="sm"
           [locale]="locale()"
           [timeZone]="timeZone()"

@@ -384,7 +384,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'angular',
       label: 'A time filter, and the rows it keeps',
       source:
-        '<ng-template #shifts>\n  <button slTimeRangePickerPreset [range]="morning">Morning</button>\n</ng-template>\n<span\n  slTableTimeFilter\n  columnLabel="cut-off"\n  granularity="minute"\n  [presets]="shifts"\n  [(value)]="cutoff"\n></span>',
+        '<span\n  slTableTimeFilter\n  columnLabel="cut-off"\n  granularity="minute"\n  [presets]="shifts"\n  [(value)]="cutoff"\n></span>',
     }),
   },
   {
