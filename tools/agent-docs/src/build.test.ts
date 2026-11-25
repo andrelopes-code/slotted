@@ -13,7 +13,8 @@ import { THEME_SCOPE } from './skills.ts';
 const root = resolve(import.meta.dirname, '../../..');
 const contracts = readdirSync(join(root, 'specs/components'), { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
-  .map((entry) => entry.name);
+  .map((entry) => entry.name)
+  .filter((family) => !isInternal(family));
 
 describe('loadFamilies', () => {
   it('loads one input per contract, with the reference docs of the binding', async () => {
@@ -218,3 +219,10 @@ describe('the reference docs of every family', () => {
     },
   );
 });
+
+/** A shell other families are built on has a contract and no reference. */
+function isInternal(family: string): boolean {
+  const path = join(root, 'specs/components', family, 'contract.json');
+
+  return (JSON.parse(readFileSync(path, 'utf8')) as { public?: boolean }).public === false;
+}

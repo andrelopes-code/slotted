@@ -25,6 +25,8 @@ export interface ContractInput {
   family: string;
   ui: string;
   catalog: { group: string; summary: string };
+  /** `false` for a shell other families are built on, which no product reaches by itself. */
+  public?: boolean;
   /** Mostly string values; a boolean axis (`modal`, `sticky`) lists `true` and `false`. */
   axes?: Readonly<Record<string, readonly (string | number | boolean)[]>>;
   members: Readonly<Record<string, ContractMemberInput>>;

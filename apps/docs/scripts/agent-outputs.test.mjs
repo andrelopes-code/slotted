@@ -12,11 +12,14 @@ const packageDocs = {
   react: new URL('../../../packages/react/dist/docs/', import.meta.url).pathname,
   angular: new URL('../../../packages/angular/dist/docs/', import.meta.url).pathname,
 };
-const families = readdirSync(new URL('../../../specs/components/', import.meta.url), {
-  withFileTypes: true,
-})
+const specs = new URL('../../../specs/components/', import.meta.url);
+const families = readdirSync(specs, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
-  .map((entry) => entry.name);
+  .map((entry) => entry.name)
+  .filter(
+    (family) =>
+      JSON.parse(readFileSync(new URL(`${family}/contract.json`, specs), 'utf8')).public !== false,
+  );
 
 test('every family has a Markdown and a JSON route per binding', () => {
   for (const binding of ['react', 'angular']) {

@@ -19,14 +19,20 @@ const lastYear = (period: DateRange): DateRange | null =>
     ? null
     : { start: stepYear(period.start, -1).date, end: stepYear(period.end, -1).date };
 
+/** The two baselines of a period, as shortcuts. */
+const shortcutsOf = (period: DateRange | null): PickerPreset<DateRange>[] => {
+  const previous = period && previousPeriod(period);
+  const sameLastYear = period && lastYear(period);
+
+  return [
+    ...(previous ? [{ label: 'Previous period', value: previous }] : []),
+    ...(sameLastYear ? [{ label: 'Same period last year', value: sameLastYear }] : []),
+  ];
+};
+
 export default function DateRangePickerComparePeriods() {
   const [period, setPeriod] = useState<DateRange | null>(SEPTEMBER);
   const [baseline, setBaseline] = useState<DateRange | null>(previousPeriod(SEPTEMBER));
-
-  const shortcuts = [
-    { label: 'Previous period', value: period === null ? null : previousPeriod(period) },
-    { label: 'Same period last year', value: period === null ? null : lastYear(period) },
-  ].filter((shortcut): shortcut is PickerPreset<DateRange> => shortcut.value !== null);
 
   return (
     <Stack gap={5}>
@@ -38,7 +44,7 @@ export default function DateRangePickerComparePeriods() {
         <FieldLabel>Compare to</FieldLabel>
         <DateRangePicker
           onValueChange={(value) => setBaseline(value)}
-          presets={shortcuts}
+          presets={shortcutsOf(period)}
           value={baseline}
         />
         <FieldDescription>Shortcuts follow the period above.</FieldDescription>

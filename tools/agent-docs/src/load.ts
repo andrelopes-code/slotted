@@ -102,14 +102,17 @@ export async function loadFamilies(
     .map((entry) => entry.name)
     .sort();
 
-  return families.map((family) => {
+  return families.flatMap((family) => {
+    const contract = readJson<ContractInput>(join(specs, family, 'contract.json'));
+    if (contract.public === false) return [];
+
     const docs = docsByFamily.get(family);
     if (docs === undefined)
       throw new Error(`${family} has a contract and no ${binding} reference module`);
     const tokensPath = join(root, 'packages/styles/src', family, `${family}.tokens.json`);
     return {
       binding,
-      contract: readJson<ContractInput>(join(specs, family, 'contract.json')),
+      contract,
       docs,
       tokens: existsSync(tokensPath) ? readJson<string[]>(tokensPath) : [],
       examples: siteExamples(root, binding, family),

@@ -18,6 +18,17 @@ const lastYear = (period: DateRange): DateRange | null =>
     ? null
     : { start: stepYear(period.start, -1).date, end: stepYear(period.end, -1).date };
 
+/** The two baselines of a period, as shortcuts. */
+const shortcutsOf = (period: DateRange | null): PickerPreset<DateRange>[] => {
+  const previous = period && previousPeriod(period);
+  const sameLastYear = period && lastYear(period);
+
+  return [
+    ...(previous ? [{ label: 'Previous period', value: previous }] : []),
+    ...(sameLastYear ? [{ label: 'Same period last year', value: sameLastYear }] : []),
+  ];
+};
+
 @Component({
   selector: 'app-date-range-picker-compare-periods',
   imports: [SlDateRangePicker, SlField, SlFieldDescription, SlFieldLabel, SlStack],
@@ -43,12 +54,5 @@ const lastYear = (period: DateRange): DateRange | null =>
 export class DateRangePickerComparePeriods {
   protected readonly period = signal<DateRange | null>(SEPTEMBER);
   protected readonly baseline = signal<DateRange | null>(previousPeriod(SEPTEMBER));
-  protected readonly shortcuts = computed(() => {
-    const period = this.period();
-
-    return [
-      { label: 'Previous period', value: period === null ? null : previousPeriod(period) },
-      { label: 'Same period last year', value: period === null ? null : lastYear(period) },
-    ].filter((shortcut): shortcut is PickerPreset<DateRange> => shortcut.value !== null);
-  });
+  protected readonly shortcuts = computed(() => shortcutsOf(this.period()));
 }

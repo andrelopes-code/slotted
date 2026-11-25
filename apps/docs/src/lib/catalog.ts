@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 /**
- * Build-time only: every family with a contract under `specs/components/`.
+ * Build-time only: every public family with a contract under `specs/components/`.
  * Resolved from the working directory, because a bundled server chunk no
  * longer sits where its source file did.
  */
@@ -12,6 +12,7 @@ export function specifiedFamilies(): string[] {
   return readdirSync(specsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
+    .filter((family) => readContract(family).public !== false)
     .sort();
 }
 
@@ -27,10 +28,17 @@ export interface FamilyCatalog {
 
 /** The shelf and the one-sentence summary a family's contract declares. */
 export function familyCatalog(family: string): FamilyCatalog {
-  const contract = JSON.parse(
+  return readContract(family).catalog;
+}
+
+interface FamilyContract {
+  catalog: FamilyCatalog;
+  /** `false` for a shell other families are built on. */
+  public?: boolean;
+}
+
+function readContract(family: string): FamilyContract {
+  return JSON.parse(
     readFileSync(resolve(specsRoot, family, 'contract.json'), 'utf8'),
-  ) as {
-    catalog: FamilyCatalog;
-  };
-  return contract.catalog;
+  ) as FamilyContract;
 }
