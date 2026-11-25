@@ -344,7 +344,7 @@ export const REACT_SECTION_DOCS = {
         "'label' | 'title'",
         'label',
         'Section, SectionDefaultsProvider',
-        'label draws a top-level heading in small capitals; title draws it in mixed case at --slotted-section-title-size-{sm,md,lg}, for a section whose body opens with text heavier than a label. A nested section keeps the subsection form',
+        'label draws a top-level heading in small capitals; title draws it in mixed case at --slotted-section-title-size-{sm,md,lg}, for a section whose body opens with text heavier than a label. A nested section keeps the subsection form unless it states title itself; a title from the defaults provider does not reach it',
       ],
       [
         'sticky',

@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableContent, TableRow } from '../table';
 import { Tag } from '../tag';
 import { Text } from '../typography';
 import { Section } from './section';
+import { SectionDefaultsProvider } from './section-defaults';
 import {
   SectionActions,
   SectionBleed,
@@ -409,5 +410,70 @@ describe('an inline icon button in the tags', () => {
 
     expect(button.getBoundingClientRect().left - tag.right).toBeCloseTo(quarter, 0);
     expect(tag.left - heading.right).toBeGreaterThan(4);
+  });
+});
+
+/**
+ * A heading in the muted token shares the description's color, so a nested
+ * panel with both states `heading="title"` to tell them apart.
+ */
+describe('the heading of a nested section', () => {
+  const TITLE = 'rgb(1, 2, 3)';
+  const MUTED = 'rgb(4, 5, 6)';
+
+  function nested(props: Partial<SectionProps>, defaults: Partial<SectionProps> = {}) {
+    const { container } = render(
+      <div
+        style={
+          {
+            '--slotted-section-subheading-size-lg': '15px',
+            '--slotted-section-title-size-lg': '23px',
+            '--slotted-text': TITLE,
+            '--slotted-text-muted': MUTED,
+          } as CSSProperties
+        }
+      >
+        <SectionDefaultsProvider heading={defaults.heading}>
+          <Section size="lg">
+            <SectionBody>
+              <Section ground="surface" size="lg" {...props}>
+                <SectionHeader>
+                  <SectionTitle>
+                    <SectionHeading data-testid="heading">Inner panel</SectionHeading>
+                    <SectionDescription data-testid="description">
+                      What it holds.
+                    </SectionDescription>
+                  </SectionTitle>
+                </SectionHeader>
+              </Section>
+            </SectionBody>
+          </Section>
+        </SectionDefaultsProvider>
+      </div>,
+    );
+    const style = (id: string) =>
+      getComputedStyle(container.querySelector(`[data-testid="${id}"]`)!);
+
+    return { description: style('description'), heading: style('heading') };
+  }
+
+  it('is a title when the section says so', () => {
+    const { description, heading } = nested({ heading: 'title' });
+
+    expect(heading.color).toBe(TITLE);
+    expect(heading.fontSize).toBe('23px');
+    expect(description.color).toBe(MUTED);
+  });
+
+  it.each([
+    ['states no heading', {}, {}],
+    ['inherits the title from the provider', {}, { heading: 'title' as const }],
+    ['states a label', { heading: 'label' as const }, {}],
+  ])('keeps the subsection form when the section %s', (_name, props, defaults) => {
+    const { heading } = nested(props, defaults);
+
+    expect(heading.color).toBe(MUTED);
+    expect(heading.fontSize).toBe('15px');
+    expect(heading.textTransform).toBe('none');
   });
 });

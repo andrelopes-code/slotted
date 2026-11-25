@@ -247,6 +247,7 @@ describe('SlSection defaults', () => {
     imports: [SlSection, SlSectionBody],
     providers: [provideSectionDefaults({ heading: 'title' })],
     template: `<section slSection id="provided"><div slSectionBody>x</div></section>
+      <section slSection id="title" heading="title"><div slSectionBody>x</div></section>
       <section slSection id="stated" heading="label"><div slSectionBody>x</div></section>`,
   })
   class Titled {}
@@ -254,11 +255,15 @@ describe('SlSection defaults', () => {
   it('writes the form of its heading, from the input, then the provider', () => {
     const fixture = TestBed.createComponent(Titled);
     fixture.detectChanges();
-    const form = (id: string) =>
-      (fixture.nativeElement as HTMLElement).querySelector(`#${id}`)?.getAttribute('data-heading');
+    const section = (id: string) => (fixture.nativeElement as HTMLElement).querySelector(`#${id}`);
+    const form = (id: string) => section(id)?.getAttribute('data-heading');
 
     expect(form('provided')).toBe('title');
     expect(form('stated')).toBe('label');
+    /* A nested section keeps the subsection's form unless the title is its own. */
+    expect(section('provided')?.hasAttribute('data-heading-stated')).toBe(false);
+    expect(section('stated')?.hasAttribute('data-heading-stated')).toBe(false);
+    expect(section('title')?.hasAttribute('data-heading-stated')).toBe(true);
   });
 
   it('takes its defaults from the provider, and its own inputs over them', () => {

@@ -71,6 +71,7 @@ export const HEADER_SIZE_PROPERTY = '--slotted-section-header-size';
     '[attr.data-level]': 'resolvedLevel()',
     '[attr.data-ground]': 'resolvedGround()',
     '[attr.data-heading]': 'resolvedHeading()',
+    '[attr.data-heading-stated]': 'heading() === "title" ? "" : null',
     '[attr.data-divider]': "resolvedDivider() ? '' : null",
     '[attr.data-sticky]': "resolvedSticky() ? '' : null",
   },
@@ -80,7 +81,7 @@ export class SlSection {
   /** Defaults to `auto`: the rank the outline gives. */
   readonly level = input<SectionLevel | undefined>(undefined);
   readonly ground = input<SectionGround | undefined>(undefined);
-  /** The form of a top-level heading. Defaults to the provider, then `label`. */
+  /** The form of the heading. Defaults to the provider, then `label`. */
   readonly heading = input<SectionHeadingForm | undefined>(undefined);
   readonly divider = input<boolean | undefined, boolean | string | undefined>(undefined, {
     transform: (state) => (state === undefined ? undefined : booleanAttribute(state)),

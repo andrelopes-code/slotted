@@ -243,8 +243,10 @@
 
   /**
    * `heading="title"`: the heading in mixed case at a larger step, for a
-   * section whose body opens with text heavier than a label. It stands above
-   * the subsection's rule, so a nested section keeps the subsection's form.
+   * section whose body opens with text heavier than a label. A nested section
+   * keeps the subsection's form unless it states the title itself, which
+   * `data-heading-stated` says: a title inherited from a provider is about
+   * the top level, and a panel with a description asks for its own.
    */
   [data-ui-section][data-heading='title'] > [data-part-header] > [data-part-title] {
     --_text-size: var(--_title-size);
@@ -264,13 +266,16 @@
    * read without the color. The text stays the muted token, which the theme
    * holds above 4.5:1 on every ground a section stands on.
    */
-  [data-ui-section] [data-ui-section] > [data-part-header] > [data-part-title] {
+  [data-ui-section]
+    [data-ui-section]:not([data-heading-stated])
+    > [data-part-header]
+    > [data-part-title] {
     --_text-size: var(--_subheading-size);
     --_text-line-height: var(--_subheading-line-height);
   }
 
   [data-ui-section]
-    [data-ui-section]
+    [data-ui-section]:not([data-heading-stated])
     > [data-part-header]
     > [data-part-title]
     > [data-part-heading] {

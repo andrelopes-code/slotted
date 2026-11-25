@@ -153,13 +153,11 @@ test('sets the heading as a tracked label in small capitals, sized by size', () 
  * tone — never in tone alone.
  */
 test('sets a nested section heading in mixed case and the muted tone', () => {
-  const nested = rule(`${ui} ${ui}>[data-part-header]>[data-part-title]>[data-part-heading]`);
+  const subsection = `${ui} ${ui}:not([data-heading-stated])>[data-part-header]>[data-part-title]`;
+  const nested = rule(`${subsection}>[data-part-heading]`);
   assert.match(nested, /text-transform:none/);
   assert.match(nested, /color:var\(--_muted\)/);
-  assert.match(
-    rule(`${ui} ${ui}>[data-part-header]>[data-part-title]`),
-    /--_text-size:var\(--_subheading-size\)/,
-  );
+  assert.match(rule(subsection), /--_text-size:var\(--_subheading-size\)/);
   assert.match(rule(ui), /--slotted-section-subheading-size-md,var\(--slotted-font-size-md/);
   assert.match(
     rule(`${ui}[data-size='sm']`),

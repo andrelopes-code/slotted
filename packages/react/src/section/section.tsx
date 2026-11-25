@@ -134,6 +134,7 @@ export function Section({
     ...(resolvedDivider ? { 'data-divider': '' } : {}),
     'data-ground': resolvedGround,
     'data-heading': resolvedHeading,
+    ...(heading === 'title' ? { 'data-heading-stated': '' } : {}),
     'data-level': String(resolvedLevel),
     'data-part': 'root',
     'data-size': resolvedSize,

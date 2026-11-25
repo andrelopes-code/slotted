@@ -16,7 +16,8 @@ export type SectionGround = 'none' | 'surface';
 
 /**
  * The form of a top-level heading: `label` is small capitals, `title` is mixed
- * case at a larger step. A nested section keeps the subsection's form.
+ * case at a larger step. A nested section keeps the subsection's form unless
+ * it states `title` itself.
  */
 export type SectionHeadingForm = 'label' | 'title';
 
@@ -51,6 +52,7 @@ export interface SectionRootProps extends HTMLAttributes<HTMLElement> {
   'data-divider'?: '' | undefined;
   'data-ground': SectionGround;
   'data-heading': SectionHeadingForm;
+  'data-heading-stated'?: '' | undefined;
   'data-level': string;
   'data-part': string;
   'data-size': SectionSize;
@@ -77,7 +79,7 @@ export interface SectionProps extends ComponentPropsWithRef<'section'> {
   divider?: boolean | undefined;
   /** Defaults to the provider, then `none`. */
   ground?: SectionGround | undefined;
-  /** Defaults to the provider, then `label`. The form of a top-level heading. */
+  /** Defaults to the provider, then `label`. The form of the heading. */
   heading?: SectionHeadingForm | undefined;
   /** Defaults to `auto`: the rank the outline gives. */
   level?: SectionLevel | undefined;

@@ -11,7 +11,8 @@ export type SectionGround = 'none' | 'surface';
 
 /**
  * The form of a top-level heading: `label` is small capitals, `title` is mixed
- * case at a larger step. A nested section keeps the subsection's form.
+ * case at a larger step. A nested section keeps the subsection's form unless
+ * it states `title` itself.
  */
 export type SectionHeadingForm = 'label' | 'title';
 
