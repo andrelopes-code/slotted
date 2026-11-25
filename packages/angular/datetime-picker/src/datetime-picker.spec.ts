@@ -437,7 +437,7 @@ describe('the draft', () => {
   });
 
   it('is abandoned when the panel closes, and emptied by Clear', () => {
-    const fixture = renderTemplate(picker('defaultOpen [defaultValue]="tenth"'));
+    const fixture = renderTemplate(picker('clearable defaultOpen [defaultValue]="tenth"'));
 
     click(fixture, dayCell(fixture, 18));
     document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));

@@ -580,7 +580,7 @@ describe('the draft', () => {
   });
 
   it('is emptied by Clear, and Apply writes the empty value', () => {
-    const fixture = renderTemplate(picker('defaultOpen [defaultValue]="run"'));
+    const fixture = renderTemplate(picker('clearable defaultOpen [defaultValue]="run"'));
 
     click(fixture, fixture.nativeElement.querySelector('[data-part="footer"] [data-part="clear"]'));
     click(fixture, part(fixture, 'apply'));

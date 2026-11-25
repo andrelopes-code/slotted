@@ -135,7 +135,7 @@ describe('the draft', () => {
   });
 
   it('is emptied by Clear, and Apply writes the empty value', () => {
-    const fixture = render(picker('defaultOpen [defaultValue]="halfPastTwo"'));
+    const fixture = render(picker('clearable defaultOpen [defaultValue]="halfPastTwo"'));
 
     press(fixture, action(fixture, 'clear'));
     expect(written(fixture)).toEqual([]);
@@ -359,5 +359,5 @@ function written(fixture: Fixture) {
 const trigger = (fixture: Fixture) => query(fixture, '[data-part="trigger"]') as HTMLButtonElement;
 const dialog = (fixture: Fixture) => query(fixture, '[role="dialog"]');
 const action = (fixture: Fixture, part: 'apply' | 'clear') =>
-  query(fixture, `[data-part="${part}"]`) as HTMLButtonElement;
+  query(fixture, `[data-part="footer"] [data-part="${part}"]`) as HTMLButtonElement;
 const selected = (fixture: Fixture) => texts(queryAll(fixture, '[aria-selected="true"]'));
