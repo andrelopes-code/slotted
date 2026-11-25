@@ -15,7 +15,6 @@ import { compareDateTime, dayWindow } from './plain-date-time';
 import type { DayWindowOptions, PlainDateTime } from './plain-date-time';
 import { compareTime, secondsOfDay } from './plain-time';
 import type { PlainTime, TimeGranularity } from './plain-time';
-import { nearestIndex } from './time-list';
 import type { TimeOption } from './time-list';
 
 /** A run of times, either end of which may still be open while it is drawn. */
@@ -133,40 +132,6 @@ export function firstUnavailableIndex(
     if (list[index]?.unavailable === true) return index;
   }
   return -1;
-}
-
-/**
- * Where a list opens: on the wanted time when that row is offered, else on the
- * offered row nearest to it — the end list of a run that started at 14:00 opens
- * at 14:00 rather than at midnight, whatever the clock says. A proposal of no
- * length is none: when that row is the other end itself and the next row away
- * from it is offered, the list opens there. `-1` for an empty list; the first
- * row when nothing is offered, so the keyboard still has somewhere to land.
- */
-export function openingIndex(
-  list: readonly TimeOption[],
-  wanted: PlainTime,
-  otherEnd: PlainTime | null,
-  position: 'start' | 'end',
-): number {
-  if (list.length === 0) return -1;
-  const near = nearestIndex(list, wanted);
-  let index = near;
-  if (list[index]?.unavailable === true) {
-    index = -1;
-    list.forEach((option, candidate) => {
-      if (option.unavailable === true) return;
-      if (index < 0 || Math.abs(candidate - near) < Math.abs(index - near)) index = candidate;
-    });
-  }
-  if (index < 0) return 0;
-  const option = list[index];
-  if (otherEnd !== null && option !== undefined && compareTime(option.time, otherEnd) === 0) {
-    const next = list[index + (position === 'end' ? 1 : -1)];
-    if (next !== undefined && next.unavailable !== true)
-      return index + (position === 'end' ? 1 : -1);
-  }
-  return index;
 }
 
 function lengthProblem(seconds: number, rules: RunLengthRules): boolean {

@@ -70,7 +70,6 @@ export {
   dateTimeRangeSeconds,
   durationLabel,
   firstUnavailableIndex,
-  openingIndex,
   runRefusal,
   timeRangeProblems,
   timeRangeSeconds,
@@ -144,15 +143,8 @@ export type {
   DateTimeHalf,
   DateTimePatternPart,
 } from './datetime-format';
-export {
-  groupByHour,
-  hourJump,
-  isTruncated,
-  MAX_OPTIONS,
-  nearestIndex,
-  timeList,
-} from './time-list';
-export type { TimeGroup, TimeListOptions, TimeOption } from './time-list';
+export { MAX_OPTIONS, nearestIndex, timeList } from './time-list';
+export type { TimeListOptions, TimeOption } from './time-list';
 export {
   boundSegment,
   clearSegment,

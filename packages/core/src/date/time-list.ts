@@ -39,12 +39,6 @@ export interface TimeListOptions {
   readonly maxOptions?: number | undefined;
 }
 
-/** One hour's worth of the list, and the hour it holds. */
-export interface TimeGroup {
-  readonly hour: number;
-  readonly options: readonly TimeOption[];
-}
-
 /**
  * How long a list may get.
  *
@@ -92,18 +86,6 @@ export function timeList(options: TimeListOptions): TimeOption[] {
   return list;
 }
 
-/** Whether a list stops short of the times its own configuration asked for. */
-export function isTruncated(options: TimeListOptions): boolean {
-  const cap = Math.max(0, Math.trunc(options.maxOptions ?? MAX_OPTIONS));
-  if (options.options !== undefined) return options.options.length > cap;
-
-  const step = Math.trunc(options.step);
-  if (step < 1) return false;
-  const from = options.min === undefined ? 0 : secondsOfDay(options.min);
-  const to = options.max === undefined ? SECONDS_PER_DAY - 1 : secondsOfDay(options.max);
-  return to >= from && Math.floor((to - from) / step) + 1 > cap;
-}
-
 /**
  * Which option a time is closest to, so the panel opens where the reader
  * already is. `-1` when there is nothing to open onto.
@@ -122,54 +104,4 @@ export function nearestIndex(list: readonly TimeOption[], time: PlainTime): numb
     }
   });
   return best;
-}
-
-/**
- * The list cut into hours, in order.
- *
- * Not a shape the panel draws — an hour heading was drawn and withdrawn,
- * because the hour is already on every row. This is what `PageUp` and
- * `PageDown` move by: the coarse axis a reader navigates by, spending a key
- * rather than a row of the list on it.
- */
-export function groupByHour(list: readonly TimeOption[]): TimeGroup[] {
-  const groups: TimeGroup[] = [];
-  for (const option of list) {
-    const last = groups[groups.length - 1];
-    if (last !== undefined && last.hour === option.time.hour) {
-      (last.options as TimeOption[]).push(option);
-      continue;
-    }
-    groups.push({ hour: option.time.hour, options: [option] });
-  }
-  return groups;
-}
-
-/**
- * Where `PageUp` and `PageDown` land: the next hour boundary in that direction.
- *
- * Going back from the middle of an hour lands on the top of that hour, and
- * only a second press leaves it — which is how a reader reads the key ("back
- * to the start of nine"), and what makes the two directions symmetrical: each
- * press crosses exactly one boundary. Clamped at both ends, so a page at the
- * top of the list stays at the top rather than wrapping into another day.
- */
-export function hourJump(list: readonly TimeOption[], from: number, direction: 1 | -1): number {
-  if (list.length === 0) return -1;
-
-  const starts = groupByHour(list).map((group) => list.indexOf(group.options[0] as TimeOption));
-  /* `findLastIndex` is ES2023 and this package targets earlier; the walk back
-     is three lines and needs no library bump for one call. */
-  let current = 0;
-  for (let index = 0; index < starts.length; index += 1) {
-    if ((starts[index] as number) <= from) current = index;
-  }
-
-  if (direction === -1) {
-    const start = starts[current] ?? 0;
-    if (from > start) return start;
-    return starts[current - 1] ?? 0;
-  }
-
-  return starts[current + 1] ?? list.length - 1;
 }

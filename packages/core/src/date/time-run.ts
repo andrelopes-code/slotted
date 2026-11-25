@@ -117,6 +117,7 @@ function wallAfter(start: PlainTime, rules: TimeRunRules): number {
   const list = timeList({
     isTimeUnavailable: rules.unavailable,
     max: rules.max,
+    maxOptions: SECONDS_PER_DAY,
     min: rules.min,
     options: rules.options,
     step: rules.step,

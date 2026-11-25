@@ -1,14 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { plainTime, toISOTime } from './plain-time';
-import {
-  groupByHour,
-  hourJump,
-  isTruncated,
-  MAX_OPTIONS,
-  nearestIndex,
-  timeList,
-} from './time-list';
+import { MAX_OPTIONS, nearestIndex, timeList } from './time-list';
 
 const shown = (options: ReturnType<typeof timeList>) =>
   options.map((option) => toISOTime(option.time, 'minute'));
@@ -132,15 +125,6 @@ describe('MAX_OPTIONS', () => {
     const options = Array.from({ length: 20 }, (_, index) => plainTime(0, index));
     expect(timeList({ step: 900, options, maxOptions: 5 })).toHaveLength(5);
   });
-
-  /** The family says so in the DOM rather than cutting the list in silence. */
-  it('says whether a list stops short of what was asked for', () => {
-    expect(isTruncated({ step: 1 })).toBe(true);
-    expect(isTruncated({ step: 60 })).toBe(false);
-    expect(isTruncated({ step: 900 })).toBe(false);
-    expect(isTruncated({ step: 1, max: plainTime(0, 9, 59) })).toBe(false);
-    expect(isTruncated({ step: 900, options: [plainTime(9, 0)], maxOptions: 0 })).toBe(true);
-  });
 });
 
 describe('nearestIndex', () => {
@@ -157,56 +141,5 @@ describe('nearestIndex', () => {
 
   it('answers minus one for a list with nothing in it', () => {
     expect(nearestIndex([], plainTime(9, 0))).toBe(-1);
-  });
-});
-
-/**
- * Not a shape the panel draws: the hour is already on every row, and a heading
- * repeating it was drawn and withdrawn. This is the axis `PageUp` and
- * `PageDown` move by.
- */
-describe('groupByHour', () => {
-  it('cuts the list at each hour, in order', () => {
-    const groups = groupByHour(
-      timeList({ step: 900, min: plainTime(9, 0), max: plainTime(10, 30) }),
-    );
-    expect(groups.map((group) => group.hour)).toEqual([9, 10]);
-    expect(groups[0]?.options).toHaveLength(4);
-    expect(groups[1]?.options).toHaveLength(3);
-  });
-
-  it('keeps every option, and only once', () => {
-    const list = timeList({ step: 900 });
-    const grouped = groupByHour(list).flatMap((group) => group.options);
-    expect(grouped).toHaveLength(list.length);
-    expect(grouped[0]).toEqual(list[0]);
-  });
-
-  it('answers an empty list with no groups', () => {
-    expect(groupByHour([])).toEqual([]);
-  });
-});
-
-describe('hourJump', () => {
-  const list = timeList({ step: 900 });
-
-  it('lands on the first option of the next hour', () => {
-    expect(list[hourJump(list, 38, 1)]?.time).toEqual(plainTime(10, 0));
-    expect(list[hourJump(list, 36, 1)]?.time).toEqual(plainTime(10, 0));
-  });
-
-  /** Back from the middle of an hour lands on the top of that hour first. */
-  it('lands on the first option of the previous hour', () => {
-    expect(list[hourJump(list, 38, -1)]?.time).toEqual(plainTime(9, 0));
-    expect(list[hourJump(list, 36, -1)]?.time).toEqual(plainTime(8, 0));
-  });
-
-  it('stops at either end rather than wrapping into another day', () => {
-    expect(hourJump(list, 0, -1)).toBe(0);
-    expect(hourJump(list, list.length - 1, 1)).toBe(list.length - 1);
-  });
-
-  it('answers minus one for a list with nothing in it', () => {
-    expect(hourJump([], 0, 1)).toBe(-1);
   });
 });

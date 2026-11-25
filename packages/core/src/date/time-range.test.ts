@@ -7,7 +7,6 @@ import {
   dateTimeRangeSeconds,
   durationLabel,
   firstUnavailableIndex,
-  openingIndex,
   runRefusal,
   timeRangeProblems,
   timeRangeSeconds,
@@ -182,33 +181,5 @@ describe('dateTimeRangeProblems', () => {
     expect(
       dateTimeRangeProblems({ start: dt(12, 14), end: dt(16, 11) }, { maxLength: 3 * 86_400 }),
     ).toEqual(['length']);
-  });
-});
-
-describe('openingIndex', () => {
-  const list = [t(13), t(13, 30), t(14), t(14, 30), t(15)].map((time, index) => ({
-    time,
-    unavailable: index < 2,
-  }));
-
-  it('opens on the wanted row when it is offered', () => {
-    expect(openingIndex(list, t(14, 30), null, 'end')).toBe(3);
-    expect(openingIndex(list, t(14, 40), null, 'end')).toBe(3);
-  });
-
-  it('opens on the offered row nearest to a refused one', () => {
-    expect(openingIndex(list, t(10), null, 'end')).toBe(2);
-    expect(openingIndex(list, t(13, 20), null, 'end')).toBe(2);
-  });
-
-  it('steps off the other end rather than proposing no length', () => {
-    expect(openingIndex(list, t(10), t(14), 'end')).toBe(3);
-    expect(openingIndex(list, t(15), t(15), 'start')).toBe(3);
-    expect(openingIndex(list.slice(0, 3), t(14), t(14), 'end')).toBe(2);
-  });
-
-  it('lands somewhere when nothing is offered', () => {
-    expect(openingIndex([], t(14), null, 'end')).toBe(-1);
-    expect(openingIndex(list.slice(0, 2), t(14), null, 'end')).toBe(0);
   });
 });
