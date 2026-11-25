@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 
 import Docs from '../../layouts/Docs.astro';
+import { sitePath } from '../../lib/site';
 
 export async function getStaticPaths() {
   const entries = await getCollection('foundations');
@@ -21,7 +22,7 @@ const toc = [
 
 <Docs title={entry.data.title} description={entry.data.description} toc={toc}>
   <nav class="docs-crumbs" aria-label="Breadcrumb">
-    <a href="/foundations/introduction/">Get started</a>
+    <a href={sitePath('/foundations/introduction/')}>Get started</a>
   </nav>
   <h1 id="overview">{entry.data.title}</h1>
   <p class="docs-lead">{entry.data.description}</p>

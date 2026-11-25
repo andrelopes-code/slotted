@@ -153,6 +153,20 @@ shows the configuration. Every version of the `0.x` line goes to
 A version appears on the registry up to two minutes after the workflow ends;
 `npm view @slotted/<package> dist-tags` confirms it.
 
+After the packages, the workflow replaces the site on GitHub Pages with the one of
+the released commit; only the latest version is served:
+
+| Address                                                        | Content           |
+| -------------------------------------------------------------- | ----------------- |
+| `https://andrelopes-code.github.io/slotted/`                   | `apps/docs`       |
+| `https://andrelopes-code.github.io/slotted/storybook/react/`   | React Storybook   |
+| `https://andrelopes-code.github.io/slotted/storybook/angular/` | Angular Storybook |
+
+The repository's Pages source is "GitHub Actions", and its `github-pages`
+environment accepts deployments from `v*` tags. A link written in `apps/docs`
+goes through `sitePath` (`apps/docs/src/lib/site.ts`), because Astro prefixes
+only its assets with `base`; the development server answers at `/slotted/` too.
+
 ## Adding a locale
 
 The catalogs live in `packages/core/src/i18n` (`docs/decisions/0003-internationalization.md`). A locale `<tag>` is:

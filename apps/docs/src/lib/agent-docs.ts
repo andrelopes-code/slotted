@@ -1,6 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { sitePath } from './site';
+
 /**
  * Build-time only: the agent documentation each package build wrote into its
  * `dist/docs`. The site serves those files as they are, so the Markdown an
@@ -14,7 +16,7 @@ export const AGENT_BINDING_LABELS: Readonly<Record<AgentBinding, string>> = {
 };
 
 const PACKAGE_INDEX_LINE = '<!-- index: ./index.md -->';
-const SITE_INDEX_LINE = '<!-- index: /llms.txt -->';
+const SITE_INDEX_LINE = `<!-- index: ${sitePath('/llms.txt')} -->`;
 const NOT_PAGES = new Set(['index', 'AGENTS.snippet', 'tokens']);
 
 function docsDir(binding: AgentBinding): string {

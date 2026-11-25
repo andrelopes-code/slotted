@@ -5,6 +5,10 @@ name: Release
 # (`id-token: write`), so the repository holds no npm token and no one-time
 # password is asked. Each package names this repository and `release.yml` as
 # its trusted publisher on npmjs.com.
+#
+# Once the packages are on npm, the documentation site and both Storybooks of
+# the same commit replace the ones on GitHub Pages. A failure there leaves the
+# published packages as they are.
 
 on:
   push:
@@ -51,3 +55,59 @@ jobs:
 
       - name: Publish to npm
         run: node scripts/release.mjs --publish
+
+  # Its own job: a site that fails to build does not fail the publication, and
+  # the build tools of the Storybooks run without the OIDC permission.
+  site:
+    name: Build site
+    needs: publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages and documentation
+        run: pnpm build
+
+      - name: Build Storybooks
+        run: pnpm --filter "@slotted/storybook-react" --filter "@slotted/storybook-angular" run build:storybook
+
+      - name: Place the Storybooks inside the site
+        run: |
+          mkdir apps/docs/dist/storybook
+          mv apps/storybook-react/dist apps/docs/dist/storybook/react
+          mv apps/storybook-angular/dist apps/docs/dist/storybook/angular
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/docs/dist
+
+  deploy-site:
+    name: Deploy site
+    needs: site
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

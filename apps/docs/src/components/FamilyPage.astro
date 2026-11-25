@@ -10,6 +10,7 @@ import Sections from './reference/Sections.astro';
 import Docs from '../layouts/Docs.astro';
 import { familyCatalog } from '../lib/catalog';
 import { familyReference } from '../lib/reference';
+import { sitePath } from '../lib/site';
 import { componentOf, type AngularExampleModule } from '../runtime/angular-component';
 import { renderAngular } from '../runtime/angular.server';
 import { byExampleId, FRAMEWORK_LABELS, type Framework } from '../runtime/frameworks';
@@ -63,8 +64,8 @@ const toc = [
 ];
 
 const frameworkHrefs = {
-  react: `/react/components/${entry.id}/`,
-  angular: `/angular/components/${entry.id}/`,
+  react: sitePath(`/react/components/${entry.id}/`),
+  angular: sitePath(`/angular/components/${entry.id}/`),
 };
 ---
 
@@ -74,10 +75,10 @@ const frameworkHrefs = {
   framework={framework}
   frameworkHrefs={frameworkHrefs}
   toc={toc}
-  markdownHref={`/${framework}/components/${entry.id}.md`}
+  markdownHref={sitePath(`/${framework}/components/${entry.id}.md`)}
 >
   <nav class="docs-crumbs" aria-label="Breadcrumb">
-    <a href={`/${framework}/components/${entry.id}/`}>Components</a>
+    <a href={sitePath(`/${framework}/components/${entry.id}/`)}>Components</a>
     <span aria-hidden="true">/</span>
     <span>{familyCatalog(entry.id).group}</span>
   </nav>

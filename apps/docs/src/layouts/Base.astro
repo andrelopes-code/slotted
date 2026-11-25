@@ -6,6 +6,7 @@ import '@slotted/themes/default.css';
 import '../styles/site.css';
 
 import SiteHeader from '../components/SiteHeader.astro';
+import { sitePath } from '../lib/site';
 import type { Framework } from '../runtime/frameworks';
 
 interface Props {
@@ -36,7 +37,7 @@ const pageTitle = title === 'Slotted' ? title : `${title} — Slotted`;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <link rel="icon" href="data:," />
-    <link rel="describedby" href="/llms.txt" />
+    <link rel="describedby" href={sitePath('/llms.txt')} />
     {markdownHref && <link rel="alternate" type="text/markdown" href={markdownHref} />}
     <title>{pageTitle}</title>
     <script is:inline>

@@ -2,15 +2,17 @@ import { ArrowRight } from 'lucide-react';
 
 import { ButtonLink } from '@slotted/react/button';
 
+import { sitePath } from '../lib/site';
+
 /** Rendered on the server only: two links, no script. */
 export default function HeroActions() {
   return (
     <div className="hero-actions">
-      <ButtonLink href="/foundations/introduction/" size="lg">
+      <ButtonLink href={sitePath('/foundations/introduction/')} size="lg">
         Get started
       </ButtonLink>
       <ButtonLink
-        href="/react/components/field/"
+        href={sitePath('/react/components/field/')}
         size="lg"
         variant="ghost"
         tone="secondary"

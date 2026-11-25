@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 
 import HeaderTools, { type SearchEntry } from '../islands/HeaderTools';
-import { SITE_NAME } from '../lib/site';
+import { SITE_NAME, sitePath } from '../lib/site';
 import type { Framework } from '../runtime/frameworks';
 import { docsNav } from '../lib/nav';
 
@@ -24,7 +24,7 @@ const search: SearchEntry[] = [
       label: entry.data.title,
       description: entry.data.description,
       group: 'Get started',
-      href: `/foundations/${entry.id}/`,
+      href: sitePath(`/foundations/${entry.id}/`),
     })),
   ...(await getCollection('components'))
     .sort((a, b) => a.data.title.localeCompare(b.data.title))
@@ -33,19 +33,23 @@ const search: SearchEntry[] = [
       label: entry.data.title,
       description: entry.data.description,
       group: 'Components',
-      href: `/${docsFramework}/components/${entry.id}/`,
+      href: sitePath(`/${docsFramework}/components/${entry.id}/`),
     })),
 ];
 
 const links = [
-  { label: 'Docs', href: '/foundations/introduction/', match: '/foundations/' },
-  { label: 'Components', href: `/${docsFramework}/components/field/`, match: '/components/' },
+  { label: 'Docs', href: sitePath('/foundations/introduction/'), match: '/foundations/' },
+  {
+    label: 'Components',
+    href: sitePath(`/${docsFramework}/components/field/`),
+    match: '/components/',
+  },
 ];
 ---
 
 <header class="docs-header">
   <div class="docs-header-inner">
-    <a class="docs-brand" href="/">{SITE_NAME}</a>
+    <a class="docs-brand" href={sitePath('/')}>{SITE_NAME}</a>
     <nav class="docs-header-nav" aria-label="Primary">
       {
         links.map((link) => (

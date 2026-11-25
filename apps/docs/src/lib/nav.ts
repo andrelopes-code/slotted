@@ -2,6 +2,7 @@ import { getCollection } from 'astro:content';
 
 import type { Framework } from '../runtime/frameworks';
 import { familyCatalog } from './catalog';
+import { sitePath } from './site';
 
 export interface NavLink {
   label: string;
@@ -35,7 +36,7 @@ export async function docsNav(framework: Framework): Promise<NavGroup[]> {
       heading: 'Get started',
       links: foundations.map((entry) => ({
         label: entry.data.title,
-        href: `/foundations/${entry.id}/`,
+        href: sitePath(`/foundations/${entry.id}/`),
       })),
     },
   ];
@@ -56,7 +57,7 @@ export async function docsNav(framework: Framework): Promise<NavGroup[]> {
       heading: group,
       links: members.map((entry) => ({
         label: entry.data.title,
-        href: `/${framework}/components/${entry.id}/`,
+        href: sitePath(`/${framework}/components/${entry.id}/`),
       })),
     });
   }

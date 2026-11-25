@@ -63,6 +63,8 @@ const workbenchSnippets = fileURLToPath(
 );
 
 export default defineConfig({
+  /* GitHub Pages serves the site below the repository's name. */
+  base: '/slotted',
   integrations: [mdx(), react()],
   /* The development host the Nexora demo also allows (`demos/nexora/angular/angular.json`). */
   server: { allowedHosts: ['devserver.local'] },

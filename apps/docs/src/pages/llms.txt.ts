@@ -9,7 +9,7 @@ import {
   agentSkills,
   agentSummary,
 } from '../lib/agent-docs';
-import { SITE_NAME } from '../lib/site';
+import { SITE_NAME, sitePath } from '../lib/site';
 
 /** The index an agent reads first (llmstxt.org): one line per family, token page, guideline page, skill and the skills index, per binding. */
 export const GET: APIRoute = async () => {
@@ -21,21 +21,23 @@ export const GET: APIRoute = async () => {
     lines.push(`## ${AGENT_BINDING_LABELS[binding]} components`, '');
     for (const family of agentFamilies(binding)) {
       lines.push(
-        `- [${family}](/${binding}/components/${family}.md): ${agentSummary(binding, family)}`,
+        `${link(family, `/${binding}/components/${family}.md`)}: ${agentSummary(binding, family)}`,
       );
     }
     lines.push('', `## ${AGENT_BINDING_LABELS[binding]} tokens`, '');
-    lines.push(`- [tokens](/${binding}/tokens.md)`);
+    lines.push(link('tokens', `/${binding}/tokens.md`));
     lines.push('', `## ${AGENT_BINDING_LABELS[binding]} guidelines`, '');
     for (const page of agentGuidelines(binding))
-      lines.push(`- [${page}](/${binding}/guidelines/${page}.md)`);
+      lines.push(link(page, `/${binding}/guidelines/${page}.md`));
     lines.push('', `## ${AGENT_BINDING_LABELS[binding]} skills`, '');
-    lines.push(`- [index](/${binding}/skills/index.md)`);
+    lines.push(link('index', `/${binding}/skills/index.md`));
     for (const skill of agentSkills(binding))
-      lines.push(`- [${skill}](/${binding}/skills/${skill}/SKILL.md)`);
+      lines.push(link(skill, `/${binding}/skills/${skill}/SKILL.md`));
     lines.push('');
   }
   return new Response(lines.join('\n'), {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
   });
 };
+
+const link = (label: string, path: string): string => `- [${label}](${sitePath(path)})`;
