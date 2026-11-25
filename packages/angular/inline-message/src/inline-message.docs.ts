@@ -100,7 +100,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'angular',
       label: 'Two steps, both answering density',
       source:
-        '<p slInlineMessage size="sm" tone="danger">The reorder point must be a whole number.</p>\n<p slInlineMessage size="md" tone="danger">The reorder point must be lower than the stock ceiling.</p>',
+        '<p slInlineMessage size="sm" tone="danger">The reorder point must be a whole number.</p>\n<p slInlineMessage size="md" tone="danger">\n  The reorder point must be lower than the stock ceiling.\n</p>',
     }),
   },
   {

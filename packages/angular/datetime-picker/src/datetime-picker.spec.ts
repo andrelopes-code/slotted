@@ -95,45 +95,6 @@ const key = (
   fixture.detectChanges();
 };
 
-describe('anatomy', () => {
-  /**
-   * The family composes the field and the grid and redraws neither. A second
-   * segmented control or a second month grid would be two places to fix one
-   * defect.
-   */
-  /** The role the APG's own Date Picker Combobox example gives its popup. */
-  /**
-   * A `tablist` that exists on a narrow container and not on a wide one tells
-   * assistive technology two different stories about the same component.
-   */
-  /** The two marks are `Glyph` elements inside an `Icon` box, never masks. */
-});
-
-describe('focus follows the missing half', () => {
-  /**
-   * The decision this family owes, in one sentence: the press that leaves the
-   * value incomplete carries focus to the half that is missing, and the press
-   * that completes the value closes the panel.
-   */
-  /**
-   * A value that was already whole is not completed by anything, so a reader
-   * who opened a filled field to change both halves is not shut out by their
-   * first press. Ant spends a confirm button on this and Kendo spends Set.
-   */
-});
-
-describe('the list', () => {
-  /**
-   * The list answers the day the reader is on rather than a day already
-   * committed, so a closed day empties it while the reader is still deciding.
-   */
-  /**
-   * Both pairs of bounds apply at once, and the first day of the range holds a
-   * partial window — the rule MDN states for the platform and no surveyed
-   * script implements.
-   */
-});
-
 describe('keyboard', () => {
   /**
    * The highlight moves and the value does not: the listbox pattern lists
