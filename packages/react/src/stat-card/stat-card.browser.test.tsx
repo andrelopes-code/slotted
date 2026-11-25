@@ -1,10 +1,12 @@
 import { render, renderHook } from '@testing-library/react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 
+import { Button } from '../button';
+import { Link } from '../link';
 import { StatCard } from './stat-card';
 import { StatCardDelta } from './stat-card-delta';
-import { StatCardFigure, StatCardHeader, StatCardLabel } from './stat-card-parts';
+import { StatCardAction, StatCardFigure, StatCardHeader, StatCardLabel } from './stat-card-parts';
 import { StatCardValue } from './stat-card-value';
 import type { StatCardProps } from './stat-card.types';
 import { useCountTransition } from './use-count-transition';
@@ -189,5 +191,101 @@ describe('useCountTransition', () => {
     expect(between).toBe(true);
     expect(result.current).toBe(200);
     root.style.removeProperty('--slotted-duration-long');
+  });
+});
+
+describe('the header of a stat card with an action', () => {
+  const header = (label: string, action: ReactNode) => (
+    <StatCard layout="stacked" size="sm">
+      <StatCardHeader>
+        <StatCardLabel>{label}</StatCardLabel>
+        {action}
+      </StatCardHeader>
+      <StatCardFigure>
+        <StatCardValue value="7.88" />
+      </StatCardFigure>
+    </StatCard>
+  );
+  const button = (label: string) => (
+    <StatCardAction>
+      <Button size="sm" variant="outline">
+        {label}
+      </Button>
+    </StatCardAction>
+  );
+  const part = (root: ParentNode, name: string) =>
+    root.querySelector(`[data-part="${name}"]`)!.getBoundingClientRect();
+
+  it('keeps a short label and its action on one line when both fit', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 245 }}>{header('Estimate', button('Use this estimate'))}</div>,
+    );
+    const label = part(container, 'label');
+    const action = part(container, 'action');
+
+    expect(action.top).toBeLessThan(label.bottom);
+    expect(action.left).toBeGreaterThanOrEqual(label.right);
+  });
+
+  it('breaks under a label longer than its floor, which then takes the line', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 245 }}>
+        {header('Estimated value of the open orders', button('Use this estimate'))}
+      </div>,
+    );
+    const label = part(container, 'label');
+    const action = container.querySelector('[data-part="action"] > button')!;
+
+    expect(action.getBoundingClientRect().top).toBeGreaterThanOrEqual(label.bottom - 0.5);
+    expect(label.width).toBeCloseTo(part(container, 'header').width, 0);
+  });
+
+  it('wraps a long label beside an action and gives it the room left', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 400 }}>
+        {header(
+          'Estimated value of the open orders of the quarter before taxes and fees',
+          button('Use'),
+        )}
+      </div>,
+    );
+    const label = part(container, 'label');
+    const action = part(container, 'action');
+
+    expect(action.top).toBeLessThan(label.bottom);
+    expect(label.width).toBeGreaterThan(200);
+    expect(label.height).toBeGreaterThan(20);
+  });
+
+  it('never lets a label pass the width of a narrow card', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 160 }}>
+        {header('Estimated value of the open orders', button('Use'))}
+      </div>,
+    );
+
+    expect(part(container, 'label').right).toBeLessThanOrEqual(part(container, 'header').right);
+  });
+
+  it.each([
+    ['a button', button('Use')],
+    [
+      'a link',
+      <StatCardAction key="link">
+        <Link href="#details">Details</Link>
+      </StatCardAction>,
+    ],
+  ])('keeps the value on the line of its neighbours’ values beside %s', (_name, action) => {
+    const { container } = render(
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', inlineSize: 800 }}>
+        {header('Net', null)}
+        {header('Estimate', action)}
+      </div>,
+    );
+    const [plain, acting] = [...container.querySelectorAll('[data-part="value"]')].map((value) =>
+      value.getBoundingClientRect(),
+    );
+
+    expect(Math.abs(plain!.top - acting!.top)).toBeLessThanOrEqual(1);
   });
 });

@@ -99,6 +99,9 @@ describe('SlStatCard', () => {
     expect(root.getAttribute('role')).toBe('group');
     expect(root.getAttribute('aria-labelledby')).toBe(part('label')?.id);
     expect(part('label')?.id).toMatch(/^slotted-stat-card-label-/);
+    expect(part('label')?.querySelector('[data-part="label-text"]')?.textContent).toBe(
+      part('label')?.textContent,
+    );
     expect(root.firstElementChild?.getAttribute('data-part')).toBe('body');
     expect(root.getAttribute('data-size')).toBe('md');
     expect(root.getAttribute('data-fill')).toBe('outline');

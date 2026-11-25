@@ -437,6 +437,8 @@
    */
   @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
     :scope [data-part-header] {
+      --_header-line: calc(var(--_label-size) * var(--_label-line));
+
       align-items: baseline;
       column-gap: var(--slotted-space-3, 0.375rem);
       display: flex;
@@ -447,24 +449,35 @@
   }
 
   /**
-   * A basis of nought, so the label wraps beside its status rather than
-   * taking the line alone and sending the status under it — and a floor of
-   * ten rem, so a narrow card does not squeeze the name into a column of
-   * single words to keep a badge and a link on its first line. Under the
-   * floor the status and the action take the next line instead. A
-   * proportion of the type rather than a scale step: it is a width of
-   * words, and it scales with them.
+   * The label asks for the width of its text up to ten rem, and takes what is
+   * left of the line: a short name leaves its room to the status and the
+   * action, and a long one wraps beside them, down to a floor under which they
+   * take the next line rather than squeeze the name into a column of single
+   * words. The floor is the text's, because a box cannot be asked for the
+   * smaller of its own content and a length: the text is as wide as its words
+   * up to the floor, and its minimum — the label's whole width — counts as
+   * nought while the label measures it. Ten rem is a proportion of the type
+   * rather than a scale step: it is a width of words, and it scales with them.
    */
   @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
     :scope [data-part-label] {
       color: var(--_ink-muted);
-      flex: 1 1 0%;
+      flex: 1 0 auto;
       font-size: var(--_label-size);
       font-weight: var(--slotted-font-weight-medium, 500);
       line-height: var(--_label-line);
       margin: 0;
-      min-inline-size: min(100%, 10rem);
       overflow-wrap: break-word;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-label-text] {
+      display: block;
+      inline-size: max-content;
+      /* The card is the container: `100%` is no maximum while measured. */
+      max-inline-size: min(100cqi, 10rem);
+      min-inline-size: 100%;
     }
   }
 
@@ -483,12 +496,27 @@
       /* An action slot states one size for the links it holds. */
       --slotted-link-font-size: var(--slotted-font-size-sm, 0.8125rem);
 
+      align-items: center;
+      /* The label's line, whatever the control: a link here is as tall in the
+         fallback face as in the web face, a button extends past the line into
+         the card's inset and the region gap, and the value stands on the line
+         of the values beside it. */
+      block-size: var(--_header-line);
+      display: flex;
       flex: none;
-      /* The label's line, so a link here is as tall in the fallback face as in
-         the web face and the header does not grow when the font arrives. */
       font-size: var(--_label-size);
       line-height: var(--_label-line);
       margin-inline-start: auto;
+    }
+  }
+
+  /* An action that takes the next line keeps its button off the label. */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-header]:has([data-part-action] > button) {
+      row-gap: max(
+        var(--slotted-space-2, 0.25rem),
+        calc((var(--slotted-control-height-sm, 30px) - var(--_header-line)) / 2)
+      );
     }
   }
 

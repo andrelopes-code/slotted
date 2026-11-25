@@ -56,6 +56,13 @@ const anatomy: AnatomyRow[] = [
     purpose: 'The name of the metric, in the muted step. Carries the id the root is named by.',
   },
   {
+    part: 'label-text',
+    element: 'span',
+    required: false,
+    purpose:
+      'The words of the name, rendered by the label. The label asks for their width up to ten rem, so a short name shares the line with its status and action and a long one wraps beside them.',
+  },
+  {
     part: 'status',
     element: 'span',
     required: false,
@@ -66,7 +73,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: false,
     purpose:
-      'The end of the header, for your own Link or Button. Stays on the first line when the name wraps, set on the name’s own size and line so the header keeps its height whichever face has loaded.',
+      'The end of the header, for your own Link or Button. Stays on the first line when the name wraps, and takes the next line only when the two do not fit. It counts as one line of the name: a button extends past the line, and the value stands on the line of the values beside it.',
   },
   {
     part: 'figure',

@@ -26,10 +26,13 @@ export class SlStatCardHeader {}
  * carries the id the root points at; an `id` the consumer wrote wins, and
  * the root then names nothing, which is the consumer's decision to make.
  */
-@Directive({
+@Component({
   selector: '[slStatCardLabel]',
   standalone: true,
   exportAs: 'slStatCardLabel',
+  template: '<span data-part="label-text" data-part-label-text=""><ng-content /></span>',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
   host: { 'data-part': 'label', 'data-part-label': '', '[attr.id]': 'id' },
 })
 export class SlStatCardLabel {

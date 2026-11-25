@@ -33,7 +33,11 @@ export function StatCardLabel({ children, render, ...nativeProps }: StatCardLabe
   const props = keyedProps({
     id: labelId,
     ...nativeProps,
-    children: loading && children === undefined ? <Skeleton inlineSize="8em" /> : children,
+    children: (
+      <span {...keyedProps({ 'data-part': 'label-text' })}>
+        {loading && children === undefined ? <Skeleton inlineSize="8em" /> : children}
+      </span>
+    ),
     'data-part': 'label',
   });
   return render === undefined ? <span {...props} /> : render(props);

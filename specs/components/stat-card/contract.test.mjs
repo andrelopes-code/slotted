@@ -38,6 +38,7 @@ test('is one figure whose regions are parts rather than families', () => {
     'body',
     'header',
     'label',
+    'label-text',
     'status',
     'action',
     'figure',
