@@ -464,6 +464,83 @@ describe('DataGrid, selection', () => {
     );
   });
 
+  it('leaves a row isRowSelectable refuses out of every selection, and keeps it a row', () => {
+    const onValueChange = vi.fn();
+    const onActivate = vi.fn();
+    render(
+      <Shipments
+        activatable
+        isRowSelectable={(row) => row.id !== 'S2'}
+        onActivate={onActivate}
+        onValueChange={onValueChange}
+        selectionMode="multiple"
+      />,
+    );
+    const box = (key: string) => within(cell(key, '__selection')).getByRole('checkbox');
+    const row = cell('S2', 'id').closest<HTMLElement>('[role="row"]')!;
+
+    expect(box('S2')).toBeDisabled();
+    expect(row).not.toHaveAttribute('data-disabled');
+    expect(row).not.toHaveAttribute('aria-selected');
+
+    fireEvent.click(box('S1'));
+    fireEvent.click(box('S3'), { shiftKey: true });
+    expect(onValueChange).toHaveBeenLastCalledWith(['S1', 'S3'], expect.anything());
+
+    const all = within(
+      grid().querySelector<HTMLElement>('[data-part="head"] [data-part="selection"]')!,
+    ).getByRole('checkbox');
+    expect(all).toHaveAccessibleName('Select all 3 rows');
+    fireEvent.click(all);
+    expect(onValueChange).toHaveBeenLastCalledWith(['S1', 'S3', 'S4'], expect.anything());
+
+    onValueChange.mockClear();
+    act(() => cell('S2', 'customer').focus());
+    fireEvent.keyDown(cell('S2', 'customer'), { key: ' ', shiftKey: true });
+    expect(onValueChange).not.toHaveBeenCalled();
+
+    fireEvent.doubleClick(cell('S2', 'carrier'));
+    expect(onActivate).toHaveBeenCalledWith(expect.objectContaining({ key: 'S2' }));
+  });
+
+  it('refuses the press on a row isRowSelectable refuses, in single selection', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Shipments
+        isRowSelectable={(row) => row.id !== 'S2'}
+        onValueChange={onValueChange}
+        selectionMode="single"
+      />,
+    );
+    fireEvent.click(cell('S2', 'carrier'));
+    expect(onValueChange).not.toHaveBeenCalled();
+
+    fireEvent.click(cell('S1', 'carrier'));
+    expect(onValueChange).toHaveBeenLastCalledWith('S1', expect.anything());
+  });
+
+  it('marks a row isRowMuted names, and keeps it selectable', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Shipments
+        isRowMuted={(row) => row.id === 'S2'}
+        onValueChange={onValueChange}
+        selectionMode="multiple"
+      />,
+    );
+    const muted = [...grid().querySelectorAll('[data-muted]')].map((row) =>
+      row.getAttribute('data-row'),
+    );
+
+    expect(muted).toEqual(['S2']);
+    fireEvent.click(
+      within(
+        grid().querySelector<HTMLElement>('[data-part="head"] [data-part="selection"]')!,
+      ).getByRole('checkbox'),
+    );
+    expect(onValueChange).toHaveBeenLastCalledWith(['S1', 'S2', 'S3', 'S4'], expect.anything());
+  });
+
   /**
    * checkbox's contract names the control through its label (`labelAssociation:
    * for`), and a bare box's label holds hidden text (`labelHidden`), which is

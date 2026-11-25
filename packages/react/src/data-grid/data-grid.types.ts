@@ -276,6 +276,19 @@ export interface DataGridProps<Row>
   /** Rows a consumer has disabled: not selectable, not editable. */
   disabledKeys?: readonly string[] | undefined;
   /**
+   * Whether a row takes part in the selection. A row it refuses leaves the
+   * press, the Shift range, Ctrl+A and the header checkbox, and its own
+   * checkbox is disabled; it keeps its ink, its hover, its activation and its
+   * editing, which a row in `disabledKeys` loses.
+   */
+  isRowSelectable?: ((row: Row) => boolean) | undefined;
+  /**
+   * Whether a row is drawn as no longer active: its cells and the links in
+   * them take the muted ink. Everything the row answers stays, selection
+   * included.
+   */
+  isRowMuted?: ((row: Row) => boolean) | undefined;
+  /**
    * Rows held at the top or the bottom of the body, by key, in the stated
    * order: out of the query — never sorted, filtered or paged — and always on
    * screen, under the head and over the summary.

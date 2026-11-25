@@ -138,6 +138,7 @@ function BodyRowInner<Row>({ index, measure, node, rowIndex }: RowProps<Row>) {
   const grid = store.latest();
   const selected = grid.isSelected(key);
   const disabled = grid.isDisabled(key);
+  const unselectable = grid.isUnselectable(key);
   const current = grid.current !== null && grid.current.row === key;
   /* In a tree, `expanded` is the branch; the detail is a leaf's alone. */
   const expanded = grid.isExpanded(key) && (grid.treeColumn === null || node.childCount === 0);
@@ -156,7 +157,8 @@ function BodyRowInner<Row>({ index, measure, node, rowIndex }: RowProps<Row>) {
       <div
         aria-rowindex={rowIndex}
         aria-selected={
-          grid.selectionMode === 'single' || grid.selectionMode === 'multiple'
+          (grid.selectionMode === 'single' || grid.selectionMode === 'multiple') &&
+          (selected || !unselectable)
             ? selected
             : undefined
         }
@@ -175,6 +177,7 @@ function BodyRowInner<Row>({ index, measure, node, rowIndex }: RowProps<Row>) {
         {...(current ? { 'data-current': '' } : {})}
         {...(expanded ? { 'data-expanded': '' } : {})}
         {...(disabled ? { 'data-disabled': '' } : {})}
+        {...(grid.isMuted(key) ? { 'data-muted': '' } : {})}
         {...(editing ? { 'data-editing': '' } : {})}
       >
         {grid.columnIds.includes(SELECTION_COLUMN) ? <SelectionCell<Row> rowKey={key} /> : null}
@@ -218,7 +221,7 @@ function SelectionCell<Row>({ rowKey }: { rowKey: string }) {
     grid.current !== null &&
     grid.current.row === rowKey &&
     grid.current.column === SELECTION_COLUMN;
-  const disabled = grid.isDisabled(rowKey);
+  const disabled = grid.isDisabled(rowKey) || grid.isUnselectable(rowKey);
   return (
     <div
       aria-colindex={1}

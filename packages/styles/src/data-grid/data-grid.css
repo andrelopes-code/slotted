@@ -1480,6 +1480,22 @@
     border-block-end-color: transparent;
   }
 
+  /**
+   * A record that is no longer active: the row's ink steps down to the muted
+   * ink, and every cell reads it by inheritance. It stands over the ink of a
+   * selected row, whose ground stays, and a disabled row keeps its own. A link
+   * in the row takes it as its color at rest and keeps the accent under the
+   * pointer.
+   */
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row][data-muted]:not([data-disabled]) {
+    --slotted-link-color: var(--_muted);
+
+    color: var(--_muted);
+  }
+
   [data-ui-data-grid] [data-part-row][data-disabled] {
     color: var(--slotted-disabled-foreground, GrayText);
   }

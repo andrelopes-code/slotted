@@ -126,6 +126,8 @@ const COLUMNS: GridColumn<Shipment>[] = [
       [rows]="rows()"
       [columns]="columns"
       [selectionMode]="selectionMode()"
+      [isRowSelectable]="isRowSelectable()"
+      [isRowMuted]="isRowMuted()"
       [filterRow]="filterRow()"
       [filterDebounce]="10"
       [rowHeight]="rowHeight()"
@@ -169,6 +171,8 @@ class Host {
   readonly highlightChanges = signal<boolean | number | undefined>(undefined);
   readonly pinnedRows = signal<DataGridPinnedRows | undefined>(undefined);
   readonly selectionMode = signal<DataGridSelectionMode>('none');
+  readonly isRowSelectable = signal<((row: Shipment) => boolean) | undefined>(undefined);
+  readonly isRowMuted = signal<((row: Shipment) => boolean) | undefined>(undefined);
   readonly filterRow = signal(false);
   readonly activatable = signal(false);
   readonly loading = signal<DataGridLoading>(false);
@@ -575,6 +579,44 @@ describe('SlDataGrid', () => {
       value: ['S1', 'S2', 'S3', 'S4'],
       reason: 'select',
     });
+  });
+
+  it('leaves a row isRowSelectable refuses out of every selection, and keeps it a row', () => {
+    host.selectionMode.set('multiple');
+    host.isRowSelectable.set((row) => row.id !== 'S2');
+    fixture.detectChanges();
+    const box = (key: string) => cell(key, '__selection').querySelector<HTMLInputElement>('input')!;
+    const row = cell('S2', 'id').closest('[role="row"]')!;
+
+    expect(box('S2').disabled).toBe(true);
+    expect(row.hasAttribute('data-disabled')).toBe(false);
+    expect(row.hasAttribute('aria-selected')).toBe(false);
+
+    const all = root().querySelector<HTMLElement>('[data-part="head"] [data-part="selection"]')!;
+    expect(all.textContent).toContain('Select all 3 rows');
+    all.querySelector<HTMLInputElement>('input')!.click();
+    fixture.detectChanges();
+    expect(host.value()).toEqual(['S1', 'S3', 'S4']);
+
+    host.valueRequests.length = 0;
+    host.current.set({ row: 'S2', column: 'customer' });
+    fixture.detectChanges();
+    press(cell('S2', 'customer'), ' ', { shiftKey: true });
+    expect(host.valueRequests).toEqual([]);
+  });
+
+  it('marks a row isRowMuted names, and keeps it selectable', () => {
+    host.selectionMode.set('multiple');
+    host.isRowMuted.set((row) => row.id === 'S2');
+    fixture.detectChanges();
+    const muted = [...root().querySelectorAll('[data-muted]')].map((row) =>
+      row.getAttribute('data-row'),
+    );
+
+    expect(muted).toEqual(['S2']);
+    cell('S2', '__selection').querySelector<HTMLInputElement>('input')!.click();
+    fixture.detectChanges();
+    expect(host.value()).toEqual(['S2']);
   });
 
   it('toggles the row with Shift+Space from any cell, and selects everything with Ctrl+A', () => {

@@ -208,7 +208,7 @@ function SelectAllCell() {
     grid.current.row === HEADER_ROW &&
     grid.current.column === SELECTION_COLUMN;
   const name = grid.t(
-    grid.total !== null && grid.total > grid.selectableCount
+    grid.total !== null && grid.total > grid.selectionRowCount
       ? 'selectAllPage'
       : 'selectAllFiltered',
     { count: grid.selectableCount },

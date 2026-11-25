@@ -251,6 +251,8 @@ export function DataGrid<Row>({
   hasMore: givenHasMore,
   height,
   highlightChanges,
+  isRowMuted,
+  isRowSelectable,
   labelledBy,
   loadMoreThreshold,
   loadMoreTrigger,
@@ -801,14 +803,32 @@ export function DataGrid<Row>({
   }, [windowsColumns, viewport.width, resolved, gutters, scrollLeft, middle, current]);
 
   /* ── Selection ──────────────────────────────────────────────────────── */
-  const selectableKeys = useMemo(() => {
-    const source = resolvedMode === 'client' ? result.rows : bodyRows;
-    return [
-      ...pinned.top.map((node) => node.key),
-      ...source.map(rowKeyOf),
-      ...pinned.bottom.map((node) => node.key),
-    ].filter((key) => !disabledSet.has(key));
-  }, [resolvedMode, result.rows, bodyRows, pinned, rowKeyOf, disabledSet]);
+  const selectionRows = useMemo(
+    () => [
+      ...pinned.top.map((node) => node.row),
+      ...(resolvedMode === 'client' ? result.rows : bodyRows),
+      ...pinned.bottom.map((node) => node.row),
+    ],
+    [resolvedMode, result.rows, bodyRows, pinned],
+  );
+  const unselectableSet = useMemo(
+    () =>
+      new Set(
+        isRowSelectable
+          ? selectionRows.filter((row) => !isRowSelectable(row)).map(rowKeyOf)
+          : undefined,
+      ),
+    [isRowSelectable, selectionRows, rowKeyOf],
+  );
+  const isUnselectable = useCallback((key: string) => unselectableSet.has(key), [unselectableSet]);
+  const refusesSelection = useCallback(
+    (key: string) => disabledSet.has(key) || unselectableSet.has(key),
+    [disabledSet, unselectableSet],
+  );
+  const selectableKeys = useMemo(
+    () => selectionRows.map(rowKeyOf).filter((key) => !refusesSelection(key)),
+    [selectionRows, rowKeyOf, refusesSelection],
+  );
   const selectedList = useMemo<readonly string[]>(
     () =>
       Array.isArray(value) ? value : value === null || value === undefined ? [] : [value as string],
@@ -836,7 +856,7 @@ export function DataGrid<Row>({
   );
   const toggleSelected = useCallback(
     (key: string, options: { range?: boolean; source?: unknown; reason?: DataGridReason }) => {
-      if (resolvedSelection === 'none' || resolvedSelection === 'range' || disabledSet.has(key))
+      if (resolvedSelection === 'none' || resolvedSelection === 'range' || refusesSelection(key))
         return;
       const outcome = nextSelection({
         action: options.range ? 'range' : 'toggle',
@@ -845,13 +865,13 @@ export function DataGrid<Row>({
         keys: selectableKeys,
         key,
         anchor: anchor.current,
-        disabled: (candidate) => disabledSet.has(candidate),
+        disabled: refusesSelection,
       });
       if (!options.range) anchor.current = key;
       if (outcome.changed)
         commitSelection(outcome.selected, options.reason ?? 'pointer', options.source);
     },
-    [resolvedSelection, disabledSet, selectedList, selectableKeys, commitSelection],
+    [resolvedSelection, refusesSelection, selectedList, selectableKeys, commitSelection],
   );
   const toggleAll = useCallback(
     (source?: unknown) => {
@@ -1752,6 +1772,13 @@ export function DataGrid<Row>({
   const editRef = useRef(edit);
   editRef.current = edit;
   const rowOf = useCallback((key: string) => nodeByKey.get(key)?.row, [nodeByKey]);
+  const isMuted = useCallback(
+    (key: string) => {
+      const row = rowOf(key);
+      return row !== undefined && isRowMuted?.(row) === true;
+    },
+    [isRowMuted, rowOf],
+  );
 
   const startEdit = useCallback(
     (cell: GridCell, seed: string | null = null) => {
@@ -2512,7 +2539,7 @@ export function DataGrid<Row>({
         return;
       }
       if (!isBodyRow(cell.row)) return;
-      if (resolvedSelection === 'single' && !disabledSet.has(cell.row)) {
+      if (resolvedSelection === 'single' && !refusesSelection(cell.row)) {
         toggleSelected(cell.row, { range: false, source: event });
       }
       /* On a touch screen one press opens the record: a double tap is a zoom,
@@ -2531,7 +2558,7 @@ export function DataGrid<Row>({
       pressSort,
       toggleGroup,
       resolvedSelection,
-      disabledSet,
+      refusesSelection,
       toggleSelected,
       resolvedActivatable,
       activate,
@@ -2816,6 +2843,8 @@ export function DataGrid<Row>({
       isEditable,
       anyEditable,
       isDisabled,
+      isUnselectable,
+      isMuted,
       isExpandable,
       current,
       tabStop,
@@ -2827,6 +2856,7 @@ export function DataGrid<Row>({
       toggleAll,
       allState,
       selectableCount: selectableKeys.length,
+      selectionRowCount: selectionRows.length,
       rangeBounds: bounds,
       rangeInfo,
       changedOf,
@@ -2922,6 +2952,8 @@ export function DataGrid<Row>({
       isEditable,
       anyEditable,
       isDisabled,
+      isUnselectable,
+      isMuted,
       isExpandable,
       current,
       tabStop,
@@ -2933,6 +2965,7 @@ export function DataGrid<Row>({
       toggleAll,
       allState,
       selectableKeys.length,
+      selectionRows.length,
       bounds,
       rangeInfo,
       changedOf,

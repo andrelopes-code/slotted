@@ -1191,6 +1191,20 @@ const api = apiRows([
     'Rows that are neither selectable nor editable, drawn with data-disabled.',
   ],
   [
+    'isRowSelectable',
+    '(row: Row) => boolean',
+    '—',
+    'sl-data-grid',
+    'Whether a row takes part in the selection. A row it refuses leaves the press, the Shift range, Ctrl+A and the header checkbox, and its checkbox is disabled. It keeps its ink, hover, activation and editing, which a row in disabledKeys loses.',
+  ],
+  [
+    'isRowMuted',
+    '(row: Row) => boolean',
+    '—',
+    'sl-data-grid',
+    'Draws a row that is no longer active, with data-muted: its cells, its pop-in and the links in them take --slotted-data-grid-color-muted. Hover, selection, activation and editing stay, and the selected ground stays under the muted ink.',
+  ],
+  [
     'query',
     'model<GridQuery>',
     'emptyQuery()',

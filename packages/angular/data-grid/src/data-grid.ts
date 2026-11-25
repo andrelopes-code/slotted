@@ -819,7 +819,11 @@ function contentWidth(cell: HTMLElement): number {
           role="row"
           [attr.data-row]="entry.node.key"
           [attr.aria-rowindex]="entry.rowIndex"
-          [attr.aria-selected]="rowSelectable() ? isSelected(entry.node.key) : null"
+          [attr.aria-selected]="
+            rowSelectable() && (isSelected(entry.node.key) || !isUnselectable(entry.node.key))
+              ? isSelected(entry.node.key)
+              : null
+          "
           [attr.data-selected]="isSelected(entry.node.key) ? '' : null"
           [attr.data-current]="current()?.row === entry.node.key ? '' : null"
           [attr.data-expanded]="detailOpen(entry.node) ? '' : null"
@@ -833,6 +837,7 @@ function contentWidth(cell: HTMLElement): number {
           [attr.data-loading]="isLoadingChildren(entry.node.key) ? '' : null"
           [attr.data-dragging]="rowDragState().dragging === entry.node.key ? '' : null"
           [attr.data-disabled]="isDisabled(entry.node.key) ? '' : null"
+          [attr.data-muted]="isRowMuted()?.(entry.node.row) ? '' : null"
           [attr.data-editing]="edit()?.cell?.row === entry.node.key ? '' : null"
           [attr.data-index]="entry.index"
         >
@@ -853,7 +858,9 @@ function contentWidth(cell: HTMLElement): number {
               <span
                 slCheckbox
                 [checked]="isSelected(entry.node.key)"
-                [disabled]="isDisabled(entry.node.key) || undefined"
+                [disabled]="
+                  isDisabled(entry.node.key) || isUnselectable(entry.node.key) || undefined
+                "
                 [tabIndex]="isCurrent(entry.node.key, SELECTION) ? 0 : -1"
                 (checkedChange)="
                   toggleSelected(entry.node.key, {
@@ -1584,6 +1591,19 @@ export class SlDataGrid<Row = unknown> implements ControlValueAccessor {
   );
   readonly disabledKeys = input<readonly string[]>([]);
   /**
+   * Whether a row takes part in the selection. A row it refuses leaves the
+   * press, the Shift range, Ctrl+A and the header checkbox, and its own
+   * checkbox is disabled; it keeps its ink, its hover, its activation and its
+   * editing, which a row in `disabledKeys` loses.
+   */
+  readonly isRowSelectable = input<((row: Row) => boolean) | undefined>(undefined);
+  /**
+   * Whether a row is drawn as no longer active: its cells and the links in
+   * them take the muted ink. Everything the row answers stays, selection
+   * included.
+   */
+  readonly isRowMuted = input<((row: Row) => boolean) | undefined>(undefined);
+  /**
    * Marks a mounted cell whose value changed between two `rows`, for the
    * stated milliseconds (`true` is 1200). A row that arrived is not a change.
    */
@@ -2238,15 +2258,35 @@ export class SlDataGrid<Row = unknown> implements ControlValueAccessor {
   });
 
   /* ── Selection ──────────────────────────────────────────────────────── */
-  private readonly selectableKeys = computed(() => {
-    const source = this.resolvedMode() === 'client' ? this.applied().rows : this.bodyRows();
+  private readonly selectionRows = computed<readonly Row[]>(() => {
     const pinned = this.pinned();
     return [
-      ...pinned.top.map((node) => node.key),
-      ...source.map((row) => this.rowKeyOf(row)),
-      ...pinned.bottom.map((node) => node.key),
-    ].filter((key) => !this.disabledSet().has(key));
+      ...pinned.top.map((node) => node.row as Row),
+      ...(this.resolvedMode() === 'client' ? this.applied().rows : this.bodyRows()),
+      ...pinned.bottom.map((node) => node.row as Row),
+    ];
   });
+  private readonly unselectableSet = computed(() => {
+    const selectable = this.isRowSelectable();
+    return new Set(
+      selectable
+        ? this.selectionRows()
+            .filter((row) => !selectable(row))
+            .map((row) => this.rowKeyOf(row))
+        : undefined,
+    );
+  });
+  protected isUnselectable(key: string) {
+    return this.unselectableSet().has(key);
+  }
+  private refusesSelection(key: string) {
+    return this.disabledSet().has(key) || this.unselectableSet().has(key);
+  }
+  private readonly selectableKeys = computed(() =>
+    this.selectionRows()
+      .map((row) => this.rowKeyOf(row))
+      .filter((key) => !this.refusesSelection(key)),
+  );
   private readonly selectedList = computed<readonly string[]>(() => {
     const value = this.value();
     return Array.isArray(value)
@@ -2272,9 +2312,9 @@ export class SlDataGrid<Row = unknown> implements ControlValueAccessor {
   });
   protected readonly selectAllName = computed(() => {
     const total = this.total();
-    const count = this.selectableKeys().length;
-    return this.t(total !== null && total > count ? 'selectAllPage' : 'selectAllFiltered', {
-      count,
+    const page = total !== null && total > this.selectionRows().length;
+    return this.t(page ? 'selectAllPage' : 'selectAllFiltered', {
+      count: this.selectableKeys().length,
     });
   });
 
@@ -2302,7 +2342,7 @@ export class SlDataGrid<Row = unknown> implements ControlValueAccessor {
     options: { range?: boolean; source?: unknown; reason?: DataGridReason },
   ) {
     const mode = this.resolvedSelectionMode();
-    if (mode === 'none' || mode === 'range' || this.disabledSet().has(key) || this.formDisabled())
+    if (mode === 'none' || mode === 'range' || this.refusesSelection(key) || this.formDisabled())
       return;
     const outcome = nextSelection({
       action: options.range ? 'range' : 'toggle',
@@ -2311,7 +2351,7 @@ export class SlDataGrid<Row = unknown> implements ControlValueAccessor {
       keys: this.selectableKeys(),
       key,
       anchor: this.anchor,
-      disabled: (candidate) => this.disabledSet().has(candidate),
+      disabled: (candidate) => this.refusesSelection(candidate),
     });
     if (!options.range) this.anchor = key;
     if (outcome.changed)
@@ -3991,7 +4031,7 @@ export class SlDataGrid<Row = unknown> implements ControlValueAccessor {
     const pointer = this.pressedWith;
     this.pressedWith = '';
     if (insideWidget(event)) return;
-    if (this.resolvedSelectionMode() === 'single' && !this.disabledSet().has(cell.row)) {
+    if (this.resolvedSelectionMode() === 'single' && !this.refusesSelection(cell.row)) {
       this.toggleSelected(cell.row, { range: false, source: event });
     }
     /* On a touch screen one press opens the record: a double tap is a zoom,

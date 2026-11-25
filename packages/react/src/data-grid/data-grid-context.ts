@@ -85,6 +85,8 @@ export interface DataGridInternal<Row> {
   readonly isEditable: (column: GridColumn<Row>, row: Row) => boolean;
   readonly anyEditable: boolean;
   readonly isDisabled: (key: string) => boolean;
+  readonly isMuted: (key: string) => boolean;
+  readonly isUnselectable: (key: string) => boolean;
   readonly isExpandable: (row: Row) => boolean;
 
   /* cursor */
@@ -104,6 +106,8 @@ export interface DataGridInternal<Row> {
   readonly toggleAll: (source?: unknown) => void;
   readonly allState: 'none' | 'some' | 'all';
   readonly selectableCount: number;
+  /** The rows the selection answers for, the ones it refuses included. */
+  readonly selectionRowCount: number;
   readonly rangeBounds: RangeBounds | null;
   readonly rangeInfo: (cell: GridCell) => { inside: boolean; edges: readonly string[] };
   /** The mark of a cell whose value just changed — `a` or `b`, alternating so a second change restarts the paint — or `null`. */
@@ -242,7 +246,9 @@ const ROW_SCOPED = new Set<string>([
   'isDisabled',
   'isExpanded',
   'isLoadingChildren',
+  'isMuted',
   'isSelected',
+  'isUnselectable',
   'rangeBounds',
   'rangeInfo',
   'rowLabelOf',
@@ -284,6 +290,7 @@ const ROW_IGNORED = new Set<string>([
   'resizeBy',
   'resizeTo',
   'selectableCount',
+  'selectionRowCount',
   'selectedCount',
   'setCurrent',
   'setDraft',
@@ -374,6 +381,8 @@ export function createDataGridRowStore<Row>(initial: DataGridInternal<Row>): Dat
         version,
         value.isSelected(key) ? 1 : 0,
         value.isDisabled(key) ? 1 : 0,
+        value.isMuted(key) ? 1 : 0,
+        value.isUnselectable(key) ? 1 : 0,
         value.isExpanded(key) ? 1 : 0,
         value.isLoadingChildren(key) ? 1 : 0,
         value.hasPopinCell(key) ? 1 : 0,

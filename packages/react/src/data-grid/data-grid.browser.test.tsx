@@ -1,13 +1,15 @@
 import { emptyQuery } from '@slotted/core/grid';
 import { act, render } from '@testing-library/react';
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { cdp, userEvent } from 'vitest/browser';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Button } from '../button';
 import { Inline } from '../inline';
+import { Link } from '../link';
 import { DataGrid } from './data-grid';
-import type { DataGridColumn } from './data-grid.types';
+import type { DataGridColumn, DataGridProps } from './data-grid.types';
 
 interface Entry {
   id: string;
@@ -508,3 +510,69 @@ describe('the rows of a first load', () => {
     expect(Math.abs(bar.right - end)).toBeLessThan(1);
   });
 });
+
+describe('the ink of a row', () => {
+  const MUTED = 'rgb(1, 2, 3)';
+  const INK = 'rgb(4, 5, 6)';
+
+  function grid(props: Partial<DataGridProps<Entry>>) {
+    const { container } = render(
+      <div
+        style={
+          {
+            '--slotted-data-grid-color': INK,
+            '--slotted-data-grid-color-muted': MUTED,
+            '--slotted-tone-accent-text': 'rgb(7, 8, 9)',
+          } as CSSProperties
+        }
+      >
+        <DataGrid<Entry>
+          aria-label="Entries"
+          cellRenderers={{ payee: ({ text }) => <Link href="#payee">{text}</Link> }}
+          columns={COLUMNS}
+          rowKey="id"
+          rows={ROWS.slice(0, 3)}
+          selectionMode="multiple"
+          virtualize={false}
+          {...props}
+        />
+      </div>,
+    );
+
+    return (key: string, column: string) => {
+      const element = container.querySelector<HTMLElement>(
+        `[data-row="${key}"] [data-column="${column}"]`,
+      )!;
+      return getComputedStyle(element.querySelector('a') ?? element);
+    };
+  }
+
+  it('is the muted one in a row that is no longer active, its link included', () => {
+    const cell = grid({ isRowMuted: (row) => row.id === 'E1', value: ['E1'] });
+    const row = document.querySelector('[data-row="E1"]')!;
+
+    expect(cell('E1', 'amount').color).toBe(MUTED);
+    expect(cell('E1', 'payee').color).toBe(MUTED);
+    expect(cell('E0', 'amount').color).toBe(INK);
+    expect(cell('E0', 'payee').color).not.toBe(MUTED);
+    /* The selected ground stays under the muted ink. */
+    expect(getComputedStyle(row).backgroundColor).not.toBe(
+      getComputedStyle(document.querySelector('[data-row="E0"]')!).backgroundColor,
+    );
+  });
+
+  it('is the one of its neighbours in a row that cannot be selected', () => {
+    const cell = grid({ isRowSelectable: (row) => row.id !== 'E1' });
+
+    expect(cell('E1', 'amount').color).toBe(cell('E0', 'amount').color);
+  });
+
+  it('is the disabled one in a disabled row that is muted as well', () => {
+    const cell = grid({ disabledKeys: DISABLED_ROW, isRowMuted: () => true });
+
+    expect(cell('E1', 'amount').color).not.toBe(MUTED);
+    expect(cell('E0', 'amount').color).toBe(MUTED);
+  });
+});
+
+const DISABLED_ROW = ['E1'];
