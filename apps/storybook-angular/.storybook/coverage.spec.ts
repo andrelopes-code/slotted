@@ -16,7 +16,8 @@ const angularRoot = resolve(repositoryRoot, 'packages/angular');
 describe('Angular Storybook coverage', () => {
   const families = readdirSync(specsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name);
+    .map((entry) => entry.name)
+    .filter((family) => !isInternal(family));
 
   it('knows about more than one family', () => {
     expect(families.length).toBeGreaterThan(1);
@@ -75,3 +76,10 @@ it('keeps the manifest scripts intact', () => {
   const manifest = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8'));
   expect(manifest.scripts['build:storybook']).toContain('storybook build');
 });
+
+/** A shell other families are built on is drawn by their stories. */
+function isInternal(family: string): boolean {
+  const contract = readFileSync(resolve(specsRoot, family, 'contract.json'), 'utf8');
+
+  return (JSON.parse(contract) as { public?: boolean }).public === false;
+}

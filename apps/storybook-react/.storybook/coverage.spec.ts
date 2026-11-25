@@ -1,4 +1,4 @@
-import { globSync, readdirSync } from 'node:fs';
+import { globSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -18,7 +18,8 @@ const storybookRoot = resolve(repositoryRoot, 'apps/storybook-react/.storybook')
 describe('React Storybook coverage', () => {
   const families = readdirSync(specsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name);
+    .map((entry) => entry.name)
+    .filter((family) => !isInternal(family));
 
   it('names no single family in its story glob', () => {
     for (const pattern of config.stories as readonly string[]) {
@@ -57,3 +58,10 @@ describe('React Storybook coverage', () => {
     }
   });
 });
+
+/** A shell other families are built on is drawn by their stories. */
+function isInternal(family: string): boolean {
+  const contract = readFileSync(resolve(specsRoot, family, 'contract.json'), 'utf8');
+
+  return (JSON.parse(contract) as { public?: boolean }).public === false;
+}

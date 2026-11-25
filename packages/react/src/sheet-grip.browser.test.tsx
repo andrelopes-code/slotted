@@ -28,7 +28,7 @@ const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => r
  * where a `Drawer` sheet, the filter bar's and an action sheet all draw one,
  * and no pull that dismissed it.
  */
-describe.each(families)('a $name presented as a sheet', ({ name, Picker }) => {
+describe.each(families)('a $name presented as a sheet', ({ Picker }) => {
   it('draws a grip at its top that a pull down dismisses it by', async () => {
     await page.viewport(390, 844);
     const onOpenChange = vi.fn<OnOpenChange>();
@@ -37,7 +37,7 @@ describe.each(families)('a $name presented as a sheet', ({ name, Picker }) => {
     for (let index = 0; index < 10; index += 1) await frame();
     await Promise.all(document.getAnimations().map((animation) => animation.finished));
     const sheet = document.querySelector<HTMLElement>(
-      `[data-ui="${name}"][data-part="positioner"][data-presentation="sheet"]`,
+      '[data-ui="picker-panel"][data-part="positioner"][data-presentation="sheet"]',
     )!;
     const content = sheet.querySelector<HTMLElement>(':scope > [data-part="content"]')!;
     const grips = content.querySelectorAll<HTMLElement>('[data-part="grip"]');

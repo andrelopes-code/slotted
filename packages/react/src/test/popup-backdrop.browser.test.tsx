@@ -69,8 +69,8 @@ const CASES: [family: string, layer: string, popup: (open: boolean) => ReactNode
     (open) => <EntityPicker aria-label="Owner" items={[{ id: 'a', label: 'Ana' }]} open={open} />,
   ],
   [
-    'date-picker',
-    '[data-ui-date-picker][data-part-positioner]',
+    'picker-panel',
+    '[data-ui-picker-panel][data-part-positioner]',
     (open) => <DatePicker aria-label="Date" open={open} />,
   ],
   [

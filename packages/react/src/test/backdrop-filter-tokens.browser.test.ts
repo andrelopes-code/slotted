@@ -1,9 +1,9 @@
 import '@slotted/styles/action-bar/action-bar.css';
 import '@slotted/styles/combobox/combobox.css';
-import '@slotted/styles/date-picker/date-picker.css';
 import '@slotted/styles/drawer/drawer.css';
 import '@slotted/styles/entity-picker/entity-picker.css';
 import '@slotted/styles/menu/menu.css';
+import '@slotted/styles/picker-panel/picker-panel.css';
 import '@slotted/styles/popover/popover.css';
 import '@slotted/styles/select/select.css';
 import '@slotted/styles/tooltip/tooltip.css';
@@ -25,7 +25,7 @@ const SURFACES: [token: string, outer: string, inner: string | null][] = [
   ['select-content', 'data-ui-select', 'data-part-content'],
   ['combobox-content', 'data-ui-combobox', 'data-part-content'],
   ['entity-picker-content', 'data-ui-entity-picker', 'data-part-content'],
-  ['date-picker-content', 'data-ui-date-picker', 'data-part-content'],
+  ['picker-panel', 'data-ui-picker-panel', 'data-part-content'],
 ];
 
 function surface(outer: string, inner: string | null) {
