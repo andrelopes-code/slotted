@@ -176,5 +176,17 @@ export type {
   TimeValueFormat,
   TypedDigit,
 } from './segments';
+export {
+  clockColumns,
+  clockModel,
+  dayPeriod,
+  slotGroups,
+  withClockHour,
+  withClockMinute,
+  withClockSecond,
+} from './clock';
+export type { ClockModel, ClockPeriod, ClockRules, ClockUnit, SlotGroup } from './clock';
+export { presetValue, relativeDays } from './relative';
+export type { PickerPreset } from './relative';
 export { monthGrid, visibleMonths, yearPage } from './grid';
 export type { CalendarDay, CalendarWeek, MonthGridOptions } from './grid';
