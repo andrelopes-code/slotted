@@ -86,7 +86,7 @@ export function usePickerLayer(options: PickerLayerOptions): PickerLayer {
       'top' | 'bottom',
       'start' | 'end' | undefined,
     ];
-    const handle = createPositioner(anchor, layerNode, { align, side });
+    const handle = createPositioner(anchor, layerNode, { align, side, sideOffset: 4 });
     void handle.update();
 
     return () => {

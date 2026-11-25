@@ -1,10 +1,16 @@
-import type { PlainDate, PlainDateTime, PlainTime, TimeGranularity } from '@slotted/core/date';
+import type {
+  PickerPreset,
+  PlainDate,
+  PlainDateTime,
+  PlainTime,
+  TimeGranularity,
+} from '@slotted/core/date';
 import type { DatetimePickerMessages, PartialMessages } from '@slotted/core/i18n';
 import type { ChangeRequest } from '@slotted/core/state';
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref } from 'react';
 
+import type { ClockSlotState } from '../clock';
 import type {
-  DateTimeFieldChangeRequest,
   DateTimeFieldHourCycle,
   DateTimeFieldSize,
   DateTimeFieldVariant,
@@ -18,64 +24,24 @@ export type DateTimePickerHourCycle = DateTimeFieldHourCycle;
 export type DateTimePickerPlacement =
   'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
 
-/**
- * When the panel closes on a press.
- *
- * `auto` is the family's own rule, and it is what lets the panel need no
- * confirm button: it closes on the press that **completed** the value and stays
- * open otherwise — so a reader who opened a filled field to change both halves
- * is not shut out by their first press.
- */
-export type DateTimePickerCloseOnSelect = 'auto' | 'always' | 'never';
-
-/** Which surface focus lands on when the panel opens. */
-export type DateTimePickerOpenTo = 'date' | 'time';
-
-/** What a refused option does: stay and say so, or go. */
-export type DateTimePickerUnavailableOptions = 'disable' | 'hide';
-
-/**
- * Where the reader is in the panel.
- *
- * One highlight for two surfaces, because a two-surface panel has one answer to
- * that question and it is a datetime: the day the calendar has focused beside
- * the time the list has highlighted. Two models would be two names for one
- * place — and the contract schema holds one `current` capability for exactly
- * that reason.
- *
- * The time is `null` while the day the reader is on offers none, which is the
- * state the `empty` part draws.
- */
-export interface DateTimePickerHighlight {
-  readonly date: PlainDate;
-  readonly time: PlainTime | null;
-}
-
-/** What one row of the list is handed when a consumer draws it. */
-export interface DateTimePickerOptionRender {
-  readonly time: PlainTime;
-  readonly date: PlainDate;
-  readonly label: string;
-  readonly selected: boolean;
-  readonly current: boolean;
-  readonly unavailable: boolean;
+/** What `renderSlot` is handed: one whole time, and the day it is a time of. */
+export interface DateTimePickerSlotState extends ClockSlotState {
+  /** The day in the draft, `null` before one is chosen. */
+  readonly date: PlainDate | null;
 }
 
 /** What an application sets once for every datetime picker under it. */
 export interface DateTimePickerDefaults {
   calendar: 'gregory';
-  closeOnSelect: DateTimePickerCloseOnSelect;
+  /** Whether the panel keeps a draft until Apply. */
+  confirm: boolean;
   granularity: TimeGranularity;
   hourCycle: DateTimePickerHourCycle | undefined;
-  /** How many rows the list may reach before it is cut. */
-  maxOptions: number;
-  openTo: DateTimePickerOpenTo;
   placement: DateTimePickerPlacement;
   size: DateTimePickerSize;
   /** Seconds between two offered times. */
   step: number;
   timeZone: string | undefined;
-  unavailableOptions: DateTimePickerUnavailableOptions;
   variant: DateTimePickerVariant;
 }
 
@@ -111,21 +77,12 @@ export interface DateTimePickerProps extends Omit<
   value?: PlainDateTime | null | undefined;
   defaultValue?: PlainDateTime | null | undefined;
   onValueChange?:
-    ((value: PlainDateTime | null, request: DateTimeFieldChangeRequest) => void) | undefined;
+    | ((value: PlainDateTime | null, request: ChangeRequest<PlainDateTime | null>) => void)
+    | undefined;
 
   open?: boolean | undefined;
   defaultOpen?: boolean | undefined;
   onOpenChange?: ((open: boolean, request: ChangeRequest<boolean>) => void) | undefined;
-
-  /** Where the reader is in the panel: one highlight for both surfaces. */
-  highlighted?: DateTimePickerHighlight | undefined;
-  defaultHighlighted?: DateTimePickerHighlight | undefined;
-  onHighlightedChange?:
-    | ((
-        highlighted: DateTimePickerHighlight,
-        request: ChangeRequest<DateTimePickerHighlight>,
-      ) => void)
-    | undefined;
 
   /** The earliest whole value: where the range starts. */
   min?: PlainDateTime | undefined;
@@ -148,8 +105,6 @@ export interface DateTimePickerProps extends Omit<
    * predicate can only subtract from times that fall on one.
    */
   options?: readonly PlainTime[] | undefined;
-  maxOptions?: number | undefined;
-  unavailableOptions?: DateTimePickerUnavailableOptions | undefined;
 
   /** BCP 47. Writes the field, the grid, the list and the trigger's moment. Unset, the language in force decides. */
   locale?: string | undefined;
@@ -158,22 +113,21 @@ export interface DateTimePickerProps extends Omit<
   granularity?: TimeGranularity | undefined;
   calendar?: 'gregory' | undefined;
   firstDayOfWeek?: number | undefined;
-  /** How many months the calendar draws. */
-  months?: number | undefined;
   weekNumbers?: boolean | undefined;
   /**
-   * The datetime an empty field steps from, and the option the list opens on
-   * when a day is pressed with the time half empty. One prop for both, because
-   * they are the same question:
-   * which datetime the family assumes where the reader has stated nothing.
+   * The moment it is: what an empty field steps from, and what the panel counts
+   * the distance and the steps from. Unset, the clock is read.
    */
   referenceDateTime?: PlainDateTime | undefined;
 
   size?: DateTimePickerSize | undefined;
   variant?: DateTimePickerVariant | undefined;
   placement?: DateTimePickerPlacement | undefined;
-  openTo?: DateTimePickerOpenTo | undefined;
-  closeOnSelect?: DateTimePickerCloseOnSelect | undefined;
+  /**
+   * Whether the panel keeps a draft until Apply. `false` writes a whole moment
+   * on every press, and closes on the one that completes it. Defaults to `true`.
+   */
+  confirm?: boolean | undefined;
 
   disabled?: boolean | undefined;
   readOnly?: boolean | undefined;
@@ -188,17 +142,18 @@ export interface DateTimePickerProps extends Omit<
 
   /**
    * Words laid over the catalog of the language in force, key by key: the
-   * trigger's two names, the `now` button, what an empty day says and what a
-   * cut list says.
+   * trigger's two names, and what the panel says of a refused moment.
    */
   messages?: PartialMessages<DatetimePickerMessages> | undefined;
 
-  /** The consumer's own shortcuts, in the head beside `now`. */
-  presets?: ReactNode | undefined;
-  /** The consumer's own actions, under both surfaces. */
+  /** The consumer's own shortcuts, after Now. */
+  presets?: readonly PickerPreset<PlainDateTime>[] | undefined;
+  /** Steps from now, in seconds. Defaults to an hour, four hours and a day. */
+  offsets?: readonly number[] | undefined;
+  /** What the footer says when nothing is wrong. Unset, the step. */
   footer?: ReactNode | undefined;
-  /** What one row of the list holds. The row is the family's. */
-  renderOption?: ((option: DateTimePickerOptionRender) => ReactNode) | undefined;
+  /** What one whole time of `options` draws. The button around it is the clock's. */
+  renderSlot?: ((state: DateTimePickerSlotState) => ReactNode) | undefined;
 
   render?: ((props: DateTimePickerRootProps) => ReactNode) | undefined;
   ref?: Ref<DateTimePickerHandle> | undefined;

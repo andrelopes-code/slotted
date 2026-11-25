@@ -1,9 +1,16 @@
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
+
+/** A head that brings its part, in a panel of one part at a time. */
+export interface PickerReveal {
+  readonly onShow: (event: MouseEvent<HTMLButtonElement>) => void;
+  readonly shown: boolean;
+}
 
 interface PickerHeadProps {
   readonly empty?: boolean | undefined;
   readonly invalid?: boolean | undefined;
   readonly meta: string;
+  readonly reveal?: PickerReveal | undefined;
   readonly steps?: ReactNode;
   readonly value: string;
 }
@@ -13,20 +20,21 @@ interface PickerTimeHeadProps {
   readonly children: ReactNode;
   readonly label: string;
   readonly meta: string;
+  readonly reveal?: PickerReveal | undefined;
 }
 
 /** The value in words, what it means beside today, and the steps that move it. */
-export function PickerHead({ empty, invalid, meta, steps, value }: PickerHeadProps) {
+export function PickerHead({ empty, invalid, meta, reveal, steps, value }: PickerHeadProps) {
   return (
     <div data-part="head" data-part-head="">
-      <span
-        data-part="value"
-        data-part-value=""
+      <PickerHeadName
+        part="value"
+        reveal={reveal}
         {...(empty === true ? { 'data-empty': '' } : {})}
         {...(invalid === true ? { 'data-invalid': '' } : {})}
       >
         {value}
-      </span>
+      </PickerHeadName>
       <span data-part="meta" data-part-meta="">
         {meta}
       </span>
@@ -40,12 +48,12 @@ export function PickerHead({ empty, invalid, meta, steps, value }: PickerHeadPro
 }
 
 /** The name of a time, what it means beside now, and the field it is typed in. */
-export function PickerTimeHead({ children, label, meta }: PickerTimeHeadProps) {
+export function PickerTimeHead({ children, label, meta, reveal }: PickerTimeHeadProps) {
   return (
     <div data-part="time-head" data-part-time-head="">
-      <span data-part="time-label" data-part-time-label="">
+      <PickerHeadName part="time-label" reveal={reveal}>
         {label}
-      </span>
+      </PickerHeadName>
       <span data-part="time-meta" data-part-time-meta="">
         {meta}
       </span>
@@ -53,5 +61,24 @@ export function PickerTimeHead({ children, label, meta }: PickerTimeHeadProps) {
         {children}
       </span>
     </div>
+  );
+}
+
+interface PickerHeadNameProps {
+  readonly children: ReactNode;
+  readonly 'data-empty'?: '';
+  readonly 'data-invalid'?: '';
+  readonly part: 'time-label' | 'value';
+  readonly reveal: PickerReveal | undefined;
+}
+
+function PickerHeadName({ children, part, reveal, ...state }: PickerHeadNameProps) {
+  const name = { ...state, 'data-part': part, [`data-part-${part}`]: '' };
+  if (reveal === undefined) return <span {...name}>{children}</span>;
+
+  return (
+    <button {...name} aria-expanded={reveal.shown} onClick={reveal.onShow} type="button">
+      {children}
+    </button>
   );
 }

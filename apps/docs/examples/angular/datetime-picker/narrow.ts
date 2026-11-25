@@ -1,58 +1,24 @@
-import { Component, signal } from '@angular/core';
-import { SlButton } from '@slotted/angular/button';
-import { SlDateTimePicker, SlDateTimePickerPresets } from '@slotted/angular/datetime-picker';
+import { Component } from '@angular/core';
+import { SlDateTimePicker } from '@slotted/angular/datetime-picker';
 import { SlField, SlFieldLabel } from '@slotted/angular/field';
-import {
-  addDays,
-  plainDate,
-  plainDateTime,
-  plainTime,
-  type PlainDateTime,
-} from '@slotted/core/date';
+import { addDays, plainDate, plainDateTime, plainTime } from '@slotted/core/date';
 
 const TODAY = plainDate(2026, 9, 30);
 
 @Component({
   selector: 'app-datetime-picker-narrow',
-  imports: [SlButton, SlDateTimePicker, SlDateTimePickerPresets, SlField, SlFieldLabel],
+  imports: [SlDateTimePicker, SlField, SlFieldLabel],
   template: `
     <div slField>
       <label slFieldLabel>Delivery appointment</label>
-      <div
-        slDateTimePicker
-        #picker="slDateTimePicker"
-        [referenceDateTime]="reference"
-        [step]="1800"
-        [value]="delivery()"
-        (valueChange)="delivery.set($event.value)"
-      >
-        <div slDateTimePickerPresets>
-          <button
-            slButton
-            size="sm"
-            type="button"
-            variant="ghost"
-            (click)="delivery.set(todayAtFive); picker.closeSurface()"
-          >
-            Today, 5:00 PM
-          </button>
-          <button
-            slButton
-            size="sm"
-            type="button"
-            variant="ghost"
-            (click)="delivery.set(tomorrowAtNine); picker.closeSurface()"
-          >
-            Tomorrow, 9:00 AM
-          </button>
-        </div>
-      </div>
+      <div slDateTimePicker [presets]="presets" [referenceDateTime]="reference" [step]="1800"></div>
     </div>
   `,
 })
 export class DateTimePickerNarrow {
   protected readonly reference = plainDateTime(TODAY, plainTime(9, 0));
-  protected readonly todayAtFive = plainDateTime(TODAY, plainTime(17, 0));
-  protected readonly tomorrowAtNine = plainDateTime(addDays(TODAY, 1), plainTime(9, 0));
-  protected readonly delivery = signal<PlainDateTime | null>(null);
+  protected readonly presets = [
+    { label: 'End of today', value: plainDateTime(TODAY, plainTime(17, 0)) },
+    { label: 'Tomorrow early', value: plainDateTime(addDays(TODAY, 1), plainTime(9, 0)) },
+  ];
 }

@@ -1,6 +1,5 @@
-import { useRef, useState } from 'react';
-import { Button } from '@slotted/react/button';
-import { DateTimePicker, type DateTimePickerHandle } from '@slotted/react/datetime-picker';
+import { useState } from 'react';
+import { DateTimePicker } from '@slotted/react/datetime-picker';
 import { Field, FieldDescription, FieldLabel } from '@slotted/react/field';
 import {
   addDays,
@@ -21,13 +20,7 @@ const NEXT_MONDAY = plainDateTime(
 const words = createDateTimeFormat({ locale: 'en-US' });
 
 export default function DateTimePickerPublishAt() {
-  const picker = useRef<DateTimePickerHandle>(null);
   const [publishAt, setPublishAt] = useState<PlainDateTime | null>(TOMORROW);
-
-  const choose = (next: PlainDateTime) => {
-    setPublishAt(next);
-    picker.current?.close();
-  };
 
   return (
     <Field required>
@@ -35,17 +28,10 @@ export default function DateTimePickerPublishAt() {
       <DateTimePicker
         min={NOW}
         onValueChange={setPublishAt}
-        presets={
-          <>
-            <Button onClick={() => choose(TOMORROW)} size="sm" variant="ghost">
-              Tomorrow, 9:00 AM
-            </Button>
-            <Button onClick={() => choose(NEXT_MONDAY)} size="sm" variant="ghost">
-              Monday, 9:00 AM
-            </Button>
-          </>
-        }
-        ref={picker}
+        presets={[
+          { label: 'Tomorrow', value: TOMORROW },
+          { label: 'Monday', value: NEXT_MONDAY },
+        ]}
         referenceDateTime={NOW}
         timeZone="America/New_York"
         value={publishAt}

@@ -32,7 +32,7 @@ import {
   withClockMinute,
   withClockSecond,
 } from '@slotted/core/date';
-import type { ClockCell, PlainTime, TimeGranularity } from '@slotted/core/date';
+import type { ClockCell, PlainDate, PlainTime, TimeGranularity } from '@slotted/core/date';
 import { clockMessages } from '@slotted/core/i18n';
 import type { ClockMessages, PartialMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
@@ -46,11 +46,17 @@ import type {
   ClockUnitName,
 } from './clock.types';
 
+interface ClockSlotContext {
+  readonly $implicit: PlainTime;
+  /** The day it is a time of, in a picker that has one. */
+  readonly date?: PlainDate | null;
+  readonly state: ClockSlotState;
+}
+
 /** What one whole time draws. The button around it is the family's. */
 @Directive({ selector: 'ng-template[slClockSlot]', standalone: true })
 export class SlClockSlot {
-  readonly template =
-    inject<TemplateRef<{ $implicit: PlainTime; state: ClockSlotState }>>(TemplateRef);
+  readonly template = inject<TemplateRef<ClockSlotContext>>(TemplateRef);
 }
 
 /**

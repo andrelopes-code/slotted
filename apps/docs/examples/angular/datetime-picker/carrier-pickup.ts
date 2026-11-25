@@ -1,12 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
-import { SlButton } from '@slotted/angular/button';
-import {
-  SlDateTimePicker,
-  SlDateTimePickerFooter,
-  SlDateTimePickerOption,
-} from '@slotted/angular/datetime-picker';
+import { SlClockSlot } from '@slotted/angular/clock';
+import { SlDateTimePicker } from '@slotted/angular/datetime-picker';
 import { SlField, SlFieldDescription, SlFieldLabel } from '@slotted/angular/field';
-import { SlText } from '@slotted/angular/typography';
 import {
   createDateTimeFormat,
   dayOfWeek,
@@ -35,23 +30,13 @@ const trucksLeft = (time: PlainTime, date: PlainDate) =>
 
 @Component({
   selector: 'app-datetime-picker-carrier-pickup',
-  imports: [
-    SlButton,
-    SlDateTimePicker,
-    SlDateTimePickerFooter,
-    SlDateTimePickerOption,
-    SlField,
-    SlFieldDescription,
-    SlFieldLabel,
-    SlText,
-  ],
+  imports: [SlClockSlot, SlDateTimePicker, SlField, SlFieldDescription, SlFieldLabel],
   template: `
     <div slField required>
       <label slFieldLabel>Carrier pickup slot</label>
       <div
         slDateTimePicker
-        #picker="slDateTimePicker"
-        closeOnSelect="never"
+        [hourCycle]="24"
         [isDateUnavailable]="isWeekend"
         [isTimeUnavailable]="isFull"
         [min]="earliest"
@@ -60,19 +45,9 @@ const trucksLeft = (time: PlainTime, date: PlainDate) =>
         [value]="pickup()"
         (valueChange)="pickup.set($event.value)"
       >
-        <ng-template
-          slDateTimePickerOption
-          let-time
-          let-date="date"
-          let-label="label"
-          let-unavailable="unavailable"
-        >
-          <span>{{ label }}</span>
-          <span slText size="sm" tone="muted">{{ capacity(time, date, unavailable) }}</span>
+        <ng-template slClockSlot let-time let-date="date" let-state="state">
+          {{ slot(time, date, state.label) }}
         </ng-template>
-        <div slDateTimePickerFooter>
-          <button slButton size="sm" type="button" (click)="picker.closeSurface()">Done</button>
-        </div>
       </div>
       <span slFieldDescription>{{ summary() }}</span>
     </div>
@@ -92,7 +67,7 @@ export class DateTimePickerCarrierPickup {
   protected readonly summary = computed(() => {
     const pickup = this.pickup();
     return pickup === null
-      ? 'Harbor Freightways collects on weekdays, in four windows.'
+      ? 'Harbor Freightways collects on weekdays. Each window says the trucks left.'
       : `Harbor Freightways collects on ${words.describe(pickup)}.`;
   });
 
@@ -100,7 +75,9 @@ export class DateTimePickerCarrierPickup {
     dayOfWeek(date) === 0 || dayOfWeek(date) === 6;
   protected readonly isFull = (time: PlainTime, date: PlainDate) => trucksLeft(time, date) === 0;
 
-  protected capacity(time: PlainTime, date: PlainDate, unavailable: boolean): string {
-    return unavailable ? 'Full' : `${trucksLeft(time, date)} of ${TRUCKS_PER_WINDOW} trucks left`;
+  protected slot(time: PlainTime, date: PlainDate | null, label: string): string {
+    const left = date === null ? 0 : trucksLeft(time, date);
+
+    return left === 0 ? label : `${label} (${String(left)})`;
   }
 }

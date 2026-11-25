@@ -223,8 +223,10 @@
       [data-part-half-day],
       [data-part-half-time],
       [data-part-clear],
-      [data-part-apply]
-    ) {
+      [data-part-apply],
+      [data-part-value],
+      [data-part-time-label]
+    ):where(button) {
     appearance: none;
     background-color: transparent;
     border: 0;
@@ -256,6 +258,8 @@
       [data-part-half-time],
       [data-part-clear],
       [data-part-apply],
+      [data-part-value],
+      [data-part-time-label],
       [data-part-ruler-handle]
     ):focus-visible {
     outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
@@ -491,6 +495,7 @@
     align-self: end;
     font-weight: var(--slotted-font-weight-semibold, 600);
     overflow: hidden;
+    text-align: start;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -630,6 +635,8 @@
   [data-ui-picker-panel] [data-part-body] {
     display: grid;
     flex: 1;
+    /* What stands under a clock takes its own height, and the clock the rest. */
+    grid-template-rows: 1fr;
     justify-items: center;
     padding: var(--slotted-space-3, 0.375rem) var(--_pad) var(--slotted-space-4, 0.5rem);
   }
@@ -640,6 +647,7 @@
 
   [data-ui-picker-panel] [data-part-side] {
     border-inline-start: var(--_edge);
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     grid-area: side;
@@ -908,6 +916,28 @@
       > [data-part-body],
     [data-ui-picker-panel] [data-part-clocks] > [data-ui-clock]:not([data-current]) {
       display: none;
+    }
+
+    /* The whole head answers the press; the field of a time stays over it. */
+    [data-ui-picker-panel] :is([data-part-head], [data-part-time-head]) {
+      position: relative;
+    }
+
+    [data-ui-picker-panel] :is([data-part-value], [data-part-time-label]):is(button)::after {
+      content: '';
+      inset: 0;
+      position: absolute;
+    }
+
+    [data-ui-picker-panel] [data-part-time-value] {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* A head whose part is away stands on the edge of what follows. */
+    [data-ui-picker-panel][data-showing='day'] [data-part-side] > [data-part-time-head],
+    [data-ui-picker-panel][data-showing='time'] [data-part-main] > [data-part-head] {
+      border-block-end: 0;
     }
 
     [data-ui-picker-panel] [data-part-side] {

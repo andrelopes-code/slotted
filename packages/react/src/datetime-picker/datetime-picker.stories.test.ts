@@ -6,7 +6,7 @@ import contract from '../../../../specs/components/datetime-picker/contract.json
 import { REACT_DATETIME_PICKER_DOCS } from './datetime-picker.docs';
 import * as dateTimePickerStories from './datetime-picker.stories';
 
-describe('DateTimePicker stories', () => {
+describe('Datetime Picker stories', () => {
   it('covers every required scenario', () => {
     expect(
       scenarioCoverageErrors(contract.scenarios.dateTimePicker, dateTimePickerStories),
@@ -28,10 +28,9 @@ describe('DateTimePicker stories', () => {
   });
 
   /**
-   * The family holds three mutable values — the datetime, the panel and the
-   * highlight — so the page owes an event table as well as the import, the
-   * anatomy and one captioned demonstration per scenario with the code that
-   * produced it.
+   * The family holds one mutable value, so the page owes an event table as
+   * well as the import, the anatomy and one captioned demonstration per
+   * scenario with the code that produced it.
    */
   it('answers the reference-page contract', () => {
     expect(

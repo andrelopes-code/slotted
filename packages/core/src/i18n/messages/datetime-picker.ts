@@ -7,17 +7,14 @@ export interface DatetimePickerMessages {
   readonly change: Message<{ date: string }>;
   /** The trigger's name while nothing is chosen. */
   readonly choose: Message;
-  readonly empty: Message;
-  readonly now: Message;
-  readonly truncated: Message;
+  /** What the panel says of a moment a bound or a predicate refuses. */
+  readonly refused: Message;
 }
 
 export const en: DatetimePickerMessages = {
   change: 'Change date and time, {date}',
   choose: 'Choose date and time',
-  empty: 'No time is available on this day.',
-  now: 'Now',
-  truncated: 'The list is cut short. Times past the end are typed into the field.',
+  refused: 'Not an accepted date and time',
 };
 
 export const datetimePickerMessages: MessageFamily<'datetimePicker', DatetimePickerMessages> = {

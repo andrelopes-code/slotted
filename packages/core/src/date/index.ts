@@ -198,10 +198,21 @@ export {
   momentMeta,
   monthMeta,
   shortDay,
+  shortMoment,
   shortRun,
   stepLabel,
   timeMeta,
 } from './picker-words';
+export {
+  dayTimes,
+  isRefusedDay,
+  isRefusedMoment,
+  isSameMomentDraft,
+  momentDraft,
+  momentOf,
+  stepToDay,
+} from './moment';
+export type { DayTimes, MomentDraft, MomentRules } from './moment';
 export { isPastLimit, lengthOf, refusalOf, stepRun } from './range-panel';
 export type { RunRefusal } from './range-panel';
 export { rulerKeyTarget, rulerShare, rulerTimeAt } from './ruler';

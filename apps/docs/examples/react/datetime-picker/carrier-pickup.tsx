@@ -1,8 +1,6 @@
-import { useRef, useState } from 'react';
-import { Button } from '@slotted/react/button';
-import { DateTimePicker, type DateTimePickerHandle } from '@slotted/react/datetime-picker';
+import { useState } from 'react';
+import { DateTimePicker } from '@slotted/react/datetime-picker';
 import { Field, FieldDescription, FieldLabel } from '@slotted/react/field';
-import { Text } from '@slotted/react/typography';
 import {
   createDateTimeFormat,
   dayOfWeek,
@@ -33,41 +31,27 @@ const trucksLeft = (time: PlainTime, date: PlainDate) =>
 const isWeekend = (date: PlainDate) => dayOfWeek(date) === 0 || dayOfWeek(date) === 6;
 
 export default function DateTimePickerCarrierPickup() {
-  const picker = useRef<DateTimePickerHandle>(null);
   const [pickup, setPickup] = useState<PlainDateTime | null>(null);
 
   return (
     <Field required>
       <FieldLabel>Carrier pickup slot</FieldLabel>
       <DateTimePicker
-        closeOnSelect="never"
-        footer={
-          <Button onClick={() => picker.current?.close()} size="sm">
-            Done
-          </Button>
-        }
+        hourCycle={24}
         isDateUnavailable={isWeekend}
         isTimeUnavailable={(time, date) => trucksLeft(time, date) === 0}
         min={plainDateTime(plainDate(2026, 10, 1), plainTime(8, 0))}
         onValueChange={setPickup}
         options={WINDOWS}
-        ref={picker}
         referenceDateTime={plainDateTime(plainDate(2026, 10, 1), plainTime(10, 30))}
-        renderOption={({ date, label, time, unavailable }) => (
-          <>
-            <span>{label}</span>
-            <Text size="sm" tone="muted">
-              {unavailable
-                ? 'Full'
-                : `${trucksLeft(time, date)} of ${TRUCKS_PER_WINDOW} trucks left`}
-            </Text>
-          </>
-        )}
+        renderSlot={({ date, label, time, unavailable }) =>
+          date === null || unavailable ? label : `${label} (${String(trucksLeft(time, date))})`
+        }
         value={pickup}
       />
       <FieldDescription>
         {pickup === null
-          ? 'Harbor Freightways collects on weekdays, in four windows.'
+          ? 'Harbor Freightways collects on weekdays. Each window says the trucks left.'
           : `Harbor Freightways collects on ${words.describe(pickup)}.`}
       </FieldDescription>
     </Field>

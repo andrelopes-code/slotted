@@ -6,7 +6,7 @@ import contract from '../../../../specs/components/datetime-picker/contract.json
 import { ANGULAR_DATETIME_PICKER_DOCS } from './datetime-picker.docs';
 import * as dateTimePickerStories from './datetime-picker.stories';
 
-describe('Angular DateTimePicker stories', () => {
+describe('Angular Datetime Picker stories', () => {
   it('covers every required scenario', () => {
     expect(
       scenarioCoverageErrors(contract.scenarios.dateTimePicker, dateTimePickerStories),

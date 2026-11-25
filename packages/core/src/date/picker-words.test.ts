@@ -7,6 +7,7 @@ import {
   momentMeta,
   monthMeta,
   shortDay,
+  shortMoment,
   shortRun,
   stepLabel,
   timeMeta,
@@ -42,6 +43,14 @@ describe('the words of a panel', () => {
   it('name a step by its length', () => {
     expect(stepLabel(900, 'en-US')).toBe('+15 min');
     expect(stepLabel(86400, 'en-US')).toBe('+1 day');
+  });
+
+  it('write a moment on the clock it is read on', () => {
+    const moment = plainDateTime(plainDate(2026, 11, 30), plainTime(14, 30));
+
+    expect(shortMoment(moment, 'en-US')).toBe('Nov 30, 2:30 PM');
+    expect(shortMoment(moment, 'en-US', { hourCycle: 24 })).toBe('Nov 30, 14:30');
+    expect(shortMoment(moment, 'en-US', { granularity: 'hour', hourCycle: 24 })).toBe('Nov 30, 14');
   });
 
   it('write a day, a run of days and a month', () => {

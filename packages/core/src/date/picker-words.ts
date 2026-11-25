@@ -3,11 +3,18 @@ import type { PickerPanelMessages } from '../i18n/messages/picker-panel';
 import { isoWeekNumber } from './plain-date';
 import type { PlainDate } from './plain-date';
 import type { PlainDateTime } from './plain-date-time';
+import { secondsOfDay } from './plain-time';
 import type { PlainTime, TimeGranularity } from './plain-time';
 import { relativeDays } from './relative';
 import { dateTimeRangeSeconds, durationLabel, timeRangeSeconds } from './time-range';
 
 type Words = FamilyTranslator<PickerPanelMessages>;
+
+/** The clock a moment is written on. */
+interface MomentShape {
+  readonly granularity?: TimeGranularity | undefined;
+  readonly hourCycle?: 12 | 24 | undefined;
+}
 
 /** How far a date is from today, and the week it is in: "in 5 days, week 49". */
 export function dayMeta(date: PlainDate, today: PlainDate, locale: string, t: Words): string {
@@ -35,6 +42,22 @@ export function headDay(date: PlainDate, today: PlainDate, locale: string): stri
 /** A run of days, the parts the two ends share written once: "Nov 27 – Dec 4". */
 export function shortRun(start: PlainDate, end: PlainDate, locale: string): string {
   return dayFormat(locale, { day: 'numeric', month: 'short' }).formatRange(utc(start), utc(end));
+}
+
+/** A moment as a shortcut writes it: "Nov 30, 2:30 PM". */
+export function shortMoment(
+  { date, time }: PlainDateTime,
+  locale: string,
+  { granularity = 'minute', hourCycle }: MomentShape = {},
+): string {
+  return dayFormat(locale, {
+    day: 'numeric',
+    hour: 'numeric',
+    month: 'short',
+    ...(granularity === 'hour' ? {} : { minute: '2-digit' }),
+    ...(granularity === 'second' ? { second: '2-digit' } : {}),
+    ...(hourCycle === undefined ? {} : { hourCycle: hourCycle === 24 ? 'h23' : 'h12' }),
+  }).format(new Date(utc(date).getTime() + secondsOfDay(time) * 1000));
 }
 
 /** How far a month is from this one: "next month", "in 3 months". */

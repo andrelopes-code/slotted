@@ -259,7 +259,6 @@ test('declares the axes the composed families declare', () => {
   assert.deepEqual(contract.axes.calendar, calendar.axes.calendar);
   assert.deepEqual(contract.axes.granularity, dateTimePicker.axes.granularity);
   assert.deepEqual(contract.axes.hourCycle, dateTimePicker.axes.hourCycle);
-  assert.deepEqual(contract.axes.unavailableOptions, dateTimePicker.axes.unavailableOptions);
 });
 
 test('submits two named values in a plain form', () => {

@@ -18,13 +18,27 @@ import type { PickerSpanView } from './picker-views';
   selector: '[slPickerHead]',
   standalone: true,
   template: `
-    <span
-      data-part="value"
-      data-part-value=""
-      [attr.data-empty]="empty() ? '' : null"
-      [attr.data-invalid]="invalid() ? '' : null"
-      >{{ value() }}</span
-    >
+    @if (shown() === undefined) {
+      <span
+        data-part="value"
+        data-part-value=""
+        [attr.data-empty]="empty() ? '' : null"
+        [attr.data-invalid]="invalid() ? '' : null"
+        >{{ value() }}</span
+      >
+    } @else {
+      <button
+        data-part="value"
+        data-part-value=""
+        type="button"
+        [attr.aria-expanded]="shown()"
+        [attr.data-empty]="empty() ? '' : null"
+        [attr.data-invalid]="invalid() ? '' : null"
+        (click)="revealed.emit($event)"
+      >
+        {{ value() }}
+      </button>
+    }
     <span data-part="meta" data-part-meta="">{{ meta() }}</span>
     <span data-part="steps" data-part-steps=""><ng-content /></span>
   `,
@@ -36,7 +50,11 @@ export class SlPickerHead {
   readonly empty = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly meta = input.required<string>();
+  /** Stated, the head is a press that brings its part, in a panel of one at a time. */
+  readonly shown = input<boolean | undefined>(undefined);
   readonly value = input.required<string>();
+
+  readonly revealed = output<Event>();
 }
 
 /** The name of a time, what it means beside now, and the field it is typed in. */
@@ -44,7 +62,19 @@ export class SlPickerHead {
   selector: '[slPickerTimeHead]',
   standalone: true,
   template: `
-    <span data-part="time-label" data-part-time-label="">{{ label() }}</span>
+    @if (shown() === undefined) {
+      <span data-part="time-label" data-part-time-label="">{{ label() }}</span>
+    } @else {
+      <button
+        data-part="time-label"
+        data-part-time-label=""
+        type="button"
+        [attr.aria-expanded]="shown()"
+        (click)="revealed.emit($event)"
+      >
+        {{ label() }}
+      </button>
+    }
     <span data-part="time-meta" data-part-time-meta="">{{ meta() }}</span>
     <span data-part="time-value" data-part-time-value=""><ng-content /></span>
   `,
@@ -55,6 +85,10 @@ export class SlPickerHead {
 export class SlPickerTimeHead {
   readonly label = input.required<string>();
   readonly meta = input.required<string>();
+  /** Stated, the head is a press that brings its part, in a panel of one at a time. */
+  readonly shown = input<boolean | undefined>(undefined);
+
+  readonly revealed = output<Event>();
 }
 
 /** The two ends of a run, and its length between them. */

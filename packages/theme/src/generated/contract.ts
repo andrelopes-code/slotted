@@ -3479,31 +3479,8 @@ export type ComponentToken =
   | '--slotted-datetime-field-subtle-background'
   | '--slotted-datetime-field-subtle-border-color'
   | '--slotted-datetime-field-subtle-hover-background'
-  | '--slotted-datetime-picker-content-border-color'
-  | '--slotted-datetime-picker-content-color'
-  | '--slotted-datetime-picker-content-padding'
-  | '--slotted-datetime-picker-content-radius'
-  | '--slotted-datetime-picker-content-shadow'
   | '--slotted-datetime-picker-invalid-focus-ring-color'
-  | '--slotted-datetime-picker-label-color'
-  | '--slotted-datetime-picker-list-block-size'
-  | '--slotted-datetime-picker-now-active-background'
-  | '--slotted-datetime-picker-now-background'
-  | '--slotted-datetime-picker-now-border-color'
-  | '--slotted-datetime-picker-now-color'
-  | '--slotted-datetime-picker-now-hover-background'
-  | '--slotted-datetime-picker-now-hover-border-color'
-  | '--slotted-datetime-picker-now-icon-color'
-  | '--slotted-datetime-picker-option-current-background'
-  | '--slotted-datetime-picker-option-hover-background'
-  | '--slotted-datetime-picker-option-radius'
-  | '--slotted-datetime-picker-option-selected-background'
-  | '--slotted-datetime-picker-option-selected-color'
-  | '--slotted-datetime-picker-option-selected-hover-background'
   | '--slotted-datetime-picker-radius'
-  | '--slotted-datetime-picker-sheet-inline-size'
-  | '--slotted-datetime-picker-surface'
-  | '--slotted-datetime-picker-time-panel-inline-size'
   | '--slotted-datetime-picker-trigger-active-background'
   | '--slotted-datetime-picker-trigger-color'
   | '--slotted-datetime-picker-trigger-hover-background'
@@ -5854,31 +5831,8 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-datetime-field-subtle-background",
   "--slotted-datetime-field-subtle-border-color",
   "--slotted-datetime-field-subtle-hover-background",
-  "--slotted-datetime-picker-content-border-color",
-  "--slotted-datetime-picker-content-color",
-  "--slotted-datetime-picker-content-padding",
-  "--slotted-datetime-picker-content-radius",
-  "--slotted-datetime-picker-content-shadow",
   "--slotted-datetime-picker-invalid-focus-ring-color",
-  "--slotted-datetime-picker-label-color",
-  "--slotted-datetime-picker-list-block-size",
-  "--slotted-datetime-picker-now-active-background",
-  "--slotted-datetime-picker-now-background",
-  "--slotted-datetime-picker-now-border-color",
-  "--slotted-datetime-picker-now-color",
-  "--slotted-datetime-picker-now-hover-background",
-  "--slotted-datetime-picker-now-hover-border-color",
-  "--slotted-datetime-picker-now-icon-color",
-  "--slotted-datetime-picker-option-current-background",
-  "--slotted-datetime-picker-option-hover-background",
-  "--slotted-datetime-picker-option-radius",
-  "--slotted-datetime-picker-option-selected-background",
-  "--slotted-datetime-picker-option-selected-color",
-  "--slotted-datetime-picker-option-selected-hover-background",
   "--slotted-datetime-picker-radius",
-  "--slotted-datetime-picker-sheet-inline-size",
-  "--slotted-datetime-picker-surface",
-  "--slotted-datetime-picker-time-panel-inline-size",
   "--slotted-datetime-picker-trigger-active-background",
   "--slotted-datetime-picker-trigger-color",
   "--slotted-datetime-picker-trigger-hover-background",

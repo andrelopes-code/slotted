@@ -1,602 +1,535 @@
 import { plainDate, plainDateTime, plainTime, toISODateTime } from '@slotted/core/date';
 import type { PlainDateTime } from '@slotted/core/date';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useState } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { createRef, useState } from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import contract from '../../../../specs/components/datetime-picker/contract.json';
+import { Field, FieldLabel } from '../field';
 import { SlottedProvider } from '../i18n';
 import { DateTimePicker, DateTimePickerDefaultsProvider } from './index';
-import type { DateTimePickerHandle } from './index';
+import type { DateTimePickerHandle, DateTimePickerProps } from './index';
 
-const TENTH = plainDateTime(plainDate(2026, 9, 10), plainTime(15, 20));
-/** Stated rather than read from the clock, so every assertion below is fixed. */
-const REFERENCE = plainDateTime(plainDate(2026, 9, 10), plainTime(12, 0));
+const at = (day: number, hour: number, minute = 0) =>
+  plainDateTime(plainDate(2026, 9, day), plainTime(hour, minute));
 
-const root = () => document.querySelector('[data-ui="datetime-picker"][data-part="root"]');
-const panel = () => document.querySelector('[data-part="content"]');
-const trigger = () => screen.getByRole('button', { name: /date and time/i });
-const options = () => screen.queryAllByRole('option');
-const hidden = () =>
-  document.querySelector('[data-part="hidden-input"]') as HTMLInputElement | null;
+/** A Thursday. Stated rather than read from the clock, so every assertion is fixed. */
+const NOW = at(10, 10, 20);
+const VALUE = at(17, 14, 30);
 
-const openPanel = () => {
-  fireEvent.click(trigger());
-};
+afterEach(() => vi.unstubAllGlobals());
 
-const dayCell = (day: number) =>
-  [...document.querySelectorAll('[data-part="day"]')].find(
-    (element) => element.textContent?.trim() === String(day),
-  ) as HTMLElement;
+describe('what it is made of', () => {
+  it('declares every part the contract names, and opens the shared panel', () => {
+    draw({ defaultOpen: true });
 
-const base = {
-  'aria-label': 'Quando',
-  locale: 'pt-BR',
-  name: 'quando',
-  referenceDateTime: REFERENCE,
-} as const;
-
-describe('anatomy', () => {
-  /**
-   * The family composes the field and the grid and redraws neither. A second
-   * segmented control or a second month grid would be two places to fix one
-   * defect.
-   */
-  it('composes the field and the calendar rather than drawing either again', () => {
-    render(<DateTimePicker {...base} defaultOpen value={TENTH} />);
-
-    expect(document.querySelector('[data-ui="datetime-field"]')).not.toBeNull();
-    expect(document.querySelector('[data-ui="calendar"]')).not.toBeNull();
-    expect(root()?.querySelector('[data-part="segment"]')).not.toBeNull();
+    for (const part of contract.members.dateTimePicker.parts) {
+      expect(document.querySelector(`[data-part="${part}"]`), part).not.toBeNull();
+    }
+    expect(root()).toHaveAttribute('data-ui', contract.ui);
+    expect(panel()).toHaveAttribute('data-kind', 'datetime');
   });
 
-  /** The role the APG's own Date Picker Combobox example gives its popup. */
-  it('opens one dialog holding a grid and a listbox', () => {
-    render(<DateTimePicker {...base} defaultOpen value={TENTH} />);
-
-    expect(panel()).toHaveAttribute('role', 'dialog');
+  it('is a dialog holding a month and a clock, and the trigger says so', () => {
+    draw({ defaultValue: VALUE });
     expect(trigger()).toHaveAttribute('aria-haspopup', 'dialog');
-    expect(trigger()).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('grid')).not.toBeNull();
-    expect(screen.getByRole('listbox')).not.toBeNull();
+
+    fireEvent.click(trigger());
+    expect(trigger()).toHaveAttribute('aria-controls', screen.getByRole('dialog').id);
+    expect(screen.getByRole('grid')).toBeInTheDocument();
+    expect(hours()).toHaveLength(24);
   });
 
-  /**
-   * A `tablist` that exists on a narrow container and not on a wide one tells
-   * assistive technology two different stories about the same component, which
-   * is the arrangement Kendo and MUI ship and this family declines.
-   */
-  it('keeps both surfaces in the DOM, and draws no tablist at all', () => {
-    render(<DateTimePicker {...base} defaultOpen value={TENTH} />);
+  it('writes the day in words, and how far it is', () => {
+    draw({ defaultOpen: true, defaultValue: VALUE });
 
-    expect(panel()?.querySelector('[data-part="date-panel"]')).not.toBeNull();
-    expect(panel()?.querySelector('[data-part="time-panel"]')).not.toBeNull();
-    expect(screen.queryByRole('tablist')).toBeNull();
-    expect(screen.queryAllByRole('tab')).toHaveLength(0);
+    expect(part('value').textContent).toBe('Thu, September 17');
+    expect(part('meta').textContent).toBe('in 7 days, week 38');
+    expect(part('time-meta').textContent).toBe('in 7 days 4 hr 10 min');
   });
 
-  /** No label over either surface: each names itself, and the head says the rest. */
-  it('says what the reader has so far at the head of the panel', () => {
-    render(<DateTimePicker {...base} defaultOpen value={TENTH} />);
+  it('names the zone the moment is in, when one is stated', () => {
+    draw({ defaultOpen: true, defaultValue: VALUE, timeZone: 'Europe/Lisbon' });
 
-    const head = panel()?.querySelector('[data-part="head-value"]');
-    expect(head?.textContent).toContain('setembro');
-    expect(head?.textContent).toContain('15:20');
-    expect(panel()?.querySelector('[data-part="panel-label"]')).toBeNull();
+    expect(part('time-meta').textContent).toBe('Europe/Lisbon');
   });
 
-  it('draws the missing half as a placeholder in the head', () => {
-    render(<DateTimePicker {...base} defaultOpen />);
-    const head = panel()?.querySelector('[data-part="head-value"]');
-    expect(head?.querySelector('[data-placeholder]')?.textContent).toBe('--:--');
+  it('asks for a day, and says what today is', () => {
+    draw({ defaultOpen: true });
+
+    expect(part('value').textContent).toBe('Choose a day');
+    expect(part('meta').textContent).toBe('Today: Thu, Sep 10');
   });
 
-  /** The two marks are `Glyph` elements inside an `Icon` box, never masks. */
-  it('draws the calendar on the trigger and the clock on now as glyph elements', () => {
-    render(<DateTimePicker {...base} defaultOpen value={TENTH} />);
-    const mark = (element: Element | null | undefined) =>
-      element?.querySelector("[data-ui='icon'] > svg[data-glyph]");
-    expect(mark(trigger())).toHaveAttribute('data-glyph', 'calendar');
-    expect(mark(panel()?.querySelector('[data-part="now"]'))).toHaveAttribute(
-      'data-glyph',
-      'clock',
-    );
-  });
-});
+  it('draws the shortcuts with what they write, after Now', () => {
+    draw({ defaultOpen: true, presets: [{ label: 'Monday early', value: at(14, 9) }] });
 
-describe('focus follows the missing half', () => {
-  /**
-   * The decision this family owes, in one sentence: the press that leaves the
-   * value incomplete carries focus to the half that is missing, and the press
-   * that completes the value closes the panel.
-   */
-  it('carries focus to the list when a day leaves the value incomplete', async () => {
-    render(<DateTimePicker {...base} defaultOpen />);
-
-    fireEvent.click(dayCell(11));
-
-    await waitFor(() => expect(document.activeElement?.getAttribute('role')).toBe('option'));
-    expect(document.activeElement?.textContent).toBe('12:00');
-    expect(panel()).not.toBeNull();
-    expect(hidden()).toHaveValue('');
-
-    fireEvent.click(options().find((option) => option.textContent === '14:30') as HTMLElement);
-
-    await waitFor(() => expect(panel()).toBeNull());
-    expect(hidden()).toHaveValue('2026-09-11T14:30:00');
-  });
-
-  it('carries focus to the calendar when a time leaves the value incomplete', async () => {
-    render(<DateTimePicker {...base} defaultOpen />);
-
-    const half = options().find((option) => option.textContent === '14:30') as HTMLElement;
-    fireEvent.click(half);
-
-    await waitFor(() => expect(document.activeElement?.getAttribute('data-part')).toBe('day'));
-    expect(panel()).not.toBeNull();
-    expect(hidden()).toHaveValue('');
-    expect(half).toHaveAttribute('aria-selected', 'true');
-
-    fireEvent.click(dayCell(11));
-
-    await waitFor(() => expect(panel()).toBeNull());
-    expect(hidden()).toHaveValue('2026-09-11T14:30:00');
-  });
-
-  /**
-   * A value that was already whole is not completed by anything, so a reader
-   * who opened a filled field to change both halves is not shut out by their
-   * first press. Ant spends a confirm button on this and Kendo spends Set.
-   */
-  it('leaves the panel open when the value was already whole', () => {
-    render(<DateTimePicker {...base} defaultOpen value={TENTH} />);
-
-    fireEvent.click(dayCell(11));
-    expect(panel()).not.toBeNull();
-  });
-
-  it('closes on any press that changes the value when closeOnSelect is always', async () => {
-    render(<DateTimePicker {...base} closeOnSelect="always" defaultOpen value={TENTH} />);
-    fireEvent.click(dayCell(11));
-    await waitFor(() => expect(panel()).toBeNull());
-  });
-
-  it('closes on nothing when closeOnSelect is never', () => {
-    render(<DateTimePicker {...base} closeOnSelect="never" defaultOpen />);
-    fireEvent.click(dayCell(11));
-    expect(panel()).not.toBeNull();
-  });
-});
-
-describe('the list', () => {
-  /**
-   * The list answers the day the reader is on rather than a day already
-   * committed, so a closed day empties it while the reader is still deciding.
-   * Ant recomputes `disabledTime(date)` only for a committed date.
-   */
-  it('answers the day the calendar has focused, before anything is chosen', () => {
-    render(
-      <DateTimePicker
-        {...base}
-        defaultOpen
-        isTimeUnavailable={(_time, date) => date.day === 12}
-        unavailableOptions="hide"
-      />,
-    );
-
-    expect(options().length).toBeGreaterThan(0);
-    fireEvent.click(dayCell(12));
-    /* Choosing the twelfth leaves nothing on it, so the panel says so rather
-       than drawing an empty box. */
-    expect(panel()?.querySelector('[data-part="empty"]')?.textContent).toContain('No time');
-  });
-
-  it('offers one row per step, at the step the consumer set', () => {
-    render(<DateTimePicker {...base} defaultOpen step={3600} value={TENTH} />);
-    expect(options()).toHaveLength(24);
-  });
-
-  /**
-   * `options` states a set no single step describes — a clinic open at 09:00,
-   * 09:20 and 13:45 — which is the half of the column question a decline had to
-   * answer rather than avoid.
-   */
-  it('takes an explicit list of times in the consumer s own order', () => {
-    render(
-      <DateTimePicker
-        {...base}
-        defaultOpen
-        options={[plainTime(9, 0), plainTime(9, 20), plainTime(13, 45)]}
-        value={TENTH}
-      />,
-    );
-    expect(options().map((element) => element.textContent)).toEqual(['09:00', '09:20', '13:45']);
-  });
-
-  it('cuts the list at maxOptions and says so in the DOM', () => {
-    render(<DateTimePicker {...base} defaultOpen maxOptions={4} step={900} value={TENTH} />);
-    expect(options()).toHaveLength(4);
-    expect(screen.getByRole('listbox')).toHaveAttribute('data-truncated');
-    expect(panel()).toHaveAttribute('aria-description');
-  });
-
-  /**
-   * A refused row stays in the list by default: a list that silently drops rows
-   * is a list whose step the reader cannot infer.
-   */
-  it('keeps a refused row and marks it, unless the consumer hides it', () => {
-    const { rerender } = render(
-      <DateTimePicker
-        {...base}
-        defaultOpen
-        isTimeUnavailable={(time) => time.hour === 15}
-        step={3600}
-        value={TENTH}
-      />,
-    );
-    expect(options()).toHaveLength(24);
-    expect(options().filter((element) => element.hasAttribute('data-disabled'))).toHaveLength(1);
-
-    rerender(
-      <DateTimePicker
-        {...base}
-        defaultOpen
-        isTimeUnavailable={(time) => time.hour === 15}
-        step={3600}
-        unavailableOptions="hide"
-        value={TENTH}
-      />,
-    );
-    expect(options()).toHaveLength(23);
-  });
-});
-
-describe('bounds', () => {
-  /**
-   * Both pairs apply at once, which MUI's own validation page records that it
-   * cannot do — and the first and last day of the range hold a partial window,
-   * which MDN states for the platform and no surveyed script implements.
-   */
-  it('opens the first day of the range where the range starts', () => {
-    render(
-      <DateTimePicker
-        {...base}
-        defaultOpen
-        max={plainDateTime(plainDate(2026, 9, 30), plainTime(11, 0))}
-        maxTime={plainTime(18, 0)}
-        min={plainDateTime(plainDate(2026, 9, 10), plainTime(14, 0))}
-        minTime={plainTime(9, 0)}
-        step={3600}
-      />,
-    );
-
-    /* On `min`'s own day the window starts at `min`'s time and ends at
-       `maxTime` — 14:00 through 18:00. */
-    expect(options().map((element) => element.textContent)).toEqual([
-      '14:00',
-      '15:00',
-      '16:00',
-      '17:00',
-      '18:00',
+    expect(presets()).toEqual([
+      ['Now', 'Sep 10, 10:20 AM'],
+      ['Monday early', 'Sep 14, 9:00 AM'],
     ]);
   });
 
-  it('gives a day inside the range the repeating window and nothing else', () => {
-    render(
-      <DateTimePicker
-        {...base}
-        defaultOpen
-        max={plainDateTime(plainDate(2026, 9, 30), plainTime(11, 0))}
-        maxTime={plainTime(11, 0)}
-        min={plainDateTime(plainDate(2026, 9, 10), plainTime(14, 0))}
-        minTime={plainTime(9, 0)}
-        step={3600}
-      />,
-    );
+  it('has no rail with no shortcuts', () => {
+    draw({ defaultOpen: true });
 
-    fireEvent.click(dayCell(15));
-    expect(options().map((element) => element.textContent)).toEqual(['09:00', '10:00', '11:00']);
+    expect(document.querySelector('[data-part="rail"]')).toBeNull();
+  });
+
+  it('draws whole times from a stated list, with no steps from now', () => {
+    draw({
+      defaultOpen: true,
+      options: [plainTime(9), plainTime(9, 20)],
+      defaultValue: VALUE,
+      renderSlot: ({ date, label }) => `${label} on the ${String(date?.day)}th`,
+    });
+
+    expect(slots().map((slot) => slot.textContent)).toEqual([
+      '09:00 AM on the 17th',
+      '09:20 AM on the 17th',
+    ]);
+    expect(document.querySelector('[data-part="offsets"]')).toBeNull();
   });
 });
 
-describe('keyboard', () => {
-  /**
-   * The chord both sibling pickers took, with the same recorded cost: ChromeOS
-   * turns it into `PageDown` before the browser sees it, so the trigger is
-   * always drawn and this is only a shortcut.
-   */
-  it('opens on Alt+ArrowDown and leaves focus in the field', () => {
-    render(<DateTimePicker {...base} value={TENTH} />);
+describe('the draft', () => {
+  it('takes a day, then a time, and Apply writes both', () => {
+    const { onOpenChange, onValueChange } = draw({ defaultOpen: true });
 
-    const segment = screen.getAllByRole('spinbutton')[0] as HTMLElement;
-    act(() => segment.focus());
-    fireEvent.keyDown(segment, { altKey: true, key: 'ArrowDown' });
-
-    expect(panel()).not.toBeNull();
-    expect(document.activeElement).toBe(segment);
-  });
-
-  it('moves the highlight with the arrows and selects with Enter', async () => {
-    render(<DateTimePicker {...base} defaultOpen defaultValue={TENTH} step={3600} />);
-
-    const list = screen.getByRole('listbox');
-    fireEvent.keyDown(list, { key: 'ArrowDown' });
-    const current = options().find((element) => element.hasAttribute('data-current'));
-    expect(current?.textContent).toBe('16:00');
-
-    fireEvent.keyDown(list, { key: 'Enter' });
-    await waitFor(() => expect(hidden()).toHaveValue('2026-09-10T16:00:00'));
-  });
-
-  it('jumps an hour boundary on PageUp and PageDown', () => {
-    render(<DateTimePicker {...base} defaultOpen step={900} value={TENTH} />);
-    const list = screen.getByRole('listbox');
-    fireEvent.keyDown(list, { key: 'PageDown' });
-    const current = options().find((element) => element.hasAttribute('data-current'));
-    expect(current?.textContent).toBe('16:00');
-  });
-
-  it('takes Home and End to the two ends of the list', () => {
-    render(<DateTimePicker {...base} defaultOpen step={3600} value={TENTH} />);
-    const list = screen.getByRole('listbox');
-    fireEvent.keyDown(list, { key: 'Home' });
-    expect(options()[0]).toHaveAttribute('data-current');
-    fireEvent.keyDown(list, { key: 'End' });
-    expect(options().at(-1)).toHaveAttribute('data-current');
-  });
-
-  /**
-   * The highlight moves and the value does not: the listbox pattern lists
-   * selection-following-focus as optional and warns it can degrade
-   * accessibility, and here it would fire one request per option.
-   */
-  it('does not move the value as the highlight moves', () => {
-    const onValueChange = vi.fn();
-    render(
-      <DateTimePicker
-        {...base}
-        defaultOpen
-        onValueChange={onValueChange}
-        step={3600}
-        value={TENTH}
-      />,
-    );
-    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'ArrowDown' });
+    fireEvent.click(day(18));
+    expect(apply()).toBeDisabled();
+    fireEvent.click(hours()[9]!);
     expect(onValueChange).not.toHaveBeenCalled();
+
+    fireEvent.click(apply());
+    expect(onValueChange).toHaveBeenCalledWith(
+      at(18, 9),
+      expect.objectContaining({ reason: 'select' }),
+    );
+    expect(onOpenChange).toHaveBeenLastCalledWith(
+      false,
+      expect.objectContaining({ reason: 'select' }),
+    );
+    expect(trigger()).toHaveFocus();
+  });
+
+  it('moves to the clock when a day leaves the time missing', () => {
+    draw({ defaultOpen: true });
+
+    fireEvent.click(day(18));
+    expect(hours()).toContain(document.activeElement);
+  });
+
+  it('stays on the month when the time is already there', () => {
+    draw({ defaultOpen: true, defaultValue: VALUE });
+
+    fireEvent.click(day(18));
+    expect(hours()).not.toContain(document.activeElement);
+  });
+
+  it('takes a time typed in the panel', () => {
+    const { onValueChange } = draw({ defaultOpen: true, defaultValue: VALUE });
+    const [hour] = within(part('time-value')).getAllByRole('spinbutton');
+
+    fireEvent.keyDown(hour!, { key: 'ArrowUp' });
+    fireEvent.click(apply());
+    expect(onValueChange).toHaveBeenCalledWith(at(17, 15, 30), expect.anything());
+  });
+
+  it('moves one day, over the days the rules refuse', () => {
+    draw({
+      defaultOpen: true,
+      defaultValue: VALUE,
+      isDateUnavailable: ({ day: date }) => date === 18,
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next day' }));
+    expect(part('value').textContent).toBe('Sat, September 19');
+  });
+
+  it('takes a step from now, over the end of the day', () => {
+    const { onValueChange } = draw({ defaultOpen: true });
+
+    fireEvent.click(screen.getByRole('button', { name: '+1 day' }));
+    fireEvent.click(apply());
+    expect(onValueChange).toHaveBeenCalledWith(at(11, 10, 20), expect.anything());
+  });
+
+  it('takes a shortcut, and marks the one it is', () => {
+    const { onValueChange } = draw({
+      defaultOpen: true,
+      presets: [{ label: 'Monday early', value: () => at(14, 9) }],
+    });
+    const preset = screen.getByRole('button', { name: /Monday early/ });
+
+    fireEvent.click(preset);
+    expect(preset).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(apply());
+    expect(onValueChange).toHaveBeenCalledWith(at(14, 9), expect.anything());
+  });
+
+  it('is applied by Ctrl and Enter', () => {
+    const { onValueChange } = draw({ defaultOpen: true, defaultValue: VALUE });
+
+    fireEvent.click(day(18));
+    fireEvent.keyDown(panel(), { ctrlKey: true, key: 'Enter' });
+    expect(onValueChange).toHaveBeenCalledWith(at(18, 14, 30), expect.anything());
+  });
+
+  it('is discarded by Escape', () => {
+    const { onValueChange } = draw({ defaultOpen: true, defaultValue: VALUE });
+
+    fireEvent.click(day(18));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    fireEvent.click(trigger());
+    expect(part('value').textContent).toBe('Thu, September 17');
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it('is emptied by Clear, and Apply writes the empty value', () => {
+    const { onValueChange } = draw({ defaultOpen: true, defaultValue: VALUE });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.click(apply());
+    expect(onValueChange).toHaveBeenCalledWith(null, expect.anything());
+  });
+
+  it('follows what is typed in the field', async () => {
+    draw({ defaultOpen: true, defaultValue: VALUE });
+    const [month] = within(root()).getAllByRole('spinbutton');
+
+    fireEvent.keyDown(month!, { key: 'ArrowUp' });
+    await waitFor(() => expect(part('value').textContent).toBe('Sat, October 17'));
+  });
+});
+
+describe('without a confirmation', () => {
+  it('writes the press that completes the moment, and closes', () => {
+    const { onOpenChange, onValueChange } = draw({ confirm: false, defaultOpen: true });
+
+    fireEvent.click(day(18));
+    fireEvent.click(hours()[9]!);
+    expect(onValueChange).not.toHaveBeenCalled();
+
+    fireEvent.click(minutes()[1]!);
+    expect(onValueChange).toHaveBeenCalledWith(at(18, 9, 15), expect.anything());
+    expect(onOpenChange).toHaveBeenLastCalledWith(false, expect.anything());
+  });
+
+  it('writes a day of a whole moment, and stays', () => {
+    const { onOpenChange, onValueChange } = draw({
+      confirm: false,
+      defaultOpen: true,
+      defaultValue: VALUE,
+    });
+
+    fireEvent.click(day(18));
+    expect(onValueChange).toHaveBeenCalledWith(at(18, 14, 30), expect.anything());
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('writes a shortcut', () => {
+    const { onValueChange } = draw({
+      confirm: false,
+      defaultOpen: true,
+      presets: [{ label: 'Monday early', value: at(14, 9) }],
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Now/ }));
+    expect(onValueChange).toHaveBeenCalledWith(NOW, expect.anything());
+    expect(document.querySelector('[data-part="apply"]')).toBeNull();
+  });
+});
+
+describe('the rules', () => {
+  it('bound the whole moment and every day at once', () => {
+    draw({
+      defaultOpen: true,
+      defaultValue: at(10, 15),
+      maxTime: plainTime(18),
+      min: at(10, 14),
+      minTime: plainTime(8),
+    });
+    expect(offered()).toEqual([14, 15, 16, 17, 18]);
+
+    fireEvent.click(day(11));
+    expect(offered()).toEqual([8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]);
+    expect(day(9)).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('refuse every time of a refused day', () => {
+    draw({
+      defaultOpen: true,
+      defaultValue: VALUE,
+      isDateUnavailable: ({ day: date }) => date === 17,
+    });
+
+    expect(offered()).toEqual([]);
+    expect(root()).toHaveAttribute('data-invalid');
+    expect(part('hint').textContent).toBe('Not an accepted date and time');
+    expect(apply()).toBeDisabled();
+  });
+
+  it('ask about a time of a day', () => {
+    draw({
+      defaultOpen: true,
+      defaultValue: VALUE,
+      isTimeUnavailable: ({ hour }, { day: date }) => date === 17 && hour > 8,
+      step: 3600,
+    });
+
+    expect(offered()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
+  it('turn off the shortcuts and the steps they refuse', () => {
+    draw({
+      defaultOpen: true,
+      max: at(10, 12),
+      presets: [{ label: 'Monday early', value: at(14, 9) }],
+    });
+
+    expect(screen.getByRole('button', { name: /Monday early/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '+1 hr' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '+4 hr' })).toBeDisabled();
+  });
+});
+
+describe('one part at a time', () => {
+  it('shows the day, and the time after a day is pressed', () => {
+    stubNarrow();
+    draw({ defaultOpen: true });
+    expect(panel()).toHaveAttribute('data-showing', 'day');
+
+    fireEvent.click(day(18));
+    expect(panel()).toHaveAttribute('data-showing', 'time');
+  });
+
+  it('is brought back by its own head', () => {
+    stubNarrow();
+    draw({ defaultOpen: true, defaultValue: VALUE });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Time' }));
+    expect(panel()).toHaveAttribute('data-showing', 'time');
+
+    const head = screen.getByRole('button', { name: 'Thu, September 17' });
+    expect(head).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(head);
+    expect(panel()).toHaveAttribute('data-showing', 'day');
+  });
+
+  it('has no such heads where both are on screen', () => {
+    draw({ defaultOpen: true, defaultValue: VALUE });
+
+    expect(part('value').tagName).toBe('SPAN');
+    expect(part('time-label').tagName).toBe('SPAN');
   });
 });
 
 describe('the contract with the consumer', () => {
-  it('holds the value itself when nobody else does', async () => {
-    render(<DateTimePicker {...base} defaultOpen defaultValue={TENTH} step={3600} />);
-    fireEvent.click(options()[8] as HTMLElement);
-    await waitFor(() => expect(hidden()).toHaveValue('2026-09-10T08:00:00'));
+  it('posts the moment, and returns to the first one on a reset', async () => {
+    const { container } = draw({ defaultOpen: true, defaultValue: VALUE, name: 'when' }, 'form');
+
+    fireEvent.click(day(18));
+    fireEvent.click(apply());
+    await waitFor(() => expect(hidden()).toHaveValue(toISODateTime(at(18, 14, 30))));
+
+    act(() => container.querySelector('form')?.reset());
+    await waitFor(() => expect(hidden()).toHaveValue(toISODateTime(VALUE)));
   });
 
-  it('waits for the consumer when they own it', async () => {
-    const Controlled = () => {
-      const [value, setValue] = useState<PlainDateTime | null>(TENTH);
+  it('waits for the consumer when they own the value', async () => {
+    const Owned = () => {
+      const [value, setValue] = useState<PlainDateTime | null>(VALUE);
+
       return (
         <DateTimePicker
-          {...base}
           defaultOpen
-          onValueChange={(next) => setValue(next)}
-          step={3600}
+          locale="en-US"
+          name="when"
+          onValueChange={setValue}
           value={value}
         />
       );
     };
-    render(<Controlled />);
-    fireEvent.click(options()[8] as HTMLElement);
-    await waitFor(() => expect(hidden()).toHaveValue('2026-09-10T08:00:00'));
+    render(<Owned />);
+
+    fireEvent.click(day(18));
+    fireEvent.click(apply());
+    await waitFor(() => expect(hidden()).toHaveValue(toISODateTime(at(18, 14, 30))));
   });
 
-  it('returns to its default value when its form is reset', async () => {
-    const onValueChange = vi.fn();
-    const { container } = render(
-      <form>
-        <DateTimePicker
-          {...base}
-          defaultOpen
-          defaultValue={TENTH}
-          onValueChange={onValueChange}
-          step={3600}
-        />
-      </form>,
-    );
+  it('asks before it opens', () => {
+    const { onOpenChange } = draw({ open: false });
 
-    fireEvent.click(options()[8] as HTMLElement);
-    await waitFor(() => expect(hidden()).toHaveValue('2026-09-10T08:00:00'));
-
-    act(() => container.querySelector('form')?.reset());
-
-    await waitFor(() => expect(hidden()).toHaveValue(toISODateTime(TENTH)));
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      TENTH,
-      expect.objectContaining({ reason: 'programmatic' }),
-    );
-  });
-
-  it('owns the open state in both modes', () => {
-    const onOpenChange = vi.fn();
-    render(<DateTimePicker {...base} onOpenChange={onOpenChange} open={false} value={TENTH} />);
-    openPanel();
+    fireEvent.click(trigger());
     expect(onOpenChange).toHaveBeenCalledWith(true, expect.objectContaining({ reason: 'pointer' }));
-    expect(panel()).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('reaches the imperative actions through the ref', async () => {
-    const handle = { current: null as DateTimePickerHandle | null };
-    render(<DateTimePicker {...base} ref={handle} value={TENTH} />);
+  it('is opened, closed and focused from its ref', async () => {
+    const ref = createRef<DateTimePickerHandle>();
+    draw({ defaultValue: VALUE, ref });
 
-    act(() => handle.current?.open());
-    await waitFor(() => expect(panel()).not.toBeNull());
-    act(() => handle.current?.close());
-    await waitFor(() => expect(panel()).toBeNull());
+    act(() => ref.current?.open());
+    await waitFor(() => expect(day(17)).toHaveFocus());
+    act(() => ref.current?.close());
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    act(() => ref.current?.focus());
+    expect(within(root()).getAllByRole('spinbutton')).toContain(document.activeElement);
   });
 
-  /**
-   * `referenceDateTime` answers where an empty field steps from and which time
-   * the list opens on after a day is pressed. It does not answer what time it is: a booking flow
-   * whose reference is tomorrow at nine still means now when it says now.
-   */
-  it('writes the current datetime from the head, not the reference', async () => {
-    const clock = vi.spyOn(Date, 'now').mockReturnValue(Date.UTC(2026, 8, 30, 14, 5, 0));
-    render(<DateTimePicker {...base} defaultOpen timeZone="UTC" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Now' }));
-    await waitFor(() => expect(hidden()).toHaveValue('2026-09-30T14:05:00'));
-    expect(hidden()).not.toHaveValue(toISODateTime(REFERENCE));
-    clock.mockRestore();
+  it('opens from a segment with the chord, and leaves focus in the field', () => {
+    draw({ defaultValue: VALUE });
+    const [month] = within(root()).getAllByRole('spinbutton');
+    month!.focus();
+
+    fireEvent.keyDown(month!, { altKey: true, key: 'ArrowDown' });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(month).toHaveFocus();
   });
 
-  it('takes its defaults from a provider, and its words from the language in force', () => {
+  it('takes its shape from a provider, and its words from the language in force', () => {
     render(
       <SlottedProvider catalogs={{ 'pt-BR': PT_BR }} locale="pt-BR">
-        <DateTimePickerDefaultsProvider step={3600}>
-          <DateTimePicker {...base} defaultOpen value={TENTH} />
+        <DateTimePickerDefaultsProvider confirm={false} step={3600}>
+          <DateTimePicker defaultOpen referenceDateTime={NOW} value={VALUE} />
         </DateTimePickerDefaultsProvider>
       </SlottedProvider>,
     );
-    expect(screen.getByRole('button', { name: 'Agora' })).not.toBeNull();
-    expect(options()).toHaveLength(24);
-  });
 
-  it('lays its own messages over the catalog', () => {
-    render(<DateTimePicker {...base} defaultOpen messages={{ now: 'Right now' }} />);
-    expect(screen.getByRole('button', { name: 'Right now' })).not.toBeNull();
-  });
-
-  it('takes the consumer s own slots', () => {
-    render(
-      <DateTimePicker
-        {...base}
-        defaultOpen
-        footer={<button type="button">Apply</button>}
-        presets={<button type="button">Tomorrow</button>}
-        value={TENTH}
-      />,
+    // language: pt-BR
+    expect(screen.getByRole('dialog').getAttribute('aria-label')).toMatch(
+      /^Alterar data e hora, .*setembro/,
     );
-    expect(panel()?.querySelector('[data-part="presets"]')).not.toBeNull();
-    expect(panel()?.querySelector('[data-part="footer"]')).not.toBeNull();
+    expect(part('value').textContent).toBe('qui., 17 de setembro');
+    // language: en-US
+    expect(minutes()).toHaveLength(0);
+    expect(document.querySelector('[data-part="apply"]')).toBeNull();
   });
 
-  it('draws one row the consumer s own way', () => {
+  it('lays its own messages and its own footer', () => {
+    draw({ defaultOpen: true, footer: 'Doors close at 6', messages: { choose: 'Pick a slot' } });
+
+    expect(screen.getByRole('dialog', { name: 'Pick a slot' })).toBeInTheDocument();
+    expect(part('hint').textContent).toBe('Doors close at 6');
+  });
+
+  it('is named by its field, and the panel is not', () => {
     render(
-      <DateTimePicker
-        {...base}
-        defaultOpen
-        renderOption={(option) => <span data-test="row">{option.label}</span>}
-        step={3600}
-        value={TENTH}
-      />,
+      <Field>
+        <FieldLabel>Departure</FieldLabel>
+        <DateTimePicker defaultOpen locale="en-US" referenceDateTime={NOW} />
+      </Field>,
     );
-    expect(document.querySelectorAll('[data-test="row"]')).toHaveLength(24);
+
+    expect(within(root()).getByRole('group', { name: /Departure/ })).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveAccessibleName('Choose date and time');
   });
 });
 
 describe('states', () => {
-  it('refuses to open while it is not editable', () => {
-    render(<DateTimePicker {...base} disabled value={TENTH} />);
-    expect(root()).toHaveAttribute('data-disabled');
+  it.each(['disabled', 'readOnly'] as const)('does not open while %s', (state) => {
+    draw({ defaultValue: VALUE, [state]: true });
+
     expect(trigger()).toBeDisabled();
+    expect(root()).toHaveAttribute(`data-${state.toLowerCase()}`);
   });
 
-  it('reports a value the bounds refuse', () => {
-    render(
-      <DateTimePicker
-        {...base}
-        min={plainDateTime(plainDate(2026, 9, 11), plainTime(9, 0))}
-        value={TENTH}
-      />,
-    );
+  it('is invalid when a bound refuses the value, whatever the field says', () => {
+    draw({ defaultValue: VALUE, min: at(18, 9) });
+
     expect(root()).toHaveAttribute('data-invalid');
   });
-
-  it('names the chosen value on the trigger, because focus returns there', () => {
-    const { rerender } = render(<DateTimePicker {...base} />);
-    expect(trigger()).toHaveAttribute('aria-label', 'Choose date and time');
-
-    rerender(<DateTimePicker {...base} value={TENTH} />);
-    expect(trigger().getAttribute('aria-label')).toContain('setembro');
-  });
-
-  it('changes its words and its moment together with the language in force', () => {
-    const inLocale = (locale: string) => (
-      <SlottedProvider catalogs={{ 'pt-BR': PT_BR }} locale={locale}>
-        <DateTimePicker aria-label="Quando" referenceDateTime={REFERENCE} value={TENTH} />
-      </SlottedProvider>
-    );
-    const { rerender } = render(inLocale('pt-BR'));
-    const name = () =>
-      document.querySelector('[data-part="trigger"]')?.getAttribute('aria-label') ?? '';
-
-    expect(name()).toMatch(/^Alterar data e hora, .*setembro/);
-
-    rerender(inLocale('en-US'));
-    expect(name()).toMatch(/^Change date and time, .*September/);
-  });
 });
 
-describe('where focus goes when it opens', () => {
-  /**
-   * The panel is portalled to the end of the document, so left on the trigger
-   * it is not the next stop in the page's sequence: a keyboard reader could
-   * open it and not reach it.
-   */
-  it('moves focus to the chosen day when the trigger opens it', async () => {
-    render(<DateTimePicker {...base} value={TENTH} />);
-
-    openPanel();
-
-    await waitFor(() => expect(document.activeElement?.getAttribute('data-part')).toBe('day'));
-    expect(document.activeElement?.textContent?.trim()).toBe('10');
-  });
-
-  it('moves focus to the chosen time when openTo is time', async () => {
-    render(<DateTimePicker {...base} openTo="time" value={TENTH} />);
-
-    openPanel();
-
-    await waitFor(() => expect(document.activeElement?.getAttribute('role')).toBe('option'));
-    expect(document.activeElement?.textContent).toBe('15:15');
-  });
-
-  it('moves focus into the panel when open() opens it', async () => {
-    const handle = { current: null as DateTimePickerHandle | null };
-    render(<DateTimePicker {...base} ref={handle} value={TENTH} />);
-
-    act(() => handle.current?.open());
-
-    await waitFor(() => expect(document.activeElement?.getAttribute('data-part')).toBe('day'));
-  });
-
-  it('leaves focus alone when it is rendered open', async () => {
-    render(<DateTimePicker {...base} defaultOpen value={TENTH} />);
-
-    await act(async () => {
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-    });
-    expect(document.activeElement).toBe(document.body);
-  });
-
-  it('keeps Tab inside the panel while it is open', () => {
-    render(
+function draw(props: Partial<DateTimePickerProps> = {}, Wrapper: 'div' | 'form' = 'div') {
+  const onOpenChange = vi.fn();
+  const onValueChange = vi.fn();
+  const view = render(
+    <Wrapper>
       <DateTimePicker
-        {...base}
-        defaultOpen
-        footer={<button type="button">Apply</button>}
-        presets={<button type="button">Tomorrow</button>}
-        value={TENTH}
-      />,
-    );
-    const first = screen.getByRole('button', { name: 'Tomorrow' });
-    const last = screen.getByRole('button', { name: 'Apply' });
+        locale="en-US"
+        onOpenChange={onOpenChange}
+        onValueChange={onValueChange}
+        referenceDateTime={NOW}
+        {...props}
+      />
+    </Wrapper>,
+  );
 
-    act(() => last.focus());
-    fireEvent.keyDown(last, { key: 'Tab' });
-    expect(first).toHaveFocus();
+  return { ...view, onOpenChange, onValueChange };
+}
 
-    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
-    expect(last).toHaveFocus();
-  });
-});
+function root() {
+  return document.querySelector<HTMLElement>('[data-ui="datetime-picker"][data-part="root"]')!;
+}
+
+function panel() {
+  return document.querySelector<HTMLElement>('[data-ui="picker-panel"][data-part="root"]')!;
+}
+
+function part(name: string) {
+  return panel().querySelector<HTMLElement>(`[data-part="${name}"]`)!;
+}
+
+function trigger() {
+  return root().querySelector<HTMLButtonElement>('[data-part="trigger"]')!;
+}
+
+function hidden() {
+  return document.querySelector<HTMLInputElement>('[data-part="hidden-input"]');
+}
+
+function apply() {
+  return screen.getByRole('button', { name: 'Apply' });
+}
+
+function day(date: number) {
+  return [...panel().querySelectorAll<HTMLElement>('[data-part="day"]')].find(
+    (element) =>
+      element.textContent === String(date) &&
+      element.closest('[data-part="cell"]')?.hasAttribute('data-outside-month') !== true,
+  )!;
+}
+
+function grid(name: string) {
+  const list = screen.queryByRole('listbox', { name });
+
+  return list === null ? [] : within(list).getAllByRole('option');
+}
+
+function hours() {
+  return grid('Hours');
+}
+
+function minutes() {
+  return grid('Minutes');
+}
+
+function slots() {
+  return grid('Times');
+}
+
+/** The hours the clock accepts. */
+function offered() {
+  return hours()
+    .filter((hour) => hour.getAttribute('aria-disabled') !== 'true')
+    .map((hour) => hours().indexOf(hour));
+}
+
+function presets() {
+  return [...panel().querySelectorAll('[data-part="preset"]')].map((preset) => [
+    preset.querySelector('[data-part="preset-label"]')?.textContent,
+    preset.querySelector('[data-part="preset-result"]')?.textContent,
+  ]);
+}
+
+/** A viewport under the widest panel. */
+function stubNarrow() {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    addEventListener: () => undefined,
+    matches: query.includes('760px'),
+    removeEventListener: () => undefined,
+  }));
+}

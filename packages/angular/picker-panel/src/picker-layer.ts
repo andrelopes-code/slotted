@@ -95,7 +95,7 @@ export class PickerLayer {
       'top' | 'bottom',
       'start' | 'end' | undefined,
     ];
-    const handle = createPositioner(anchor, layer, { align, side });
+    const handle = createPositioner(anchor, layer, { align, side, sideOffset: 4 });
     /* The positioner writes `data-positioned` with the side, on the element, in
        the task that opened the layer; a binding to say it again was a frame later. */
     void handle.update();

@@ -26,7 +26,6 @@ const NOT_FIELDS = new Map([
     'a button that stays pressed, with the outline button’s ground',
   ],
   ['[data-ui-toggle-group][data-part-root]', 'a frame around toggles, which are buttons'],
-  ['[data-ui-datetime-picker] [data-part-now]', 'a button in the panel footer'],
   [
     '[data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] > [data-part-cancel]:not([data-ui])',
     'a button on the overlay panel',

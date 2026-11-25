@@ -35,14 +35,18 @@ export class PickerValue<V> {
     this.request(this.initial, 'programmatic', source);
   }
 
-  request(next: V, reason: ChangeReason, source: unknown): void {
+  /** Asks for another value, and says whether the picker moved to it. */
+  request(next: V, reason: ChangeReason, source: unknown): boolean {
     const state = createControllable<V>({
       controlled: this.value(),
       initial: this.held(),
       equals: this.equals,
       onRequest: (request) => this.requested(request),
     });
-    if (state.request(next, reason, source)) this.own.set(next);
+    const moved = state.request(next, reason, source);
+    if (moved) this.own.set(next);
+
+    return moved;
   }
 }
 

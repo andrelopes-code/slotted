@@ -33,7 +33,7 @@ export class DateTimePickerReference {
   protected readonly summary = computed(() => {
     const collection = this.collection();
     return collection === null
-      ? 'A day chosen in the calendar opens the time list on 3:00 PM.'
+      ? 'The panel opens on October 1 and counts its steps from 3:00 PM.'
       : `Collection on ${words.describe(collection)}.`;
   });
 }
