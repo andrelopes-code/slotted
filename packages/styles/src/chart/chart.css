@@ -836,7 +836,9 @@
     /* The label keeps 4rem, so a wide value never takes the whole row. */
     grid-template-columns: auto minmax(4rem, 1fr) auto;
     line-height: var(--slotted-line-height-sm, 1.45);
-    max-inline-size: min(18rem, 100%);
+    /* The rows take the room they need: a value never wraps, and a range
+       writes two. The prose below keeps a measure. */
+    max-inline-size: 100%;
     min-inline-size: 8rem;
     opacity: 0;
     padding-block: var(--slotted-space-4, 0.5rem);
@@ -894,6 +896,13 @@
   [data-ui-chart] [data-part-tooltip] > :not([data-part^='tooltip-']) {
     grid-column: 1 / -1;
     overflow-wrap: anywhere;
+  }
+
+  /* The measure of what wraps: the title, the notes and added content. */
+  [data-ui-chart]
+    [data-part-tooltip]:not([data-docked])
+    > :is([data-part-tooltip-title], [data-part-tooltip-note], :not([data-part^='tooltip-'])) {
+    max-inline-size: 18rem;
   }
 
   [data-ui-chart] [data-part-tooltip-title] {
@@ -1014,6 +1023,18 @@
     grid-template-rows: minmax(0, 1fr) auto;
     inline-size: 100%;
     row-gap: var(--_chart-inset);
+  }
+
+  /* An axis told to write no labels gives its room to the marks, as the plot does. */
+  [data-ui-chart] [data-part-skeleton] > [data-ui-skeleton]:not(:has(> [data-skeleton='y'])) {
+    grid-template-areas:
+      'marks'
+      'x';
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-ui-chart] [data-part-skeleton] > [data-ui-skeleton]:not(:has(> [data-skeleton='x'])) {
+    row-gap: 0;
   }
 
   [data-ui-chart] [data-part-skeleton] [data-skeleton='y'] {
@@ -1499,6 +1520,13 @@
     [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker], [data-part-marker]) {
       forced-color-adjust: none;
       background-color: CanvasText;
+    }
+
+    /* A dash is a gradient with gaps, which a ground would fill. */
+    [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker])[data-stroke] {
+      --_series: CanvasText;
+
+      background-color: transparent;
     }
 
     [data-ui-chart] [data-part-crosshair] {

@@ -1,7 +1,7 @@
 import { readChartTheme } from '@slotted/core/chart';
 import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
-import { page } from 'vitest/browser';
+import { cdp, page } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Segment, SegmentedControl } from '../segmented-control';
@@ -397,5 +397,354 @@ describe('two charts stacked on the same categories', () => {
       });
 
     expect(await firstLabel('level')).toBeCloseTo(await firstLabel('drawdown'), 0);
+  });
+});
+
+const part = (name: string) => [...document.querySelectorAll<HTMLElement>(`[data-part="${name}"]`)];
+
+/** The texts the engine drew, once it has drawn `count` of them. */
+const drawnTexts = async (root: ParentNode, match: (text: string) => boolean, count = 1) =>
+  vi.waitFor(
+    () => {
+      const texts = [
+        ...root.querySelectorAll<SVGTextElement>('[data-part="plot"] svg text'),
+      ].filter((text) => match(text.textContent ?? ''));
+      expect(texts).toHaveLength(count);
+      return texts;
+    },
+    { timeout: 10_000 },
+  );
+
+const boxOf = (element: Element) => element.getBoundingClientRect();
+
+const overlap = (a: DOMRect, b: DOMRect) =>
+  a.left < b.right - 0.5 &&
+  b.left < a.right - 0.5 &&
+  a.top < b.bottom - 0.5 &&
+  b.top < a.bottom - 0.5;
+
+describe('a wide plot', () => {
+  beforeEach(async () => {
+    await page.viewport(1200, 915);
+  });
+
+  afterEach(async () => {
+    await page.viewport(412, 915);
+  });
+
+  /** The box stopped at 18rem, and the rows of a range crossed its edge. */
+  it('grows the tooltip to the width of its rows', async () => {
+    const money = (value: number) => `R$ ${value.toFixed(2)} of the plan`;
+    render(
+      <div style={{ inlineSize: 1100 }}>
+        <Chart
+          data={[
+            { x: 'a', y: 151100, lo: 151100, hi: 161590 },
+            { x: 'b', y: 152100, lo: 151100, hi: 161590 },
+          ]}
+          defaultActivePoint={{ series: 'y', key: 'a' }}
+          series={[
+            { id: 'y', kind: 'line', field: 'y', label: 'Forecast of the year', format: money },
+            {
+              id: 'r',
+              kind: 'range',
+              lower: 'lo',
+              upper: 'hi',
+              label: 'Above the plan',
+              format: money,
+            },
+          ]}
+          x={{ field: 'x' }}
+        />
+      </div>,
+    );
+    await vi.waitFor(() => expect(part('tooltip-label')).toHaveLength(2), { timeout: 10_000 });
+    const tooltip = part('tooltip')[0]!;
+
+    for (const element of tooltip.querySelectorAll('*')) {
+      expect(boxOf(element).right).toBeLessThanOrEqual(boxOf(tooltip).right);
+    }
+    for (const label of part('tooltip-label')) {
+      expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth);
+    }
+  });
+
+  it('wraps a long note of the tooltip at 18rem', async () => {
+    render(
+      <div style={{ inlineSize: 1100 }}>
+        <Chart
+          annotations={[
+            { kind: 'line', axis: 'x', value: 'a', label: 'A note of it. '.repeat(15) },
+          ]}
+          data={[{ x: 'a', y: 1 }]}
+          defaultActivePoint={{ series: 'y', key: 'a' }}
+          series={[{ id: 'y', kind: 'line', field: 'y', label: 'Y' }]}
+          x={{ field: 'x' }}
+        />
+      </div>,
+    );
+    await vi.waitFor(() => expect(part('tooltip-note')).toHaveLength(1), { timeout: 10_000 });
+    const note = boxOf(part('tooltip-note')[0]!);
+
+    expect(note.width).toBeLessThanOrEqual(18 * 16);
+    expect(note.height).toBeGreaterThan(40);
+  });
+
+  it('draws a category axis told to write no labels with the plot of the chart above', async () => {
+    const rows = ['Jan', 'Feb', 'Mar'].map((month, index) => ({ month, v: index + 1 }));
+    const chart = (labels: boolean, kind: 'line' | 'bar', size: 'sm' | 'md') => (
+      <Chart
+        data={rows}
+        renderer="svg"
+        series={[{ id: 'v', kind, field: 'v', label: 'V' }]}
+        size={size}
+        x={{ field: 'month', labels }}
+        y={{ labelWidth: 60 }}
+      />
+    );
+    const { container } = render(
+      <div style={{ inlineSize: 800 }}>
+        <div data-testid="above">{chart(true, 'bar', 'md')}</div>
+        <div data-testid="under">{chart(false, 'bar', 'md')}</div>
+      </div>,
+    );
+    const at = (id: string) => container.querySelector(`[data-testid="${id}"]`)!;
+    const months = (text: string) => rows.some((row) => row.month === text);
+    await drawnTexts(at('above'), months, 3);
+    await vi.waitFor(() => expect(at('under').querySelector('svg text')).not.toBeNull(), {
+      timeout: 10_000,
+    });
+    const bars = (id: string) =>
+      [...at(id).querySelectorAll('[data-part="plot"] svg path')]
+        .map(boxOf)
+        .filter((box) => box.width > 20 && box.width < 200 && box.height > 10)
+        .map((box) => ({ left: box.left, height: box.height }));
+
+    expect([...at('under').querySelectorAll('svg text')].some((t) => months(t.textContent!))).toBe(
+      false,
+    );
+    expect(bars('under').map((bar) => Math.round(bar.left))).toEqual(
+      bars('above').map((bar) => Math.round(bar.left)),
+    );
+    expect(Math.max(...bars('under').map((bar) => bar.height))).toBeGreaterThan(
+      Math.max(...bars('above').map((bar) => bar.height)),
+    );
+  });
+
+  it('draws three strokes apart without color, in the plot and in the legend', async () => {
+    const { container } = render(
+      <div style={{ inlineSize: 600 }}>
+        <Chart
+          data={[
+            { x: 'a', s: 1, d: 2, t: 3 },
+            { x: 'b', s: 2, d: 3, t: 4 },
+          ]}
+          renderer="svg"
+          series={[
+            { id: 's', kind: 'line', field: 's', label: 'Solid', tone: 'neutral' },
+            {
+              id: 'd',
+              kind: 'line',
+              field: 'd',
+              label: 'Dashed',
+              tone: 'neutral',
+              stroke: 'dashed',
+            },
+            {
+              id: 't',
+              kind: 'line',
+              field: 't',
+              label: 'Dotted',
+              tone: 'neutral',
+              stroke: 'dotted',
+            },
+          ]}
+          x={{ field: 'x' }}
+        />
+      </div>,
+    );
+    const lines = await vi.waitFor(
+      () => {
+        const found = [
+          ...container.querySelectorAll('[data-part="plot"] svg path[stroke-linejoin="round"]'),
+        ];
+        expect(found).toHaveLength(3);
+        return found;
+      },
+      { timeout: 10_000 },
+    );
+
+    expect(lines.map((line) => line.getAttribute('stroke-dasharray'))).toEqual([
+      null,
+      '4,4',
+      '0.1,4',
+    ]);
+    expect(lines.map((line) => line.getAttribute('stroke-linecap'))).toEqual([
+      'round',
+      'round',
+      'round',
+    ]);
+    const swatches = part('legend-marker').map(
+      (marker) => getComputedStyle(marker).backgroundImage,
+    );
+    expect(new Set(swatches).size).toBe(3);
+  });
+
+  it('keeps the strokes of the legend apart under forced colors', async () => {
+    await cdp().send('Emulation.setEmulatedMedia', {
+      features: [{ name: 'forced-colors', value: 'active' }],
+    });
+    try {
+      render(
+        <Chart
+          data={[{ x: 'a', s: 1, t: 3 }]}
+          series={[
+            { id: 's', kind: 'line', field: 's', label: 'Solid' },
+            { id: 't', kind: 'line', field: 't', label: 'Dotted', stroke: 'dotted' },
+          ]}
+          x={{ field: 'x' }}
+        />,
+      );
+      const [solid, dotted] = part('legend-marker').map((marker) => getComputedStyle(marker));
+
+      expect(solid!.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+      expect(dotted!.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+      expect(dotted!.backgroundImage).toContain('gradient');
+    } finally {
+      await cdp().send('Emulation.setEmulatedMedia', { features: [] });
+    }
+  });
+
+  it('writes the label of an annotation in its tone, and in the text color without one', async () => {
+    const { container } = render(
+      <div
+        style={
+          {
+            '--slotted-text': 'rgb(1, 2, 3)',
+            '--slotted-tone-danger-text': 'rgb(150, 0, 0)',
+            inlineSize: 600,
+          } as CSSProperties
+        }
+      >
+        <Chart
+          annotations={[
+            { kind: 'band', axis: 'x', from: 'a', to: 'b', tone: 'danger', label: 'Loss' },
+            { kind: 'line', axis: 'x', value: 'c', label: 'Audit' },
+          ]}
+          data={['a', 'b', 'c', 'd'].map((x, v) => ({ x, v }))}
+          renderer="svg"
+          series={[{ id: 'v', kind: 'line', field: 'v', label: 'V' }]}
+          x={{ field: 'x' }}
+        />
+      </div>,
+    );
+    const [loss] = await drawnTexts(container, (text) => text === 'Loss');
+    const [audit] = await drawnTexts(container, (text) => text === 'Audit');
+
+    expect(getComputedStyle(loss!).fill).toBe('rgb(150, 0, 0)');
+    expect(getComputedStyle(audit!).fill).toBe('rgb(1, 2, 3)');
+  });
+
+  it('labels the ticks a time axis is given, each with its second line', async () => {
+    const { container } = render(
+      <div style={{ inlineSize: 600 }}>
+        <Chart
+          data={Array.from({ length: 70 }, (_, index) => ({
+            at: `${2016 + index}-01-01`,
+            v: index,
+          }))}
+          renderer="svg"
+          series={[{ id: 'v', kind: 'line', field: 'v', label: 'V' }]}
+          x={{
+            field: 'at',
+            type: 'time',
+            format: (value) => String(new Date(value).getUTCFullYear()),
+            secondary: (date) => `${date.getUTCFullYear() - 1986} yrs`,
+            ticks: [2020, 2030, 2040, 2050, 2060, 2070, 2080].map((year) => `${year}-01-01`),
+          }}
+        />
+      </div>,
+    );
+    const years = await drawnTexts(container, (text) => /^20\d\d$/.test(text), 7);
+    const terms = await drawnTexts(container, (text) => / yrs$/.test(text), 7);
+    const byLeft = (texts: SVGTextElement[]) => texts.map(boxOf).sort((a, b) => a.left - b.left);
+    const [first, second] = [byLeft(years), byLeft(terms)];
+    const boxes = [...first, ...second];
+
+    expect(years.map((text) => text.textContent).sort()).toEqual([
+      '2020',
+      '2030',
+      '2040',
+      '2050',
+      '2060',
+      '2070',
+      '2080',
+    ]);
+    second.forEach((box, index) => expect(box.top).toBeGreaterThan(first[index]!.top + 8));
+    boxes.forEach((box, index) =>
+      boxes.slice(index + 1).forEach((other) => expect(overlap(box, other)).toBe(false)),
+    );
+    for (const box of boxes) {
+      expect(box.bottom).toBeLessThanOrEqual(boxOf(part('plot')[0]!).bottom);
+    }
+  });
+
+  it.each([600, 1000])('ends each line with its label in a plot %s wide', async (inlineSize) => {
+    const node = (hidden: string[]) => (
+      <div style={{ inlineSize }}>
+        <Chart
+          data={Array.from({ length: 10 }, (_, index) => ({
+            year: String(2016 + index),
+            plan: index * 10,
+            peers: index * 10.2,
+            market: index * 4,
+          }))}
+          hidden={hidden}
+          legend={false}
+          renderer="svg"
+          series={[
+            { id: 'plan', kind: 'line', field: 'plan', label: 'Plan', endLabel: { strong: true } },
+            { id: 'peers', kind: 'line', field: 'peers', label: 'Peers', endLabel: true },
+            {
+              id: 'market',
+              kind: 'line',
+              field: 'market',
+              label: 'Market',
+              endLabel: ({ formatted }) => `Index ${formatted}`,
+            },
+          ]}
+          size="lg"
+          x={{ field: 'year' }}
+          y={{ format: { minimumFractionDigits: 1 } }}
+        />
+      </div>
+    );
+    const { container, rerender } = render(node([]));
+    const isEnd = (text: string) => /^(Plan|Peers|Index) /.test(text);
+    const ends = await drawnTexts(container, isEnd, 3);
+    const plot = boxOf(part('plot')[0]!);
+
+    expect(ends.map((text) => text.textContent).sort()).toEqual([
+      'Index 36.0',
+      'Peers 91.8',
+      'Plan 90.0',
+    ]);
+    await vi.waitFor(() => {
+      const boxes = ends.map(boxOf);
+      boxes.forEach((box, index) => {
+        boxes.slice(index + 1).forEach((other) => expect(overlap(box, other)).toBe(false));
+        expect(box.right).toBeLessThanOrEqual(plot.right);
+        expect(box.left).toBeGreaterThan(plot.left + plot.width / 2);
+      });
+    });
+    const weight = (name: string) =>
+      ends.find((text) => text.textContent!.startsWith(name))!.style.fontWeight ||
+      getComputedStyle(ends.find((text) => text.textContent!.startsWith(name))!).fontWeight;
+    expect(weight('Plan')).toBe('600');
+    expect(weight('Peers')).toBe('500');
+
+    rerender(node(['peers']));
+    const left = await drawnTexts(container, isEnd, 2);
+    expect(left.map((text) => text.textContent).sort()).toEqual(['Index 36.0', 'Plan 90.0']);
   });
 });
