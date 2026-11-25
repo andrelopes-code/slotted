@@ -375,11 +375,12 @@
   }
 
   /**
-   * The menu and the help are layers over the page: the raised surface of
-   * every floating layer in the library. They are placed in the viewport's
-   * coordinates by the binding, through the chart's two runtime properties.
+   * The menu is a layer over the page: the raised surface of every floating
+   * layer in the library. It is placed in the viewport's coordinates by the
+   * binding, through the chart's two runtime properties. The help note is a
+   * popover, which owns its surface.
    */
-  [data-ui-chart] :is([data-part-menu], [data-part-help-content]) {
+  [data-ui-chart] [data-part-menu] {
     background-color: var(--slotted-surface-raised, Canvas);
     border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle, CanvasText);
     border-radius: var(--slotted-radius-md, 6px);
@@ -398,13 +399,13 @@
   }
 
   /* A theme that paints the chart's floating layers as a translucent material blurs the plot under them. */
-  [data-ui-chart] :is([data-part-menu], [data-part-help-content], [data-part-tooltip]) {
+  [data-ui-chart] :is([data-part-menu], [data-part-tooltip]) {
     -webkit-backdrop-filter: var(--slotted-chart-overlay-backdrop-filter, none);
     backdrop-filter: var(--slotted-chart-overlay-backdrop-filter, none);
   }
 
   @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
-    [data-ui-chart] :is([data-part-menu], [data-part-help-content], [data-part-tooltip]) {
+    [data-ui-chart] :is([data-part-menu], [data-part-tooltip]) {
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
@@ -417,15 +418,6 @@
   }
 
   [data-ui-chart] [data-part-menu]:not(:popover-open, [data-open]) {
-    display: none;
-  }
-
-  [data-ui-chart] [data-part-help-content] {
-    padding-block: var(--slotted-space-4, 0.5rem);
-    padding-inline: var(--slotted-space-5, 0.75rem);
-  }
-
-  [data-ui-chart] [data-part-help-content]:not(:popover-open, [data-open]) {
     display: none;
   }
 

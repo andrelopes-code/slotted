@@ -197,6 +197,8 @@ describe('a widget with help', () => {
     const long = `${note}. It counts the accounts marked liquid. It excludes the cards and loans.`;
     const root = document.documentElement;
 
+    /* A phone presents the note as a sheet, which is as wide as the screen. */
+    await page.viewport(1024, 915);
     root.style.setProperty('--slotted-dashboard-grid-help-measure', '18rem');
     render(
       <DashboardGrid aria-label="Sales">
@@ -216,6 +218,7 @@ describe('a widget with help', () => {
     expect(layer.getBoundingClientRect().width).toBeCloseTo(18 * rem, 0);
 
     root.style.removeProperty('--slotted-dashboard-grid-help-measure');
+    await page.viewport(412, 915);
   });
 
   /**

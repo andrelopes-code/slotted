@@ -1,8 +1,11 @@
+import { SHEET_QUERY, watchMedia } from '@slotted/core/extent';
 import { type PartialMessages, popoverMessages, type PopoverMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
 import {
+  afterNextRender,
   booleanAttribute,
   computed,
+  DestroyRef,
   Directive,
   inject,
   input,
@@ -21,6 +24,7 @@ import type {
   PopoverFocusTarget,
   PopoverMount,
   PopoverOpenReason,
+  PopoverPresentation,
   PopoverSide,
   PopoverSize,
   PopoverStrategy,
@@ -34,6 +38,7 @@ export type {
   PopoverFocusTarget,
   PopoverMount,
   PopoverOpenReason,
+  PopoverPresentation,
   PopoverSide,
   PopoverSize,
   PopoverStrategy,
@@ -52,7 +57,9 @@ const optionalNumber = (value: number | string | undefined) =>
  * It is the APG's non-modal dialog — the pattern the tooltip page names for a
  * surface that holds focusable elements — and it is deliberately **not** modal.
  * Nothing behind it becomes `inert`, the page keeps scrolling, `aria-modal` is
- * never written and focus is not contained. The modal surface is `slDialog`.
+ * never written and focus is not contained. The modal surface is `slDialog`. The
+ * one exception is the bottom sheet of `presentation="auto"`, which covers what
+ * it was opened from on a phone and is modal there.
  *
  * Written on an `ng-container`, because it renders nothing: the trigger stays
  * where the consumer wrote it and the layer is portalled.
@@ -76,6 +83,13 @@ export class SlPopover implements OnInit {
   readonly align = input<PopoverAlign | undefined>(undefined);
   readonly mount = input<PopoverMount | undefined>(undefined);
   readonly strategy = input<PopoverStrategy | undefined>(undefined);
+  /**
+   * `auto` presents the panel as a bottom sheet on a phone: a note of several
+   * paragraphs that an anchored panel would open over what it explains. The
+   * sheet is modal, and headed by `slPopoverTitle` or by the panel's
+   * `aria-label`.
+   */
+  readonly presentation = input<PopoverPresentation>('popover');
   /**
    * Words laid over the catalog of the language in force, key by key: the
    * close control's accessible name (`close`).
@@ -183,8 +197,22 @@ export class SlPopover implements OnInit {
   );
   readonly resolvedArrowPadding = computed(() => this.arrowPadding() ?? this.defaults.arrowPadding);
 
+  /** Whether this is a phone, once the browser has been asked. */
+  private readonly phone = signal(false);
+  /** The panel is a bottom sheet: `presentation="auto"`, on a phone. */
+  readonly sheet = computed(() => this.presentation() === 'auto' && this.phone());
+
   private readonly everOpened = signal(false);
   readonly seen = computed(() => this.everOpened() || this.isOpen());
+
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+
+    afterNextRender(() => {
+      if (this.presentation() !== 'auto') return;
+      destroyRef.onDestroy(watchMedia(SHEET_QUERY, (matches) => this.phone.set(matches)));
+    });
+  }
 
   /**
    * Read here rather than in the constructor, because inputs are not set yet

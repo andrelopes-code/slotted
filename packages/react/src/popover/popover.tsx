@@ -1,5 +1,6 @@
 import '@slotted/styles/popover/popover.css';
 
+import { SHEET_QUERY } from '@slotted/core/extent';
 import { popoverMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
 import {
@@ -13,6 +14,7 @@ import {
 } from 'react';
 
 import { useMessages } from '../i18n';
+import { useMediaQuery } from '../picker-panel/use-media-query';
 import { usePopoverDefaults } from './popover-defaults';
 import type { PopoverContextValue, PopoverOpenReason, PopoverProps } from './popover.types';
 
@@ -51,7 +53,9 @@ export function usePopover(): PopoverContextValue {
  * It is the APG's non-modal dialog — the pattern the tooltip page names for a
  * surface that holds focusable elements — and it is deliberately **not** modal.
  * Nothing behind it becomes `inert`, the page keeps scrolling, `aria-modal` is
- * never written, and focus is not contained. The modal surface is `Dialog`.
+ * never written, and focus is not contained. The modal surface is `Dialog`. The
+ * one exception is the bottom sheet of `presentation="auto"`, which covers what
+ * it was opened from on a phone and is modal there.
  *
  * Like `Tooltip`, this component owns the state and renders nothing: the
  * trigger stays where the consumer wrote it and the layer is portalled to the
@@ -78,6 +82,7 @@ export function Popover({
   onOpenChange,
   open,
   portal,
+  presentation = 'popover',
   ref,
   shift,
   side,
@@ -89,6 +94,7 @@ export function Popover({
   const defaults = usePopoverDefaults();
   const t = useMessages(popoverMessages, messages);
   const base = useId();
+  const sheet = useMediaQuery(presentation === 'auto' ? SHEET_QUERY : null);
 
   const [own, setOwn] = useState<boolean>(defaultOpen ?? false);
   const [triggerNode, setTriggerNode] = useState<HTMLElement | null>(null);
@@ -166,6 +172,7 @@ export function Popover({
     setHasDescription,
     setHasTitle,
     setTriggerNode,
+    sheet,
     shift: shift ?? defaults.shift,
     showArrow: arrow ?? defaults.arrow,
     side: side ?? defaults.side,

@@ -1,6 +1,8 @@
 import { writeSelectorKey } from '@slotted/core/selector-key';
 import { createDismissableLayer } from '@slotted/core/dismissable-layer';
 import type { DismissableLayerHandle } from '@slotted/core/dismissable-layer';
+import { attachGripDismiss } from '@slotted/core/extent';
+import { createFocusScope } from '@slotted/core/focus';
 import { createPortalRoot } from '@slotted/core/portal';
 import type { PortalRootHandle } from '@slotted/core/portal';
 import { createPositioner } from '@slotted/core/positioner';
@@ -21,6 +23,7 @@ import {
   inject,
   signal,
   TemplateRef,
+  untracked,
   ViewContainerRef,
   ViewEncapsulation,
 } from '@angular/core';
@@ -178,9 +181,10 @@ export class SlPopoverLayer {
 
   constructor() {
     effect(() => this.presence.sync(this.popover.isOpen()));
-    effect(() => (this.mounted() ? this.build() : this.teardown()));
+    effect(() => (this.mounted() ? this.build(this.popover.sheet()) : this.teardown()));
     effect(() => this.place());
     effect(() => this.stack());
+    effect((onCleanup) => onCleanup(this.showSheet()));
     effect(() => this.paint());
     effect(() => this.showArrow());
     effect(() => this.moveFocus());
@@ -196,20 +200,26 @@ export class SlPopoverLayer {
     void this.positioner?.update();
   }
 
-  private build() {
-    if (this.layerNode() !== null) return;
+  private build(sheet: boolean) {
+    const presentation = sheet ? 'sheet' : 'popover';
+    const built = this.layerNode();
+    if (built !== null) {
+      if (built.dataset['presentation'] === presentation) return;
+      this.teardown();
+    }
 
     const document = this.comment.ownerDocument;
     const layer = document.createElement('div');
     writeSelectorKey(layer, 'ui', 'popover');
     writeSelectorKey(layer, 'part', 'root');
+    layer.dataset['presentation'] = presentation;
 
     const view = this.viewContainer.createEmbeddedView(this.template);
     view.detectChanges();
 
-    layer.appendChild(this.guard(document));
+    layer.appendChild(sheet ? this.backdrop(document) : this.guard(document));
     for (const node of view.rootNodes as Node[]) layer.appendChild(node);
-    layer.appendChild(this.guard(document));
+    if (!sheet) layer.appendChild(this.guard(document));
 
     const portal = createPortalRoot({
       origin: this.popover.anchorNode() ?? this.popover.triggerNode(),
@@ -235,6 +245,13 @@ export class SlPopoverLayer {
       this.popover.triggerNode()?.focus();
     });
     return guard;
+  }
+
+  private backdrop(document: Document): HTMLElement {
+    const backdrop = document.createElement('div');
+    writeSelectorKey(backdrop, 'part', 'backdrop');
+    backdrop.setAttribute('aria-hidden', 'true');
+    return backdrop;
   }
 
   private teardown() {
@@ -276,7 +293,7 @@ export class SlPopoverLayer {
 
     this.positioner?.destroy();
     this.positioner = null;
-    if (layer === null || anchor === null) return;
+    if (layer === null || anchor === null || this.popover.sheet()) return;
 
     this.positioner = createPositioner(anchor, layer, {
       ...options,
@@ -304,7 +321,7 @@ export class SlPopoverLayer {
 
     this.dismissable?.destroy();
     this.dismissable = null;
-    if (layer === null || !open) return;
+    if (layer === null || !open || this.popover.sheet()) return;
 
     this.dismissable = createDismissableLayer(layer, {
       escape: this.popover.resolvedCloseOnEscape(),
@@ -323,6 +340,59 @@ export class SlPopoverLayer {
     });
   }
 
+  /**
+   * The bottom sheet: a modal layer over the page, with focus held in the panel
+   * and given back to the trigger. Its grip is pulled down to dismiss it, as
+   * the grip of every other sheet is.
+   */
+  private showSheet(): () => void {
+    const layer = this.layerNode();
+    const content = this.popover.contentNode();
+    const escape = this.popover.resolvedCloseOnEscape();
+    const outsidePress = this.popover.resolvedCloseOnOutsidePress();
+    if (!this.popover.sheet() || !this.popover.isOpen()) return () => undefined;
+    if (layer === null || content === null) return () => undefined;
+
+    layer.setAttribute('data-open', '');
+    const trigger = this.popover.triggerNode();
+    const dismissable = createDismissableLayer(layer, {
+      back: true,
+      branches: trigger === null ? [] : [trigger],
+      content,
+      escape,
+      modal: true,
+      onDismiss: ({ reason, source }) => {
+        const asked = reason === 'escape' || reason === 'outsidePress' ? reason : 'dismiss';
+        this.popover.toggle(false, asked, source);
+      },
+      outsidePress,
+      outsidePressEvent: 'click',
+    });
+    const scope = createFocusScope(content, {
+      initial: () => resolveFocus(untracked(this.popover.initialFocus), content) ?? content,
+      restore: () => resolveFocus(untracked(this.popover.finalFocus), content) ?? trigger,
+    });
+    scope.enter();
+
+    const grip = content.querySelector<HTMLElement>(':scope > [data-part="grip"]');
+    const release =
+      grip === null
+        ? () => undefined
+        : attachGripDismiss({
+            grip,
+            sheet: content,
+            onDismiss: (event) => this.popover.toggle(false, 'pointer', event),
+          });
+
+    return () => {
+      release();
+      layer.removeAttribute('data-open');
+      /* The layer first: focus given back to an `inert` trigger is refused. */
+      dismissable.destroy();
+      scope.destroy();
+    };
+  }
+
   private paint() {
     const layer = this.layerNode();
     if (layer === null) return;
@@ -330,6 +400,7 @@ export class SlPopoverLayer {
     layer.setAttribute('data-align', this.popover.resolvedAlign());
     layer.setAttribute('data-size', this.popover.resolvedSize());
     layer.setAttribute('data-width', this.popover.resolvedWidth());
+    if (this.popover.sheet()) return;
     if (this.popover.isOpen() && this.positioned()) layer.setAttribute('data-open', '');
     else layer.removeAttribute('data-open');
   }
@@ -344,7 +415,7 @@ export class SlPopoverLayer {
     const arrow = this.popover.arrowNode();
     if (layer === null || arrow === null) return;
 
-    if (this.popover.resolvedArrow()) {
+    if (this.popover.resolvedArrow() && !this.popover.sheet()) {
       if (this.arrowPlaceholder.parentNode === layer) this.arrowPlaceholder.replaceWith(arrow);
     } else if (arrow.parentNode === layer) {
       arrow.replaceWith(this.arrowPlaceholder);
@@ -381,58 +452,6 @@ export class SlPopoverLayer {
       if (layer !== null && active !== null && !layer.contains(active)) return;
       (resolveFocus(this.popover.finalFocus(), content) ?? this.popover.triggerNode())?.focus();
     }
-  }
-}
-
-/**
- * The panel. `role="dialog"`, named by its title and described by its
- * description when those parts are present, and `aria-modal` is never written —
- * saying it would tell a reader the rest of the page is gone while it is not.
- *
- * A popover with no title gets no `aria-labelledby`; the family invents no
- * name, and a consumer writes `aria-label` here instead — which is why the
- * host attribute they wrote is read before the binding is computed.
- *
- * It is the one part written as a component, because a component is what can
- * carry `styleUrl`: this is where the family's authored stylesheet enters an
- * Angular application.
- */
-@Component({
-  selector: '[slPopoverContent]',
-  standalone: true,
-  exportAs: 'slPopoverContent',
-  template: '<ng-content />',
-  styleUrl: '../../../styles/src/popover/popover.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  host: {
-    'data-part': 'content',
-    'data-part-content': '',
-    tabindex: '-1',
-    '[attr.role]': 'role()',
-    '[attr.id]': 'popover.contentId',
-    '[attr.aria-labelledby]': 'labelledBy()',
-    '[attr.aria-describedby]': 'describedBy()',
-  },
-})
-export class SlPopoverContent {
-  protected readonly popover = inject(SlPopover);
-  private readonly writtenLabel = inject(new HostAttributeToken('aria-label'), { optional: true });
-  private readonly writtenRole = inject(new HostAttributeToken('role'), { optional: true });
-
-  /* The consumer's own `role` wins; the popover decides the rest. */
-  protected readonly role = computed(() => this.writtenRole ?? this.popover.contentRole());
-  protected readonly labelledBy = computed(() =>
-    this.popover.hasTitle() && this.writtenLabel === null ? this.popover.titleId : null,
-  );
-  protected readonly describedBy = computed(() =>
-    this.popover.hasDescription() ? this.popover.descriptionId : null,
-  );
-
-  constructor() {
-    const native: HTMLElement = inject(ElementRef).nativeElement;
-    this.popover.contentNode.set(native);
-    inject(DestroyRef).onDestroy(() => this.popover.contentNode.set(null));
   }
 }
 
@@ -545,6 +564,81 @@ export class SlPopoverClose {
 
   constructor() {
     afterEveryRender(() => this.hasText.set((this.native.textContent ?? '').trim() !== ''));
+  }
+}
+
+/**
+ * The panel. `role="dialog"`, named by its title and described by its
+ * description when those parts are present, and `aria-modal` is never written —
+ * saying it would tell a reader the rest of the page is gone while it is not.
+ *
+ * A popover with no title gets no `aria-labelledby`; the family invents no
+ * name, and a consumer writes `aria-label` here instead — which is why the
+ * host attribute they wrote is read before the binding is computed. The sheet
+ * shows that label as its heading, beside a close control, when there is no
+ * title.
+ *
+ * It is the one part written as a component, because a component is what can
+ * carry `styleUrl`: this is where the family's authored stylesheet enters an
+ * Angular application.
+ */
+@Component({
+  selector: '[slPopoverContent]',
+  standalone: true,
+  exportAs: 'slPopoverContent',
+  imports: [SlPopoverClose],
+  template: `@if (popover.sheet()) {
+      <span data-part="grip" data-part-grip="" aria-hidden="true"></span>
+      @if (heading(); as heading) {
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" [id]="popover.titleId">{{ heading }}</div>
+          <button slPopoverClose></button>
+        </div>
+      }
+    }
+    <ng-content />`,
+  styleUrl: '../../../styles/src/popover/popover.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  host: {
+    'data-part': 'content',
+    'data-part-content': '',
+    tabindex: '-1',
+    '[attr.role]': 'role()',
+    '[attr.id]': 'popover.contentId',
+    '[attr.aria-labelledby]': 'labelledBy()',
+    '[attr.aria-modal]': "popover.sheet() ? 'true' : null",
+    '[attr.aria-describedby]': 'describedBy()',
+  },
+})
+export class SlPopoverContent {
+  protected readonly popover = inject(SlPopover);
+  private readonly writtenLabel = inject(new HostAttributeToken('aria-label'), { optional: true });
+  private readonly writtenRole = inject(new HostAttributeToken('role'), { optional: true });
+
+  /* The consumer's own `role` wins; the popover decides the rest. */
+  protected readonly role = computed(() => this.writtenRole ?? this.popover.contentRole());
+  protected readonly labelledBy = computed(() =>
+    this.heading() !== null || (this.popover.hasTitle() && this.writtenLabel === null)
+      ? this.popover.titleId
+      : null,
+  );
+  /** The panel's own `aria-label`, written or bound, which heads a sheet with no title. */
+  private readonly label = signal<string | null>(null);
+  protected readonly heading = computed(() =>
+    this.popover.sheet() && !this.popover.hasTitle() ? this.label() : null,
+  );
+  protected readonly describedBy = computed(() =>
+    this.popover.hasDescription() ? this.popover.descriptionId : null,
+  );
+
+  constructor() {
+    const native: HTMLElement = inject(ElementRef).nativeElement;
+    this.popover.contentNode.set(native);
+    afterEveryRender(() => {
+      if (this.popover.sheet()) this.label.set(native.getAttribute('aria-label'));
+    });
+    inject(DestroyRef).onDestroy(() => this.popover.contentNode.set(null));
   }
 }
 

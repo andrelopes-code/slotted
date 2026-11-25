@@ -14,7 +14,14 @@ import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from
 import { Checkbox } from '../checkbox';
 import { Glyph, Icon } from '../icon';
 import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '../menu';
-import { Popover, PopoverBody, PopoverContent, PopoverLayer, PopoverTrigger } from '../popover';
+import {
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverLayer,
+  PopoverTrigger,
+  usePopover,
+} from '../popover';
 import { Tooltip } from '../tooltip';
 import { TooltipContent, TooltipLayer, TooltipTrigger } from '../tooltip/tooltip-parts';
 import { VisuallyHidden } from '../visually-hidden';
@@ -402,7 +409,7 @@ function ColumnHelp<Row>({
   const grid = useDataGridInternal<Row>();
   const name = grid.t('columnHelp', { column: column.column.label });
   return (
-    <Popover align="start" side="bottom" size="sm">
+    <Popover align="start" presentation="auto" side="bottom" size="sm">
       <PopoverTrigger
         render={(props) => (
           <button
@@ -424,14 +431,31 @@ function ColumnHelp<Row>({
         )}
       />
       <PopoverLayer>
-        <PopoverContent aria-label={name}>
-          <PopoverBody>
-            {description ? <div>{description}</div> : null}
-            {help}
-          </PopoverBody>
-        </PopoverContent>
+        <ColumnHelpPanel heading={column.column.label} label={name}>
+          {description ? <div>{description}</div> : null}
+          {help}
+        </ColumnHelpPanel>
       </PopoverLayer>
     </Popover>
+  );
+}
+
+/** The sheet of a phone covers the column, so it is headed by the column's name. */
+function ColumnHelpPanel({
+  children,
+  heading,
+  label,
+}: {
+  children: ReactNode;
+  heading: string;
+  label: string;
+}) {
+  const { sheet } = usePopover();
+
+  return (
+    <PopoverContent aria-label={sheet ? heading : label}>
+      <PopoverBody>{children}</PopoverBody>
+    </PopoverContent>
   );
 }
 

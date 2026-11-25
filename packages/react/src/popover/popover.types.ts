@@ -26,6 +26,13 @@ export type PopoverAlign = 'start' | 'center' | 'end';
  */
 export type PopoverMount = 'active' | 'lazy' | 'eager';
 
+/**
+ * What the panel is on a phone. `popover` is the anchored panel everywhere;
+ * `auto` is a bottom sheet under `(max-width: 480px) and (pointer: coarse)`,
+ * modal and headed, and the anchored panel anywhere else.
+ */
+export type PopoverPresentation = 'popover' | 'auto';
+
 /** `fixed` for a layer inside `overflow: hidden`, `absolute` for one inside a transform. */
 export type PopoverStrategy = 'absolute' | 'fixed';
 
@@ -129,6 +136,8 @@ export interface PopoverContextValue {
   setHasDescription: (present: boolean) => void;
   setHasTitle: (present: boolean) => void;
   setTriggerNode: (node: HTMLElement | null) => void;
+  /** The panel is a bottom sheet: `presentation="auto"`, on a phone. */
+  sheet: boolean;
   shift: boolean;
   showArrow: boolean;
   side: PopoverSide;
@@ -147,6 +156,7 @@ export interface PopoverLayerRootProps extends HTMLAttributes<HTMLElement> {
   'data-align': PopoverAlign;
   'data-open'?: '' | undefined;
   'data-part': string;
+  'data-presentation': 'popover' | 'sheet';
   'data-size': PopoverSize;
   'data-ui': string;
   'data-width': PopoverWidth;
@@ -157,6 +167,7 @@ export interface PopoverContentRootProps extends HTMLAttributes<HTMLElement> {
   ref?: PartRef | undefined;
   'aria-describedby'?: string | undefined;
   'aria-labelledby'?: string | undefined;
+  'aria-modal'?: true | undefined;
   'data-part': string;
   id: string;
   /** `dialog` unless the consumer wrote one — `hover-card` writes `presentation`. */
@@ -212,6 +223,13 @@ export interface PopoverProps {
   onOpenChange?: ((open: boolean, request: PopoverChangeRequest) => void) | undefined;
   open?: boolean | undefined;
   portal?: boolean | undefined;
+  /**
+   * `auto` presents the panel as a bottom sheet on a phone: a note of several
+   * paragraphs that an anchored panel would open over what it explains. The
+   * sheet is modal, and headed by `PopoverTitle` or by the panel's
+   * `aria-label`. Defaults to `popover`.
+   */
+  presentation?: PopoverPresentation | undefined;
   ref?: Ref<PopoverHandle> | undefined;
   shift?: boolean | undefined;
   side?: PopoverSide | undefined;

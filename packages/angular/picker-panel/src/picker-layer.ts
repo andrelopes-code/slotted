@@ -1,13 +1,10 @@
 import { afterNextRender, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import type { Signal } from '@angular/core';
 import { createDismissableLayer } from '@slotted/core/dismissable-layer';
-import { attachGripDismiss } from '@slotted/core/extent';
+import { attachGripDismiss, SHEET_QUERY, watchMedia } from '@slotted/core/extent';
 import { createPositioner } from '@slotted/core/positioner';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeReason, ChangeRequest } from '@slotted/core/state';
-
-/** Below this width, on a finger, the surface is a sheet rather than a popover. */
-const SHEET_QUERY = '(max-width: 480px) and (pointer: coarse)';
 
 /** Below this width the panel is one column: one month, one part at a time. */
 const NARROW_QUERY = '(max-width: 760px)';
@@ -143,18 +140,9 @@ function mediaSignal(query: string): Signal<boolean> {
   const matches = signal(false);
   const destroyRef = inject(DestroyRef);
 
-  afterNextRender(
-    () => {
-      if (typeof globalThis.matchMedia !== 'function') return;
-
-      const list = globalThis.matchMedia(query);
-      const read = () => matches.set(list.matches);
-      read();
-      list.addEventListener('change', read);
-      destroyRef.onDestroy(() => list.removeEventListener('change', read));
-    },
-    { injector: inject(Injector) },
-  );
+  afterNextRender(() => destroyRef.onDestroy(watchMedia(query, (next) => matches.set(next))), {
+    injector: inject(Injector),
+  });
 
   return matches.asReadonly();
 }

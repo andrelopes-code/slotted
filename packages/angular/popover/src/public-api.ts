@@ -6,6 +6,7 @@ export type {
   PopoverFocusTarget,
   PopoverMount,
   PopoverOpenReason,
+  PopoverPresentation,
   PopoverSide,
   PopoverSize,
   PopoverStrategy,

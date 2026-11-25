@@ -20,6 +20,13 @@ export type PopoverAlign = 'start' | 'center' | 'end';
 /** When the layer exists. `lazy` is what a panel holding an expensive form wants. */
 export type PopoverMount = 'active' | 'lazy' | 'eager';
 
+/**
+ * What the panel is on a phone. `popover` is the anchored panel everywhere;
+ * `auto` is a bottom sheet under `(max-width: 480px) and (pointer: coarse)`,
+ * modal and headed, and the anchored panel anywhere else.
+ */
+export type PopoverPresentation = 'popover' | 'auto';
+
 /** `fixed` for a layer inside `overflow: hidden`, `absolute` for one inside a transform. */
 export type PopoverStrategy = 'absolute' | 'fixed';
 

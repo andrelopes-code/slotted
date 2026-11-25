@@ -96,7 +96,7 @@ test('draws the table region ring for a focus from the keyboard only', () => {
 
 /** The tooltip, the menu and the help float over the plot; a material theme blurs it through one token. */
 test('filters the overlays’ backdrop from one token, except under reduced transparency', () => {
-  const overlays = `${ui}:is([data-part-menu],[data-part-help-content],[data-part-tooltip])`;
+  const overlays = `${ui}:is([data-part-menu],[data-part-tooltip])`;
   assert.match(
     rule(overlays),
     /backdrop-filter:var\(--slotted-chart-overlay-backdrop-filter,none\)/,

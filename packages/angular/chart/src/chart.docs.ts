@@ -69,7 +69,8 @@ const anatomy: AnatomyRow[] = [
     part: 'help-content',
     element: 'div',
     required: false,
-    purpose: 'The help note, a popover anchored to its control.',
+    purpose:
+      'The help note, in a popover anchored to its control, or in a sheet headed by the title on a phone.',
   },
   {
     part: 'actions',

@@ -1,5 +1,7 @@
 import { keyedProps, selectorKeyProps } from '@slotted/core/selector-key';
 import { createDismissableLayer } from '@slotted/core/dismissable-layer';
+import { attachGripDismiss } from '@slotted/core/extent';
+import { createFocusScope } from '@slotted/core/focus';
 import { createPortalRoot } from '@slotted/core/portal';
 import { createPositioner } from '@slotted/core/positioner';
 import type { PositionerHandle } from '@slotted/core/positioner';
@@ -255,6 +257,7 @@ export function PopoverLayer({ children, ref, render, ...nativeProps }: PopoverL
     collisionPadding,
     flip,
     hideWhenDetached,
+    sheet,
     shift,
     side,
     sideOffset,
@@ -300,7 +303,7 @@ export function PopoverLayer({ children, ref, render, ...nativeProps }: PopoverL
   }, []);
 
   useLayoutEffect(() => {
-    if (node === null || anchor === null) return;
+    if (node === null || anchor === null || sheet) return;
 
     const handle = createPositioner(anchor, node, {
       align,
@@ -337,6 +340,7 @@ export function PopoverLayer({ children, ref, render, ...nativeProps }: PopoverL
     hideWhenDetached,
     node,
     reposition,
+    sheet,
     shift,
     side,
     sideOffset,
@@ -365,7 +369,7 @@ export function PopoverLayer({ children, ref, render, ...nativeProps }: PopoverL
    * and the anchor are branches, so pressing either is inside the layer.
    */
   useEffect(() => {
-    if (node === null || !popover.open) return;
+    if (node === null || !popover.open || sheet) return;
     const branches = [popover.triggerNode, popover.anchorNode].filter(
       (element): element is HTMLElement => element !== null,
     );
@@ -392,7 +396,10 @@ export function PopoverLayer({ children, ref, render, ...nativeProps }: PopoverL
     popover.closeOnOutsidePress,
     popover.open,
     popover.triggerNode,
+    sheet,
   ]);
+
+  useSheet(node);
 
   /** Focus returns on close; the open moves it in `place`, above. */
   useEffect(() => {
@@ -444,13 +451,14 @@ export function PopoverLayer({ children, ref, render, ...nativeProps }: PopoverL
     ...nativeProps,
     children: (
       <>
-        {guard}
+        {sheet ? <div aria-hidden="true" data-part="backdrop" data-part-backdrop="" /> : guard}
         {children}
-        {guard}
+        {sheet ? null : guard}
       </>
     ),
     'data-align': align,
     'data-part': 'root',
+    'data-presentation': sheet ? ('sheet' as const) : ('popover' as const),
     'data-size': popover.size,
     'data-ui': 'popover',
     'data-width': popover.width,
@@ -467,12 +475,76 @@ export function PopoverLayer({ children, ref, render, ...nativeProps }: PopoverL
 }
 
 /**
+ * The bottom sheet: a modal layer over the page, with focus held in the panel
+ * and given back to the trigger. Its grip is pulled down to dismiss it, as the
+ * grip of every other sheet is.
+ */
+function useSheet(layer: HTMLElement | null) {
+  const popover = usePopover();
+  const latest = useRef(popover);
+  latest.current = popover;
+
+  const { closeOnEscape, closeOnOutsidePress, contentNode, open, sheet } = popover;
+  const shown = sheet && open ? contentNode : null;
+
+  useLayoutEffect(() => {
+    if (layer === null || shown === null) return;
+
+    layer.setAttribute('data-open', '');
+
+    return () => layer.removeAttribute('data-open');
+  }, [layer, shown]);
+
+  useEffect(() => {
+    if (layer === null || shown === null) return;
+
+    const { triggerNode } = latest.current;
+    const dismissable = createDismissableLayer(layer, {
+      back: true,
+      branches: triggerNode === null ? [] : [triggerNode],
+      content: shown,
+      escape: closeOnEscape,
+      modal: true,
+      onDismiss: ({ reason, source }) => {
+        const asked = reason === 'escape' || reason === 'outsidePress' ? reason : 'dismiss';
+        latest.current.toggle(false, asked, source);
+      },
+      outsidePress: closeOnOutsidePress,
+      outsidePressEvent: 'click',
+    });
+    const scope = createFocusScope(shown, {
+      initial: () => resolveFocus(latest.current.initialFocus, shown) ?? shown,
+      restore: () => resolveFocus(latest.current.finalFocus, shown) ?? latest.current.triggerNode,
+    });
+    scope.enter();
+
+    return () => {
+      /* The layer first: focus given back to an `inert` trigger is refused. */
+      dismissable.destroy();
+      scope.destroy();
+    };
+  }, [closeOnEscape, closeOnOutsidePress, layer, shown]);
+
+  useEffect(() => {
+    const grip = shown?.querySelector<HTMLElement>(':scope > [data-part="grip"]');
+    if (shown === null || grip == null) return;
+
+    return attachGripDismiss({
+      grip,
+      sheet: shown,
+      onDismiss: (event) => latest.current.toggle(false, 'pointer', event),
+    });
+  }, [shown]);
+}
+
+/**
  * The panel. `role="dialog"`, named by its title and described by its
  * description when those parts are present, and `aria-modal` is never written —
  * saying it would tell a reader the rest of the page is gone while it is not.
  *
  * A popover with no title gets no `aria-labelledby`. The family invents no
- * name; write `aria-label` here instead.
+ * name; write `aria-label` here instead. The sheet shows that label as its
+ * heading, beside a close control, when there is no title.
  */
 export function PopoverContent({ children, ref, render, ...nativeProps }: PopoverContentProps) {
   const popover = usePopover();
@@ -485,10 +557,23 @@ export function PopoverContent({ children, ref, render, ...nativeProps }: Popove
     [ref, popover.setContentNode],
   );
 
+  const { 'aria-label': label, ...rest } = nativeProps;
+  const headed = popover.sheet && !popover.hasTitle && label !== undefined;
+
   const rootProps: PopoverContentRootProps = keyedProps({
-    ...nativeProps,
-    children,
-    ...(popover.hasTitle ? { 'aria-labelledby': popover.titleId } : {}),
+    ...rest,
+    ...(headed ? {} : { 'aria-label': label }),
+    children: popover.sheet ? (
+      <>
+        <span aria-hidden="true" data-part="grip" data-part-grip="" />
+        {headed ? <SheetHeader label={label} /> : null}
+        {children}
+      </>
+    ) : (
+      children
+    ),
+    ...(popover.hasTitle || headed ? { 'aria-labelledby': popover.titleId } : {}),
+    ...(popover.sheet ? { 'aria-modal': true as const } : {}),
     ...(popover.hasDescription ? { 'aria-describedby': popover.descriptionId } : {}),
     'data-part': 'content',
     id: popover.contentId,
@@ -500,6 +585,20 @@ export function PopoverContent({ children, ref, render, ...nativeProps }: Popove
 
   if (render !== undefined) return render({ ...rootProps, ref: setNode });
   return <div {...rootProps} ref={setNode} />;
+}
+
+/** The heading of a sheet whose panel names itself with `aria-label` alone. */
+function SheetHeader({ label }: { label: string }) {
+  const popover = usePopover();
+
+  return (
+    <div data-part="header" data-part-header="">
+      <div data-part="title" data-part-title="" id={popover.titleId}>
+        {label}
+      </div>
+      <PopoverClose />
+    </div>
+  );
 }
 
 /** The title, the description and the close control, on the row that stays put. */
@@ -661,7 +760,7 @@ export function PopoverArrow({ ref, render, ...nativeProps }: PopoverArrowProps)
     [ref, popover.setArrowNode],
   );
 
-  if (!popover.showArrow) return null;
+  if (!popover.showArrow || popover.sheet) return null;
 
   const rootProps = keyedProps({
     ...nativeProps,

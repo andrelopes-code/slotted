@@ -1,18 +1,17 @@
+import { watchMedia } from '@slotted/core/extent';
 import { useEffect, useState } from 'react';
 
-/** Whether a media query matches; `false` until the browser has been asked. */
-export function useMediaQuery(query: string): boolean {
+/** Whether a media query matches; `false` until the browser has been asked, and for no query. */
+export function useMediaQuery(query: string | null): boolean {
   const [matches, setMatches] = useState(false);
 
   useEffect(() => {
-    if (typeof globalThis.matchMedia !== 'function') return;
+    if (query === null) {
+      setMatches(false);
+      return;
+    }
 
-    const list = globalThis.matchMedia(query);
-    const read = () => setMatches(list.matches);
-    read();
-    list.addEventListener('change', read);
-
-    return () => list.removeEventListener('change', read);
+    return watchMedia(query, setMatches);
   }, [query]);
 
   return matches;

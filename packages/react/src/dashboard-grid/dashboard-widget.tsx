@@ -522,7 +522,9 @@ const WidgetView = memo(function WidgetView({
             ) : (
               <div data-part="title-row" data-part-title-row="">
                 {heading}
-                <DashboardWidgetHelp label={t('help', named)}>{help}</DashboardWidgetHelp>
+                <DashboardWidgetHelp label={t('help', named)} title={title}>
+                  {help}
+                </DashboardWidgetHelp>
               </div>
             )}
             {description === undefined ? null : (

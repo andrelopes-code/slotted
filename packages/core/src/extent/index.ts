@@ -8,6 +8,7 @@ export {
 } from './gesture';
 export { attachGripDismiss } from './grip-dismiss';
 export type { GripDismissOptions } from './grip-dismiss';
+export { SHEET_QUERY, watchMedia } from './sheet-query';
 export { attachSheetScroll } from './sheet-scroll';
 export type { SheetScroll, SheetScrollOptions } from './sheet-scroll';
 export type { ResizeCursor } from './gesture';

@@ -85,6 +85,7 @@ import { useLocale, useMessages } from '../i18n';
 import { Glyph, Icon } from '../icon';
 import type { GlyphName } from '../icon';
 import { useChartDefaults } from './chart-defaults';
+import { ChartHelp } from './chart-help';
 import type {
   ChartLegendItemProps,
   ChartProps,
@@ -208,7 +209,7 @@ function pixels(values: Record<string, number>): CSSProperties {
   ) as CSSProperties;
 }
 
-/* ── Layers: the menu, the `+N` legend, the help ────────────────────────── */
+/* ── Layers: the menu and the `+N` legend ───────────────────────────────── */
 
 /**
  * A native popover under its control. The top layer, light dismiss and
@@ -216,7 +217,7 @@ function pixels(values: Record<string, number>): CSSProperties {
  * into it on open and back to the control on close. A browser without the
  * Popover API — the test environment among them — leaves it closed.
  */
-function useLayer(align: 'start' | 'end', focusFirst = true) {
+function useLayer(align: 'start' | 'end') {
   const control = useRef<HTMLButtonElement | null>(null);
   const layer = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
@@ -238,7 +239,7 @@ function useLayer(align: 'start' | 'end', focusFirst = true) {
       });
       node.style.setProperty('--slotted-chart-x', `${at.x}px`);
       node.style.setProperty('--slotted-chart-y', `${at.y}px`);
-      if (focusFirst) node.querySelector<HTMLElement>('button')?.focus();
+      node.querySelector<HTMLElement>('button')?.focus();
     } else if (node.contains(document.activeElement) || document.activeElement === document.body) {
       anchor.focus();
     }
@@ -1108,7 +1109,6 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
   /* ── Toolbar ─────────────────────────────────────────────────────────── */
 
   const menu = useLayer('end');
-  const helpLayer = useLayer('start', false);
 
   const download = (filename: string, url: string) => {
     const link = document.createElement('a');
@@ -1173,27 +1173,9 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
               </span>
             ) : null}
             {help !== undefined ? (
-              <>
-                <button
-                  {...withSelectorKey(helpLayer.controlProps, 'part', 'help')}
-                  aria-controls={`${id}-help`}
-                  aria-label={t('help')}
-
-                  type="button"
-                >
-                  <Icon>
-                    <Glyph name="circle-info" />
-                  </Icon>
-                </button>
-                <div
-                  {...withSelectorKey(helpLayer.layerProps, 'part', 'help-content')}
-
-                  id={`${id}-help`}
-                  role="note"
-                >
-                  {help}
-                </div>
-              </>
+              <ChartHelp label={t('help')} title={title}>
+                {help}
+              </ChartHelp>
             ) : null}
           </div>
           {description !== undefined ? (

@@ -524,7 +524,14 @@ function contentWidth(cell: HTMLElement): number {
                 }
                 <span data-part="column-actions" data-part-column-actions="">
                   @if (hasHelp(column)) {
-                    <ng-container slPopover side="bottom" align="start" size="sm">
+                    <ng-container
+                      slPopover
+                      #note="slPopover"
+                      side="bottom"
+                      align="start"
+                      size="sm"
+                      presentation="auto"
+                    >
                       <button
                         slPopoverTrigger
                         data-part="column-help"
@@ -538,7 +545,10 @@ function contentWidth(cell: HTMLElement): number {
                         <span slIcon><svg slGlyph name="circle-question"></svg></span>
                       </button>
                       <ng-template slPopoverLayer>
-                        <div slPopoverContent [attr.aria-label]="helpLabel(column)">
+                        <div
+                          slPopoverContent
+                          [attr.aria-label]="note.sheet() ? column.column.label : helpLabel(column)"
+                        >
                           <div slPopoverBody>
                             @if (column.column.description; as description) {
                               <div>{{ description }}</div>

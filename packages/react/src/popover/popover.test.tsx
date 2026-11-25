@@ -56,10 +56,14 @@ describe('Popover', () => {
     render(<Basic defaultOpen />);
     await waitFor(() => expect(layer()).not.toBeNull());
 
-    const present = contract.members.popover.parts.filter(
+    /* The scrim and the grip are the sheet's. */
+    const parts = contract.members.popover.parts.filter(
+      (part) => part !== 'backdrop' && part !== 'grip',
+    );
+    const present = parts.filter(
       (part) => document.querySelector(`[data-part="${part}"]`) !== null,
     );
-    expect(present).toEqual(contract.members.popover.parts);
+    expect(present).toEqual(parts);
   });
 
   /**

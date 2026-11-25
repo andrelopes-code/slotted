@@ -34,6 +34,7 @@ export type {
   PopoverLayerRootProps,
   PopoverMount,
   PopoverOpenReason,
+  PopoverPresentation,
   PopoverOutsidePress,
   PopoverProps,
   PopoverSide,

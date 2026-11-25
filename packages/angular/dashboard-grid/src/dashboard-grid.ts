@@ -459,7 +459,14 @@ interface Slot {
               @if (slot.widget.help(); as help) {
                 <div data-part="title-row" data-part-title-row="">
                   <ng-container [ngTemplateOutlet]="heading" />
-                  <ng-container slPopover side="bottom" align="start" size="sm">
+                  <ng-container
+                    slPopover
+                    #note="slPopover"
+                    side="bottom"
+                    align="start"
+                    size="sm"
+                    presentation="auto"
+                  >
                     <button
                       slIconButton
                       slPopoverTrigger
@@ -475,7 +482,11 @@ interface Slot {
                     <ng-template slPopoverLayer>
                       <div
                         slPopoverContent
-                        [attr.aria-label]="t('help', { title: slot.widget.title() })"
+                        [attr.aria-label]="
+                          note.sheet()
+                            ? slot.widget.title()
+                            : t('help', { title: slot.widget.title() })
+                        "
                       >
                         <div slPopoverBody>
                           <div data-part="help-note" data-part-help-note="">{{ help }}</div>

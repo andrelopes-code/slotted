@@ -24,6 +24,13 @@ import {
 import { injectLocale, injectMessages } from '@slotted/angular/i18n';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 import {
+  SlPopover,
+  SlPopoverBody,
+  SlPopoverContent,
+  SlPopoverLayer,
+  SlPopoverTrigger,
+} from '@slotted/angular/popover';
+import {
   cachedChartTheme,
   categoryIndex,
   chartKeyAction,
@@ -182,7 +189,16 @@ function focusVisible(element: Element) {
 @Component({
   selector: 'figure[slChart]',
   standalone: true,
-  imports: [NgTemplateOutlet, SlGlyph, SlIcon],
+  imports: [
+    NgTemplateOutlet,
+    SlGlyph,
+    SlIcon,
+    SlPopover,
+    SlPopoverBody,
+    SlPopoverContent,
+    SlPopoverLayer,
+    SlPopoverTrigger,
+  ],
   templateUrl: './chart.html',
   styleUrls: [
     '../../../styles/src/button/button.css',
@@ -307,7 +323,6 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
   protected readonly legendRef = viewChild<ElementRef<HTMLDivElement>>('legendRow');
   protected readonly menuRef = viewChild<ElementRef<HTMLDivElement>>('menu');
   protected readonly moreRef = viewChild<ElementRef<HTMLDivElement>>('moreLayer');
-  protected readonly helpRef = viewChild<ElementRef<HTMLDivElement>>('helpLayer');
 
   private engine: ChartEngine | null = null;
   private readonly engineFailure = signal<unknown>(null);
@@ -961,7 +976,6 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
     event: Event,
     control: HTMLElement,
     align: 'start' | 'end',
-    focusFirst = true,
   ) {
     const open = (event as ToggleEvent).newState === 'open';
     this.layerOpen.update((state) => ({ ...state, [name]: open }));
@@ -978,7 +992,7 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
       });
       layer.style.setProperty('--slotted-chart-x', `${at.x}px`);
       layer.style.setProperty('--slotted-chart-y', `${at.y}px`);
-      if (focusFirst) layer.querySelector<HTMLElement>('button')?.focus();
+      layer.querySelector<HTMLElement>('button')?.focus();
     } else if (layer.contains(document.activeElement) || document.activeElement === document.body) {
       control.focus();
     }
@@ -999,8 +1013,7 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
   }
 
   private layerElement(name: string) {
-    const ref =
-      name === 'menu' ? this.menuRef() : name === 'more' ? this.moreRef() : this.helpRef();
+    const ref = name === 'menu' ? this.menuRef() : this.moreRef();
     return ref?.nativeElement ?? null;
   }
 

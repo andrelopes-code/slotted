@@ -32,6 +32,7 @@ test('cites the pattern it actually answers, and says what it is not', () => {
   assert.equal(contract.roles.content, 'dialog');
   assert.equal(contract.modal, false);
   assert.match(contract.wiring['aria-modal'], /never/i);
+  assert.match(contract.wiring['aria-modal'], /the sheet is modal/i);
   assert.equal(contract.declined.modal.deferTo, 'dialog');
 });
 
@@ -101,6 +102,8 @@ test('names every part, including the plumbing it will not hide', () => {
     'footer',
     'close',
     'arrow',
+    'backdrop',
+    'grip',
     'focus-guard',
   ]);
   assert.deepEqual(member.states, ['default', 'hover', 'active', 'focus-visible', 'open']);

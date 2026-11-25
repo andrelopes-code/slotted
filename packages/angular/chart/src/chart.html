@@ -6,30 +6,34 @@ resolvedToolbar() !== 'none') {
       @if (title() !== undefined) {
       <span data-part="title" data-part-title="" [id]="id + '-title'">{{ title() }}</span>
       } @if (help() !== undefined) {
-      <button
-        #helpControl
-        type="button"
-        data-part="help"
-        data-part-help=""
-        [attr.aria-label]="t('help')"
-        [attr.aria-controls]="id + '-help'"
-        [attr.aria-expanded]="layerOpen()['help'] ?? false"
-        [attr.data-open]="layerOpen()['help'] ? '' : null"
-        (click)="toggleLayer('help')"
+      <ng-container
+        slPopover
+        #note="slPopover"
+        side="bottom"
+        align="start"
+        size="sm"
+        presentation="auto"
       >
-        <span slIcon><svg slGlyph name="circle-info"></svg></span>
-      </button>
-      <div
-        #helpLayer
-        popover="auto"
-        data-part="help-content"
-        data-part-help-content=""
-        role="note"
-        [id]="id + '-help'"
-        (toggle)="onLayerToggle('help', $event, helpControl, 'start', false)"
-      >
-        {{ help() }}
-      </div>
+        <button
+          slPopoverTrigger
+          type="button"
+          data-part="help"
+          data-part-help=""
+          [attr.aria-label]="t('help')"
+        >
+          <span slIcon><svg slGlyph name="circle-info"></svg></span>
+        </button>
+        <ng-template slPopoverLayer>
+          <div
+            slPopoverContent
+            [attr.aria-label]="note.sheet() && title() !== undefined ? title() : t('help')"
+          >
+            <div slPopoverBody>
+              <div data-part="help-content" data-part-help-content="">{{ help() }}</div>
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
       }
     </div>
     @if (description() !== undefined) {

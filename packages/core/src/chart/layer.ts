@@ -1,6 +1,5 @@
 /**
- * The two things the chart's layers — the menu, the `+N` legend, the help —
- * need from a binding that neither framework gives. The layers themselves are
+ * The two things the chart's layers — the menu and the `+N` legend — need from a binding that neither framework gives. The layers themselves are
  * native popovers: the top layer, light dismiss and `Escape` are the
  * platform's. What is left is where one goes and why its control was pressed.
  */

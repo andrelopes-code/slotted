@@ -34,14 +34,14 @@ const anatomy: AnatomyRow[] = [
     element: 'div, rendered by PopoverLayer',
     required: true,
     purpose:
-      'The positioned layer. The positioner writes its position on this element, and this element scales and fades. Its padding is the gap between the trigger and the panel, which is where the arrow stands. It carries data-ui="popover", data-side, data-align, data-size, data-width and data-open.',
+      'The positioned layer. The positioner writes its position on this element, and this element scales and fades. Its padding is the gap between the trigger and the panel, which is where the arrow stands. It carries data-ui="popover", data-side, data-align, data-size, data-width, data-presentation and data-open.',
   },
   {
     part: 'content',
     element: 'div',
     required: true,
     purpose:
-      'The panel, with role="dialog" and tabindex="-1". It is named by its title and described by its description when those parts are present. aria-modal is never written, because the popover is not modal. It draws no padding: PopoverHeader, PopoverBody and PopoverFooter carry the panel inset, set by --slotted-popover-padding-inline and --slotted-popover-padding-block.',
+      'The panel, with role="dialog" and tabindex="-1". It is named by its title and described by its description when those parts are present. aria-modal is written on the sheet of a phone alone, because the anchored panel is not modal. It draws no padding: PopoverHeader, PopoverBody and PopoverFooter carry the panel inset, set by --slotted-popover-padding-inline and --slotted-popover-padding-block.',
   },
   {
     part: 'header',
@@ -89,6 +89,20 @@ const anatomy: AnatomyRow[] = [
     required: false,
     purpose:
       'A rotated square in the panel’s background and border colors, which continues the panel’s outline towards the anchor. Place it beside PopoverContent inside PopoverLayer, not inside the content: the stylesheet selects it as a direct child of the layer.',
+  },
+  {
+    part: 'backdrop',
+    element: 'div',
+    required: false,
+    purpose:
+      'The scrim of the sheet presentation="auto" draws on a phone. A press on it closes the sheet.',
+  },
+  {
+    part: 'grip',
+    element: 'span',
+    required: false,
+    purpose:
+      'The line at the top of that sheet, hidden from assistive technology. A pull down on it closes the sheet.',
   },
   {
     part: 'focus-guard',
@@ -207,6 +221,13 @@ const api = apiRows([
     'Whether the layer is rendered into the shared portal root at the end of the document. The portalled layer keeps the theme, color scheme, density and direction of the region it was opened from.',
   ],
   [
+    'presentation',
+    "'popover' | 'auto'",
+    'popover',
+    'Popover',
+    'auto presents the panel as a bottom sheet under (max-width: 480px) and (pointer: coarse): modal, with a scrim, a grip and focus held in it, headed by PopoverTitle or by the panel’s aria-label. It reads the drawer’s surface, radius, scrim and motion tokens.',
+  ],
+  [
     'disabled',
     'boolean',
     'false',
@@ -312,7 +333,7 @@ const composition = apiRows([
 ]);
 
 const accessibility = [
-  'The panel is a non-modal dialog: aria-modal is not written, nothing behind it becomes inert, and the page keeps scrolling. Use Dialog for content that has to block the page.',
+  'The panel is a non-modal dialog: aria-modal is not written, nothing behind it becomes inert, and the page keeps scrolling. The sheet of presentation="auto" is the exception: it covers a phone’s screen, so it is modal, holds focus and returns it to the trigger. Use Dialog for content that has to block the page.',
   'The trigger carries aria-expanded, aria-haspopup="dialog", and aria-controls while the panel is in the document. The panel is named by its title through aria-labelledby and described by its description through aria-describedby. A popover without a title has no accessible name until you write aria-label on PopoverContent.',
   'Focus moves to the panel on open, so a screen reader announces its name before its contents, and returns to the trigger on close. If the reader has moved focus elsewhere on the page, focus stays there. initialFocus and finalFocus name other targets.',
   'Tab past the last control in the panel, or Shift+Tab before the first, closes the popover and returns focus to the trigger; the next Tab continues down the page. Focus is never trapped in the panel.',

@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideSlotted } from '@slotted/angular/i18n';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
@@ -157,10 +157,14 @@ describe('SlPopover', () => {
     fixture.componentInstance.open.set(true);
     await settle(fixture);
 
-    const present = contract.members.popover.parts.filter(
+    /* The scrim and the grip are the sheet's. */
+    const parts = contract.members.popover.parts.filter(
+      (part) => part !== 'backdrop' && part !== 'grip',
+    );
+    const present = parts.filter(
       (part) => document.querySelector(`[data-part="${part}"]`) !== null,
     );
-    expect(present).toEqual(contract.members.popover.parts);
+    expect(present).toEqual(parts);
   });
 
   it('opens from the trigger and says so on it', async () => {
@@ -541,5 +545,111 @@ describe('providePopoverDefaults, nested', () => {
     expect(defaults.side).toBe('top');
     expect(defaults.align).toBe('center');
     section.destroy();
+  });
+});
+
+/** What a phone answers; a query about anything else does not match. */
+function onAPhone(matches: boolean) {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: matches && query === '(max-width: 480px) and (pointer: coarse)',
+    media: query,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+  }));
+}
+
+@Component({
+  standalone: true,
+  imports: [SlPopover, SlPopoverTrigger, SlPopoverLayer, SlPopoverContent, SlPopoverBody],
+  template: `
+    <ng-container slPopover [presentation]="presentation()" (openChangeRequest)="record($event)">
+      <button slPopoverTrigger type="button">Help</button>
+      <ng-template slPopoverLayer>
+        <div slPopoverContent [attr.aria-label]="label()">
+          <div slPopoverBody>A note.</div>
+        </div>
+      </ng-template>
+    </ng-container>
+  `,
+})
+class Note {
+  readonly presentation = signal<'popover' | 'auto'>('auto');
+  readonly label = signal('Savings rate');
+  readonly reasons: string[] = [];
+
+  record(request: { reason: string }) {
+    this.reasons.push(request.reason);
+  }
+}
+
+describe('slPopover presented as a sheet', () => {
+  async function opened(phone: boolean, presentation: 'popover' | 'auto') {
+    onAPhone(phone);
+    const fixture = TestBed.createComponent(Note);
+    fixture.componentInstance.presentation.set(presentation);
+    document.body.append(fixture.nativeElement);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    button.focus();
+    button.click();
+    for (let turn = 0; turn < 3; turn += 1) {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+
+    return { button, fixture };
+  }
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('is a modal dialog headed by its label, which the scrim closes', async () => {
+    const { button, fixture } = await opened(true, 'auto');
+    const dialog = panel() as HTMLElement;
+
+    expect(layer()?.getAttribute('data-presentation')).toBe('sheet');
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(document.getElementById(dialog.getAttribute('aria-labelledby')!)?.textContent).toBe(
+      'Savings rate',
+    );
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(guards()).toHaveLength(0);
+
+    layer()!
+      .querySelector<HTMLElement>('[data-part="backdrop"]')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.reasons.at(-1)).toBe('outsidePress');
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('closes on a pull of its grip', async () => {
+    const { fixture } = await opened(true, 'auto');
+    const grip = panel()!.querySelector<HTMLElement>('[data-part="grip"]')!;
+    const pointer = (type: string, clientY: number) => {
+      const event = new MouseEvent(type, { bubbles: true, button: 0, clientY });
+      Object.defineProperty(event, 'pointerId', { value: 1 });
+      return event;
+    };
+
+    grip.dispatchEvent(pointer('pointerdown', 100));
+    grip.dispatchEvent(pointer('pointermove', 400));
+    grip.dispatchEvent(pointer('pointerup', 400));
+
+    expect(fixture.componentInstance.reasons.at(-1)).toBe('pointer');
+  });
+
+  it.each([
+    [false, 'auto'],
+    [true, 'popover'],
+  ] as const)('is anchored on a phone %s with presentation %s', async (phone, presentation) => {
+    await opened(phone, presentation);
+
+    expect(layer()?.getAttribute('data-presentation')).toBe('popover');
+    expect(panel()?.hasAttribute('aria-modal')).toBe(false);
+    expect(panel()?.getAttribute('aria-label')).toBe('Savings rate');
+    expect(guards()).toHaveLength(2);
   });
 });

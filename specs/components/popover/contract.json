@@ -14,6 +14,16 @@
   "modal": false,
   "focusable": true,
   "composes": ["positioner", "presence", "portal", "dismissable-layer"],
+  "presentation": {
+    "values": ["popover", "auto"],
+    "default": "popover",
+    "query": "(max-width: 480px) and (pointer: coarse)",
+    "attribute": "data-presentation on the layer: popover, or sheet while presentation is auto and the query matches",
+    "sheet": "a bottom sheet over the page: modal, the scroll locked, focus held in the panel and given back to the trigger. The grip pulled down, a press on the scrim, Escape and the platform's way back dismiss it. The body scrolls under 90dvh",
+    "heading": "the title part, or the panel's own aria-label drawn as one beside a close control",
+    "tokens": "the drawer's surface, radius, scrim, grip and slide",
+    "reason": "A note of several paragraphs opened on a phone covers the controls around it at a place its trigger decides, and has no visible way out. The pickers are sheets under the same query"
+  },
   "layer": {
     "modal": false,
     "scrollLock": false,
@@ -28,7 +38,7 @@
     "aria-controls": "the trigger names the panel while the panel is in the document; an id the document does not hold references nothing",
     "aria-labelledby": "the panel names its title, when a title part is present",
     "aria-describedby": "the panel names its description, when a description part is present",
-    "aria-modal": "never written. It is not modal, and writing it would tell a reader the rest of the page is gone while it is still there.",
+    "aria-modal": "never written on the anchored panel. It is not modal, and writing it would tell a reader the rest of the page is gone while it is still there. The sheet is modal and writes true",
     "aria-hidden": "the arrow, and both focus guards",
     "unnamedPanel": "a popover with no title part gets no aria-labelledby. The family invents no name; the reference page says to write aria-label on the content instead."
   },
@@ -152,7 +162,7 @@
     },
     "backdrop": {
       "deferTo": "dialog",
-      "reason": "A backdrop exists to darken the page behind a modal and to catch the press that closes it. This family is not modal, and the press outside is already answered by the dismissable layer."
+      "reason": "A backdrop exists to darken the page behind a modal and to catch the press that closes it. The anchored panel is not modal, and the press outside is already answered by the dismissable layer. The sheet of a phone is modal and draws one."
     },
     "hideWhenDetachedByDefault": {
       "reason": "The tooltip closes when its anchor scrolls out of its clipping ancestor and the popover does not. A hint whose anchor has gone has nothing left to explain; a task the reader is halfway through must not vanish because the row behind it scrolled. A consumer whose popover is a hint in disguise sets the flag."
@@ -255,6 +265,7 @@
         "shift": true,
         "hideWhenDetached": false,
         "portal": true,
+        "presentation": "popover",
         "disabled": false,
         "sideOffset": 0,
         "alignOffset": 0,
@@ -273,6 +284,8 @@
         "footer",
         "close",
         "arrow",
+        "backdrop",
+        "grip",
         "focus-guard"
       ]
     }

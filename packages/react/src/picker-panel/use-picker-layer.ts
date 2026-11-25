@@ -1,5 +1,5 @@
 import { createDismissableLayer } from '@slotted/core/dismissable-layer';
-import { attachGripDismiss } from '@slotted/core/extent';
+import { attachGripDismiss, SHEET_QUERY } from '@slotted/core/extent';
 import { createPortalRoot } from '@slotted/core/portal';
 import { createPositioner } from '@slotted/core/positioner';
 import { createPresence } from '@slotted/core/presence';
@@ -10,9 +10,6 @@ import type { RefObject } from 'react';
 import { useMediaQuery } from './use-media-query';
 import { usePickerOpen } from './use-picker-open';
 import type { PickerOpen, PickerOpenOptions } from './use-picker-open';
-
-/** Below this width, on a finger, the surface is a sheet rather than a popover. */
-const SHEET_QUERY = '(max-width: 480px) and (pointer: coarse)';
 
 /** Below this width the panel is one column: one month, one part at a time. */
 const NARROW_QUERY = '(max-width: 760px)';
