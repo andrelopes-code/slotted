@@ -20,6 +20,7 @@ Answer in order and stop at the first that decides.
 | The wait                                                                                    | The indicator               |
 | ------------------------------------------------------------------------------------------- | --------------------------- |
 | Structure is known before the data arrives — a list, a table, a card, a form                | `skeleton`                  |
+| A control that shows the value it writes at the press — a switch, a checkbox                | the asked value, at once    |
 | A control started the work and the control stays on screen — a button, a field, a menu item | that family's own `loading` |
 | A region already painted is being replaced and must not be touched meanwhile                | `loading-overlay`           |
 | The work reports how much is done                                                           | `progress-indicator`        |

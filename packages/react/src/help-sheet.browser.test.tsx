@@ -29,7 +29,7 @@ const families: { name: string; part: string; label: string; node: ReactNode }[]
     label: 'About Savings rate',
     node: (
       <DashboardGrid aria-label="Plan">
-        <DashboardWidget help={NOTE} id="rate" key="rate" title="Savings rate">
+        <DashboardWidget help={NOTE} key="rate" title="Savings rate" value="rate">
           3%
         </DashboardWidget>
       </DashboardGrid>

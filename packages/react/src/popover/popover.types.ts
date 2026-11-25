@@ -167,7 +167,7 @@ export interface PopoverContentRootProps extends HTMLAttributes<HTMLElement> {
   ref?: PartRef | undefined;
   'aria-describedby'?: string | undefined;
   'aria-labelledby'?: string | undefined;
-  'aria-modal'?: true | undefined;
+  'aria-modal'?: HTMLAttributes<HTMLElement>['aria-modal'];
   'data-part': string;
   id: string;
   /** `dialog` unless the consumer wrote one — `hover-card` writes `presentation`. */

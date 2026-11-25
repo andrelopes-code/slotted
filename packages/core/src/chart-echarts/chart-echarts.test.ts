@@ -471,12 +471,36 @@ const times: ChartSpec = {
   series: [{ kind: 'line', field: 'v' }],
 };
 
+interface DrawnAxis {
+  axisLabel: {
+    show: boolean;
+    customValues: number[] | null;
+    formatter: (value: number) => string;
+  };
+  axisTick: { customValues: number[] | null };
+}
+
+interface DrawnMark {
+  label: { color: string };
+}
+
+interface DrawnSeries {
+  endLabel: {
+    show: boolean;
+    color: string;
+    fontWeight: number;
+    formatter: (params: { dataIndex: number }) => string;
+  };
+  markArea: { data: DrawnMark[][] };
+  markLine: { data: DrawnMark[] };
+}
+
 const built = (value: ChartSpec, width = 600) =>
-  buildChartOption({ model: createChartModel(value), theme }, width).option as {
+  buildChartOption({ model: createChartModel(value), theme }, width).option as unknown as {
     grid: { left: number; right: number };
-    series: Record<string, any>[];
-    xAxis: { axisLabel: Record<string, any>; axisTick: Record<string, any> }[];
-    yAxis: { axisLabel: Record<string, any> }[];
+    series: DrawnSeries[];
+    xAxis: DrawnAxis[];
+    yAxis: DrawnAxis[];
   };
 
 describe('the labels of an axis', () => {
@@ -487,9 +511,9 @@ describe('the labels of an axis', () => {
       y: { labels: false, labelWidth: 60 },
     });
 
-    expect(built(spec).xAxis[0]!.axisLabel['show']).toBe(true);
-    expect(hidden.xAxis[0]!.axisLabel['show']).toBe(false);
-    expect(hidden.yAxis[0]!.axisLabel['show']).toBe(false);
+    expect(built(spec).xAxis[0]!.axisLabel.show).toBe(true);
+    expect(hidden.xAxis[0]!.axisLabel.show).toBe(false);
+    expect(hidden.yAxis[0]!.axisLabel.show).toBe(false);
     expect(hidden.grid.left).toBe(theme.inset * 2 + 60);
   });
 
@@ -497,15 +521,15 @@ describe('the labels of an axis', () => {
     const { axisLabel, axisTick } = built(times).xAxis[0]!;
     const ticks = [Date.UTC(2020, 0, 1), Date.UTC(2030, 0, 1)];
 
-    expect(axisLabel['customValues']).toEqual(ticks);
-    expect(axisTick['customValues']).toEqual(ticks);
-    expect(axisLabel['formatter'](ticks[0])).toMatch(/\n\{secondary\|34 yrs\}$/);
+    expect(axisLabel.customValues).toEqual(ticks);
+    expect(axisTick.customValues).toEqual(ticks);
+    expect(axisLabel.formatter(ticks[0]!)).toMatch(/\n\{secondary\|34 yrs\}$/);
   });
 
   it('take no ticks on a category axis, and clear the ones of the option before', () => {
     const { axisLabel } = built({ ...spec, x: { field: 'm', ticks: ['Jan'] } }).xAxis[0]!;
 
-    expect(axisLabel['customValues']).toBeNull();
+    expect(axisLabel.customValues).toBeNull();
   });
 });
 
@@ -518,7 +542,7 @@ describe('the end label of a line', () => {
 
   it('writes the name and the value at a point, or the text a function returns', () => {
     const text = (endLabel: ChartSpec['series'][number]['endLabel']) =>
-      built(line(endLabel)).series[0]!['endLabel']['formatter']({ dataIndex: 2 });
+      built(line(endLabel)).series[0]!.endLabel.formatter({ dataIndex: 2 });
 
     expect(text(true)).toBe('Plan 2');
     expect(text(({ category, formatted, series }) => `${series} ${category} ${formatted}`)).toBe(
@@ -528,7 +552,7 @@ describe('the end label of a line', () => {
 
   it('takes the series color, or the text color when it is strong', () => {
     const label = (endLabel: ChartSpec['series'][number]['endLabel']) =>
-      built(line(endLabel)).series[0]!['endLabel'];
+      built(line(endLabel)).series[0]!.endLabel;
 
     expect(label(true)).toMatchObject({ color: '#2563eb', fontWeight: 500 });
     expect(label({ strong: true })).toMatchObject({ color: theme.text, fontWeight: 600 });
@@ -580,7 +604,7 @@ describe('the label of an annotation', () => {
       ],
     }).series[0]!;
 
-    expect(series['markArea'].data[0][0].label.color).toBe(theme.tones.danger);
-    expect(series['markLine'].data[0].label.color).toBe(theme.text);
+    expect(series.markArea.data[0]![0]!.label.color).toBe(theme.tones.danger);
+    expect(series.markLine.data[0]!.label.color).toBe(theme.text);
   });
 });
