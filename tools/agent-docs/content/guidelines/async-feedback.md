@@ -74,7 +74,7 @@ Check: Open the region twice with the network throttled to a slow profile: place
 ### AF-03 · The control that starts a request waits on it
 
 Level: MUST
-Applies to: any `button` member — button, icon button, toggle button — whose activation runs a request — mark as read, archive, approve, save, submit — except a control whose request reloads the whole page; the page header's progress bar answers that wait (AF-07)
+Applies to: any `button` member — button, icon button, toggle button — whose activation runs a request — mark as read, archive, approve, save, submit — except a control whose request reloads the whole page; the page header's progress bar answers that wait (AF-07), and except a toggle button whose activation writes the value it shows (AF-09)
 Rule: From activation until the answer, the control is in its `loading` state: it refuses a second activation and shows the family's indicator.
 Why: A control that looks idle invites a second press, and the second request is a duplicate the backend has to refuse or the reader has to undo.
 Do: Keep, beside the data, the identity of what is in flight — the row's key for a row action, one fact for a list-wide action — and bind the control's `loading` to it. The family refuses activation on its own and names the wait for assistive technology through its loading label.
@@ -138,3 +138,14 @@ Do: Beside each write, list the queries its answer changes — the record, the l
 Don't: Refresh only the region the control stands in, or rely on the next navigation to read the other figures again.
 Seen in: a consumer application · categorizing a transaction left the category totals and the rules' coverage stale · corrected
 Check: Perform each write: every figure on screen that the write changes shows the new value without a reload.
+
+### AF-09 · The pressed value shows immediately
+
+Level: SHOULD
+Applies to: `switch`, `checkbox`, `segmented-control` and a toggle button of `button`, whose activation writes the value they show, where the write is reversible
+Rule: The control shows the asked value from the press, with no indicator; when the write fails it returns to the stored value and the region states the failure.
+Why: A control that keeps the old value until the answer, under an indicator, reads as a control that did not respond to the press.
+Do: Hold the asked value beside the data and draw the control from it until the answer, so a second press asks for the value the reader sees. Run the writes of one control one at a time, in the order of the presses. On a failure, drop the asked value and state the failure in the region with `inline-message` or a `toast`.
+Don't: Keep the old value under the control's `loading` state until the answer. Use `loading` on such a control only when the value cannot be asked again, or when the server decides it.
+Seen in: —
+Check: With the network throttled to a slow profile, press the control: it shows the new value in the next frame, with no indicator. With the write failing, it returns to the old value and the failure is stated.

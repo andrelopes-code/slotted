@@ -23,6 +23,7 @@ Answer in order and stop at the first row that decides.
 | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Structure is known before the data arrives — a list, a table, a card, a form                                     | `skeleton` placeholders                                                                                               |
 | Data already on screen is read again for the whole page — a Refresh, a refetch after a write, a refetch on focus | the `page-header` progress part in the page header; the region keeps its items and no control draws its own indicator |
+| A control that shows the value it writes at the press — a switch, a checkbox, a segmented control                | the asked value at once, with no indicator (AF-09)                                                                    |
 | A control started the request and stays on screen — a button, a field, a menu item                               | that family's own `loading` state                                                                                     |
 | A region already painted is being replaced and must not be touched meanwhile                                     | `loading-overlay`                                                                                                     |
 | The work reports how much is done                                                                                | `progress-indicator` with a value                                                                                     |
@@ -41,7 +42,9 @@ removed and placeholders stand in their place (AF-04).
 
 A control that starts a request waits on it: it is in its `loading` state from
 activation until the answer, refuses a second activation and shows the
-family's indicator (AF-03).
+family's indicator (AF-03). A control that shows the value it writes does not:
+it shows the asked value from the press and returns to the stored one when the
+write fails (AF-09).
 
 ## 2. Placeholders are the anatomy, not rectangles
 
