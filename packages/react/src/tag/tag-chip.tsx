@@ -80,7 +80,11 @@ export function useAppearance(props: TagAppearanceProps): ResolvedAppearance {
  */
 export function rootData(
   appearance: ResolvedAppearance,
-  state: { disabled?: boolean | undefined; selected?: boolean | undefined },
+  state: {
+    disabled?: boolean | undefined;
+    inline?: boolean | undefined;
+    selected?: boolean | undefined;
+  },
 ) {
   return {
     'data-ui': 'tag',
@@ -91,6 +95,7 @@ export function rootData(
     'data-variant': appearance.variant,
     'data-size': appearance.size,
     'data-shape': appearance.shape,
+    'data-inline': state.inline ? '' : undefined,
     'data-disabled': state.disabled ? '' : undefined,
     'data-selected': state.selected ? '' : undefined,
   } as const;
@@ -244,6 +249,7 @@ interface TagFrameOptions {
   /** The body and, when there is one, the remove control. */
   children: ReactNode;
   disabled?: boolean | undefined;
+  inline?: boolean | undefined;
   removal: Removal;
   render?: ((props: TagRootProps) => ReactNode) | undefined;
   rootProps?: TagRootPassthrough | undefined;
@@ -259,6 +265,7 @@ export function TagFrame({
   appearance,
   children,
   disabled,
+  inline,
   removal,
   render,
   rootProps,
@@ -267,7 +274,7 @@ export function TagFrame({
   const itemRole = useTagItemRole();
   const props: TagRootProps = keyedProps({
     ...rootProps,
-    ...rootData(appearance, { disabled: disabled === true, selected }),
+    ...rootData(appearance, { disabled: disabled === true, inline, selected }),
     children,
     ...(rootProps?.role === undefined && itemRole !== undefined ? { role: itemRole } : {}),
     onKeyDown: (event) => {

@@ -284,6 +284,56 @@
     --_gap: var(--slotted-space-3, 0.375rem);
   }
 
+  /* ── Inline: a chip no taller than the line it stands on ─────────────── */
+
+  /**
+   * Beside a title the chip is drawn inside the line: as tall as it is on its
+   * own where the line has the room, and one line of the text where it does
+   * not. The box takes the text's size, so `1lh` and `em` here are the line's
+   * and the text's, and the words inside take the step or nine tenths of the
+   * text, whichever is smaller. What the chip leaves of the line is its
+   * margin, so it stands at the line's center and the line keeps its height.
+   */
+  [data-ui-tag][data-part-root][data-inline] {
+    --_block-size: min(1lh, var(--_own-size));
+
+    block-size: var(--_block-size);
+    font-size: inherit;
+    line-height: inherit;
+    margin-block: calc((1lh - var(--_block-size)) / 2);
+    min-block-size: 0;
+    vertical-align: top;
+  }
+
+  [data-ui-tag][data-inline] [data-part-body] {
+    font-size: min(var(--_font-size), 0.9em);
+    line-height: var(--_line-height);
+    padding-block: 0;
+  }
+
+  [data-ui-tag][data-inline] [data-part-start],
+  [data-ui-tag][data-inline] [data-part-end],
+  [data-ui-tag][data-inline] [data-part-indicator],
+  [data-ui-tag][data-inline] [data-part-remove] {
+    --slotted-icon-size: 1em;
+
+    font-size: min(var(--_icon-size), 1.1em);
+  }
+
+  [data-ui-tag][data-inline] [data-part-start],
+  [data-ui-tag][data-inline] [data-part-end] {
+    block-size: 1em;
+    inline-size: 1em;
+  }
+
+  [data-ui-tag][data-inline] [data-part-indicator] {
+    block-size: 1em;
+  }
+
+  [data-ui-tag][data-inline] [data-part-remove] {
+    font-size: min(var(--_icon-size), 1em);
+  }
+
   /* ── Shape ────────────────────────────────────────────────────────────── */
 
   [data-ui-tag][data-part-root][data-shape='square'] {

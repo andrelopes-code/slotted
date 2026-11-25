@@ -42,6 +42,13 @@ export const ANGULAR_BADGE_DOCS = {
         'Type and glyph size follow the control scale, so a badge shrinks with the density of the controls beside it.',
       ],
       [
+        'inline',
+        'boolean',
+        'false',
+        'slBadge',
+        'No taller than the line of text around it, for a title or a sentence: the line keeps its height and what is under it its distance. The badge takes its own size where the line has the room and one line of the text where it does not; its words are at most nine tenths of the text around it.',
+      ],
+      [
         'shape',
         "'pill' | 'square' | 'dot'",
         'pill',

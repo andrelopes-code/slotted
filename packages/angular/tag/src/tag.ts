@@ -69,6 +69,7 @@ export interface TagRemoveRequest {
     '[attr.data-variant]': 'resolvedVariant()',
     '[attr.data-size]': 'resolvedSize()',
     '[attr.data-shape]': 'resolvedShape()',
+    '[attr.data-inline]': "inline() ? '' : null",
     '[attr.data-disabled]': "disabled() ? '' : null",
     '[attr.data-selected]': "selected() ? '' : null",
     '[attr.role]': 'role()',
@@ -84,6 +85,11 @@ export class SlTag {
   readonly size = input<TagSize | undefined>(undefined);
   /** Defaults to the provider, then to `pill`. */
   readonly shape = input<TagShape | undefined>(undefined);
+  /**
+   * No taller than the line of text around it, for a chip beside a title: the
+   * line keeps its height and what is under it its distance.
+   */
+  readonly inline = input(false, { transform: booleanAttribute });
   /** Refuses every interaction the tag offers, including its removal. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /**

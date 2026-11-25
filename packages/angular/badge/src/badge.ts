@@ -67,6 +67,7 @@ const ROLE: Record<BadgeLive, string | null> = { off: null, polite: 'status', as
     '[attr.data-variant]': 'resolvedVariant()',
     '[attr.data-size]': 'resolvedSize()',
     '[attr.data-shape]': 'resolvedShape()',
+    '[attr.data-inline]': "inline() ? '' : null",
     '[attr.role]': 'role()',
     /**
      * React returns nothing for a count that has fallen to nought. This
@@ -88,6 +89,11 @@ export class SlBadge {
   readonly size = input<BadgeSize>();
   /** `dot` draws no value; the words it cannot say are projected content. */
   readonly shape = input<BadgeShape>();
+  /**
+   * No taller than the line of text around it, for a badge beside a title: the
+   * line keeps its height and what is under it its distance.
+   */
+  readonly inline = input(false, { transform: booleanAttribute });
   /**
    * Whether a change to this badge is announced, and how urgently. `off` by
    * default: a page of twenty badges that all announce is a page no screen

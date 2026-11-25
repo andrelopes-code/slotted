@@ -21,6 +21,7 @@ export function Tag({
   children,
   disabled = false,
   end,
+  inline = false,
   onRemove,
   removeDisabled = false,
   messages,
@@ -42,6 +43,7 @@ export function Tag({
     <TagFrame
       appearance={appearance}
       disabled={disabled}
+      inline={inline}
       removal={removal}
       render={render}
       rootProps={nativeProps}

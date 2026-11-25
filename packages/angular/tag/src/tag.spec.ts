@@ -64,6 +64,8 @@ import { SlTagToggle } from './tag-toggle';
       </span>
     </div>
 
+    <span slTag inline id="inline"><span slTagBody>New</span></span>
+
     <div slTagGroup id="listed" role="list" aria-label="Tecnologias">
       <span slTag id="listed-item"><span slTagBody>TypeScript</span></span>
     </div>
@@ -100,6 +102,8 @@ describe('SlTag', () => {
     expect(chip.getAttribute('data-part')).toBe('root');
     expect(chip.getAttribute('data-tone')).toBe('secondary');
     expect(chip.getAttribute('data-variant')).toBe('soft');
+    expect(chip.hasAttribute('data-inline')).toBe(false);
+    expect(byId('inline').hasAttribute('data-inline')).toBe(true);
     expect(byId('plain-body').getAttribute('data-part')).toBe('body');
     expect(byId('start').getAttribute('data-part')).toBe('start');
     expect(byId('end').getAttribute('data-part')).toBe('end');

@@ -55,6 +55,7 @@ export interface BadgeDefaultsProviderProps extends Partial<BadgeDefaults> {
  */
 export interface BadgeRootProps extends HTMLAttributes<HTMLElement> {
   children?: ReactNode | undefined;
+  'data-inline'?: '' | undefined;
   'data-part': string;
   'data-shape': BadgeShape;
   'data-size': BadgeSize;
@@ -74,6 +75,11 @@ export interface BadgeProps extends ComponentPropsWithRef<'span'> {
    * centers it; the artwork is the consumer's.
    */
   end?: ReactNode | undefined;
+  /**
+   * No taller than the line of text around it, for a badge beside a title: the
+   * line keeps its height and what is under it its distance.
+   */
+  inline?: boolean | undefined;
   /**
    * Whether a change to this badge is announced, and how urgently. `off` by
    * default: a page of twenty badges that all announce is a page no screen

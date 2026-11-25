@@ -21,6 +21,7 @@ describe('Tag', () => {
     expect(chip).toHaveAttribute('data-variant', 'soft');
     expect(chip).toHaveAttribute('data-size', 'md');
     expect(chip).toHaveAttribute('data-shape', 'pill');
+    expect(chip).not.toHaveAttribute('data-inline');
     expect(chip?.querySelector('[data-part="body"] [data-part="label"]')?.textContent).toBe(
       'Design',
     );

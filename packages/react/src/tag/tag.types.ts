@@ -98,6 +98,7 @@ export interface TagElementProps extends HTMLAttributes<HTMLElement> {
 }
 
 export interface TagRootProps extends TagElementProps {
+  'data-inline'?: '' | undefined;
   'data-shape': TagShape;
   'data-size': TagSize;
   'data-tone': TagTone;
@@ -114,6 +115,11 @@ interface TagSharedProps extends TagAppearanceProps, TagContentProps, TagRemovab
 }
 
 export interface TagProps extends TagSharedProps, Omit<ComponentPropsWithRef<'span'>, 'children'> {
+  /**
+   * No taller than the line of text around it, for a chip beside a title: the
+   * line keeps its height and what is under it its distance.
+   */
+  inline?: boolean | undefined;
   /** Renders the chip box into the element the page means — an `<li>`, a `<dd>`. */
   render?: ((props: TagRootProps) => ReactNode) | undefined;
 }

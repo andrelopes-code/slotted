@@ -213,7 +213,8 @@ test('takes its type from the scale that answers density', () => {
  */
 test('derives its box from its own type rather than from a height', () => {
   const body = rule(root);
-  assert.ok(body.includes('--_block-size:calc('));
+  assert.ok(body.includes('--_own-size:calc('));
+  assert.ok(body.includes('--_block-size:var(--_own-size)'));
   assert.ok(body.includes('min-block-size:var(--_block-size)'));
   assert.ok(body.includes('min-inline-size:var(--_block-size)'));
   assert.ok(!/--slotted-badge-height/.test(css), 'a height token would be a second answer');

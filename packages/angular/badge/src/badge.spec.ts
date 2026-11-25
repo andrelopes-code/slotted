@@ -39,6 +39,7 @@ import { provideBadgeDefaults } from './badge-defaults';
       <span slBadge id="nudged-badge" [count]="4"></span>
     </span>
 
+    <span slBadge inline id="inline">New</span>
     <a slBadge id="linked" href="#releases">v4.2.0</a>
   `,
 })
@@ -93,6 +94,8 @@ describe('SlBadge', () => {
     expect(badge.getAttribute('data-variant')).toBe('soft');
     expect(badge.getAttribute('data-size')).toBe('md');
     expect(badge.getAttribute('data-shape')).toBe('pill');
+    expect(badge.hasAttribute('data-inline')).toBe(false);
+    expect(byId('inline').hasAttribute('data-inline')).toBe(true);
   });
 
   /** The directive is written on the element the page chose. */

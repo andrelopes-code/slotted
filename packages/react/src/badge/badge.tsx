@@ -24,6 +24,7 @@ export function Badge({
   children,
   count,
   end,
+  inline = false,
   live = 'off',
   locale,
   max,
@@ -92,6 +93,7 @@ export function Badge({
   const rootProps: BadgeRootProps = keyedProps({
     ...nativeProps,
     children: content,
+    ...(inline ? { 'data-inline': '' as const } : {}),
     'data-part': 'root',
     'data-shape': resolvedShape,
     'data-size': size ?? defaults.size,

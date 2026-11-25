@@ -108,6 +108,13 @@ export const ANGULAR_TAG_DOCS = {
   tag: {
     api: apiRows([
       ...appearance('slTag'),
+      [
+        'inline',
+        'boolean',
+        'false',
+        'slTag',
+        'No taller than the line of text around it, for a title or a sentence: the line keeps its height and what is under it its distance. The tag takes its own size where the line has the room and one line of the text where it does not; its words are at most nine tenths of the text around it.',
+      ],
       ...content('slTag'),
       disabled('slTag'),
       ...removable('slTag'),

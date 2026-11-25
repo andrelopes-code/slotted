@@ -45,6 +45,7 @@ describe('Badge', () => {
     expect(badge).toHaveAttribute('data-variant', 'soft');
     expect(badge).toHaveAttribute('data-size', 'md');
     expect(badge).toHaveAttribute('data-shape', 'pill');
+    expect(badge).not.toHaveAttribute('data-inline');
   });
 
   /** What a badge means comes from where it sits. */
