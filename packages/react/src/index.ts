@@ -20,6 +20,7 @@ export * from './cascader';
 export * from './chart';
 export * from './checkbox';
 export * from './checkbox-group';
+export * from './clock';
 export * from './code-block';
 export * from './collapsible';
 export * from './color-picker';

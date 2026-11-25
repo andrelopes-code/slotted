@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   clockColumns,
   clockModel,
+  clockMove,
+  clockRows,
   dayPeriod,
   slotGroups,
   withClockHour,
@@ -132,5 +134,40 @@ describe('the shape of a clock', () => {
       [1, ['09:00', '09:20']],
       [2, ['13:45']],
     ]);
+  });
+});
+
+describe('moving in a clock', () => {
+  const hours = clockRows([6, 6, 6, 6], 6);
+  const slots = clockRows([5, 2], 3);
+
+  it('starts every group on a row of its own', () => {
+    expect(hours).toEqual([6, 6, 6, 6]);
+    expect(slots).toEqual([3, 2, 2]);
+    expect(clockRows([60], 10)).toHaveLength(6);
+  });
+
+  it('steps along the cells and holds the edges', () => {
+    expect(clockMove(hours, 5, 'next')).toBe(6);
+    expect(clockMove(hours, 0, 'previous')).toBe(0);
+    expect(clockMove(hours, 23, 'next')).toBe(23);
+  });
+
+  it('keeps the column from row to row', () => {
+    expect(clockMove(hours, 14, 'up')).toBe(8);
+    expect(clockMove(hours, 14, 'down')).toBe(20);
+    expect(clockMove(hours, 2, 'up')).toBe(2);
+    expect(clockMove(hours, 14, 'firstRow')).toBe(2);
+    expect(clockMove(hours, 2, 'lastRow')).toBe(20);
+  });
+
+  it('takes the last cell of a shorter row', () => {
+    expect(clockMove(slots, 2, 'down')).toBe(4);
+    expect(clockMove(slots, 4, 'down')).toBe(6);
+  });
+
+  it('reaches the two ends of a row', () => {
+    expect(clockMove(hours, 14, 'rowStart')).toBe(12);
+    expect(clockMove(hours, 14, 'rowEnd')).toBe(17);
   });
 });

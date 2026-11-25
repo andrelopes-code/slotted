@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 5,
+  "family": "clock",
+  "ui": "clock",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Hours, minutes and seconds of a time, all in view."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
+  "rootRole": "group",
+  "controlRole": "listbox",
+  "optionRole": "option",
+  "groupRole": "group",
+  "valueType": "PlainTime | null",
+  "core": ["@slotted/core/date", "@slotted/core/state"],
+  "focusModel": "roving tabindex, one stop for the hours, one for the minutes, one for the seconds, or one for the whole times",
+  "selectionFollowsFocus": false,
+  "shape": {
+    "units": "hours, minutes and seconds, when the times are a step",
+    "slots": "whole times grouped by the part of the day, when options states them",
+    "minuteColumns": { "upTo4": 4, "upTo12": 6, "above12": 10 },
+    "hourCycle": "the four parts of the day are named under a 24-hour cycle and AM and PM under a 12-hour one",
+    "reason": "A list of times showed nine in a hundred of them and scrolled for the rest. The hour and the minute are two presses, and every one of them is in view."
+  },
+  "wiring": {
+    "aria-label": "the consumer's own, on the root; each listbox is named by the family",
+    "aria-selected": "true on the chosen option, false on every other one",
+    "aria-disabled": "an option the bounds or the predicate refuse, which stays focusable; every option while disabled or read only",
+    "optionName": "the time in words on an hour of a 12-hour cycle, where the number alone names two hours"
+  },
+  "keyboard": [
+    { "key": "ArrowRight", "effect": "move", "by": "1", "mirroredInRtl": true },
+    { "key": "ArrowLeft", "effect": "move", "by": "-1", "mirroredInRtl": true },
+    { "key": "ArrowDown", "effect": "move", "by": "1 row" },
+    { "key": "ArrowUp", "effect": "move", "by": "-1 row" },
+    { "key": "Home", "effect": "move", "to": "first option of the row" },
+    { "key": "End", "effect": "move", "to": "last option of the row" },
+    { "key": "PageUp", "effect": "move", "to": "same column of the first row" },
+    { "key": "PageDown", "effect": "move", "to": "same column of the last row" },
+    { "key": "Enter", "effect": "select" },
+    { "key": "Space", "effect": "select" }
+  ],
+  "unavailable": {
+    "attribute": "aria-disabled",
+    "focusable": true,
+    "selectable": false,
+    "hour": "an hour is refused when every time in it is"
+  },
+  "axes": {
+    "granularity": ["hour", "minute", "second"],
+    "hourCycle": ["12", "24"]
+  },
+  "resolution": {
+    "granularity": ["prop", "minute"],
+    "step": ["prop", "900"],
+    "hourCycle": ["prop", "locale"],
+    "locale": ["prop", "slotted", "en-US"]
+  },
+  "messages": [
+    "hours",
+    "minutes",
+    "seconds",
+    "times",
+    "night",
+    "morning",
+    "afternoon",
+    "evening",
+    "empty"
+  ],
+  "imperative": ["focus"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "readonly": "data-readonly",
+    "selected": "data-selected"
+  },
+  "dataAttributes": {
+    "data-now": "the hour it is, marked apart from selection",
+    "data-unavailable": "refused by the bounds or the predicate",
+    "data-columns": "how many units stand side by side"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard"],
+      "carries": ["value", "previous", "reason", "event", "unit"]
+    }
+  },
+  "literals": {
+    "columnCounts": "Six hours to a row make a part of the day a row, and six minutes of twelve line up under them. They are the shape of a day, not a value a theme retunes, so they are written in the stylesheet as numbers."
+  },
+  "members": {
+    "clock": {
+      "nativeElement": "div",
+      "defaults": {
+        "granularity": "minute",
+        "step": 900
+      },
+      "capabilities": ["value", "appearance", "content", "disabled", "readOnly", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "readonly", "selected"],
+      "parts": [
+        "root",
+        "hours",
+        "hour",
+        "period",
+        "minutes",
+        "minute",
+        "seconds",
+        "second",
+        "cells",
+        "slots",
+        "slot",
+        "empty"
+      ]
+    }
+  },
+  "scenarios": {
+    "clock": [
+      "playground",
+      "steps",
+      "hour-cycle",
+      "seconds",
+      "slots",
+      "bounds",
+      "states",
+      "density",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

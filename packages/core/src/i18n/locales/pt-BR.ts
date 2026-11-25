@@ -17,6 +17,7 @@ import { ptBR as calendar } from './pt-BR/calendar';
 import { ptBR as carousel } from './pt-BR/carousel';
 import { ptBR as cascader } from './pt-BR/cascader';
 import { ptBR as chart } from './pt-BR/chart';
+import { ptBR as clock } from './pt-BR/clock';
 import { ptBR as codeBlock } from './pt-BR/code-block';
 import { ptBR as colorPicker } from './pt-BR/color-picker';
 import { ptBR as columnManager } from './pt-BR/column-manager';
@@ -103,6 +104,7 @@ export const PT_BR: SlottedMessages = {
   carousel,
   cascader,
   chart,
+  clock,
   codeBlock,
   colorPicker,
   columnManager,

@@ -15,6 +15,7 @@ import * as calendarModule from './messages/calendar';
 import * as carouselModule from './messages/carousel';
 import * as cascaderModule from './messages/cascader';
 import * as chartModule from './messages/chart';
+import * as clockModule from './messages/clock';
 import * as codeBlockModule from './messages/code-block';
 import * as colorPickerModule from './messages/color-picker';
 import * as columnManagerModule from './messages/column-manager';
@@ -100,6 +101,7 @@ export type { CalendarMessages } from './messages/calendar';
 export type { CarouselMessages } from './messages/carousel';
 export type { CascaderMessages } from './messages/cascader';
 export type { ChartMessages } from './messages/chart';
+export type { ClockMessages } from './messages/clock';
 export type { CodeBlockMessages } from './messages/code-block';
 export type { ColorPickerMessages } from './messages/color-picker';
 export type { ColumnManagerMessages } from './messages/column-manager';
@@ -185,6 +187,7 @@ export { calendarMessages } from './messages/calendar';
 export { carouselMessages } from './messages/carousel';
 export { cascaderMessages } from './messages/cascader';
 export { chartMessages } from './messages/chart';
+export { clockMessages } from './messages/clock';
 export { codeBlockMessages } from './messages/code-block';
 export { colorPickerMessages } from './messages/color-picker';
 export { columnManagerMessages } from './messages/column-manager';
@@ -272,6 +275,7 @@ export interface SlottedMessages {
   readonly carousel: carouselModule.CarouselMessages;
   readonly cascader: cascaderModule.CascaderMessages;
   readonly chart: chartModule.ChartMessages;
+  readonly clock: clockModule.ClockMessages;
   readonly codeBlock: codeBlockModule.CodeBlockMessages;
   readonly colorPicker: colorPickerModule.ColorPickerMessages;
   readonly columnManager: columnManagerModule.ColumnManagerMessages;
@@ -360,6 +364,7 @@ export const EN_US: SlottedMessages = {
   carousel: carouselModule.en,
   cascader: cascaderModule.en,
   chart: chartModule.en,
+  clock: clockModule.en,
   codeBlock: codeBlockModule.en,
   colorPicker: colorPickerModule.en,
   columnManager: columnManagerModule.en,

@@ -179,13 +179,17 @@ export type {
 export {
   clockColumns,
   clockModel,
+  clockMove,
+  clockRows,
   dayPeriod,
   slotGroups,
   withClockHour,
   withClockMinute,
   withClockSecond,
 } from './clock';
-export type { ClockModel, ClockPeriod, ClockRules, ClockUnit, SlotGroup } from './clock';
+export type { ClockModel, ClockPeriod, ClockRules, ClockStep, ClockUnit, SlotGroup } from './clock';
+export { clockHourGroups, clockSlotGroups, clockStop, clockUnitCells } from './clock-view';
+export type { ClockCell, ClockGroup, ClockHoursOptions, ClockPeriodNames } from './clock-view';
 export { presetValue, relativeDays } from './relative';
 export type { PickerPreset } from './relative';
 export { monthGrid, visibleMonths, yearPage } from './grid';

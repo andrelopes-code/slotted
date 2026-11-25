@@ -3158,6 +3158,19 @@ export type ComponentToken =
   | '--slotted-checkbox-tile-radius'
   | '--slotted-checkbox-tile-readonly-background'
   | '--slotted-checkbox-tile-readonly-border-color'
+  | '--slotted-clock-cell-active-background'
+  | '--slotted-clock-cell-background'
+  | '--slotted-clock-cell-hover-background'
+  | '--slotted-clock-cell-radius'
+  | '--slotted-clock-color'
+  | '--slotted-clock-label-color'
+  | '--slotted-clock-label-inline-size'
+  | '--slotted-clock-now-border-color'
+  | '--slotted-clock-row-block-size'
+  | '--slotted-clock-selected-background'
+  | '--slotted-clock-selected-color'
+  | '--slotted-clock-selected-hover-background'
+  | '--slotted-clock-separator-color'
   | '--slotted-code-block-border-color'
   | '--slotted-code-block-color'
   | '--slotted-code-block-color-muted'
@@ -5535,6 +5548,19 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-checkbox-tile-radius",
   "--slotted-checkbox-tile-readonly-background",
   "--slotted-checkbox-tile-readonly-border-color",
+  "--slotted-clock-cell-active-background",
+  "--slotted-clock-cell-background",
+  "--slotted-clock-cell-hover-background",
+  "--slotted-clock-cell-radius",
+  "--slotted-clock-color",
+  "--slotted-clock-label-color",
+  "--slotted-clock-label-inline-size",
+  "--slotted-clock-now-border-color",
+  "--slotted-clock-row-block-size",
+  "--slotted-clock-selected-background",
+  "--slotted-clock-selected-color",
+  "--slotted-clock-selected-hover-background",
+  "--slotted-clock-separator-color",
   "--slotted-code-block-border-color",
   "--slotted-code-block-color",
   "--slotted-code-block-color-muted",
