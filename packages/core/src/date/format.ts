@@ -59,6 +59,8 @@ export interface DateFormat {
   /** The fields in the order the locale writes them, with the literals between. */
   readonly pattern: readonly DatePatternPart[];
   readonly firstDayOfWeek: number;
+  /** The locale's weekend, `0` being Sunday. Saturday and Sunday where the engine cannot say. */
+  readonly weekend: readonly number[];
   /** The ten digits this locale writes, in order. */
   readonly digits: readonly string[];
   /** How many digits each field is drawn with. The year is always four. */
@@ -142,26 +144,38 @@ export function yearMonthPattern(pattern: readonly DatePatternPart[]): DatePatte
 }
 
 /**
- * Which day the locale starts its week on, in the numbering `dayOfWeek` uses.
- * `getWeekInfo` answers 1 to 7 with Monday first and Sunday last, so `% 7`
- * turns Sunday's 7 into 0 and leaves every other day alone.
+ * Which day the locale starts its week on, and its weekend, in the numbering
+ * `dayOfWeek` uses. `getWeekInfo` (`weekInfo` in engines that shipped the
+ * accessor) answers 1 to 7 with Monday first and Sunday last, so `% 7` turns
+ * Sunday's 7 into 0 and leaves every other day alone.
  */
-function localeFirstDay(locale: string): number {
+function localeWeek(locale: string): { firstDay: number; weekend: number[] } {
   try {
-    const info = (
-      new Intl.Locale(locale) as Intl.Locale & { getWeekInfo?: () => { firstDay: number } }
-    ).getWeekInfo?.();
-    if (info !== undefined) return info.firstDay % 7;
+    const week = new Intl.Locale(locale) as Intl.Locale & {
+      getWeekInfo?: () => WeekInfo;
+      weekInfo?: WeekInfo;
+    };
+    const info = week.getWeekInfo?.() ?? week.weekInfo;
+    if (info !== undefined) {
+      return { firstDay: info.firstDay % 7, weekend: info.weekend.map((day) => day % 7) };
+    }
   } catch {
     /* An engine without week info falls through to the common default. */
   }
-  return 1;
+
+  return { firstDay: 1, weekend: [6, 0] };
+}
+
+interface WeekInfo {
+  readonly firstDay: number;
+  readonly weekend: readonly number[];
 }
 
 export function createDateFormat(options: DateFormatOptions = {}): DateFormat {
   const locale = options.locale ?? new Intl.DateTimeFormat().resolvedOptions().locale;
   const yearPivot = options.yearPivot ?? 20;
-  const firstDayOfWeek = options.firstDayOfWeek ?? localeFirstDay(locale);
+  const week = localeWeek(locale);
+  const firstDayOfWeek = options.firstDayOfWeek ?? week.firstDay;
   const digits = digitsOf(locale);
 
   const parts = new Intl.DateTimeFormat(locale, {
@@ -216,6 +230,7 @@ export function createDateFormat(options: DateFormatOptions = {}): DateFormat {
     locale,
     pattern,
     firstDayOfWeek,
+    weekend: week.weekend,
     digits,
 
     widthOf(field) {

@@ -1,6 +1,6 @@
 import { inject, InjectionToken } from '@angular/core';
 import { durationLabel } from '@slotted/core/date';
-import type { DateTimeRangeValue, TimeGranularity } from '@slotted/core/date';
+import type { DateTimeRangeValue, PlainDate, TimeGranularity } from '@slotted/core/date';
 
 /** A run of datetimes, either end of which may be open. */
 export type DateTimeRange = DateTimeRangeValue;
@@ -41,6 +41,8 @@ export interface DateTimeRangePickerDefaults {
   size: DateTimeRangePickerSize;
   step: number;
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   variant: DateTimeRangePickerVariant;
 }
 
@@ -56,6 +58,7 @@ const FALLBACK: DateTimeRangePickerDefaults = {
   size: 'md',
   step: DATETIME_RANGE_PICKER_STEP,
   timeZone: undefined,
+  today: undefined,
   variant: 'outline',
 };
 

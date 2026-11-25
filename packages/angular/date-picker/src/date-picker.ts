@@ -18,6 +18,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
   DestroyRef,
   effect,
   ElementRef,
@@ -45,7 +46,13 @@ import {
   type DatePickerMessages,
   type PartialMessages,
 } from '@slotted/core/i18n';
-import { SlCalendar, asDates, isRange, isSameValue } from '@slotted/angular/calendar';
+import {
+  asDates,
+  injectCalendarDefaults,
+  isRange,
+  isSameValue,
+  SlCalendar,
+} from '@slotted/angular/calendar';
 import type { CalendarSelectionMode, CalendarValue, CalendarView } from '@slotted/angular/calendar';
 import { SlDateField, SlDateFieldEnd } from '@slotted/angular/date-field';
 import { SlField } from '@slotted/angular/field';
@@ -65,6 +72,7 @@ import {
 } from '@slotted/angular/picker-panel';
 import type { PickerPresetView } from '@slotted/angular/picker-panel';
 
+import { SlDatePickerFooter } from './date-picker-parts';
 import { dateHead, dateResult, isRefusedDate, isWholeDate, monthsOf } from './date-panel';
 import { injectDatePickerDefaults } from './date-picker-defaults';
 import type {
@@ -124,7 +132,7 @@ import type {
         [max]="maxDay()"
         [granularity]="granularity()"
         [isDateUnavailable]="isDateUnavailable()"
-        [clearable]="clearable()"
+        [clearable]="clears()"
         [name]="name()"
         [disabled]="resolvedDisabled()"
         [readOnly]="readOnly()"
@@ -161,7 +169,7 @@ import type {
                   [months]="shownMonths()"
                   [selected]="selectedMonths()"
                   [shown]="shownPage()"
-                  [today]="today()"
+                  [today]="currentToday()"
                   (jump)="jump($event)"
                 ></div>
               }
@@ -194,6 +202,7 @@ import type {
               slCalendar
               [locale]="resolvedLocale()"
               [timeZone]="resolvedTimeZone()"
+              [today]="statedToday()"
               [firstDayOfWeek]="firstDayOfWeek()"
               [min]="minDay()"
               [max]="maxDay()"
@@ -214,18 +223,21 @@ import type {
             ></div>
           </div>
 
-          <div
-            slPickerFooter
-            [canApply]="canApply()"
-            [canClear]="hasDraft()"
-            [confirm]="resolvedConfirm()"
-            [hint]="hint()"
-            [invalid]="refused()"
-            (applied)="apply($event)"
-            (cleared)="clear($event)"
-          >
-            <ng-content select="[slDatePickerFooter]">{{ hint() }}</ng-content>
-          </div>
+          @if (footerShown()) {
+            <div
+              slPickerFooter
+              [clearable]="clears()"
+              [canApply]="canApply()"
+              [canClear]="hasDraft()"
+              [confirm]="resolvedConfirm()"
+              [hint]="hint()"
+              [invalid]="refused()"
+              (applied)="apply($event)"
+              (cleared)="clear($event)"
+            >
+              <ng-content select="[slDatePickerFooter]">{{ hint() }}</ng-content>
+            </div>
+          }
         </div>
       </div>
     }`,
@@ -297,6 +309,11 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   /** BCP 47. Writes the field, the grid and the trigger's date. Unset, the language in force decides. */
   readonly locale = input<string | undefined>(undefined);
   readonly timeZone = input<string | undefined>(undefined);
+  /**
+   * The day it is, stated by the application: a business date, a day a server
+   * answers. Unset, the clock answers in `timeZone`.
+   */
+  readonly today = input<PlainDate | undefined>(undefined);
   /** 0 is Sunday. Unset, the locale decides. */
   readonly firstDayOfWeek = input<number | undefined, unknown>(undefined, {
     transform: (value) =>
@@ -362,7 +379,14 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   protected readonly view = signal<CalendarView>('day');
   protected readonly focused = signal<PlainDate | undefined>(undefined);
   protected readonly page = signal<PlainYearMonth | null>(null);
-  protected readonly today = signal<PlainDate>({ year: 2026, month: 1, day: 1 });
+  private readonly clockToday = signal<PlainDate>({ year: 2026, month: 1, day: 1 });
+  private readonly calendarDefaults = injectCalendarDefaults();
+  /** The day the application states: on the picker, on its provider, or on the calendars'. */
+  protected readonly statedToday = computed(
+    () => this.today() ?? this.defaults.today ?? this.calendarDefaults.today,
+  );
+  /** The day it is: the one stated, else the clock's. */
+  protected readonly currentToday = computed(() => this.statedToday() ?? this.clockToday());
   private readonly formDisabled = signal<boolean | undefined>(undefined);
 
   private onChangeFn: (value: V | null) => void = () => undefined;
@@ -435,6 +459,19 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   protected readonly resolvedRequired = computed(
     () => this.required() ?? this.enclosing?.required(),
   );
+  /** A required value offers no control that empties it. */
+  protected readonly clears = computed(() => this.clearable() && this.resolvedRequired() !== true);
+  /** The application's own words for the footer. */
+  private readonly ownFooter = contentChild(SlDatePickerFooter);
+  /** With nothing to say and no action to offer, there is no footer. */
+  protected readonly footerShown = computed(
+    () =>
+      this.clears() ||
+      this.resolvedConfirm() ||
+      this.refused() ||
+      this.hint() !== '' ||
+      this.ownFooter() !== undefined,
+  );
 
   /**
    * Validity the family owns, beside the validity the consumer states: a date
@@ -503,7 +540,7 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
     locale: this.resolvedLocale(),
     monthly: this.monthly(),
     t: this.words,
-    today: this.today(),
+    today: this.currentToday(),
   }));
 
   protected readonly refused = computed(() => isRefusedDate(this.draft(), this.rules()));
@@ -511,7 +548,7 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   protected readonly selectedMonths = computed(() => monthsOf(this.draft()));
 
   protected readonly shownPage = computed(
-    () => this.page() ?? this.focused() ?? asDates(this.draft())[0] ?? this.today(),
+    () => this.page() ?? this.focused() ?? asDates(this.draft())[0] ?? this.currentToday(),
   );
 
   protected readonly canApply = computed(
@@ -530,7 +567,7 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
     const stated = this.presets();
     if (stated.length === 0) return [];
 
-    const today = { label: this.words('today'), value: this.today() as CalendarValue };
+    const today = { label: this.words('today'), value: this.currentToday() as CalendarValue };
     const first = this.single() && !this.monthly() ? [today] : [];
 
     return [...first, ...stated].map((preset): PickerPresetView => {
@@ -596,7 +633,7 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
 
   ngOnInit() {
     this.layer.start(this.defaultOpen());
-    this.today.set(todayIn(this.resolvedTimeZone()));
+    this.clockToday.set(todayIn(this.resolvedTimeZone()));
     this.ownValue.set(this.toDay(this.defaultValue()));
     this.view.set(this.defaultView() ?? this.lowestView());
 
@@ -674,7 +711,7 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
 
   /** One day either way, over the days the rules refuse. The panel stays. */
   protected stepDay(direction: 1 | -1, source: Event) {
-    const from = asDates(this.draft())[0] ?? addDays(this.today(), -direction);
+    const from = asDates(this.draft())[0] ?? addDays(this.currentToday(), -direction);
     const days = Array.from({ length: 366 }, (_, index) => addDays(from, (index + 1) * direction));
     const next = days.find((date) => !isRefusedDate(date, this.rules()));
     if (next === undefined) return;

@@ -42,6 +42,8 @@ export interface DateTimePickerDefaults {
   /** Seconds between two offered times. */
   step: number;
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   variant: DateTimePickerVariant;
 }
 
@@ -109,6 +111,13 @@ export interface DateTimePickerProps extends Omit<
   /** BCP 47. Writes the field, the grid, the list and the trigger's moment. Unset, the language in force decides. */
   locale?: string | undefined;
   timeZone?: string | undefined;
+  /**
+   * The day it is, stated by the application: a business date, a day a server
+   * answers. It decides the day marked as today, the date of Now and of
+   * `referenceDateTime`, and the month an empty panel opens on. Unset, the
+   * clock answers in `timeZone`.
+   */
+  today?: PlainDate | undefined;
   hourCycle?: DateTimePickerHourCycle | undefined;
   granularity?: TimeGranularity | undefined;
   calendar?: 'gregory' | undefined;

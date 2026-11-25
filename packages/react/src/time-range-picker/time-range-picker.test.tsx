@@ -195,14 +195,14 @@ describe('the draft', () => {
   });
 
   it('is discarded by Escape, and emptied by Clear', () => {
-    const { onValueChange } = draw({ defaultOpen: true, defaultValue: RUN });
+    const { onValueChange } = draw({ clearable: true, defaultOpen: true, defaultValue: RUN });
 
     fireEvent.click(chip('1 hr'));
     fireEvent.keyDown(document, { key: 'Escape' });
     fireEvent.click(trigger());
     expect(spanText()).toBe('2 hr 45 min');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Clear' }));
     fireEvent.click(apply());
     expect(onValueChange).toHaveBeenCalledTimes(1);
     expect(onValueChange).toHaveBeenCalledWith(null, expect.anything());

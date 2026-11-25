@@ -101,6 +101,8 @@ export function DateTimeRangePicker(props: DateTimeRangePickerProps) {
     ...nativeProps
   } = props;
   const config = useDateTimeRangePickerConfig(props);
+  /* A required value offers no control that empties it. */
+  const clears = clearable && config.required !== true;
   const words = useDateTimeRangeWords(props, config);
   const [position, requestPosition] = usePickerPosition(props);
   const rootRef = useRef<HTMLElement | null>(null);
@@ -181,7 +183,7 @@ export function DateTimeRangePicker(props: DateTimeRangePickerProps) {
       editable={config.editable}
       glyph="calendar"
       layer={layer}
-      onClear={clearable && held !== null ? handleClear : undefined}
+      onClear={clears && held !== null ? handleClear : undefined}
       placeholder={t('choose')}
       posted={{
         end: { name: endName, value: posted(held?.end) },
@@ -227,12 +229,14 @@ export function DateTimeRangePicker(props: DateTimeRangePickerProps) {
         onApply={(event) => panel.canApply && panel.write(panel.draft, event)}
       >
         <DateTimeRangePanel
+          clearable={clears}
           calendar={{
             ...dateBoundsOf({ max, min }),
             ...firstDay,
             fixedWeeks,
             readOnly: !config.editable,
             timeZone: config.timeZone,
+            today: config.statedToday,
             weekNumbers,
           }}
           calendarRef={calendarRef}

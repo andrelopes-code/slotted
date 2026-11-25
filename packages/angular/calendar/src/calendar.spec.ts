@@ -28,6 +28,7 @@ const NINTH = plainDate(2026, 9, 9);
 })
 class Host {
   readonly ninth = NINTH;
+  readonly november = plainDate(2026, 11, 25);
   readonly owned = signal(plainDate(2026, 9, 30));
   readonly january = plainDate(2026, 1, 31);
   readonly february = plainDate(2026, 2, 1);
@@ -977,6 +978,23 @@ describe('a week chosen whole', () => {
     );
 
     expect(week(fixture, 37)).toBeNull();
+  });
+});
+
+describe('the weekend', () => {
+  it.each([
+    /* Egypt in Latin digits, so the cells read as the other locale's do. */
+    ['ar-EG-u-nu-latn', ['27', '28']],
+    ['en-US', ['28', '29']],
+  ])('follows the weekend of %s', (locale, weekend) => {
+    const fixture = renderTemplate(
+      `<div slCalendar locale="${locale}" [defaultFocusedDate]="november"></div>`,
+    );
+
+    const marked = [...fixture.nativeElement.querySelectorAll('[data-part="cell"][data-weekend]')]
+      .filter((cell) => !(cell as HTMLElement).hasAttribute('data-outside-month'))
+      .map((cell) => (cell as HTMLElement).textContent?.trim());
+    expect(marked.filter((day) => ['27', '28', '29'].includes(day ?? ''))).toEqual(weekend);
   });
 });
 

@@ -891,6 +891,19 @@ describe('the weekend', () => {
     expect(saturday).toHaveAttribute('data-weekend');
     expect(saturday?.previousElementSibling).not.toHaveAttribute('data-weekend');
   });
+
+  it.each([
+    /* Egypt in Latin digits, so the cells read as the other locale's do. */
+    ['ar-EG-u-nu-latn', ['27', '28']],
+    ['en-US', ['28', '29']],
+  ])('follows the weekend of %s', (locale, weekend) => {
+    render(<Calendar defaultFocusedDate={plainDate(2026, 11, 25)} locale={locale} />);
+
+    const marked = [...document.querySelectorAll('[data-part="cell"][data-weekend]')]
+      .filter((cell) => !cell.hasAttribute('data-outside-month'))
+      .map((cell) => cell.textContent);
+    expect(marked.filter((day) => ['27', '28', '29'].includes(day ?? ''))).toEqual(weekend);
+  });
 });
 
 it('says which month the page starts on, and when it turns', () => {
@@ -900,4 +913,27 @@ it('says which month the page starts on, and when it turns', () => {
 
   fireEvent.click(screen.getByRole('button', { name: 'Next month' }));
   expect(pages.mock.lastCall?.[0]).toEqual({ year: 2026, month: 11 });
+});
+
+describe('the day it is, stated by the application', () => {
+  it.each([
+    ['the prop', <Calendar locale="en-US" today={plainDate(2026, 10, 17)} />],
+    [
+      'the provider',
+      <CalendarDefaultsProvider today={plainDate(2026, 10, 17)}>
+        <Calendar locale="en-US" />
+      </CalendarDefaultsProvider>,
+    ],
+  ])('marks it and opens on its month, through %s', (_, calendar) => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 25, 12));
+    try {
+      render(calendar);
+
+      expect(document.querySelector('[data-part="heading"]')?.textContent).toBe('October 2026');
+      expect(document.querySelector('[data-part="day"][data-today]')?.textContent).toBe('17');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

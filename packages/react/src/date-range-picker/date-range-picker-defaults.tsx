@@ -13,6 +13,7 @@ const FALLBACK: DateRangePickerDefaults = {
   placement: 'bottom-start',
   size: 'md',
   timeZone: undefined,
+  today: undefined,
   variant: 'outline',
 };
 
@@ -45,6 +46,7 @@ export function DateRangePickerDefaultsProvider({
         placement: defaults.placement ?? inherited.placement,
         size: defaults.size ?? inherited.size,
         timeZone: defaults.timeZone ?? inherited.timeZone,
+        today: defaults.today ?? inherited.today,
         variant: defaults.variant ?? inherited.variant,
       }}
     >

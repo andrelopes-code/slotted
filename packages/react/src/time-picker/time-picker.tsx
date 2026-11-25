@@ -72,6 +72,8 @@ export function TimePicker(props: TimePickerProps) {
     ...nativeProps
   } = props;
   const config = useTimePickerConfig(props);
+  /* A required value offers no control that empties it. */
+  const clears = clearable && config.required !== true;
   const t = useMessages(timePickerMessages, messages);
   const rootRef = useRef<HTMLElement | null>(null);
   const fieldRef = useRef<TimeFieldHandle | null>(null);
@@ -134,7 +136,7 @@ export function TimePicker(props: TimePickerProps) {
     <div data-part="control" data-part-control="" onKeyDown={handleControlKeyDown}>
       <TimeField
         {...reading}
-        clearable={clearable}
+        clearable={clears}
         disabled={config.disabled}
         end={
           <PickerTrigger disabled={!config.editable} glyph="clock" label={spoken} layer={layer} />
@@ -187,6 +189,7 @@ export function TimePicker(props: TimePickerProps) {
         onApply={(event) => panel.canApply && panel.write(panel.draft, event)}
       >
         <TimePickerPanel
+          clearable={clears}
           clock={{
             ...reading,
             now: config.now,

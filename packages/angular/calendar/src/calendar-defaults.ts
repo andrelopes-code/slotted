@@ -61,6 +61,8 @@ export interface CalendarDefaults {
    */
   outsideDays: CalendarOutsideDays | undefined;
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   weekNumbers: boolean;
 }
 
@@ -71,6 +73,7 @@ const FALLBACK: CalendarDefaults = {
   months: 1,
   outsideDays: undefined,
   timeZone: undefined,
+  today: undefined,
   weekNumbers: false,
 };
 
@@ -81,7 +84,7 @@ export const CALENDAR_DEFAULTS = new InjectionToken<CalendarDefaults>('slotted c
 
 /**
  * An application decides once which day its weeks start on, which zone answers
- * "today" and whether its calendars keep a fixed six-row grid — rather than
+ * "today" or which day it is, and whether its calendars keep a fixed six-row grid — rather than
  * repeating the same inputs on every instance. Its words and the locale that
  * writes its months come from the language in force (`provideSlotted`).
  *

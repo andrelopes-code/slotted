@@ -71,6 +71,18 @@ describe('what it is made of', () => {
     ]);
   });
 
+  it('counts from the day the application states, at the time of the moment', () => {
+    draw({
+      defaultOpen: true,
+      presets: [{ label: 'Monday early', value: at(14, 9) }],
+      today: plainDate(2026, 9, 3),
+    });
+
+    expect(part('meta').textContent).toBe('Today: Thu, Sep 3');
+    expect(presets()[0]).toEqual(['Now', 'Sep 3, 10:20 AM']);
+    expect(document.querySelector('[data-part="day"][data-today]')?.textContent).toBe('3');
+  });
+
   it('has no rail with no shortcuts', () => {
     draw({ defaultOpen: true });
 
@@ -188,9 +200,9 @@ describe('the draft', () => {
   });
 
   it('is emptied by Clear, and Apply writes the empty value', () => {
-    const { onValueChange } = draw({ defaultOpen: true, defaultValue: VALUE });
+    const { onValueChange } = draw({ clearable: true, defaultOpen: true, defaultValue: VALUE });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Clear' }));
     fireEvent.click(apply());
     expect(onValueChange).toHaveBeenCalledWith(null, expect.anything());
   });

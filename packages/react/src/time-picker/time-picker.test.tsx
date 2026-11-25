@@ -121,9 +121,9 @@ describe('the draft', () => {
   });
 
   it('is emptied by Clear, and Apply writes the empty value', () => {
-    const change = draw({ defaultOpen: true, defaultValue: HALF_PAST_TWO });
+    const change = draw({ clearable: true, defaultOpen: true, defaultValue: HALF_PAST_TWO });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Clear' }));
     expect(change).not.toHaveBeenCalled();
     fireEvent.click(apply());
     expect(change.mock.lastCall?.[0]).toBeNull();

@@ -589,6 +589,12 @@ export class SlCalendar implements OnInit {
   /** The locale that writes months and days. Unset, the language in force decides. */
   readonly locale = input<string | undefined>(undefined);
   readonly timeZone = input<string | undefined>(undefined);
+  /**
+   * The day it is, stated by the application: a business date, a day a server
+   * answers. It is the day marked as today and the month a calendar with no
+   * date opens on. Unset, the clock answers in `timeZone`.
+   */
+  readonly today = input<PlainDate | undefined>(undefined);
   readonly firstDayOfWeek = input<number | undefined, unknown>(undefined, {
     transform: (value) =>
       value === undefined || value === null ? undefined : numberAttribute(value),
@@ -658,7 +664,11 @@ export class SlCalendar implements OnInit {
    * off screen. The page moves only when the reader leaves it.
    */
   private readonly page = signal<{ year: number; month: number }>({ year: 2026, month: 1 });
-  private readonly today = signal<PlainDate | null>(null);
+  private readonly clockToday = signal<PlainDate | null>(null);
+  /* A day the application states is known on the server as well. */
+  private readonly currentToday = computed(
+    () => this.today() ?? this.defaults.today ?? this.clockToday(),
+  );
   /** Focus is only moved into the DOM after a key, never on a render. */
   private restoreFocus = false;
 
@@ -782,7 +792,7 @@ export class SlCalendar implements OnInit {
   ngOnInit() {
     this.ownValue.set(this.defaultValue() ?? null);
     this.ownView.set(this.defaultView() ?? (this.monthly() ? 'month' : 'day'));
-    this.today.set(todayIn(this.timeZone() ?? this.defaults.timeZone));
+    this.clockToday.set(todayIn(this.timeZone() ?? this.defaults.timeZone));
     const start = this.startingDate();
     this.ownFocused.set(start);
     this.page.set({ year: start.year, month: start.month });
@@ -879,7 +889,7 @@ export class SlCalendar implements OnInit {
   }
 
   protected isToday(date: PlainDate): boolean {
-    const today = this.today();
+    const today = this.currentToday();
     return today !== null && isSameDate(date, today);
   }
 
@@ -903,7 +913,7 @@ export class SlCalendar implements OnInit {
   }
 
   protected weekend(date: PlainDate): boolean {
-    return dayOfWeek(date) % 6 === 0;
+    return this.format().weekend.includes(dayOfWeek(date));
   }
 
   protected weekChoice(): boolean {
@@ -1089,7 +1099,7 @@ export class SlCalendar implements OnInit {
 
   /**
    * The first date the reader is put on: what a consumer said, then the value
-   * it holds, then today. A calendar that opened on an arbitrary month would
+   * it holds, then today: stated, or the clock's. A calendar that opened on an arbitrary month would
    * make the reader page to now before doing anything at all.
    */
   private startingDate(): PlainDate {
@@ -1106,7 +1116,7 @@ export class SlCalendar implements OnInit {
         return held;
       }
     }
-    return clampDate(this.today() ?? plainDate(2026, 1, 1), this.min(), this.max());
+    return clampDate(this.currentToday() ?? plainDate(2026, 1, 1), this.min(), this.max());
   }
 
   private setView(next: CalendarView) {

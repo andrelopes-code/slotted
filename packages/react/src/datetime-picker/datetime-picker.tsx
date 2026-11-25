@@ -87,6 +87,8 @@ export function DateTimePicker(props: DateTimePickerProps) {
     ...nativeProps
   } = props;
   const config = useDateTimePickerConfig(props);
+  /* A required value offers no control that empties it. */
+  const clears = clearable && config.required !== true;
   const t = useMessages(datetimePickerMessages, messages);
   const rootRef = useRef<HTMLElement | null>(null);
   const fieldRef = useRef<DateTimeFieldHandle | null>(null);
@@ -165,7 +167,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
         {...firstDay}
         {...(relative === undefined ? {} : { relative })}
         calendar={config.calendar}
-        clearable={clearable}
+        clearable={clears}
         disabled={config.disabled}
         end={
           <PickerTrigger
@@ -222,6 +224,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
         onApply={(event) => panel.canApply && panel.write(panel.moment, event)}
       >
         <DateTimePickerPanel
+          clearable={clears}
           calendar={{
             ...dateBoundsOf(rules),
             ...firstDay,
@@ -230,6 +233,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
             locale: config.locale,
             readOnly: !config.editable,
             timeZone: config.timeZone,
+            today: config.statedToday,
             weekNumbers,
           }}
           clock={{

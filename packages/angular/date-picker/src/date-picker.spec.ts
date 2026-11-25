@@ -9,7 +9,7 @@ import type { ChangeRequest } from '@slotted/core/state';
 import type { CalendarValue } from '@slotted/angular/calendar';
 import { SlDateField } from '@slotted/angular/date-field';
 import { provideSlotted } from '@slotted/angular/i18n';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/date-picker/contract.json';
 import { SlDatePicker } from './date-picker';
@@ -47,6 +47,8 @@ class Host {
   readonly run = { start: plainDate(2026, 9, 7), end: plainDate(2026, 9, 11) };
   readonly refuseTenth = (date: PlainDate) => date.day === 10;
   readonly refuseNinth = (date: PlainDate) => date.day === 9;
+  readonly businessDay = plainDate(2026, 10, 17);
+  readonly yesterday = [{ label: 'Yesterday', value: plainDate(2026, 10, 16) }];
 }
 
 function renderTemplate(template: string, providers: unknown[] = []) {
@@ -430,7 +432,7 @@ describe('the composition surface', () => {
 
   it('drops the draft of a run on Escape, and empties the value from the footer', () => {
     const fixture = renderTemplate(
-      `<div slDatePicker defaultOpen locale="en-US" selectionMode="range" [defaultValue]="run" (valueChange)="onValue($event)"></div>`,
+      `<div slDatePicker clearable defaultOpen locale="en-US" selectionMode="range" [defaultValue]="run" (valueChange)="onValue($event)"></div>`,
     );
     const head = () => fixture.nativeElement.querySelector('[data-part="value"]').textContent;
     click(fixture, dayFor(fixture, 14));
@@ -442,7 +444,12 @@ describe('the composition surface', () => {
     expect(head()).toContain('Sep 7');
     expect(fixture.componentInstance.values).toEqual([]);
 
-    click(fixture, fixture.nativeElement.querySelector('[data-part="clear"]') as HTMLElement);
+    click(
+      fixture,
+      fixture.nativeElement.querySelector(
+        '[data-part="footer"] [data-part="clear"]',
+      ) as HTMLElement,
+    );
     click(fixture, fixture.nativeElement.querySelector('[data-part="apply"]') as HTMLElement);
     expect(fixture.componentInstance.values).toEqual([null]);
   });
@@ -575,10 +582,12 @@ describe('where focus goes when it opens', () => {
 
   it('keeps Tab inside the surface while it is open', () => {
     const fixture = renderTemplate(
-      `<div slDatePicker defaultOpen locale="en-US" [defaultValue]="ninth" [presets]="presets"></div>`,
+      `<div slDatePicker clearable defaultOpen locale="en-US" [defaultValue]="ninth" [presets]="presets"></div>`,
     );
     const first = fixture.nativeElement.querySelector('[data-part="preset"]') as HTMLButtonElement;
-    const last = fixture.nativeElement.querySelector('[data-part="clear"]') as HTMLButtonElement;
+    const last = fixture.nativeElement.querySelector(
+      '[data-part="footer"] [data-part="clear"]',
+    ) as HTMLButtonElement;
 
     last.focus();
     last.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
@@ -717,5 +726,38 @@ describe('as a sheet', () => {
       expect.objectContaining({ reason: 'pointer' }),
     );
     vi.unstubAllGlobals();
+  });
+});
+
+describe('the day it is, stated by the application', () => {
+  const template = (attributes: string) =>
+    `<div slDatePicker defaultOpen locale="en-US" ${attributes} [presets]="yesterday" (valueChange)="onValue($event)"></div>`;
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 25, 12));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it.each([
+    ['the input', renderTemplate.bind(null, template('[today]="businessDay"'))],
+    [
+      'the provider',
+      renderTemplate.bind(null, template(''), [
+        provideDatePickerDefaults({ today: plainDate(2026, 10, 17) }),
+      ]),
+    ],
+  ])('decides Today, the mark and the month an empty panel opens on, through %s', (_, draw) => {
+    const fixture = draw();
+    const query = (selector: string) =>
+      fixture.nativeElement.querySelector(selector) as HTMLElement | null;
+
+    expect(query('[data-part="heading"]')?.textContent).toContain('October 2026');
+    expect(query('[data-part="day"][data-today]')?.textContent?.trim()).toBe('17');
+
+    click(fixture, query('[data-part="preset"]')!);
+    expect(fixture.componentInstance.values).toEqual([plainDate(2026, 10, 17)]);
   });
 });

@@ -1,5 +1,5 @@
 import { inject, InjectionToken } from '@angular/core';
-import type { TimeGranularity } from '@slotted/core/date';
+import type { PlainDate, TimeGranularity } from '@slotted/core/date';
 
 import type {
   DateTimeFieldHourCycle,
@@ -26,6 +26,8 @@ export interface DateTimePickerDefaults {
   /** Seconds between two offered times. */
   step: number;
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   variant: DateTimePickerVariant;
 }
 
@@ -38,6 +40,7 @@ const FALLBACK: DateTimePickerDefaults = {
   size: 'md',
   step: 900,
   timeZone: undefined,
+  today: undefined,
   variant: 'outline',
 };
 

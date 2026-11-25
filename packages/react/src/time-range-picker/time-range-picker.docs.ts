@@ -438,7 +438,13 @@ const api: ApiRow[] = apiRows([
   ['disabled', 'boolean', '—', 'TimeRangePicker', 'Answers no key and no press.'],
   ['readOnly', 'boolean', '—', 'TimeRangePicker', 'Readable and not changeable.'],
   ['required', 'boolean', '—', 'TimeRangePicker', 'The form needs a value.'],
-  ['clearable', 'boolean', 'false', 'TimeRangePicker', 'Draws a clear on the control.'],
+  [
+    'clearable',
+    'boolean',
+    'false',
+    'TimeRangePicker',
+    'Draws a clear on the control and in the panel, unless required.',
+  ],
   [
     'messages',
     'Partial<TimeRangePickerMessages>',

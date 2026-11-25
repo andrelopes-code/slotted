@@ -545,11 +545,16 @@
     color: var(--slotted-calendar-outside-color, var(--slotted-text-muted, GrayText));
   }
 
-  /* The weakest ink of the six: a chosen, banded or marked day keeps its own. */
+  /* Halfway between the text and the muted ink of a day outside the month: a
+     weekend day is of the month and can be chosen. A chosen, banded or marked
+     day keeps its own ink. */
   [data-ui-calendar]:where(:not([data-layout='fill'], [data-disabled]))
     :where([data-part-cell][data-weekend])
     [data-part-day] {
-    color: var(--slotted-calendar-weekend-color, var(--slotted-text-muted, GrayText));
+    color: var(
+      --slotted-calendar-weekend-color,
+      color-mix(in oklab, var(--slotted-text, CanvasText), var(--slotted-text-muted, GrayText))
+    );
   }
 
   /**

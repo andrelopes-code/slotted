@@ -18,6 +18,8 @@ import type { useTimeRangePanel } from './use-time-range-panel';
 interface TimeRangePanelProps {
   readonly clock: Partial<ClockProps>;
   readonly clockRefs: Record<TimeRangePickerPosition, RefObject<ClockHandle | null>>;
+  /** The picker may be cleared: `clearable`, and not `required`. */
+  readonly clearable: boolean;
   readonly confirm: boolean;
   readonly field: Partial<TimeFieldProps>;
   readonly footer: ReactNode;
@@ -69,6 +71,7 @@ export function TimeRangePanel(props: TimeRangePanelProps) {
         <PickerFooter
           canApply={panel.canApply}
           canClear={panel.canClear}
+          clearable={props.clearable}
           confirm={confirm}
           hint={panel.refusal ?? footer ?? panel.hint}
           invalid={panel.refusal !== null}

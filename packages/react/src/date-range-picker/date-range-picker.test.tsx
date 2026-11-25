@@ -1,7 +1,7 @@
 import { plainDate } from '@slotted/core/date';
 import type { PlainDate } from '@slotted/core/date';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/date-range-picker/contract.json';
@@ -547,9 +547,9 @@ describe('the draft', () => {
   });
 
   it('is emptied by Clear, and Apply writes the empty value', () => {
-    const change = draw({ defaultOpen: true, defaultValue: RUN });
+    const change = draw({ clearable: true, defaultOpen: true, defaultValue: RUN });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Clear' }));
     fireEvent.click(apply());
     expect(change.mock.lastCall?.[0]).toBeNull();
   });

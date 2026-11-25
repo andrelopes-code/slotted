@@ -113,6 +113,7 @@ export function Calendar({
   selectionMode = 'single',
   style,
   timeZone,
+  today: todayProp,
   todayMark = 'dot',
   value,
   view,
@@ -156,15 +157,19 @@ export function Calendar({
    * server and a browser in different zones disagree about today, and a value
    * read during render would hydrate to different markup on the two sides.
    */
-  const [today, setToday] = useState<PlainDate | null>(null);
-  useEffect(() => setToday(todayIn(resolvedTimeZone)), [resolvedTimeZone]);
+  const [clockToday, setClockToday] = useState<PlainDate | null>(null);
+  useEffect(() => setClockToday(todayIn(resolvedTimeZone)), [resolvedTimeZone]);
+  /* A day the application states is known on the server as well. */
+  const statedToday = todayProp ?? defaults.today;
+  const today = statedToday ?? clockToday;
 
   const [ownValue, setOwnValue] = useState<CalendarValue>(defaultValue ?? null);
   const held = value ?? ownValue;
 
   /**
    * The date the first page opens on: the one stated, else the first date held
-   * — controlled or not — else today, once the effect below resolves it. A
+   * — controlled or not — else today: the day the application states, or the
+   * clock's once the effect below resolves it. A
    * controlled `value` counts: a date picker hands its calendar the value
    * rather than a default, and opened on today's month it showed a page that
    * did not hold the chosen date.
@@ -180,7 +185,11 @@ export function Calendar({
           : heldAtStart;
   const anchored =
     defaultFocusedDate !== undefined || focusedDate !== undefined || firstHeld !== null;
-  const anchor = defaultFocusedDate ?? focusedDate ?? firstHeld ?? plainDate(2026, 1, 1);
+  const anchor =
+    defaultFocusedDate ??
+    focusedDate ??
+    firstHeld ??
+    (statedToday === undefined ? plainDate(2026, 1, 1) : clampDate(statedToday, min, max));
 
   const [ownFocused, setOwnFocused] = useState<PlainDate>(anchor);
   const focused = focusedDate ?? ownFocused;
@@ -258,8 +267,8 @@ export function Calendar({
   /* The reader's first calendar opens on today rather than on an arbitrary
      month, and only while nobody has said otherwise. */
   useEffect(() => {
-    if (today === null || anchored) return;
-    const start = clampDate(today, min, max);
+    if (clockToday === null || anchored || statedToday !== undefined) return;
+    const start = clampDate(clockToday, min, max);
     setOwnFocused((previous) => (isSameDate(previous, anchor) ? start : previous));
     /* The page starts on today's month, as it would on a stated date. Left to
        follow focus from the placeholder month, two months paged in whole pages
@@ -271,7 +280,7 @@ export function Calendar({
     );
     /* Only on the first resolution of today: the anchor and the bounds are
        read once, and a later change to either is the consumer's to apply. */
-  }, [today]);
+  }, [clockToday]);
 
   const requestValue = useCallback(
     (next: CalendarValue, reason: 'pointer' | 'keyboard' | 'clear', source: unknown) => {
@@ -592,6 +601,7 @@ export function Calendar({
             today={today}
             unavailable={unavailable}
             value={held}
+            weekend={format.weekend}
             weekName={(week) => t('chooseWeek', { week })}
             weekNumbers={resolvedWeekNumbers}
           />

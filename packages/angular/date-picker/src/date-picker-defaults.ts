@@ -1,4 +1,5 @@
 import { inject, InjectionToken } from '@angular/core';
+import type { PlainDate } from '@slotted/core/date';
 
 /** Where the surface opens, before the positioner has read the room. */
 export type DatePickerPlacement =
@@ -15,6 +16,8 @@ export interface DatePickerDefaults {
   placement: DatePickerPlacement;
   size: DatePickerSize;
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   variant: DatePickerVariant;
 }
 
@@ -24,6 +27,7 @@ const FALLBACK: DatePickerDefaults = {
   placement: 'bottom-start',
   size: 'md',
   timeZone: undefined,
+  today: undefined,
   variant: 'outline',
 };
 

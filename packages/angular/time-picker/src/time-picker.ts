@@ -50,6 +50,7 @@ import { pickerPanelMessages, timePickerMessages } from '@slotted/core/i18n';
 import type { PartialMessages, TimePickerMessages } from '@slotted/core/i18n';
 import type { ChangeRequest } from '@slotted/core/state';
 
+import { SlTimePickerFooter } from './time-picker-parts';
 import { isRefusedTime, TIME_PICKER_OFFSETS, timeOffsetViews, timePresetViews } from './time-panel';
 import { injectTimePickerDefaults } from './time-picker-defaults';
 import type {
@@ -107,7 +108,7 @@ function optionalBoolean(value: boolean | string | undefined): boolean | undefin
         [min]="min()"
         [max]="max()"
         [isTimeUnavailable]="isTimeUnavailable()"
-        [clearable]="clearable()"
+        [clearable]="clears()"
         [relative]="relative()"
         [name]="name()"
         [disabled]="disabled()"
@@ -188,18 +189,21 @@ function optionalBoolean(value: boolean | string | undefined): boolean | undefin
             </div>
           </div>
 
-          <div
-            slPickerFooter
-            [canApply]="canApply()"
-            [canClear]="draft() !== null"
-            [confirm]="resolvedConfirm()"
-            [hint]="hint()"
-            [invalid]="refused()"
-            (applied)="apply($event)"
-            (cleared)="clear($event)"
-          >
-            <ng-content select="[slTimePickerFooter]">{{ hint() }}</ng-content>
-          </div>
+          @if (footerShown()) {
+            <div
+              slPickerFooter
+              [clearable]="clears()"
+              [canApply]="canApply()"
+              [canClear]="draft() !== null"
+              [confirm]="resolvedConfirm()"
+              [hint]="hint()"
+              [invalid]="refused()"
+              (applied)="apply($event)"
+              (cleared)="clear($event)"
+            >
+              <ng-content select="[slTimePickerFooter]">{{ hint() }}</ng-content>
+            </div>
+          }
         </div>
       </div>
     }
@@ -334,6 +338,19 @@ export class SlTimePicker implements OnInit {
   );
   protected readonly resolvedRequired = computed(
     () => this.required() ?? this.enclosing?.required(),
+  );
+  /** A required value offers no control that empties it. */
+  protected readonly clears = computed(() => this.clearable() && this.resolvedRequired() !== true);
+  /** The application's own words for the footer. */
+  private readonly ownFooter = contentChild(SlTimePickerFooter);
+  /** With nothing to say and no action to offer, there is no footer. */
+  protected readonly footerShown = computed(
+    () =>
+      this.clears() ||
+      this.resolvedConfirm() ||
+      this.refused() ||
+      this.hint() !== '' ||
+      this.ownFooter() !== undefined,
   );
   protected readonly editable = computed(
     () => this.resolvedDisabled() !== true && this.resolvedReadOnly() !== true,

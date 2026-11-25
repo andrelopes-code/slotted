@@ -1,7 +1,8 @@
 import { isSameDateTime, nowDateTimeIn } from '@slotted/core/date';
-import type { PlainDateTime } from '@slotted/core/date';
+import type { PlainDate, PlainDateTime } from '@slotted/core/date';
 import { useEffect, useState } from 'react';
 
+import { useStatedToday } from '../date-picker/use-date-picker';
 import { useField } from '../field';
 import { useLocale } from '../i18n';
 import { useDateTimePickerDefaults } from './datetime-picker-defaults';
@@ -19,7 +20,8 @@ export function useDateTimePickerConfig(props: DateTimePickerProps) {
   const defaults = useDateTimePickerDefaults();
   const appLocale = useLocale();
   const timeZone = props.timeZone ?? defaults.timeZone;
-  const now = useMomentNow(props.referenceDateTime, timeZone);
+  const statedToday = useStatedToday(props.today, defaults.today);
+  const now = useMomentNow(props.referenceDateTime, timeZone, statedToday);
   const disabled = props.disabled ?? field?.disabled;
   const readOnly = props.readOnly ?? field?.readOnly;
 
@@ -38,15 +40,17 @@ export function useDateTimePickerConfig(props: DateTimePickerProps) {
     required: props.required ?? field?.required,
     size: props.size ?? field?.size ?? defaults.size,
     step: props.step ?? defaults.step,
+    statedToday,
     timeZone,
     variant: props.variant ?? defaults.variant,
   };
 }
 
-/** The moment it is, read once the browser can say it. */
+/** The moment it is, read once the browser can say it, on the day the application states. */
 function useMomentNow(
   reference: PlainDateTime | undefined,
   timeZone: string | undefined,
+  today: PlainDate | undefined,
 ): PlainDateTime {
   const [clock, setClock] = useState(SSR_REFERENCE);
   useEffect(() => {
@@ -55,5 +59,7 @@ function useMomentNow(
     setClock((previous) => (isSameDateTime(previous, read) ? previous : read));
   }, [timeZone]);
 
-  return reference ?? clock;
+  const now = reference ?? clock;
+
+  return today === undefined ? now : { ...now, date: today };
 }

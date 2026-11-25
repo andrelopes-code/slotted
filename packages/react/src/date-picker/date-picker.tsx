@@ -84,6 +84,8 @@ function Picker(props: DatePickerBaseProps) {
     ...nativeProps
   } = props;
   const config = useDatePickerConfig(props);
+  /* A required value offers no control that empties it. */
+  const clears = clearable && config.required !== true;
   const t = useMessages(datePickerMessages, messages);
   const rootRef = useRef<HTMLElement | null>(null);
   const fieldRef = useRef<DateFieldHandle | null>(null);
@@ -160,7 +162,7 @@ function Picker(props: DatePickerBaseProps) {
         {...typed}
         {...(yearPivot === undefined ? {} : { yearPivot })}
         calendar={config.calendar}
-        clearable={clearable}
+        clearable={clears}
         disabled={config.disabled}
         end={
           <PickerTrigger
@@ -217,6 +219,7 @@ function Picker(props: DatePickerBaseProps) {
         onApply={(event) => panel.canApply && panel.write(panel.draft, event)}
       >
         <DatePickerPanel
+          clearable={clears}
           calendar={{
             ...rules,
             ...firstDay,
@@ -227,6 +230,7 @@ function Picker(props: DatePickerBaseProps) {
             readOnly: !config.editable,
             selectionMode: config.selectionMode,
             timeZone: config.timeZone,
+            today: config.statedToday,
             weekNumbers,
           }}
           confirm={config.confirm}

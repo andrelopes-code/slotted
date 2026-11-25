@@ -57,7 +57,7 @@ Two pairs of bounds apply together. `min` and `max` are whole date-times: where 
 
 ## Time zones and wall-clock values
 
-The value is a `PlainDateTime`: a `date` and a `time` with no time zone, the time a clock on the wall shows. `toISODateTime` writes it as `2026-09-30T14:00:00`, the format of `input[type=datetime-local]`, and `parseISODateTime` reads it back. When your server stores instants, `wallClockIn` from `@slotted/core/date` converts an instant to the wall-clock time in a time zone; converting back to an instant stays in your application. `timeZone` decides which day the calendar marks as today and what the Now shortcut writes. Stated, the zone is written over the clock. Unset, both come from the browser's time zone.
+The value is a `PlainDateTime`: a `date` and a `time` with no time zone, the time a clock on the wall shows. `toISODateTime` writes it as `2026-09-30T14:00:00`, the format of `input[type=datetime-local]`, and `parseISODateTime` reads it back. When your server stores instants, `wallClockIn` from `@slotted/core/date` converts an instant to the wall-clock time in a time zone; converting back to an instant stays in your application. `timeZone` decides which day the calendar marks as today and what the Now shortcut writes. Stated, the zone is written over the clock. Unset, both come from the browser's time zone. `today` states the day itself, such as a business date: Now keeps the time of the clock on that day.
 
 <Example name="time-zones" />
 
@@ -93,13 +93,13 @@ Pass `value` and update it from `onValueChange` in React, or bind `[value]` and 
 
 ## Clearing
 
-`clearable` adds a clear button to the field while it holds any part of a value. The button empties both halves, reports `null` with the reason `clear` and returns focus to the field.
+`clearable` adds a clear button to the field while it holds any part of a value, and Clear to the footer of the panel. The button empties both halves, reports `null` with the reason `clear` and returns focus to the field. With `required`, neither is drawn.
 
 <Example name="clearable" />
 
 ## Confirmation and footer
 
-The panel keeps a draft until Apply, and Clear empties it. `confirm={false}` in React, or `confirm="false"` in Angular, drops Apply: each press on a whole moment writes it, and the press on the finest unit closes the panel. `footer` in React and an element with `slDateTimePickerFooter` in Angular set the text beside the actions; unset, it names the step.
+The panel keeps a draft until Apply, and Clear, with `clearable`, empties it. `confirm={false}` in React, or `confirm="false"` in Angular, drops Apply: each press on a whole moment writes it, and the press on the finest unit closes the panel. `footer` in React and an element with `slDateTimePickerFooter` in Angular set the text beside the actions; unset, it names the step.
 
 <Example name="footer" />
 

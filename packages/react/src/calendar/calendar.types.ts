@@ -72,6 +72,8 @@ export interface CalendarDefaults {
   outsideDays: CalendarOutsideDays | undefined;
   /** Which zone answers "what is today". Unset means the runtime's own. */
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   weekNumbers: boolean;
 }
 
@@ -219,6 +221,12 @@ export interface CalendarProps extends Omit<
   /** The locale that writes months and days. Unset, the language in force decides. */
   locale?: string | undefined;
   timeZone?: string | undefined;
+  /**
+   * The day it is, stated by the application: a business date, a day a server
+   * answers. It is the day marked as today and the month a calendar with no
+   * date opens on. Unset, the clock answers in `timeZone`.
+   */
+  today?: PlainDate | undefined;
   firstDayOfWeek?: number | undefined;
   calendar?: CalendarCalendar | undefined;
 

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { rangeProblems } from '@slotted/core/date';
 
-import { useToday } from '../date-picker/use-date-picker';
+import { useStatedToday, useToday } from '../date-picker/use-date-picker';
 import { useField } from '../field';
 import { useLocale } from '../i18n';
 import { useDateRangePickerDefaults } from './date-range-picker-defaults';
@@ -13,6 +13,7 @@ export function useDateRangePickerConfig(props: DateRangePickerProps) {
   const defaults = useDateRangePickerDefaults();
   const appLocale = useLocale();
   const timeZone = props.timeZone ?? defaults.timeZone;
+  const statedToday = useStatedToday(props.today, defaults.today);
   const disabled = props.disabled ?? field?.disabled;
   const readOnly = props.readOnly ?? field?.readOnly;
 
@@ -29,8 +30,9 @@ export function useDateRangePickerConfig(props: DateRangePickerProps) {
     readOnly,
     required: props.required ?? field?.required,
     size: props.size ?? field?.size ?? defaults.size,
+    statedToday,
     timeZone,
-    today: useToday(timeZone),
+    today: useToday(timeZone, statedToday),
     variant: props.variant ?? defaults.variant,
   };
 }

@@ -165,6 +165,7 @@ test('defaults are settable once, in both bindings', () => {
     'size',
     'step',
     'timeZone',
+    'today',
     'variant',
   ]);
   assert.equal(member.defaults.step, 900);

@@ -40,6 +40,8 @@ export interface DateRangePickerDefaults {
   placement: DateRangePickerPlacement;
   size: DateRangePickerSize;
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   variant: DateRangePickerVariant;
 }
 
@@ -114,6 +116,13 @@ export interface DateRangePickerProps extends Omit<
   /** BCP 47. Writes both fields, the grid and the trigger's dates. Unset, the language in force decides. */
   locale?: string | undefined;
   timeZone?: string | undefined;
+  /**
+   * The day it is, stated by the application: a business date, a day a server
+   * answers. It decides the day marked as today, the built-in Today, the
+   * distance the head writes and the month an empty panel opens on. Unset, the
+   * clock answers in `timeZone`.
+   */
+  today?: PlainDate | undefined;
   firstDayOfWeek?: number | undefined;
   yearPivot?: number | undefined;
   calendar?: DateRangePickerCalendar | undefined;

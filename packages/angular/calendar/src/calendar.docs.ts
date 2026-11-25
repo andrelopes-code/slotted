@@ -544,6 +544,13 @@ const api: ApiRow[] = apiRows([
   ],
   ['timeZone', 'string', 'the runtime’s', 'SlCalendar', 'Which zone answers "what is today".'],
   [
+    'today',
+    'PlainDate',
+    'the clock’s',
+    'SlCalendar',
+    'The day it is: the day marked as today, and the month it opens on.',
+  ],
+  [
     'firstDayOfWeek',
     'number',
     'the locale’s',
@@ -604,7 +611,7 @@ const composition: ApiRow[] = apiRows([
     'Provider',
     '—',
     'application',
-    'Sets timeZone, firstDayOfWeek, months, weekNumbers, fixedWeeks, outsideDays and calendar once for everything under the injector; an input on the calendar still wins.',
+    'Sets timeZone, today, firstDayOfWeek, months, weekNumbers, fixedWeeks, outsideDays and calendar once for everything under the injector; an input on the calendar still wins.',
   ],
   [
     'exportAs',

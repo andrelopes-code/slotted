@@ -14,6 +14,8 @@ import type { useDatePanel } from './use-date-panel';
 
 interface DatePickerPanelProps {
   readonly calendar: Partial<CalendarProps>;
+  /** The picker may be cleared: `clearable`, and not `required`. */
+  readonly clearable: boolean;
   readonly confirm: boolean;
   readonly footer: ReactNode;
   readonly locale: string;
@@ -35,6 +37,7 @@ export function DatePickerPanel(props: DatePickerPanelProps) {
         <PickerFooter
           canApply={panel.canApply}
           canClear={panel.canClear}
+          clearable={props.clearable}
           confirm={confirm}
           hint={panel.refused ? refusal : (footer ?? panel.hint)}
           invalid={panel.refused}

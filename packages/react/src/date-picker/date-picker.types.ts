@@ -21,6 +21,8 @@ export interface DatePickerDefaults {
   placement: DatePickerPlacement;
   size: DatePickerSize;
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   variant: DatePickerVariant;
 }
 
@@ -85,6 +87,13 @@ export interface DatePickerDayProps extends Omit<
   /** BCP 47. Writes the field, the grid and the trigger's date. Unset, the language in force decides. */
   locale?: string | undefined;
   timeZone?: string | undefined;
+  /**
+   * The day it is, stated by the application: a business date, a day a server
+   * answers. It decides the day marked as today, the built-in Today, the
+   * distance the head writes and the month an empty panel opens on. Unset, the
+   * clock answers in `timeZone`.
+   */
+  today?: PlainDate | undefined;
   firstDayOfWeek?: number | undefined;
   yearPivot?: number | undefined;
   calendar?: DatePickerCalendar | undefined;

@@ -50,6 +50,8 @@ export interface DateTimeRangePickerDefaults {
   /** Seconds between two offered times. */
   step: number;
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   variant: DateTimeRangePickerVariant;
 }
 
@@ -148,6 +150,13 @@ export interface DateTimeRangePickerProps extends Omit<
   /** BCP 47. Unset, the language in force (`SlottedProvider`) decides. */
   locale?: string | undefined;
   timeZone?: string | undefined;
+  /**
+   * The day it is, stated by the application: a business date, a day a server
+   * answers. It decides the day marked as today, the date of
+   * `referenceDateTime`, and the month an empty panel opens on. Unset, the
+   * clock answers in `timeZone`.
+   */
+  today?: PlainDate | undefined;
   hourCycle?: DateTimeFieldHourCycle | undefined;
   granularity?: TimeGranularity | undefined;
   calendar?: DateTimeRangePickerCalendar | undefined;

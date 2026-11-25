@@ -20,6 +20,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
   DestroyRef,
   effect,
   ElementRef,
@@ -49,7 +50,12 @@ import type {
   ValidationErrors,
   Validator,
 } from '@angular/forms';
-import { SlCalendar, isRange, isSameValue } from '@slotted/angular/calendar';
+import {
+  injectCalendarDefaults,
+  isRange,
+  isSameValue,
+  SlCalendar,
+} from '@slotted/angular/calendar';
 import type { CalendarValue, CalendarView, DateRange } from '@slotted/angular/calendar';
 import { SlDateField } from '@slotted/angular/date-field';
 import { SlField } from '@slotted/angular/field';
@@ -71,6 +77,7 @@ import {
 } from '@slotted/angular/picker-panel';
 import type { PickerPresetView, PickerSpanView } from '@slotted/angular/picker-panel';
 
+import { SlDateRangePickerFooter } from './date-range-picker-parts';
 import { injectDateRangePickerDefaults } from './date-range-picker-defaults';
 import type {
   DateRangePickerCalendar,
@@ -204,7 +211,7 @@ let sequence = 0;
           (valueChange)="onFieldValue('end', $event)"
         ></div>
       </div>
-      @if (clearable() && held() !== null) {
+      @if (clears() && held() !== null) {
         <button
           data-part="clear"
           data-part-clear=""
@@ -239,7 +246,7 @@ let sequence = 0;
                 [months]="shownMonths()"
                 [selected]="selectedMonths()"
                 [shown]="shownPage()"
-                [today]="today()"
+                [today]="currentToday()"
                 (jump)="jump($event)"
               ></div>
             </div>
@@ -281,6 +288,7 @@ let sequence = 0;
               selectionMode="range"
               [locale]="resolvedLocale()"
               [timeZone]="resolvedTimeZone()"
+              [today]="statedToday()"
               [firstDayOfWeek]="firstDayOfWeek()"
               [min]="min()"
               [max]="max()"
@@ -302,18 +310,21 @@ let sequence = 0;
             ></div>
           </div>
 
-          <div
-            slPickerFooter
-            [canApply]="canApply()"
-            [canClear]="draft() !== null"
-            [confirm]="resolvedConfirm()"
-            [hint]="hint()"
-            [invalid]="refusal() !== null"
-            (applied)="apply($event)"
-            (cleared)="clearDraft($event)"
-          >
-            <ng-content select="[slDateRangePickerFooter]">{{ hint() }}</ng-content>
-          </div>
+          @if (footerShown()) {
+            <div
+              slPickerFooter
+              [clearable]="clears()"
+              [canApply]="canApply()"
+              [canClear]="draft() !== null"
+              [confirm]="resolvedConfirm()"
+              [hint]="hint()"
+              [invalid]="refusal() !== null"
+              (applied)="apply($event)"
+              (cleared)="clearDraft($event)"
+            >
+              <ng-content select="[slDateRangePickerFooter]">{{ hint() }}</ng-content>
+            </div>
+          }
         </div>
       </div>
     }`,
@@ -382,6 +393,11 @@ export class SlDateRangePicker implements ControlValueAccessor, Validator, OnIni
   /** BCP 47. Writes both fields, the grid and the trigger's dates. Unset, the language in force decides. */
   readonly locale = input<string | undefined>(undefined);
   readonly timeZone = input<string | undefined>(undefined);
+  /**
+   * The day it is, stated by the application: a business date, a day a server
+   * answers. Unset, the clock answers in `timeZone`.
+   */
+  readonly today = input<PlainDate | undefined>(undefined);
   readonly firstDayOfWeek = input<number | undefined, unknown>(undefined, {
     transform: (value) =>
       value === undefined || value === null ? undefined : numberAttribute(value),
@@ -462,7 +478,14 @@ export class SlDateRangePicker implements ControlValueAccessor, Validator, OnIni
   protected readonly view = signal<CalendarView>('day');
   protected readonly focused = signal<PlainDate | undefined>(undefined);
   protected readonly page = signal<PlainYearMonth | null>(null);
-  protected readonly today = signal<PlainDate>({ year: 2026, month: 1, day: 1 });
+  private readonly clockToday = signal<PlainDate>({ year: 2026, month: 1, day: 1 });
+  private readonly calendarDefaults = injectCalendarDefaults();
+  /** The day the application states: on the picker, on its provider, or on the calendars'. */
+  protected readonly statedToday = computed(
+    () => this.today() ?? this.defaults.today ?? this.calendarDefaults.today,
+  );
+  /** The day it is: the one stated, else the clock's. */
+  protected readonly currentToday = computed(() => this.statedToday() ?? this.clockToday());
   /** The pending end the calendar reports, or `null` while no run is open. */
   protected readonly preview = signal<PlainDate | null>(null);
   /** A pointer press before focus names the reason a field became current. */
@@ -505,6 +528,19 @@ export class SlDateRangePicker implements ControlValueAccessor, Validator, OnIni
   );
   protected readonly resolvedRequired = computed(
     () => this.required() ?? this.enclosing?.required(),
+  );
+  /** A required value offers no control that empties it. */
+  protected readonly clears = computed(() => this.clearable() && this.resolvedRequired() !== true);
+  /** The application's own words for the footer. */
+  private readonly ownFooter = contentChild(SlDateRangePickerFooter);
+  /** With nothing to say and no action to offer, there is no footer. */
+  protected readonly footerShown = computed(
+    () =>
+      this.clears() ||
+      this.resolvedConfirm() ||
+      this.refusal() !== null ||
+      this.hint() !== '' ||
+      this.ownFooter() !== undefined,
   );
   protected readonly editable = computed(
     () => this.resolvedDisabled() !== true && this.resolvedReadOnly() !== true,
@@ -620,7 +656,7 @@ export class SlDateRangePicker implements ControlValueAccessor, Validator, OnIni
     locale: this.resolvedLocale(),
     rules: this.rules(),
     t: this.t,
-    today: this.today(),
+    today: this.currentToday(),
     words: this.words,
   }));
   protected readonly startWords = computed(() => endWords(this.draftStart(), this.rangeWords()));
@@ -632,7 +668,7 @@ export class SlDateRangePicker implements ControlValueAccessor, Validator, OnIni
     () =>
       (this.currentPosition() === 'end' ? this.draftEnd() : this.draftStart()) ??
       this.draftStart() ??
-      this.today(),
+      this.currentToday(),
   );
   protected readonly shownPage = computed(() => this.page() ?? this.anchor());
   protected readonly selectedMonths = computed((): readonly [number, number] | null => {
@@ -704,7 +740,7 @@ export class SlDateRangePicker implements ControlValueAccessor, Validator, OnIni
 
   ngOnInit() {
     this.layer.start(this.defaultOpen());
-    this.today.set(todayIn(this.resolvedTimeZone()));
+    this.clockToday.set(todayIn(this.resolvedTimeZone()));
     this.ownValue.set(normalizeRange(this.defaultValue() ?? null));
     this.ownPosition.set(this.defaultPosition());
 

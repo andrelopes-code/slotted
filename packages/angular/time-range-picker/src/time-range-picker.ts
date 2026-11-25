@@ -74,6 +74,7 @@ import {
   timeRunPresetViews,
   timeRunSpanView,
 } from './time-range-panel';
+import { SlTimeRangePickerFooter } from './time-range-picker-parts';
 import { injectTimeRangePickerDefaults } from './time-range-picker-defaults';
 import type {
   TimeRange,
@@ -166,7 +167,7 @@ function optionalNumber(value: unknown): number | undefined {
           >{{ summary() ?? t('choose') }}</span
         >
       </button>
-      @if (clearable() && state.held() !== null) {
+      @if (clears() && state.held() !== null) {
         <button
           data-part="clear"
           data-part-clear=""
@@ -352,18 +353,21 @@ function optionalNumber(value: unknown): number | undefined {
             </div>
           </div>
 
-          <div
-            slPickerFooter
-            [canApply]="canApply()"
-            [canClear]="draft() !== null"
-            [confirm]="resolvedConfirm()"
-            [hint]="hint()"
-            [invalid]="refusal() !== null"
-            (applied)="apply($event)"
-            (cleared)="clearDraft($event)"
-          >
-            <ng-content select="[slTimeRangePickerFooter]">{{ hint() }}</ng-content>
-          </div>
+          @if (footerShown()) {
+            <div
+              slPickerFooter
+              [clearable]="clears()"
+              [canApply]="canApply()"
+              [canClear]="draft() !== null"
+              [confirm]="resolvedConfirm()"
+              [hint]="hint()"
+              [invalid]="refusal() !== null"
+              (applied)="apply($event)"
+              (cleared)="clearDraft($event)"
+            >
+              <ng-content select="[slTimeRangePickerFooter]">{{ hint() }}</ng-content>
+            </div>
+          }
         </div>
       </div>
     }
@@ -528,6 +532,19 @@ export class SlTimeRangePicker implements ControlValueAccessor, Validator, OnIni
   );
   protected readonly resolvedRequired = computed(
     () => this.required() ?? this.enclosing?.required(),
+  );
+  /** A required value offers no control that empties it. */
+  protected readonly clears = computed(() => this.clearable() && this.resolvedRequired() !== true);
+  /** The application's own words for the footer. */
+  private readonly ownFooter = contentChild(SlTimeRangePickerFooter);
+  /** With nothing to say and no action to offer, there is no footer. */
+  protected readonly footerShown = computed(
+    () =>
+      this.clears() ||
+      this.resolvedConfirm() ||
+      this.refusal() !== null ||
+      this.hint() !== '' ||
+      this.ownFooter() !== undefined,
   );
   protected readonly editable = computed(
     () => this.resolvedDisabled() !== true && this.resolvedReadOnly() !== true,

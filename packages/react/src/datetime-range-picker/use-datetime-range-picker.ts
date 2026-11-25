@@ -1,8 +1,9 @@
 import { isSameDateTime, nowDateTimeIn } from '@slotted/core/date';
-import type { PlainDateTime } from '@slotted/core/date';
+import type { PlainDate, PlainDateTime } from '@slotted/core/date';
 import { datetimeRangePickerMessages, pickerPanelMessages } from '@slotted/core/i18n';
 import { useEffect, useMemo, useState } from 'react';
 
+import { useStatedToday } from '../date-picker/use-date-picker';
 import { useField } from '../field';
 import { useLocale, useMessages } from '../i18n';
 import { useDateTimeRangePickerDefaults } from './datetime-range-picker-defaults';
@@ -21,7 +22,8 @@ export function useDateTimeRangePickerConfig(props: DateTimeRangePickerProps) {
   const defaults = useDateTimeRangePickerDefaults();
   const appLocale = useLocale();
   const timeZone = props.timeZone ?? defaults.timeZone;
-  const now = useMomentNow(props.referenceDateTime, timeZone);
+  const statedToday = useStatedToday(props.today, defaults.today);
+  const now = useMomentNow(props.referenceDateTime, timeZone, statedToday);
   const disabled = props.disabled ?? field?.disabled;
   const readOnly = props.readOnly ?? field?.readOnly;
 
@@ -43,6 +45,7 @@ export function useDateTimeRangePickerConfig(props: DateTimeRangePickerProps) {
     required: props.required ?? field?.required,
     size: props.size ?? field?.size ?? defaults.size,
     step: props.step ?? defaults.step,
+    statedToday,
     timeZone,
     variant: props.variant ?? defaults.variant,
   };
@@ -101,10 +104,11 @@ export function useDateTimeRangeWords(
   };
 }
 
-/** The moment it is, read once the browser can say it. */
+/** The moment it is, read once the browser can say it, on the day the application states. */
 function useMomentNow(
   reference: PlainDateTime | undefined,
   timeZone: string | undefined,
+  today: PlainDate | undefined,
 ): PlainDateTime {
   const [clock, setClock] = useState(SSR_REFERENCE);
   useEffect(() => {
@@ -113,5 +117,7 @@ function useMomentNow(
     setClock((previous) => (isSameDateTime(previous, read) ? previous : read));
   }, [timeZone]);
 
-  return reference ?? clock;
+  const now = reference ?? clock;
+
+  return today === undefined ? now : { ...now, date: today };
 }

@@ -89,6 +89,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
     ...nativeProps
   } = props;
   const config = useDateRangePickerConfig(props);
+  /* A required value offers no control that empties it. */
+  const clears = clearable && config.required !== true;
   const t = useMessages(dateRangePickerMessages, messages);
   const id = useId();
   const rootRef = useRef<HTMLElement | null>(null);
@@ -184,7 +186,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
   const children = (
     <DateRangeControl
-      clear={clearable && held !== null ? { label: t('clear'), onPress: handleClear } : null}
+      clear={clears && held !== null ? { label: t('clear'), onPress: handleClear } : null}
       editable={config.editable}
       field={{
         ...firstDay,
@@ -249,6 +251,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
         onApply={(event) => panel.canApply && panel.write(panel.draft, event)}
       >
         <DateRangePanel
+          clearable={clears}
           calendar={{
             ...firstDay,
             fixedWeeks,
@@ -256,6 +259,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
             min,
             readOnly: !config.editable,
             timeZone: config.timeZone,
+            today: config.statedToday,
             weekNumbers,
           }}
           calendarRef={calendarRef}

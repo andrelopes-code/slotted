@@ -137,7 +137,7 @@ describe('the draft', () => {
   });
 
   it('is discarded by Escape, and emptied by Clear', () => {
-    const fixture = draw('defaultOpen [defaultValue]="run"');
+    const fixture = draw('clearable defaultOpen [defaultValue]="run"');
 
     click(fixture, all(fixture, '[data-part="chip"]')[0]!);
     document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));

@@ -1,6 +1,6 @@
 import { plainDate, plainDateTime, plainTime } from '@slotted/core/date';
 import { render } from '@testing-library/react';
-import { page } from 'vitest/browser';
+import { cdp, page } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { ReactElement } from 'react';
 
@@ -44,6 +44,7 @@ describe('the panel of a picker', () => {
   });
   afterEach(async () => {
     await page.viewport(412, 915);
+    await cdp().send('Emulation.setTouchEmulationEnabled', { enabled: true });
   });
 
   it.each(PICKERS)('%s keeps its grid, and nothing in it scrolls', (kind, picker) => {
@@ -61,10 +62,50 @@ describe('the panel of a picker', () => {
     expect(surface().offsetWidth).toBeLessThanOrEqual(390);
     expect(document.documentElement.scrollWidth).toBe(390);
   });
+
+  it('draws no footer in a sheet with nothing to say and nothing to press', async () => {
+    await page.viewport(390, 844);
+    render(<DatePicker defaultOpen defaultValue={day(25)} />);
+
+    expect(document.querySelector('[data-presentation="sheet"]')).not.toBeNull();
+    expect(document.querySelector('[data-part="footer"]')).toBeNull();
+  });
+
+  it('keeps each shortcut in reach where the room under the field is short', async () => {
+    await page.viewport(390, 900);
+    /* A mouse: the context of the suite has a touch screen, which is a coarse pointer. */
+    await cdp().send('Emulation.setTouchEmulationEnabled', { enabled: false });
+    render(
+      <div style={{ paddingBlockStart: 430 }}>
+        <DatePicker
+          aria-label="Entry date"
+          defaultOpen
+          defaultValue={day(25)}
+          presets={[{ label: 'Yesterday', value: day(24) }]}
+        />
+      </div>,
+    );
+    await expect.poll(() => document.querySelector('[data-positioned]')).not.toBeNull();
+
+    const presets = [...document.querySelectorAll<HTMLElement>('[data-part="preset"]')];
+    expect(presets).toHaveLength(2);
+    for (const preset of presets) {
+      preset.scrollIntoView({ block: 'nearest' });
+      expect(visibleBlockSize(preset)).toBeGreaterThanOrEqual(44);
+    }
+  });
 });
 
 function preset<V>(value: V) {
   return { label: 'A shortcut', value };
+}
+
+/** How much of a shortcut can be pressed: a point of it answers as the shortcut itself. */
+function visibleBlockSize(preset: HTMLElement) {
+  const { height, left, top, width } = preset.getBoundingClientRect();
+  const rows = Array.from({ length: Math.round(height) }, (_, row) => top + row + 0.5);
+
+  return rows.filter((y) => preset.contains(document.elementFromPoint(left + width / 2, y))).length;
 }
 
 function surface() {

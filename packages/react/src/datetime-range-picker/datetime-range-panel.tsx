@@ -25,6 +25,8 @@ interface DateTimeRangePanelProps {
   readonly calendarRef: Ref<CalendarHandle>;
   readonly clock: Partial<ClockProps>;
   readonly clockRefs: Record<PickerPosition, RefObject<ClockHandle | null>>;
+  /** The picker may be cleared: `clearable`, and not `required`. */
+  readonly clearable: boolean;
   readonly confirm: boolean;
   readonly field: Partial<DateTimeFieldProps>;
   readonly footer: ReactNode;
@@ -75,6 +77,7 @@ export function DateTimeRangePanel(props: DateTimeRangePanelProps) {
         <PickerFooter
           canApply={panel.canApply}
           canClear={panel.canClear}
+          clearable={props.clearable}
           confirm={confirm}
           hint={panel.refusal ?? footer ?? panel.hint}
           invalid={panel.refusal !== null}

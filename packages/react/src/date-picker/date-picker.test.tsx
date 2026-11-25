@@ -1,7 +1,7 @@
 import { plainDate, plainYearMonth, toISODate } from '@slotted/core/date';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/date-picker/contract.json';
 import { Field, FieldLabel } from '../field';
@@ -420,6 +420,7 @@ describe('the composition surface', () => {
   it('keeps Tab inside the surface while it is open', () => {
     render(
       <DatePicker
+        clearable
         defaultOpen
         defaultValue={NINTH}
         locale="en-US"
@@ -427,7 +428,7 @@ describe('the composition surface', () => {
       />,
     );
     const first = screen.getByRole('button', { name: /^Today/ });
-    const last = screen.getByRole('button', { name: 'Clear' });
+    const last = within(screen.getByRole('dialog')).getByRole('button', { name: 'Clear' });
 
     act(() => last.focus());
     fireEvent.keyDown(last, { key: 'Tab' });
@@ -700,10 +701,64 @@ describe('the panel', () => {
   it('empties the value from the footer', () => {
     const onValueChange = vi.fn();
     render(
-      <DatePicker defaultOpen defaultValue={NINTH} locale="en-US" onValueChange={onValueChange} />,
+      <DatePicker
+        clearable
+        defaultOpen
+        defaultValue={NINTH}
+        locale="en-US"
+        onValueChange={onValueChange}
+      />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Clear' }));
     expect(onValueChange.mock.lastCall?.[0]).toBeNull();
+  });
+});
+
+describe('the day it is, stated by the application', () => {
+  const BUSINESS_DAY = plainDate(2026, 10, 17);
+  const preset = [{ label: 'Yesterday', value: plainDate(2026, 10, 16) }];
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 25, 12));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it.each([
+    ['the prop', <DatePicker defaultOpen locale="en-US" presets={preset} today={BUSINESS_DAY} />],
+    [
+      'the provider',
+      <DatePickerDefaultsProvider today={BUSINESS_DAY}>
+        <DatePicker defaultOpen locale="en-US" presets={preset} />
+      </DatePickerDefaultsProvider>,
+    ],
+  ])('decides Today, the mark and the month an empty panel opens on, through %s', (_, picker) => {
+    render(picker);
+
+    expect(document.querySelector('[data-part="heading"]')?.textContent).toContain('October 2026');
+    expect(document.querySelector('[data-part="day"][data-today]')?.textContent).toBe('17');
+
+    const today = screen.getByRole('button', { name: /^Today/ });
+    expect(today.textContent).toContain('Oct 17');
+  });
+
+  it('writes the stated day from Today', () => {
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker
+        defaultOpen
+        locale="en-US"
+        onValueChange={onValueChange}
+        presets={preset}
+        today={BUSINESS_DAY}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /^Today/ }));
+
+    expect(onValueChange.mock.lastCall?.[0]).toEqual(BUSINESS_DAY);
   });
 });

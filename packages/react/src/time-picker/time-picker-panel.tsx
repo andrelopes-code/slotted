@@ -16,6 +16,8 @@ import type { useTimePanel } from './use-time-panel';
 interface TimePickerPanelProps {
   readonly clock: Partial<ClockProps>;
   readonly clockRef: Ref<ClockHandle>;
+  /** The picker may be cleared: `clearable`, and not `required`. */
+  readonly clearable: boolean;
   readonly confirm: boolean;
   readonly field: Partial<TimeFieldProps>;
   readonly footer: ReactNode;
@@ -27,6 +29,7 @@ interface TimePickerPanelProps {
 export function TimePickerPanel({
   clock,
   clockRef,
+  clearable,
   confirm,
   field,
   footer,
@@ -42,6 +45,7 @@ export function TimePickerPanel({
         <PickerFooter
           canApply={panel.canApply}
           canClear={panel.draft !== null}
+          clearable={clearable}
           confirm={confirm}
           hint={panel.refused ? refusal : (footer ?? panel.hint)}
           invalid={panel.refused}

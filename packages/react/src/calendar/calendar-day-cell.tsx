@@ -34,6 +34,8 @@ export interface CalendarDayContext {
   readonly today: PlainDate | null;
   readonly unavailable: (date: PlainDate) => boolean;
   readonly value: CalendarValue;
+  /** The days of the locale's weekend, `0` being Sunday. */
+  readonly weekend: readonly number[];
 }
 
 interface CalendarDayCellProps extends CalendarDayContext {
@@ -60,6 +62,7 @@ export function CalendarDayCell({
   today,
   unavailable,
   value,
+  weekend,
 }: CalendarDayCellProps) {
   const { date, outsideMonth: outside } = day;
 
@@ -107,7 +110,7 @@ export function CalendarDayCell({
       {...(run === 'inside' ? { 'data-in-range': '' } : {})}
       {...(proposed ? { 'data-preview': '' } : {})}
       {...(run !== null && over?.(date) === true ? { 'data-over': '' } : {})}
-      {...(dayOfWeek(date) % 6 === 0 ? { 'data-weekend': '' } : {})}
+      {...(weekend.includes(dayOfWeek(date)) ? { 'data-weekend': '' } : {})}
     >
       <CalendarDayButton
         data-part="day"

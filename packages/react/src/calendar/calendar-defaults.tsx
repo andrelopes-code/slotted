@@ -9,6 +9,7 @@ const FALLBACK: CalendarDefaults = {
   months: 1,
   outsideDays: undefined,
   timeZone: undefined,
+  today: undefined,
   weekNumbers: false,
 };
 
@@ -21,7 +22,7 @@ export function useCalendarDefaults(): CalendarDefaults {
 
 /**
  * An application decides once which day its weeks start on, which zone answers
- * "today" and whether its calendars keep a fixed six-row grid — rather than
+ * "today" or which day it is, and whether its calendars keep a fixed six-row grid — rather than
  * repeating the same props on every instance. Its words and the locale that
  * writes its months come from the language in force (`SlottedProvider`).
  *
@@ -41,6 +42,7 @@ export function CalendarDefaultsProvider({ children, ...defaults }: CalendarDefa
         months: defaults.months ?? inherited.months,
         outsideDays: defaults.outsideDays ?? inherited.outsideDays,
         timeZone: defaults.timeZone ?? inherited.timeZone,
+        today: defaults.today ?? inherited.today,
         weekNumbers: defaults.weekNumbers ?? inherited.weekNumbers,
       }}
     >

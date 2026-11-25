@@ -354,10 +354,23 @@ const api: ApiRow[] = apiRows([
     'BCP 47. Writes the field, the panel and the trigger’s name.',
   ],
   ['timeZone', 'string', 'the runtime’s', 'DatePicker', 'Which zone answers "what is now".'],
+  [
+    'today',
+    'PlainDate',
+    'the clock’s',
+    'DatePicker',
+    'The day it is: the mark of today, Today, and the month an empty panel opens on.',
+  ],
   ['disabled', 'boolean', '—', 'DatePicker', 'Answers no key and no press.'],
   ['readOnly', 'boolean', '—', 'DatePicker', 'Readable and not changeable.'],
   ['required', 'boolean', '—', 'DatePicker', 'The form needs a value.'],
-  ['clearable', 'boolean', 'false', 'DatePicker', 'Draws a clear on the control.'],
+  [
+    'clearable',
+    'boolean',
+    'false',
+    'DatePicker',
+    'Draws a clear on the control and in the panel, unless required.',
+  ],
   [
     'messages',
     'Partial<DatePickerMessages>',
@@ -386,7 +399,7 @@ const composition: ApiRow[] = apiRows([
     'component',
     '—',
     'application',
-    'Sets calendar, confirm, placement, size, timeZone and variant once.',
+    'Sets calendar, confirm, placement, size, timeZone, today and variant once.',
   ],
   [
     'footer',

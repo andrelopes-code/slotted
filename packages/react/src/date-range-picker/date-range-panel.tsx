@@ -14,6 +14,8 @@ import type { useRangePanel } from './use-range-panel';
 interface DateRangePanelProps {
   readonly calendar: Partial<CalendarProps>;
   readonly calendarRef: Ref<CalendarHandle>;
+  /** The picker may be cleared: `clearable`, and not `required`. */
+  readonly clearable: boolean;
   readonly confirm: boolean;
   readonly footer: ReactNode;
   readonly labels: { readonly end: string; readonly start: string };
@@ -47,6 +49,7 @@ export function DateRangePanel(props: DateRangePanelProps) {
         <PickerFooter
           canApply={panel.canApply}
           canClear={panel.canClear}
+          clearable={props.clearable}
           confirm={confirm}
           hint={panel.refusal ?? footer ?? panel.hint}
           invalid={panel.refusal !== null}

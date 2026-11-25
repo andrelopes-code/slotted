@@ -1,4 +1,5 @@
 import { inject, InjectionToken } from '@angular/core';
+import type { PlainDate } from '@slotted/core/date';
 
 export type { DateRange } from '@slotted/angular/calendar';
 
@@ -29,6 +30,8 @@ export interface DateRangePickerDefaults {
   placement: DateRangePickerPlacement;
   size: DateRangePickerSize;
   timeZone: string | undefined;
+  /** The day it is, stated by the application. Unset, the clock answers in `timeZone`. */
+  today: PlainDate | undefined;
   variant: DateRangePickerVariant;
 }
 
@@ -40,6 +43,7 @@ const FALLBACK: DateRangePickerDefaults = {
   placement: 'bottom-start',
   size: 'md',
   timeZone: undefined,
+  today: undefined,
   variant: 'outline',
 };
 

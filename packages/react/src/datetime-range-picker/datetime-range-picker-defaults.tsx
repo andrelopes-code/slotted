@@ -29,6 +29,7 @@ const FALLBACK: DateTimeRangePickerDefaults = {
   size: 'md',
   step: DATETIME_RANGE_PICKER_STEP,
   timeZone: undefined,
+  today: undefined,
   variant: 'outline',
 };
 
@@ -66,6 +67,7 @@ export function DateTimeRangePickerDefaultsProvider({
         size: defaults.size ?? inherited.size,
         step: defaults.step ?? inherited.step,
         timeZone: defaults.timeZone ?? inherited.timeZone,
+        today: defaults.today ?? inherited.today,
         variant: defaults.variant ?? inherited.variant,
       }}
     >

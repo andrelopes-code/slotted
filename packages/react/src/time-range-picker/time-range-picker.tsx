@@ -86,6 +86,8 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
     ...nativeProps
   } = props;
   const config = useTimeRangePickerConfig(props);
+  /* A required value offers no control that empties it. */
+  const clears = clearable && config.required !== true;
   const words = useTimeRangeWords(props, config);
   const [position, requestPosition] = usePickerPosition(props);
   const rootRef = useRef<HTMLElement | null>(null);
@@ -150,7 +152,7 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
       editable={config.editable}
       glyph="clock"
       layer={layer}
-      onClear={clearable && held !== null ? handleClear : undefined}
+      onClear={clears && held !== null ? handleClear : undefined}
       placeholder={t('choose')}
       posted={{
         end: { name: endName, value: posted(held?.end) },
@@ -193,6 +195,7 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
         onApply={(event) => panel.canApply && panel.write(panel.draft, event)}
       >
         <TimeRangePanel
+          clearable={clears}
           clock={{
             ...reading,
             isTimeUnavailable,

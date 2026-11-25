@@ -501,10 +501,23 @@ const api: ApiRow[] = apiRows([
     'SlDateTimeRangePicker',
     'Which zone answers "what is now".',
   ],
+  [
+    'today',
+    'PlainDate',
+    'the clock’s',
+    'SlDateTimeRangePicker',
+    'The day it is: the mark of today, and the month an empty panel opens on.',
+  ],
   ['disabled', 'boolean', '—', 'SlDateTimeRangePicker', 'Answers no key and no press.'],
   ['readOnly', 'boolean', '—', 'SlDateTimeRangePicker', 'Readable and not changeable.'],
   ['required', 'boolean', '—', 'SlDateTimeRangePicker', 'The form needs a value.'],
-  ['clearable', 'boolean', 'false', 'SlDateTimeRangePicker', 'Draws a clear on the control.'],
+  [
+    'clearable',
+    'boolean',
+    'false',
+    'SlDateTimeRangePicker',
+    'Draws a clear on the control and in the panel, unless required.',
+  ],
   [
     'messages',
     'Partial<DatetimeRangePickerMessages>',
@@ -538,7 +551,7 @@ const composition: ApiRow[] = apiRows([
     'function',
     '—',
     'application',
-    'Sets calendar, confirm, firstDayOfWeek, granularity, hourCycle, lengthLabel, months, placement, size, step, timeZone and variant once.',
+    'Sets calendar, confirm, firstDayOfWeek, granularity, hourCycle, lengthLabel, months, placement, size, step, timeZone, today and variant once.',
   ],
   [
     'slDateTimeRangePickerFooter',

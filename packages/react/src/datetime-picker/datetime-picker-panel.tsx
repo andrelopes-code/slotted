@@ -21,6 +21,8 @@ interface DateTimePickerPanelProps {
   readonly calendar: Partial<CalendarProps>;
   readonly clock: Partial<ClockProps>;
   readonly clockRef: Ref<ClockHandle>;
+  /** The picker may be cleared: `clearable`, and not `required`. */
+  readonly clearable: boolean;
   readonly confirm: boolean;
   readonly field: Partial<TimeFieldProps>;
   readonly footer: ReactNode;
@@ -47,6 +49,7 @@ export function DateTimePickerPanel(props: DateTimePickerPanelProps) {
         <PickerFooter
           canApply={panel.canApply}
           canClear={panel.canClear}
+          clearable={props.clearable}
           confirm={confirm}
           hint={panel.refused ? refusal : (footer ?? panel.hint)}
           invalid={panel.refused}

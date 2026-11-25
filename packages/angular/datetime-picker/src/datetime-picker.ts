@@ -27,7 +27,7 @@ import type {
   ValidationErrors,
   Validator,
 } from '@angular/forms';
-import { asDates, SlCalendar } from '@slotted/angular/calendar';
+import { asDates, injectCalendarDefaults, SlCalendar } from '@slotted/angular/calendar';
 import type { CalendarValue, CalendarView } from '@slotted/angular/calendar';
 import { SlClock, SlClockSlot } from '@slotted/angular/clock';
 import type { ClockChangeRequest } from '@slotted/angular/clock';
@@ -90,6 +90,7 @@ import {
   momentOffsetViews,
   momentPresetViews,
 } from './datetime-panel';
+import { SlDateTimePickerFooter } from './datetime-picker-parts';
 import { injectDateTimePickerDefaults } from './datetime-picker-defaults';
 import type {
   DateTimePickerHourCycle,
@@ -165,7 +166,7 @@ function optionalBoolean(value: boolean | string | undefined): boolean | undefin
         [maxTime]="maxTime()"
         [isDateUnavailable]="isDateUnavailable()"
         [isTimeUnavailable]="isTimeUnavailable()"
-        [clearable]="clearable()"
+        [clearable]="clears()"
         [relative]="relative()"
         [name]="name()"
         [disabled]="resolvedDisabled()"
@@ -235,6 +236,7 @@ function optionalBoolean(value: boolean | string | undefined): boolean | undefin
               #calendar="slCalendar"
               [locale]="resolvedLocale()"
               [timeZone]="resolvedTimeZone()"
+              [today]="statedToday()"
               [firstDayOfWeek]="firstDayOfWeek()"
               [min]="dates().min"
               [max]="dates().max"
@@ -314,18 +316,21 @@ function optionalBoolean(value: boolean | string | undefined): boolean | undefin
             </div>
           </div>
 
-          <div
-            slPickerFooter
-            [canApply]="canApply()"
-            [canClear]="!isEmpty()"
-            [confirm]="resolvedConfirm()"
-            [hint]="hint()"
-            [invalid]="refused()"
-            (applied)="apply($event)"
-            (cleared)="clear($event)"
-          >
-            <ng-content select="[slDateTimePickerFooter]">{{ hint() }}</ng-content>
-          </div>
+          @if (footerShown()) {
+            <div
+              slPickerFooter
+              [clearable]="clears()"
+              [canApply]="canApply()"
+              [canClear]="!isEmpty()"
+              [confirm]="resolvedConfirm()"
+              [hint]="hint()"
+              [invalid]="refused()"
+              (applied)="apply($event)"
+              (cleared)="clear($event)"
+            >
+              <ng-content select="[slDateTimePickerFooter]">{{ hint() }}</ng-content>
+            </div>
+          }
         </div>
       </div>
     }
@@ -384,6 +389,11 @@ export class SlDateTimePicker implements AfterViewInit, ControlValueAccessor, Va
   /** BCP 47. Unset, the language in force (`provideSlotted`) decides. */
   readonly locale = input<string | undefined>(undefined);
   readonly timeZone = input<string | undefined>(undefined);
+  /**
+   * The day it is, stated by the application: a business date, a day a server
+   * answers. Unset, the clock answers in `timeZone`.
+   */
+  readonly today = input<PlainDate | undefined>(undefined);
   readonly hourCycle = input<DateTimePickerHourCycle | undefined>(undefined);
   readonly granularity = input<TimeGranularity | undefined>(undefined);
   readonly calendar = input<'gregory' | undefined>(undefined);
@@ -499,6 +509,19 @@ export class SlDateTimePicker implements AfterViewInit, ControlValueAccessor, Va
   protected readonly resolvedRequired = computed(
     () => this.required() ?? this.enclosing?.required(),
   );
+  /** A required value offers no control that empties it. */
+  protected readonly clears = computed(() => this.clearable() && this.resolvedRequired() !== true);
+  /** The application's own words for the footer. */
+  private readonly ownFooter = contentChild(SlDateTimePickerFooter);
+  /** With nothing to say and no action to offer, there is no footer. */
+  protected readonly footerShown = computed(
+    () =>
+      this.clears() ||
+      this.resolvedConfirm() ||
+      this.refused() ||
+      this.hint() !== '' ||
+      this.ownFooter() !== undefined,
+  );
   protected readonly editable = computed(
     () => this.resolvedDisabled() !== true && this.resolvedReadOnly() !== true,
   );
@@ -543,7 +566,18 @@ export class SlDateTimePicker implements AfterViewInit, ControlValueAccessor, Va
   });
   protected readonly times = computed(() => dayTimes(this.draft().date, this.rules()));
 
-  protected readonly now = computed(() => this.referenceDateTime() ?? this.clock());
+  private readonly calendarDefaults = injectCalendarDefaults();
+  /** The day the application states: on the picker, on its provider, or on the calendars'. */
+  protected readonly statedToday = computed(
+    () => this.today() ?? this.defaults.today ?? this.calendarDefaults.today,
+  );
+  /** The moment it is, on the day the application states. */
+  protected readonly now = computed(() => {
+    const now = this.referenceDateTime() ?? this.clock();
+    const today = this.statedToday();
+
+    return today === undefined ? now : { ...now, date: today };
+  });
 
   /**
    * Validity the family owns, beside the validity the consumer states: both

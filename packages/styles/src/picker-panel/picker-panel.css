@@ -172,6 +172,15 @@
     backdrop-filter: var(--slotted-picker-panel-backdrop-filter, none);
   }
 
+  /* The footer stays on the edge of what scrolls: what focus or a scroll brings into
+     view stops above it, with the rail's own padding between. */
+  [data-ui-picker-panel]
+    [data-part-content]:has([data-ui-picker-panel][data-part-root] > [data-part-footer]) {
+    scroll-padding-block-end: calc(
+      var(--slotted-picker-panel-footer-size, 46px) + var(--slotted-space-3, 0.375rem)
+    );
+  }
+
   @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
     [data-ui-picker-panel] [data-part-content] {
       -webkit-backdrop-filter: none;
@@ -853,6 +862,13 @@
       grid-template-areas: 'main' 'side' 'rail' 'footer';
       grid-template-columns: minmax(0, 1fr);
       inline-size: min(358px, 100vw);
+    }
+
+    [data-ui-picker-panel]
+      [data-part-content]:has([data-ui-picker-panel][data-part-root] > [data-part-footer]) {
+      scroll-padding-block-end: calc(
+        var(--slotted-picker-panel-footer-size, 60px) + var(--slotted-space-3, 0.375rem)
+      );
     }
 
     [data-ui-picker-panel] [data-part-rail] {

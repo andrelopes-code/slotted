@@ -122,6 +122,11 @@ describe('names', () => {
     expect(format.weekdayNames('long')[0]).toBe('segunda-feira');
   });
 
+  it("names the locale's own weekend, in the numbering dayOfWeek uses", () => {
+    expect(createDateFormat({ locale: 'ar-EG' }).weekend).toEqual([5, 6]);
+    expect(createDateFormat({ locale: 'en-US' }).weekend).toEqual([6, 0]);
+  });
+
   it('writes the heading and the whole date a screen reader hears', () => {
     const brazil = createDateFormat({ locale: 'pt-BR' });
     expect(brazil.monthYear(NINTH)).toBe('setembro de 2026');
