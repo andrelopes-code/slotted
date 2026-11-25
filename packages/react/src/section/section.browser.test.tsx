@@ -20,7 +20,7 @@ import {
   SectionTags,
   SectionTitle,
 } from './section-parts';
-import type { SectionProps } from './section.types';
+import type { SectionDefaultsProviderProps, SectionProps } from './section.types';
 
 function Titled(props: Partial<SectionProps>) {
   return (
@@ -421,7 +421,7 @@ describe('the heading of a nested section', () => {
   const TITLE = 'rgb(1, 2, 3)';
   const MUTED = 'rgb(4, 5, 6)';
 
-  function nested(props: Partial<SectionProps>, defaults: Partial<SectionProps> = {}) {
+  function nested(props: Partial<SectionProps>, defaults: SectionDefaultsProviderProps = {}) {
     const { container } = render(
       <div
         style={
@@ -433,7 +433,7 @@ describe('the heading of a nested section', () => {
           } as CSSProperties
         }
       >
-        <SectionDefaultsProvider heading={defaults.heading}>
+        <SectionDefaultsProvider {...defaults}>
           <Section size="lg">
             <SectionBody>
               <Section ground="surface" size="lg" {...props}>
