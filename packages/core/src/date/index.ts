@@ -202,6 +202,8 @@ export {
   stepLabel,
   timeMeta,
 } from './picker-words';
+export { isPastLimit, lengthOf, refusalOf, stepRun } from './range-panel';
+export type { RunRefusal } from './range-panel';
 export { rulerKeyTarget, rulerShare, rulerTimeAt } from './ruler';
 export { presetValue, relativeDays } from './relative';
 export type { PickerPreset } from './relative';

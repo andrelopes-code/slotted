@@ -6,7 +6,7 @@ import contract from '../../../../specs/components/date-range-picker/contract.js
 import { REACT_DATE_RANGE_PICKER_DOCS } from './date-range-picker.docs';
 import * as dateRangePickerStories from './date-range-picker.stories';
 
-describe('DateRangePicker stories', () => {
+describe('Date Range Picker stories', () => {
   it('covers every required scenario', () => {
     expect(
       scenarioCoverageErrors(contract.scenarios.dateRangePicker, dateRangePickerStories),

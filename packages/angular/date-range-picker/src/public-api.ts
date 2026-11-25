@@ -1,4 +1,4 @@
-export { SlDateRangePicker, SlDateRangePickerPreset } from './date-range-picker';
+export { SlDateRangePicker } from './date-range-picker';
 export {
   DATE_RANGE_PICKER_DEFAULTS,
   injectDateRangePickerDefaults,
@@ -7,7 +7,6 @@ export {
 export type {
   DateRange,
   DateRangePickerCalendar,
-  DateRangePickerCloseOnSelect,
   DateRangePickerCount,
   DateRangePickerDefaults,
   DateRangePickerPlacement,
@@ -15,4 +14,4 @@ export type {
   DateRangePickerSize,
   DateRangePickerVariant,
 } from './date-range-picker-defaults';
-export { SlDateRangePickerFooter, SlDateRangePickerPresets } from './date-range-picker-parts';
+export { SlDateRangePickerFooter } from './date-range-picker-parts';

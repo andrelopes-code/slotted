@@ -13,6 +13,10 @@ export interface DateRangePickerMessages {
   readonly clear: Message;
   readonly end: Message;
   readonly start: Message;
+  /** The reason Apply is off: what a run fails. */
+  readonly bounds: Message;
+  readonly order: Message;
+  readonly unavailable: Message;
   /**
    * The phrases that count a run in days, both ends included: its length, and
    * the three ways a length limit is stated.
@@ -43,6 +47,9 @@ export const en: DateRangePickerMessages = {
   clear: 'Clear range',
   end: 'End',
   start: 'Start',
+  bounds: 'Outside the allowed range',
+  order: 'The end must come after the start',
+  unavailable: 'Crosses an unavailable day',
   days: {
     length: '{count, plural, one {# day} other {# days}}',
     between: '{min} to {max, plural, one {# day} other {# days}}',

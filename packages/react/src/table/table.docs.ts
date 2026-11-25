@@ -405,7 +405,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'tsx',
       label: 'A date filter with the application own periods',
       source:
-        '<TableDateFilter\n  columnLabel="due"\n  onValueChange={setDue}\n  presets={\n    <>\n      <DateRangePickerPreset value={september}>September</DateRangePickerPreset>\n      <DateRangePickerPreset value={quarter}>Q4</DateRangePickerPreset>\n    </>\n  }\n  value={due}\n/>;',
+        "<TableDateFilter\n  columnLabel=\"due\"\n  onValueChange={setDue}\n  presets={[\n    { label: 'September', value: september },\n    { label: 'Q4', value: quarter },\n  ]}\n  value={due}\n/>;",
     }),
   },
   {

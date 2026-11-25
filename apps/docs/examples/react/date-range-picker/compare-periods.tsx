@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { DateRange } from '@slotted/react/calendar';
-import { DateRangePicker, DateRangePickerPreset } from '@slotted/react/date-range-picker';
+import { DateRangePicker } from '@slotted/react/date-range-picker';
 import { Field, FieldDescription, FieldLabel } from '@slotted/react/field';
 import { Stack } from '@slotted/react/stack';
-import { addDays, daysBetween, plainDate, stepYear } from '@slotted/core/date';
+import { addDays, daysBetween, plainDate, stepYear, type PickerPreset } from '@slotted/core/date';
 
 const SEPTEMBER: DateRange = { start: plainDate(2026, 9, 1), end: plainDate(2026, 9, 30) };
 
@@ -23,8 +23,10 @@ export default function DateRangePickerComparePeriods() {
   const [period, setPeriod] = useState<DateRange | null>(SEPTEMBER);
   const [baseline, setBaseline] = useState<DateRange | null>(previousPeriod(SEPTEMBER));
 
-  const previous = period === null ? null : previousPeriod(period);
-  const sameLastYear = period === null ? null : lastYear(period);
+  const shortcuts = [
+    { label: 'Previous period', value: period === null ? null : previousPeriod(period) },
+    { label: 'Same period last year', value: period === null ? null : lastYear(period) },
+  ].filter((shortcut): shortcut is PickerPreset<DateRange> => shortcut.value !== null);
 
   return (
     <Stack gap={5}>
@@ -36,18 +38,7 @@ export default function DateRangePickerComparePeriods() {
         <FieldLabel>Compare to</FieldLabel>
         <DateRangePicker
           onValueChange={(value) => setBaseline(value)}
-          presets={
-            <>
-              {previous && (
-                <DateRangePickerPreset value={previous}>Previous period</DateRangePickerPreset>
-              )}
-              {sameLastYear && (
-                <DateRangePickerPreset value={sameLastYear}>
-                  Same period last year
-                </DateRangePickerPreset>
-              )}
-            </>
-          }
+          presets={shortcuts}
           value={baseline}
         />
         <FieldDescription>Shortcuts follow the period above.</FieldDescription>

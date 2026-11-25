@@ -1,13 +1,8 @@
 import { Component, computed, signal } from '@angular/core';
-import {
-  SlDateRangePicker,
-  SlDateRangePickerPreset,
-  SlDateRangePickerPresets,
-  type DateRange,
-} from '@slotted/angular/date-range-picker';
+import { SlDateRangePicker, type DateRange } from '@slotted/angular/date-range-picker';
 import { SlField, SlFieldDescription, SlFieldLabel } from '@slotted/angular/field';
 import { SlStack } from '@slotted/angular/stack';
-import { addDays, daysBetween, plainDate, stepYear } from '@slotted/core/date';
+import { addDays, daysBetween, plainDate, stepYear, type PickerPreset } from '@slotted/core/date';
 
 const SEPTEMBER: DateRange = { start: plainDate(2026, 9, 1), end: plainDate(2026, 9, 30) };
 
@@ -25,15 +20,7 @@ const lastYear = (period: DateRange): DateRange | null =>
 
 @Component({
   selector: 'app-date-range-picker-compare-periods',
-  imports: [
-    SlDateRangePicker,
-    SlDateRangePickerPreset,
-    SlDateRangePickerPresets,
-    SlField,
-    SlFieldDescription,
-    SlFieldLabel,
-    SlStack,
-  ],
+  imports: [SlDateRangePicker, SlField, SlFieldDescription, SlFieldLabel, SlStack],
   template: `
     <div slStack [gap]="5">
       <div slField>
@@ -42,16 +29,12 @@ const lastYear = (period: DateRange): DateRange | null =>
       </div>
       <div slField>
         <label slFieldLabel>Compare to</label>
-        <div slDateRangePicker [value]="baseline()" (valueChange)="baseline.set($event.value)">
-          <div slDateRangePickerPresets>
-            @if (previous(); as range) {
-              <button [slDateRangePickerPreset]="range">Previous period</button>
-            }
-            @if (sameLastYear(); as range) {
-              <button [slDateRangePickerPreset]="range">Same period last year</button>
-            }
-          </div>
-        </div>
+        <div
+          slDateRangePicker
+          [presets]="shortcuts()"
+          [value]="baseline()"
+          (valueChange)="baseline.set($event.value)"
+        ></div>
         <span slFieldDescription>Shortcuts follow the period above.</span>
       </div>
     </div>
@@ -60,12 +43,12 @@ const lastYear = (period: DateRange): DateRange | null =>
 export class DateRangePickerComparePeriods {
   protected readonly period = signal<DateRange | null>(SEPTEMBER);
   protected readonly baseline = signal<DateRange | null>(previousPeriod(SEPTEMBER));
-  protected readonly previous = computed(() => {
+  protected readonly shortcuts = computed(() => {
     const period = this.period();
-    return period === null ? null : previousPeriod(period);
-  });
-  protected readonly sameLastYear = computed(() => {
-    const period = this.period();
-    return period === null ? null : lastYear(period);
+
+    return [
+      { label: 'Previous period', value: period === null ? null : previousPeriod(period) },
+      { label: 'Same period last year', value: period === null ? null : lastYear(period) },
+    ].filter((shortcut): shortcut is PickerPreset<DateRange> => shortcut.value !== null);
   });
 }

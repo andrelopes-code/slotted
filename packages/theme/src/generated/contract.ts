@@ -3425,11 +3425,6 @@ export type ComponentToken =
   | '--slotted-date-range-picker-background'
   | '--slotted-date-range-picker-border-color'
   | '--slotted-date-range-picker-color'
-  | '--slotted-date-range-picker-content-border-color'
-  | '--slotted-date-range-picker-content-color'
-  | '--slotted-date-range-picker-content-padding'
-  | '--slotted-date-range-picker-content-radius'
-  | '--slotted-date-range-picker-content-shadow'
   | '--slotted-date-range-picker-current-color'
   | '--slotted-date-range-picker-current-size'
   | '--slotted-date-range-picker-disabled-background'
@@ -3439,24 +3434,14 @@ export type ComponentToken =
   | '--slotted-date-range-picker-invalid-border-color'
   | '--slotted-date-range-picker-invalid-edge-width'
   | '--slotted-date-range-picker-invalid-focus-ring-color'
-  | '--slotted-date-range-picker-length-color'
-  | '--slotted-date-range-picker-limit-color'
-  | '--slotted-date-range-picker-pending-color'
-  | '--slotted-date-range-picker-placeholder-color'
   | '--slotted-date-range-picker-plain-hover-background'
-  | '--slotted-date-range-picker-preset-active-background'
-  | '--slotted-date-range-picker-preset-hover-background'
-  | '--slotted-date-range-picker-preset-selected-background'
-  | '--slotted-date-range-picker-preset-selected-color'
   | '--slotted-date-range-picker-radius'
   | '--slotted-date-range-picker-readonly-background'
   | '--slotted-date-range-picker-separator-color'
   | '--slotted-date-range-picker-shadow'
-  | '--slotted-date-range-picker-sheet-inline-size'
   | '--slotted-date-range-picker-subtle-background'
   | '--slotted-date-range-picker-subtle-border-color'
   | '--slotted-date-range-picker-subtle-hover-background'
-  | '--slotted-date-range-picker-surface'
   | '--slotted-datetime-field-action-active-background'
   | '--slotted-datetime-field-action-color'
   | '--slotted-datetime-field-action-hover-background'
@@ -5815,11 +5800,6 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-date-range-picker-background",
   "--slotted-date-range-picker-border-color",
   "--slotted-date-range-picker-color",
-  "--slotted-date-range-picker-content-border-color",
-  "--slotted-date-range-picker-content-color",
-  "--slotted-date-range-picker-content-padding",
-  "--slotted-date-range-picker-content-radius",
-  "--slotted-date-range-picker-content-shadow",
   "--slotted-date-range-picker-current-color",
   "--slotted-date-range-picker-current-size",
   "--slotted-date-range-picker-disabled-background",
@@ -5829,24 +5809,14 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-date-range-picker-invalid-border-color",
   "--slotted-date-range-picker-invalid-edge-width",
   "--slotted-date-range-picker-invalid-focus-ring-color",
-  "--slotted-date-range-picker-length-color",
-  "--slotted-date-range-picker-limit-color",
-  "--slotted-date-range-picker-pending-color",
-  "--slotted-date-range-picker-placeholder-color",
   "--slotted-date-range-picker-plain-hover-background",
-  "--slotted-date-range-picker-preset-active-background",
-  "--slotted-date-range-picker-preset-hover-background",
-  "--slotted-date-range-picker-preset-selected-background",
-  "--slotted-date-range-picker-preset-selected-color",
   "--slotted-date-range-picker-radius",
   "--slotted-date-range-picker-readonly-background",
   "--slotted-date-range-picker-separator-color",
   "--slotted-date-range-picker-shadow",
-  "--slotted-date-range-picker-sheet-inline-size",
   "--slotted-date-range-picker-subtle-background",
   "--slotted-date-range-picker-subtle-border-color",
   "--slotted-date-range-picker-subtle-hover-background",
-  "--slotted-date-range-picker-surface",
   "--slotted-datetime-field-action-active-background",
   "--slotted-datetime-field-action-color",
   "--slotted-datetime-field-action-hover-background",

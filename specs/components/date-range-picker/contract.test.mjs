@@ -30,8 +30,8 @@ test('names the identifier a consumer selects the family by', () => {
  * Two fields and the range mode `calendar` already has, behind a trigger — the
  * scope line in `docs/process/build-order.md`. Nothing of either is drawn again here.
  */
-test('composes two date fields and one calendar instead of drawing them again', () => {
-  assert.deepEqual(contract.composes, ['date-field', 'calendar']);
+test('composes two date fields, one calendar and the panel instead of drawing them again', () => {
+  assert.deepEqual(contract.composes, ['date-field', 'calendar', 'picker-panel']);
   assert.equal(contract.fields, 2);
   assert.equal(dateField.family, 'date-field');
   assert.equal(calendar.family, 'calendar');
@@ -63,8 +63,8 @@ test('holds a range with two nullable ends, and one word for nothing', () => {
  * run is still being drawn. §12 of the date design records the reviewer's ask.
  */
 test('says the length of the run while it is being drawn', () => {
-  assert.ok(member.parts.includes('head'));
-  assert.ok(member.parts.includes('length'));
+  assert.equal(contract.length.drawnBy, 'picker-panel');
+  assert.match(contract.length.between, /step of one day/);
   assert.equal(contract.length.liveRegion, 'polite');
   assert.match(contract.length.pending, /pending end/);
   assert.deepEqual(contract.axes.count, ['days', 'nights']);
@@ -89,7 +89,7 @@ test('takes the pending end from the calendar rather than reading its cells', ()
  * without the reader having seen it in the field.
  */
 test('abandons a half-drawn run instead of committing it', () => {
-  assert.match(contract.draft.rule, /not the value/);
+  assert.match(contract.draft.rule, /Apply writes the value/);
   assert.match(contract.draft.abandonedBy, /Escape/);
   assert.match(contract.draft.abandonedBy, /outside/);
 });
@@ -120,7 +120,6 @@ test('marks the current end in the DOM and lets the consumer own it', () => {
  * names. Ant blocks without saying; MUI says without blocking.
  */
 test('explains a duration limit as well as enforcing it', () => {
-  assert.ok(member.parts.includes('limit'));
   assert.deepEqual(contract.limits.length, ['minLength', 'maxLength']);
   assert.match(contract.limits.unit, /count/);
   assert.equal(contract.limits.contiguous.default, true);
@@ -147,12 +146,9 @@ test('draws one clear for two fields', () => {
 });
 
 /** A shortcut is a part the family wires, not a button the consumer wires. */
-test('wires a preset as a part that writes the value', () => {
-  assert.ok(member.parts.includes('presets'));
-  assert.ok(member.parts.includes('preset'));
-  assert.equal(contract.preset.reason, 'select');
-  assert.equal(contract.preset.selectedAttribute, 'data-selected');
-  assert.match(contract.preset.invalid, /not hidden/);
+test('writes what a shortcut is, and refuses one the rules refuse', () => {
+  assert.match(contract.preset.result, /two ends/);
+  assert.match(contract.preset.invalid, /disabled/);
 });
 
 test('carries the same dialog role and trigger wiring as date-picker', () => {
@@ -166,11 +162,15 @@ test('carries the same dialog role and trigger wiring as date-picker', () => {
  * Two presses, so closing on the first would be a trap. `auto` closes when the
  * run becomes whole; a preset makes it whole.
  */
-test('closes when the run is whole, and names the departure from the APG', () => {
-  assert.deepEqual(contract.axes.closeOnSelect, ['auto', 'always', 'never']);
-  assert.equal(member.defaults.closeOnSelect, 'auto');
-  assert.match(contract.dismissal.closeOnSelect, /whole/);
+test('keeps a draft until Apply, and names the departure from the APG', () => {
+  assert.equal(member.defaults.confirm, true);
+  assert.match(contract.draft.confirm, /closes the panel/);
   assert.match(contract.pattern.departure, /second press/);
+});
+
+test('marks the days past a limit, and says by how much', () => {
+  assert.match(contract.over.draws, /data-over/);
+  assert.match(contract.over.says, /Apply off/);
 });
 
 test('inherits the staged Escape, the chord and the sheet from date-picker', () => {
@@ -181,8 +181,6 @@ test('inherits the staged Escape, the chord and the sheet from date-picker', () 
   assert.match(escape.staged, /draft/);
   assert.ok(contract.keyboard.some((row) => row.key === 'Tab' && row.effect === 'contained'));
   assert.equal(contract.platformNotes.altArrowDown, datePicker.platformNotes.altArrowDown);
-  assert.equal(contract.responsive.decidedIn, 'the stylesheet; the DOM does not change');
-  assert.ok('data-presentation' in contract.dataAttributes);
 });
 
 test('opens on the current end, or on today', () => {
@@ -192,7 +190,7 @@ test('opens on the current end, or on today', () => {
 test('defaults are settable once, in both bindings', () => {
   for (const name of [
     'calendar',
-    'closeOnSelect',
+    'confirm',
     'count',
     'months',
     'placement',

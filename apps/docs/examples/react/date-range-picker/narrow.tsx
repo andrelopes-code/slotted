@@ -1,4 +1,4 @@
-import { DateRangePicker, DateRangePickerPreset } from '@slotted/react/date-range-picker';
+import { DateRangePicker } from '@slotted/react/date-range-picker';
 import { Field, FieldLabel } from '@slotted/react/field';
 import { addDays, plainDate } from '@slotted/core/date';
 
@@ -10,16 +10,10 @@ export default function DateRangePickerNarrow() {
       <FieldLabel>Deliveries between</FieldLabel>
       <DateRangePicker
         max={TODAY}
-        presets={
-          <>
-            <DateRangePickerPreset value={{ start: TODAY, end: TODAY }}>
-              Today
-            </DateRangePickerPreset>
-            <DateRangePickerPreset value={{ start: addDays(TODAY, -6), end: TODAY }}>
-              Last 7 days
-            </DateRangePickerPreset>
-          </>
-        }
+        presets={[
+          { label: 'Today', value: { start: TODAY, end: TODAY } },
+          { label: 'Last 7 days', value: { start: addDays(TODAY, -6), end: TODAY } },
+        ]}
       />
     </Field>
   );

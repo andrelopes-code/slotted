@@ -6,6 +6,9 @@ export const ptBR: DateRangePickerMessages = {
   clear: 'Limpar período',
   end: 'Fim',
   start: 'Início',
+  bounds: 'Fora do intervalo permitido',
+  order: 'O fim deve vir depois do início',
+  unavailable: 'Passa por um dia indisponível',
   days: {
     length: '{count, plural, one {# dia} other {# dias}}',
     between: 'de {min} a {max, plural, one {# dia} other {# dias}}',

@@ -1,4 +1,4 @@
-export { DateRangePicker, DateRangePickerPreset } from './date-range-picker';
+export { DateRangePicker } from './date-range-picker';
 export {
   DateRangePickerDefaultsProvider,
   useDateRangePickerDefaults,
@@ -6,15 +6,12 @@ export {
 export type {
   DateRange,
   DateRangePickerCalendar,
-  DateRangePickerCloseOnSelect,
   DateRangePickerCount,
   DateRangePickerDefaults,
   DateRangePickerDefaultsProviderProps,
   DateRangePickerHandle,
   DateRangePickerPlacement,
   DateRangePickerPosition,
-  DateRangePickerPresetProps,
-  DateRangePickerPresetRootProps,
   DateRangePickerProps,
   DateRangePickerRootProps,
   DateRangePickerSize,

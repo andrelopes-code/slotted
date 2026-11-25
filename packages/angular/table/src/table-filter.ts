@@ -9,7 +9,13 @@ import {
   toISODate,
   toISOTime,
 } from '@slotted/core/date';
-import type { PlainDate, PlainDateTime, PlainTime, TimeGranularity } from '@slotted/core/date';
+import type {
+  PickerPreset,
+  PlainDate,
+  PlainDateTime,
+  PlainTime,
+  TimeGranularity,
+} from '@slotted/core/date';
 import {
   defaultOperator as kindDefaultOperator,
   describeFilter,
@@ -60,7 +66,8 @@ import {
 import { SlButton } from '@slotted/angular/button';
 import { SlCheckbox } from '@slotted/angular/checkbox';
 import { SlDatePicker } from '@slotted/angular/date-picker';
-import { SlDateRangePicker, SlDateRangePickerPresets } from '@slotted/angular/date-range-picker';
+import { SlDateRangePicker } from '@slotted/angular/date-range-picker';
+import type { DateRange } from '@slotted/angular/date-range-picker';
 import { SlDateTimePicker } from '@slotted/angular/datetime-picker';
 import {
   SlDateTimeRangePicker,
@@ -637,13 +644,7 @@ export class SlTableNumberFilter extends SlTableFilterBase {
 @Component({
   selector: 'span[slTableDateFilter]',
   exportAs: 'slTableDateFilter',
-  imports: [
-    NgTemplateOutlet,
-    SlTableFilterShell,
-    SlDatePicker,
-    SlDateRangePicker,
-    SlDateRangePickerPresets,
-  ],
+  imports: [SlTableFilterShell, SlDatePicker, SlDateRangePicker],
   template: `<span [slTableFilterShell]="this" [operand]="operand"></span>
     <ng-template #operand let-context>
       @if (context.slots.length === 2) {
@@ -652,16 +653,11 @@ export class SlTableNumberFilter extends SlTableFilterBase {
           size="sm"
           [locale]="locale()"
           [messages]="{ start: context.label(0), end: context.label(1) }"
+          [presets]="presets()"
           [value]="range(context.condition)"
           (valueChange)="context.setBoth(iso($event.value?.start), iso($event.value?.end))"
           (keydown.enter)="context.apply()"
-        >
-          @if (presets(); as presetsTemplate) {
-            <div slDateRangePickerPresets>
-              <ng-container [ngTemplateOutlet]="presetsTemplate" />
-            </div>
-          }
-        </div>
+        ></div>
       } @else {
         <div
           slDatePicker
@@ -684,11 +680,10 @@ export class SlTableDateFilter extends SlTableFilterBase {
   /** BCP 47. Decides the operand's field order and separators. */
   readonly locale = input<string | undefined>(undefined);
   /**
-   * The application's own ranges — this week, this month — as
-   * `slDateRangePickerPreset` buttons in a template, offered inside the range
-   * picker `between` draws. The descriptor still receives two ISO days.
+   * The application's own ranges — this week, this month — offered inside the
+   * range picker `between` draws. The descriptor still receives two ISO days.
    */
-  readonly presets = input<TemplateRef<unknown> | undefined>(undefined);
+  readonly presets = input<readonly PickerPreset<DateRange>[]>([]);
 
   protected override rangeOperand() {
     return true;

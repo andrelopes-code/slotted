@@ -9,13 +9,13 @@ description: Two segmented date fields in one frame with a two-month calendar be
 
 ## Typing or choosing
 
-Each end is its own date field: type the month, day and year of the start, and Tab moves on to the end. Or press the calendar button and choose two days. The first press in the calendar starts the range and is not yet the value; the second press writes both ends at once. While the start is chosen and the end is not, the band above the calendar shows the range the next press would make and its length. The value reports its reason: `keyboard` or `blur` for a typed end, `select` for a range closed in the calendar, and `clear` for the clear button. A two-digit year resolves through `yearPivot`, as in the date field.
+Each end is its own date field: type the month, day and year of the start, and Tab moves on to the end. Or press the calendar button and choose two days. The first press in the calendar starts the range and the second closes it; the panel holds both as a draft until Apply. Between the two ends, the head of the panel shows the length the next press would make, and its two steps move the end one day. The value reports its reason: `keyboard` or `blur` for a typed end, `select` for a range applied from the panel, and `clear` for the clear button. A two-digit year resolves through `yearPivot`, as in the date field.
 
 <Example name="typing" wide />
 
 ## Two months, or one
 
-The calendar shows two months side by side, because a range often crosses a month boundary. `months` sets another count. One month suits ranges that stay inside a month, such as a promotion. When the surface has no room for two months beside each other, the second one wraps under the first.
+The panel shows two months side by side, because a range often crosses a month boundary. `months` sets another count. One month suits ranges that stay inside a month, such as a promotion. Under 760 pixels the panel shows one month.
 
 <Example name="months" wide />
 
@@ -45,13 +45,13 @@ Set `invalid`, `readOnly`, `disabled` and `required` on the field, which passes 
 
 ## Days or nights
 
-`count` decides what the length counts. `days` counts both ends, for a leave request or a rental. `nights` counts the nights between them, for a hotel stay. The same two dates give 5 days or 4 nights, and the same day at both ends is 1 day or 0 nights. The band above the calendar and the calendar button's accessible name both say the length in that unit.
+`count` decides what the length counts. `days` counts both ends, for a leave request or a rental. `nights` counts the nights between them, for a hotel stay. The same two dates give 5 days or 4 nights, and the same day at both ends is 1 day or 0 nights. The head of the panel and the calendar button’s accessible name both say the length in that unit.
 
 <Example name="count" wide />
 
 ## Shortest and longest range
 
-`minLength` and `maxLength` limit the length, counted in the unit `count` names. Once a start is chosen, the calendar disables the days that would make the range too short or too long, and the band names the rule, such as "2 to 14 days". A typed range outside the limits marks the date range picker invalid.
+`minLength` and `maxLength` limit the length, counted in the unit `count` names. Once a start is chosen, the calendar disables the days that would make the range too short or too long, and the footer names the rule, such as "2 to 14 days". A typed range outside the limits marks the date range picker invalid; the footer says by how much, the days past the limit are marked, and Apply is disabled.
 
 <Example name="limits" wide />
 
@@ -69,19 +69,19 @@ Set `invalid`, `readOnly`, `disabled` and `required` on the field, which passes 
 
 ## Shortcuts
 
-`presets` in React and an element with `slDateRangePickerPresets` in Angular add a column of shortcuts beside the calendar. Each shortcut is a `DateRangePickerPreset` in React and a button with `slDateRangePickerPreset` in Angular, and it takes the range it writes. Pressing one writes its range with the reason `select` and closes the calendar. The shortcut equal to the value carries `data-selected`. The date range picker ships no list of shortcuts: "Last 30 days" and "This quarter" depend on your product's calendar. A shortcut can also take a function that returns the range when it is pressed, so a relative shortcut is computed at the press and not at render.
+`presets` adds a column of shortcuts beside the calendar. Each one is a label and the range it writes, or a function that returns the range when the panel draws it, for a relative shortcut such as the last 7 days. The panel writes the two dates under the label. Pressing one puts its range in the draft, and Apply writes it. A shortcut that breaks a rule of the date range picker is disabled. The date range picker ships no list of shortcuts: "Last 30 days" and "This quarter" depend on your product’s calendar.
 
 <Example name="presets" wide />
 
 ## Locale and format
 
-`locale` takes a BCP 47 tag and sets the order, separators and placeholders of both fields, the month and weekday names in the calendar, the short dates in the band, and the dates the calendar button announces. There is no format string: each locale writes its own shape. Unset, the locale comes from `SlottedProvider` in React or `provideSlotted` in Angular, and falls back to `en-US`. The value stays the same pair of `PlainDate` objects in every locale.
+`locale` takes a BCP 47 tag and sets the order, separators and placeholders of both fields, the month and weekday names in the calendar, the dates in the head of the panel, and the dates the calendar button announces. There is no format string: each locale writes its own shape. Unset, the locale comes from `SlottedProvider` in React or `provideSlotted` in Angular, and falls back to `en-US`. The value stays the same pair of `PlainDate` objects in every locale.
 
 <Example name="locale" wide />
 
 ## First day of the week and week numbers
 
-The calendar starts the week on the day the locale uses. `firstDayOfWeek` overrides it with a number from `0`, Sunday, to `6`, Saturday. `weekNumbers` adds a column of ISO 8601 week numbers; ISO weeks start on Monday, so set `firstDayOfWeek` to `1` to keep each row inside one numbered week.
+The calendar starts the week on the day the locale uses. `firstDayOfWeek` overrides it with a number from `0`, Sunday, to `6`, Saturday. `weekNumbers` adds a column of ISO 8601 week numbers, and a press on a number chooses its week; ISO weeks start on Monday, so set `firstDayOfWeek` to `1` to keep each row inside one numbered week.
 
 <Example name="first-day" wide />
 
@@ -99,19 +99,19 @@ Pass `value` and update it from `onValueChange` in React, or bind `[value]` and 
 
 ## An open end
 
-A range with one end, such as `{ start, end: null }`, is a value: the field shows the start and leaves the end empty, where the reader sees it. Use it for a period with no end yet, such as a price that stays valid until further notice. Open the calendar over it, and the first press writes the missing end.
+A range with one end, such as `{ start, end: null }`, is a value: the field shows the start and leaves the end empty, where the reader sees it. Use it for a period with no end yet, such as a price that stays valid until further notice. Open the panel on the end, and the first press writes the missing day.
 
 <Example name="open-end" wide />
 
 ## Editing one end
 
-The end being edited carries `data-current`, and the calendar opens on that end's day. Focusing a field makes its end the current one. `defaultPosition="end"` starts on the end, so the first press in the calendar writes the end and keeps the start, which suits extending a booking. `position` and `onPositionChange` in React, or `[position]` and `(positionChange)` in Angular, control it.
+The end being edited carries `data-current` in the frame and is marked in the head of the panel, and the calendar opens on that end’s day. Focusing a field, or pressing an end in the head, makes it the current one. `defaultPosition="end"` starts on the end, so the first press in the calendar writes the end and keeps the start, which suits extending a booking. `position` and `onPositionChange` in React, or `[position]` and `(positionChange)` in Angular, control it.
 
 <Example name="position" wide />
 
-## Footer actions
+## Confirmation and footer
 
-`footer` in React and an element with `slDateRangePickerFooter` in Angular add a row of actions under the calendar. `closeOnSelect` decides when choosing closes the calendar: `auto`, the default, closes it when the range is complete, by a second press or a shortcut; `always` closes it on every press that changes the value; `never` keeps it open. Here `never` keeps the calendar open while the reader adjusts the range, and the Done button closes it.
+The panel holds a draft: Apply writes it, Clear empties it, and Escape or a press outside leaves the value as it was. `confirm={false}` in React, or `confirm="false"` in Angular, drops Apply, and the press that closes the range writes it and closes the panel. `footer` in React and an element with `slDateRangePickerFooter` in Angular set the text beside the actions; unset, it names the limits.
 
 <Example name="footer" wide />
 
@@ -123,13 +123,13 @@ In React, `startName` and `endName` add two hidden inputs that submit the ends a
 
 ## Narrow screens
 
-Under 480 pixels on a touch screen, the calendar opens as a sheet attached to the bottom of the viewport instead of a popover under the frame. In a narrow column, the shortcuts move above the calendar and the second month wraps under the first. The markup stays the same; the positioner carries `data-presentation="sheet"`.
+Under 760 pixels, the panel shows one month and the shortcuts become a strip. Under 480 pixels on a touch screen, it opens as a sheet attached to the bottom of the viewport instead of a popover under the frame. The positioner carries `data-presentation="sheet"`.
 
 <Example name="narrow" />
 
 ## Keyboard and the trigger's name
 
-Alt+ArrowDown opens the calendar from either field and leaves focus in the field, so typing continues. Enter or Space on the calendar button opens it and moves focus to the day of the current end, or to today when that end is empty. Tab and Shift+Tab cycle through the shortcuts, the calendar and the footer until the calendar closes. The arrow keys move between days, and the band above the calendar says the length of the range the focused day would make; Enter or Space on a day starts the range and, pressed again, completes it. Escape closes the calendar, discards a range that has only its start, and returns focus to the calendar button; while the calendar shows the month or year grid, Escape first returns to the day grid. The calendar button's accessible name carries both dates and the length, so a screen reader announces them when focus returns. `messages` replaces that name: `choose` while no range is set, and `change` with its `{start}`, `{end}` and `{length}` slots once one is. `onOpenChange` in React and `(openChange)` in Angular report why the calendar opened or closed.
+Alt+ArrowDown opens the calendar from either field and leaves focus in the field, so typing continues. Enter or Space on the calendar button opens it and moves focus to the day of the current end, or to today when that end is empty. Tab and Shift+Tab cycle through the shortcuts, the calendar and the footer until the panel closes. The arrow keys move between days, and the head of the panel says the length of the range the focused day would make; Enter or Space on a day starts the range and, pressed again, completes it. Ctrl+Enter applies. Escape closes the panel, discards the draft, and returns focus to the calendar button; while the calendar shows the month or year grid, Escape first returns to the day grid. The calendar button's accessible name carries both dates and the length, so a screen reader announces them when focus returns. `messages` replaces that name: `choose` while no range is set, and `change` with its `{start}`, `{end}` and `{length}` slots once one is. `onOpenChange` in React and `(openChange)` in Angular report why the calendar opened or closed.
 
 <Example name="keyboard" wide />
 
@@ -141,7 +141,7 @@ The date range picker's handle has `focus()`, which puts focus on the first segm
 
 ## Defaults for a section
 
-`DateRangePickerDefaultsProvider` in React and `provideDateRangePickerDefaults` in Angular set `count`, `months`, `variant`, `size`, `placement`, `closeOnSelect`, `timeZone` and `calendar` once for every date range picker under them, such as a travel booking form. A value set on one date range picker still wins, and inside a field the field's size wins over the provider's.
+`DateRangePickerDefaultsProvider` in React and `provideDateRangePickerDefaults` in Angular set `count`, `months`, `variant`, `size`, `placement`, `confirm`, `timeZone` and `calendar` once for every date range picker under them, such as a travel booking form. A value set on one date range picker still wins, and inside a field the field's size wins over the provider's.
 
 <Example name="defaults" wide />
 

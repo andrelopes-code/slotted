@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { DateRange } from '@slotted/react/calendar';
-import { DateRangePicker, DateRangePickerPreset } from '@slotted/react/date-range-picker';
+import { DateRangePicker } from '@slotted/react/date-range-picker';
 import { Field, FieldLabel } from '@slotted/react/field';
 import { Grid } from '@slotted/react/grid';
 import { Stack } from '@slotted/react/stack';
@@ -14,14 +14,20 @@ import {
   StatCardPeriod,
   StatCardValue,
 } from '@slotted/react/stat-card';
-import { addDays, daysBetween, plainDate, type PlainDate } from '@slotted/core/date';
+import {
+  addDays,
+  daysBetween,
+  plainDate,
+  type PickerPreset,
+  type PlainDate,
+} from '@slotted/core/date';
 
 const TODAY = plainDate(2026, 9, 30);
 const LAST_7_DAYS: DateRange = { start: addDays(TODAY, -6), end: TODAY };
-const PRESETS: { label: string; range: DateRange }[] = [
-  { label: 'Last 7 days', range: LAST_7_DAYS },
-  { label: 'Last 30 days', range: { start: addDays(TODAY, -29), end: TODAY } },
-  { label: 'This quarter', range: { start: plainDate(2026, 7, 1), end: TODAY } },
+const PRESETS: PickerPreset<DateRange>[] = [
+  { label: 'Last 7 days', value: LAST_7_DAYS },
+  { label: 'Last 30 days', value: { start: addDays(TODAY, -29), end: TODAY } },
+  { label: 'This quarter', value: { start: plainDate(2026, 7, 1), end: TODAY } },
 ];
 
 /** Orders shipped on one day, from the Northwind warehouse feed. */
@@ -51,11 +57,7 @@ export default function DateRangePickerReportingFilter() {
         <DateRangePicker
           max={TODAY}
           onValueChange={(value) => setPeriod(value)}
-          presets={PRESETS.map((preset) => (
-            <DateRangePickerPreset key={preset.label} value={preset.range}>
-              {preset.label}
-            </DateRangePickerPreset>
-          ))}
+          presets={PRESETS}
           value={period}
         />
       </Field>

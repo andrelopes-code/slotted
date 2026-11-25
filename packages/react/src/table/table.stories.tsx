@@ -15,7 +15,6 @@ import { useMemo, useState } from 'react';
 
 import { Avatar } from '../avatar';
 import { IconButton } from '../button';
-import { DateRangePickerPreset } from '../date-range-picker';
 import { DateTimeRangePickerPreset } from '../datetime-range-picker';
 import { Link } from '../link';
 import { NumberField } from '../number-field';
@@ -1051,12 +1050,10 @@ function RangeFilterDemo() {
                 <TableDateFilter
                   columnLabel="due"
                   onValueChange={setDue}
-                  presets={
-                    <>
-                      <DateRangePickerPreset value={SEPTEMBER}>September</DateRangePickerPreset>
-                      <DateRangePickerPreset value={FOURTH_QUARTER}>Q4</DateRangePickerPreset>
-                    </>
-                  }
+                  presets={[
+                    { label: 'September', value: SEPTEMBER },
+                    { label: 'Q4', value: FOURTH_QUARTER },
+                  ]}
                   value={due}
                 />
               </TableColumnActions>

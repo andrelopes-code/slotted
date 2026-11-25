@@ -112,8 +112,7 @@ test('says what is missing, and gives the sheet a way out', () => {
   assert.ok(contract.messages.includes('chooseTime'));
 });
 
-test('takes every overlay behavior from core, as time-picker does', () => {
-});
+test('takes every overlay behavior from core, as time-picker does', () => {});
 
 /**
  * The value is two nullable times, and nothing for nothing: a filter "from

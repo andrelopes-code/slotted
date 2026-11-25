@@ -402,13 +402,13 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'filter-range',
     title: 'Between two dates, as one range picker',
-    note: 'The between of a date column is one date-range-picker rather than two pickers: it says the run length while it is drawn, takes the ends in either order and carries your presets as a template of slDateRangePickerPreset buttons. The descriptor is unchanged — between, an ISO day and another — so a saved view written with two pickers opens in the range picker.',
+    note: 'The between of a date column is one date-range-picker rather than two pickers: it says the run length while it is drawn, takes the ends in either order and carries your presets as a list of labels and runs. The descriptor is unchanged — between, an ISO day and another — so a saved view written with two pickers opens in the range picker.',
     snippet: defineSnippet({
       id: 'table-angular-filter-range',
       language: 'angular',
       label: 'A date filter with the application own periods',
       source:
-        '<ng-template #presets>\n  <button slDateRangePickerPreset [range]="september">September</button>\n  <button slDateRangePickerPreset [range]="quarter">Q4</button>\n</ng-template>\n<span slTableDateFilter columnLabel="due" [presets]="presets" [(value)]="dueAt"></span>',
+        '<span slTableDateFilter columnLabel="due" [presets]="periods" [(value)]="dueAt"></span>',
     }),
   },
   {

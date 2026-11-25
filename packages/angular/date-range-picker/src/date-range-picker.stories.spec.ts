@@ -6,7 +6,7 @@ import contract from '../../../../specs/components/date-range-picker/contract.js
 import { ANGULAR_DATE_RANGE_PICKER_DOCS } from './date-range-picker.docs';
 import * as dateRangePickerStories from './date-range-picker.stories';
 
-describe('Angular DateRangePicker stories', () => {
+describe('Angular Date Range Picker stories', () => {
   it('covers every required scenario', () => {
     expect(
       scenarioCoverageErrors(contract.scenarios.dateRangePicker, dateRangePickerStories),

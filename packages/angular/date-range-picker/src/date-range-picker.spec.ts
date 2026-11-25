@@ -11,25 +11,17 @@ import type { ChangeRequest } from '@slotted/core/state';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/date-range-picker/contract.json';
-import { SlDateRangePicker, SlDateRangePickerPreset } from './date-range-picker';
+import { SlDateRangePicker } from './date-range-picker';
 import { provideDateRangePickerDefaults } from './date-range-picker-defaults';
 import type { DateRange, DateRangePickerPosition } from './date-range-picker-defaults';
-import { SlDateRangePickerFooter, SlDateRangePickerPresets } from './date-range-picker-parts';
+import { SlDateRangePickerFooter } from './date-range-picker-parts';
 
 const d = (day: number) => plainDate(2026, 9, day);
 const RUN: DateRange = { start: d(7), end: d(11) };
 
 @Component({
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    SlField,
-    SlFieldLabel,
-    SlDateRangePicker,
-    SlDateRangePickerFooter,
-    SlDateRangePickerPresets,
-    SlDateRangePickerPreset,
-  ],
+  imports: [ReactiveFormsModule, SlField, SlFieldLabel, SlDateRangePicker, SlDateRangePickerFooter],
   template: `<div slDateRangePicker></div>`,
 })
 class Host {
@@ -51,6 +43,9 @@ class Host {
   readonly onPosition = vi.fn((request: ChangeRequest<DateRangePickerPosition>) => {
     this.positions.push(request.value);
   });
+  readonly over: DateRange = { start: d(7), end: d(12) };
+  readonly week = [{ label: 'Next week', value: () => ({ start: d(14), end: d(18) }) }];
+  readonly words = { days: { length: '{count} working days' }, start: 'Pickup' };
   readonly refuseFifteenth = (date: PlainDate) => date.day === 15;
   readonly refuseNinth = (date: PlainDate) => date.day === 9;
 }
@@ -109,34 +104,6 @@ describe('what it is made of', () => {
     expect(root(fixture).getAttribute('data-count')).toBe('days');
   });
 
-  it('declares every part the contract names', () => {
-    /* The grip is drawn in the sheet presentation only. */
-    vi.stubGlobal('matchMedia', (query: string) => ({
-      matches: true,
-      media: query,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-    }));
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen clearable locale="pt-BR" [defaultValue]="run" [maxLength]="7">
-         <div slDateRangePickerPresets>
-           <button [slDateRangePickerPreset]="run">This week</button>
-         </div>
-         <div slDateRangePickerFooter><button type="button">Apply</button></div>
-       </div>`,
-    );
-    const present = new Set(
-      [...fixture.nativeElement.querySelectorAll('[data-part]')].map(
-        (element: Element) => (element as HTMLElement).dataset['part'],
-      ),
-    );
-    for (const name of contract.members.dateRangePicker.parts) {
-      expect(present, `${name} is not rendered`).toContain(name);
-    }
-
-    vi.unstubAllGlobals();
-  });
-
   it('carries the dialog role and points the trigger at it while it is open', () => {
     const fixture = renderTemplate(
       `<div slDateRangePicker defaultOpen locale="pt-BR" [defaultValue]="run"></div>`,
@@ -188,109 +155,7 @@ describe('what the trigger says', () => {
   });
 });
 
-describe('the length, said while the run is drawn', () => {
-  it('says the length of a whole value in a live region', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR" [defaultValue]="run"></div>`,
-    );
-    expect(text(fixture, 'length')).toBe('5 days');
-    expect(part(fixture, 'length').getAttribute('aria-live')).toBe('polite');
-    expect(part(fixture, 'length').hasAttribute('data-pending')).toBe(false);
-  });
-
-  it('says the length the pending end would give, and marks it pending', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR" count="nights" [defaultValue]="openRun"></div>`,
-    );
-    hover(fixture, dayFor(fixture, 11));
-    expect(text(fixture, 'length')).toBe('4 nights');
-    expect(part(fixture, 'length').hasAttribute('data-pending')).toBe(true);
-    expect(part(fixture, 'head-end').hasAttribute('data-pending')).toBe(true);
-  });
-
-  it('draws the missing ends as placeholders, and names a limit', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR" count="nights" [minLength]="2" [maxLength]="7"></div>`,
-    );
-    expect(part(fixture, 'head-start').hasAttribute('data-placeholder')).toBe(true);
-    expect(part(fixture, 'head-end').hasAttribute('data-placeholder')).toBe(true);
-    expect(text(fixture, 'length')).toBe('');
-    expect(text(fixture, 'limit')).toBe('2 to 7 nights');
-  });
-});
-
 describe('choosing a run', () => {
-  it('holds the first press as a draft and emits the whole run on the second', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR" (valueChange)="onValue($event)" (positionChange)="onPosition($event)"></div>`,
-    );
-    click(fixture, dayFor(fixture, 7));
-    expect(fixture.componentInstance.values).toHaveLength(0);
-    expect(fixture.componentInstance.positions.at(-1)).toBe('end');
-    expect(part(fixture, 'end').hasAttribute('data-current')).toBe(true);
-    expect(text(fixture, 'head-start')).toContain('7');
-
-    click(fixture, dayFor(fixture, 11));
-    /* The grid opens on today's month, so the run is read by its days. */
-    const [run] = fixture.componentInstance.values;
-    expect(fixture.componentInstance.values).toHaveLength(1);
-    expect([run?.start?.day, run?.end?.day]).toEqual([7, 11]);
-    expect(run?.start?.month).toBe(run?.end?.month);
-    expect(fixture.componentInstance.positions.at(-1)).toBe('start');
-  });
-
-  it('closes when the run becomes whole and returns focus to the trigger', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR" (openChange)="onOpen($event)"></div>`,
-    );
-    click(fixture, dayFor(fixture, 7));
-    expect(fixture.componentInstance.opens).toHaveLength(0);
-    click(fixture, dayFor(fixture, 11));
-    expect(fixture.componentInstance.opens.at(-1)).toBe(false);
-    expect(document.activeElement).toBe(trigger(fixture));
-  });
-
-  it('abandons the draft when the surface closes', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR" [defaultValue]="run" (valueChange)="onValue($event)"></div>`,
-    );
-    click(fixture, dayFor(fixture, 20));
-    escape(fixture);
-    expect(fixture.componentInstance.values).toHaveLength(0);
-    click(fixture, trigger(fixture));
-    expect(text(fixture, 'head-start')).toContain('7');
-    expect(text(fixture, 'head-end')).toContain('11');
-  });
-
-  it('writes the end when the end is the current position', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR" position="end" [defaultValue]="run" (valueChange)="onValue($event)"></div>`,
-    );
-    click(fixture, dayFor(fixture, 20));
-    expect(fixture.componentInstance.values.at(-1)).toEqual({ start: d(7), end: d(20) });
-  });
-
-  it('writes a preset with the select reason, marks the one equal to the value, and closes', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR" [value]="run" (valueChange)="onValue($event)" (openChange)="onOpen($event)">
-         <div slDateRangePickerPresets>
-           <button [slDateRangePickerPreset]="run">This week</button>
-           <button [slDateRangePickerPreset]="month">This month</button>
-         </div>
-       </div>`,
-    );
-    const presets = fixture.nativeElement.querySelectorAll('[data-part="preset"]');
-    expect(presets[0].hasAttribute('data-selected')).toBe(true);
-    expect(presets[1].hasAttribute('data-selected')).toBe(false);
-    expect(presets[1].getAttribute('type')).toBe('button');
-
-    click(fixture, presets[1] as HTMLElement);
-    expect(fixture.componentInstance.onValue).toHaveBeenLastCalledWith(
-      expect.objectContaining({ value: { start: d(1), end: d(30) }, reason: 'select' }),
-    );
-    expect(fixture.componentInstance.opens.at(-1)).toBe(false);
-  });
-
   it('empties both ends from one clear', () => {
     const fixture = renderTemplate(
       `<div slDateRangePicker clearable locale="pt-BR" [defaultValue]="run" (valueChange)="onValue($event)"></div>`,
@@ -304,17 +169,6 @@ describe('choosing a run', () => {
 });
 
 describe('the limits', () => {
-  it('refuses the days beyond the limit while a start is chosen', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR" count="nights" [minLength]="2" [maxLength]="7" [defaultValue]="openRun"></div>`,
-    );
-    const cell = (day: number) => dayFor(fixture, day).closest('[data-part="cell"]') as HTMLElement;
-    expect(cell(8).hasAttribute('data-unavailable')).toBe(true);
-    expect(cell(9).hasAttribute('data-unavailable')).toBe(false);
-    expect(cell(14).hasAttribute('data-unavailable')).toBe(false);
-    expect(cell(15).hasAttribute('data-unavailable')).toBe(true);
-  });
-
   it('refuses the days beyond an unavailable one while the run must be contiguous', () => {
     const contiguous = renderTemplate(
       `<div slDateRangePicker defaultOpen locale="pt-BR" [isDateUnavailable]="refuseFifteenth" [defaultValue]="openRun"></div>`,
@@ -431,10 +285,11 @@ describe('what a form sees', () => {
     const fixture = renderTemplate(
       `<div slDateRangePicker defaultOpen locale="pt-BR" [formControl]="control"></div>`,
     );
-    expect(text(fixture, 'length')).toBe('5 days');
+    expect(text(fixture, 'span-text')).toBe('5 days');
 
     click(fixture, dayFor(fixture, 20));
     click(fixture, dayFor(fixture, 24));
+    click(fixture, part(fixture, 'apply'));
     expect(fixture.componentInstance.control.value).toEqual({ start: d(20), end: d(24) });
   });
 
@@ -490,36 +345,6 @@ describe('what a form sees', () => {
 });
 
 describe('what an application sets once', () => {
-  it('takes the unit and the months from a provider, and its words from the language in force', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen [defaultValue]="run"></div>`,
-      [
-        provideSlotted({ locale: 'pt-BR', catalogs: { 'pt-BR': PT_BR } }),
-        provideDateRangePickerDefaults({ count: 'nights', months: 1 }),
-      ],
-    );
-    expect(root(fixture).getAttribute('data-count')).toBe('nights');
-    expect(text(fixture, 'length')).toBe('4 noites');
-    // language: pt-BR
-    expect(trigger(fixture).getAttribute('aria-label')).toContain('Alterar período');
-    // language: en-US
-    expect(fixture.nativeElement.querySelectorAll('[data-part="grid"]')).toHaveLength(1);
-  });
-
-  it('lays its own messages over the catalog, a counting phrase included', () => {
-    const fixture = renderTemplate(
-      `<div
-         slDateRangePicker
-         count="nights"
-         defaultOpen
-         [defaultValue]="run"
-         [messages]="{ nights: { length: '{count, plural, one {# overnight} other {# overnights}}' } }"
-       ></div>`,
-    );
-    expect(text(fixture, 'length')).toBe('4 overnights');
-    expect(trigger(fixture).getAttribute('aria-label')).toContain('Change range');
-  });
-
   it('changes its words and its dates together with the language in force', () => {
     const locale = signal('pt-BR');
     const fixture = renderTemplate(
@@ -577,17 +402,6 @@ describe('the composition surface', () => {
     expect(reasons).toEqual(['keyboard', 'keyboard']);
     expect(contract.stateModel.open.reasons).toEqual(expect.arrayContaining(reasons));
   });
-
-  it('takes the consumer’s own slots into the surface', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="pt-BR">
-         <div slDateRangePickerPresets><button [slDateRangePickerPreset]="run">Today</button></div>
-         <div slDateRangePickerFooter><button type="button">Apply</button></div>
-       </div>`,
-    );
-    expect(text(fixture, 'presets')).toContain('Today');
-    expect(text(fixture, 'footer')).toContain('Apply');
-  });
 });
 
 describe('where focus goes when it opens', () => {
@@ -642,28 +456,6 @@ describe('where focus goes when it opens', () => {
     fixture.detectChanges();
     expect(document.activeElement).toBe(document.body);
   });
-
-  it('keeps Tab inside the surface while it is open', () => {
-    const fixture = renderTemplate(
-      `<div slDateRangePicker defaultOpen locale="en-US" [defaultValue]="run">
-         <div slDateRangePickerPresets><button [slDateRangePickerPreset]="run">This week</button></div>
-         <div slDateRangePickerFooter><button type="button" id="apply">Apply</button></div>
-       </div>`,
-    );
-    const first = part(fixture, 'preset');
-    const last = fixture.nativeElement.querySelector('#apply') as HTMLElement;
-
-    last.focus();
-    last.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }),
-    );
-    expect(document.activeElement).toBe(first);
-
-    first.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }),
-    );
-    expect(document.activeElement).toBe(last);
-  });
 });
 
 describe('inside a field', () => {
@@ -687,3 +479,197 @@ describe('inside a field', () => {
     expect(new Set(ids).size).toBe(3);
   });
 });
+
+describe('the head of the panel', () => {
+  it('declares every part the contract names, and opens the shared panel', () => {
+    const fixture = renderTemplate(picker('clearable defaultOpen [defaultValue]="run"'));
+
+    for (const name of contract.members.dateRangePicker.parts) {
+      expect(part(fixture, name), name).not.toBeNull();
+    }
+    expect(
+      fixture.nativeElement.querySelector('[data-ui="picker-panel"][data-kind="date-range"]'),
+    ).not.toBeNull();
+  });
+
+  it('writes each end in words, and the length between them', () => {
+    const fixture = renderTemplate(picker('defaultOpen [defaultValue]="run"'));
+
+    expect(halves(fixture)).toEqual(['Mon, Sep 7', 'Fri, Sep 11']);
+    expect(text(fixture, 'span-text')).toBe('5 days');
+    expect(part(fixture, 'span-text').getAttribute('role')).toBe('status');
+  });
+
+  it('says the length the pending end would give', () => {
+    const fixture = renderTemplate(picker('defaultOpen [defaultValue]="run"'));
+
+    click(fixture, dayFor(fixture, 14));
+    hover(fixture, dayFor(fixture, 16));
+    expect(text(fixture, 'span-text')).toBe('3 days');
+    expect(halves(fixture)).toEqual(['Mon, Sep 14', 'Choose a day']);
+  });
+
+  it('lengthens and shortens the run inside its limits', () => {
+    const fixture = renderTemplate(
+      picker('count="nights" defaultOpen maxLength="5" minLength="4" [defaultValue]="run"'),
+    );
+    const [shorter, longer] = [
+      ...fixture.nativeElement.querySelectorAll('[data-part="span"] [data-part="step"]'),
+    ] as HTMLButtonElement[];
+    expect(shorter?.disabled).toBe(true);
+
+    click(fixture, longer!);
+    expect(text(fixture, 'span-text')).toBe('5 nights');
+    expect(longer?.disabled).toBe(true);
+  });
+
+  it('marks the end the next press writes, and follows the press on the other', () => {
+    const fixture = renderTemplate(picker('defaultOpen [defaultValue]="run"'));
+    expect(currentHalf(fixture)).toBe('Start');
+
+    click(
+      fixture,
+      fixture.nativeElement.querySelectorAll('[data-part="half-day"]')[1] as HTMLElement,
+    );
+    expect(currentHalf(fixture)).toBe('End');
+  });
+});
+
+describe('the draft', () => {
+  it('opens on the first press, closes on the second, and reaches the value on Apply', () => {
+    const fixture = renderTemplate(picker('defaultOpen [defaultValue]="run"'));
+
+    click(fixture, dayFor(fixture, 18));
+    expect((part(fixture, 'apply') as HTMLButtonElement).disabled).toBe(true);
+    click(fixture, dayFor(fixture, 14));
+    expect(fixture.componentInstance.values).toEqual([]);
+
+    click(fixture, part(fixture, 'apply'));
+    expect(fixture.componentInstance.values).toEqual([{ start: d(14), end: d(18) }]);
+    expect(surface(fixture)).toBeNull();
+  });
+
+  it('is abandoned when the panel closes', () => {
+    const fixture = renderTemplate(picker('defaultOpen [defaultValue]="run"'));
+
+    click(fixture, dayFor(fixture, 14));
+    escape(fixture);
+    click(fixture, trigger(fixture));
+    expect(halves(fixture)).toEqual(['Mon, Sep 7', 'Fri, Sep 11']);
+    expect(fixture.componentInstance.values).toEqual([]);
+  });
+
+  it('writes the end when the end is the current position', () => {
+    const fixture = renderTemplate(
+      picker('defaultOpen defaultPosition="end" [defaultValue]="run"'),
+    );
+
+    click(fixture, dayFor(fixture, 18));
+    click(fixture, part(fixture, 'apply'));
+    expect(fixture.componentInstance.values).toEqual([{ start: d(7), end: d(18) }]);
+  });
+
+  it('is written by the press that closes the run, without a confirmation', () => {
+    const fixture = renderTemplate(picker('confirm="false" defaultOpen [defaultValue]="run"'));
+
+    click(fixture, dayFor(fixture, 14));
+    expect(fixture.componentInstance.values).toEqual([]);
+    click(fixture, dayFor(fixture, 18));
+    expect(fixture.componentInstance.values).toEqual([{ start: d(14), end: d(18) }]);
+    expect(surface(fixture)).toBeNull();
+  });
+
+  it('is emptied by Clear, and Apply writes the empty value', () => {
+    const fixture = renderTemplate(picker('defaultOpen [defaultValue]="run"'));
+
+    click(fixture, fixture.nativeElement.querySelector('[data-part="footer"] [data-part="clear"]'));
+    click(fixture, part(fixture, 'apply'));
+    expect(fixture.componentInstance.values).toEqual([null]);
+  });
+});
+
+describe('the rules of a run', () => {
+  it('say the limit, and refuse the days beyond it while a start is chosen', () => {
+    const fixture = renderTemplate(
+      picker('count="nights" defaultOpen maxLength="3" minLength="2" [defaultValue]="run"'),
+    );
+    click(fixture, dayFor(fixture, 14));
+
+    expect(dayFor(fixture, 17).hasAttribute('aria-disabled')).toBe(false);
+    expect(dayFor(fixture, 18).getAttribute('aria-disabled')).toBe('true');
+    expect(text(fixture, 'hint')).toBe('2 to 3 nights');
+  });
+
+  it('say by how much a run is over, and mark its days past the limit', () => {
+    const fixture = renderTemplate(
+      picker('count="nights" defaultOpen maxLength="3" [defaultValue]="over"'),
+    );
+    const over = [
+      ...fixture.nativeElement.querySelectorAll('[data-part="cell"][data-over]'),
+    ] as HTMLElement[];
+
+    expect(text(fixture, 'hint')).toBe('2 nights over the limit');
+    expect((part(fixture, 'apply') as HTMLButtonElement).disabled).toBe(true);
+    expect(over.map((cell) => cell.textContent?.trim())).toEqual(['11', '12']);
+  });
+});
+
+describe('the shortcuts', () => {
+  it('say the run they write, and mark the one the draft is', () => {
+    const fixture = renderTemplate(picker('defaultOpen [presets]="week"'));
+    const preset = part(fixture, 'preset');
+    expect(preset.textContent).toContain('Sep 14');
+
+    click(fixture, preset);
+    expect(preset.getAttribute('aria-pressed')).toBe('true');
+    click(fixture, part(fixture, 'apply'));
+    expect(fixture.componentInstance.values).toEqual([{ start: d(14), end: d(18) }]);
+  });
+
+  it('are off when the rules refuse them', () => {
+    const fixture = renderTemplate(picker('defaultOpen maxLength="3" [presets]="week"'));
+
+    expect((part(fixture, 'preset') as HTMLButtonElement).disabled).toBe(true);
+  });
+});
+
+describe('what the application states once', () => {
+  it('is the unit, the months and the confirmation', () => {
+    const fixture = renderTemplate(picker('defaultOpen [defaultValue]="run"'), [
+      provideDateRangePickerDefaults({ confirm: false, count: 'nights', months: 1 }),
+    ]);
+
+    expect(text(fixture, 'span-text')).toBe('4 nights');
+    expect(fixture.nativeElement.querySelectorAll('[data-part="month"]')).toHaveLength(1);
+    expect(part(fixture, 'apply')).toBeNull();
+  });
+
+  it('is laid over by its own messages and its own footer', () => {
+    const fixture = renderTemplate(
+      picker(
+        'defaultOpen [defaultValue]="run" [messages]="words"',
+        '<span slDateRangePickerFooter>Returns by noon</span>',
+      ),
+    );
+
+    expect(text(fixture, 'span-text')).toBe('5 working days');
+    expect(currentHalf(fixture)).toBe('Pickup');
+    expect(text(fixture, 'hint')).toBe('Returns by noon');
+  });
+});
+
+function picker(attributes: string, content = '') {
+  return `<div slDateRangePicker locale="en-US" ${attributes} (valueChange)="onValue($event)">${content}</div>`;
+}
+
+function halves(fixture: Fixture) {
+  return [...fixture.nativeElement.querySelectorAll('[data-part="half-day"]')].map(
+    (half: Element) => half.textContent?.trim(),
+  );
+}
+
+function currentHalf(fixture: Fixture) {
+  return fixture.nativeElement.querySelector(
+    '[data-part="half"][data-current] [data-part="half-label"]',
+  )?.textContent;
+}

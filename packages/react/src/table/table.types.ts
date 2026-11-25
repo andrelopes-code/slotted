@@ -16,8 +16,9 @@ import type {
   TimeOperator,
   TextOperator,
 } from '@slotted/core/filter';
-import type { PlainTime, TimeGranularity } from '@slotted/core/date';
+import type { PickerPreset, PlainTime, TimeGranularity } from '@slotted/core/date';
 import type { FamilyTranslator, PartialMessages, TableMessages } from '@slotted/core/i18n';
+import type { DateRange } from '../calendar';
 import type { TimeFieldHourCycle } from '../time-field';
 import type { ChangeRequest } from '@slotted/core/state';
 import type { PopoverChangeRequest, PopoverProps } from '../popover/popover.types';
@@ -213,12 +214,11 @@ export interface TableDateFilterProps extends TableConditionFilterProps<
   /** The latest, as an ISO day. */
   max?: string | undefined;
   /**
-   * The application's own ranges — this week, this month — as
-   * `DateRangePickerPreset`s, offered inside the range picker `between` draws.
-   * The descriptor still receives two ISO days; the preset is how they were
-   * chosen.
+   * The application's own ranges — this week, this month — offered inside the
+   * range picker `between` draws. The descriptor still receives two ISO days;
+   * the shortcut is how they were chosen.
    */
-  presets?: ReactNode | undefined;
+  presets?: readonly PickerPreset<DateRange>[] | undefined;
 }
 
 /**

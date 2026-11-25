@@ -1,4 +1,4 @@
-import type { PlainDate } from '@slotted/core/date';
+import type { PlainDate, PickerPreset } from '@slotted/core/date';
 import type { DateRangePickerMessages, PartialMessages } from '@slotted/core/i18n';
 import type { ChangeRequest } from '@slotted/core/state';
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref } from 'react';
@@ -10,13 +10,6 @@ export type { DateRange } from '../calendar';
 /** Where the surface opens, before the positioner has read the room. */
 export type DateRangePickerPlacement =
   'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
-
-/**
- * Whether choosing closes the surface. `auto` closes when the run becomes
- * whole — by the second press, or by a preset — and stays open after the
- * first, because the second press has to reach the same surface.
- */
-export type DateRangePickerCloseOnSelect = 'auto' | 'always' | 'never';
 
 export type DateRangePickerSize = 'sm' | 'md' | 'lg';
 export type DateRangePickerVariant = 'outline' | 'subtle' | 'plain';
@@ -40,7 +33,8 @@ export type DateRangePickerValueReason = Extract<
 /** What an application sets once for every range picker under it. */
 export interface DateRangePickerDefaults {
   calendar: DateRangePickerCalendar;
-  closeOnSelect: DateRangePickerCloseOnSelect;
+  /** Whether the panel keeps a draft until Apply. */
+  confirm: boolean;
   count: DateRangePickerCount;
   months: number;
   placement: DateRangePickerPlacement;
@@ -114,7 +108,7 @@ export interface DateRangePickerProps extends Omit<
 
   months?: number | undefined;
   weekNumbers?: boolean | undefined;
-  /** Six rows whatever the month needs, so a press of "next" moves no target. On by default. */
+  /** Six rows whatever the months need. Off: two months end where the longer one does. */
   fixedWeeks?: boolean | undefined;
 
   /** BCP 47. Writes both fields, the grid and the trigger's dates. Unset, the language in force decides. */
@@ -127,7 +121,11 @@ export interface DateRangePickerProps extends Omit<
   size?: DateRangePickerSize | undefined;
   variant?: DateRangePickerVariant | undefined;
   placement?: DateRangePickerPlacement | undefined;
-  closeOnSelect?: DateRangePickerCloseOnSelect | undefined;
+  /**
+   * Whether the panel keeps a draft until Apply. `false` writes the run on the
+   * press that closes it. On by default.
+   */
+  confirm?: boolean | undefined;
 
   disabled?: boolean | undefined;
   readOnly?: boolean | undefined;
@@ -147,29 +145,11 @@ export interface DateRangePickerProps extends Omit<
   startName?: string | undefined;
   endName?: string | undefined;
 
-  /** The consumer's own shortcuts, as `DateRangePicker.Preset` elements. */
-  presets?: ReactNode | undefined;
-  /** The consumer's own actions, under the calendar. */
+  /** The consumer's own shortcuts. The panel writes the run each one is. */
+  presets?: readonly PickerPreset<DateRange>[] | undefined;
+  /** What the footer says when nothing is wrong. Unset, the limits. */
   footer?: ReactNode | undefined;
 
   render?: ((props: DateRangePickerRootProps) => ReactNode) | undefined;
   ref?: Ref<DateRangePickerHandle> | undefined;
-}
-
-export interface DateRangePickerPresetRootProps extends HTMLAttributes<HTMLElement> {
-  'data-part': string;
-  'data-selected'?: '' | undefined;
-  disabled?: boolean | undefined;
-  type: 'button';
-  ref?: Ref<HTMLElement> | undefined;
-}
-
-export interface DateRangePickerPresetProps extends Omit<
-  ComponentPropsWithRef<'button'>,
-  'value' | 'ref'
-> {
-  /** The range the press writes, or a function resolving it at the press. */
-  value: DateRange | (() => DateRange);
-  render?: ((props: DateRangePickerPresetRootProps) => ReactNode) | undefined;
-  ref?: Ref<HTMLButtonElement> | undefined;
 }

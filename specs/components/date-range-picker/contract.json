@@ -15,7 +15,7 @@
     "openEnd": "{ start, end: null } and { start: null, end } are values: an open end is written in the field, where the reader sees it",
     "reversed": "an end typed before its start is invalid and stays as typed"
   },
-  "composes": ["date-field", "calendar"],
+  "composes": ["date-field", "calendar", "picker-panel"],
   "fields": 2,
   "core": [
     "@slotted/core/date",
@@ -47,9 +47,10 @@
     "why": "Focus returns to the trigger when the popup closes, so the name is where the reader is told what was chosen."
   },
   "draft": {
-    "rule": "a press that leaves the run with one end is a draft, not the value; the second press emits the whole run with reason select",
+    "rule": "a press in the panel writes a draft: the first press opens a run, the second closes it, and Apply writes the value with reason select",
     "abandonedBy": "Escape, an outside press and the trigger abandon the draft and keep the previous value",
-    "openEndValue": "a panel opened over { start, end: null } treats the start as an open run, and the first press closes it"
+    "openEndValue": "a panel opened over { start, end: null } takes the start as an open run once the end is the current position",
+    "confirm": "false writes the run on the press that closes it, and closes the panel"
   },
   "preview": {
     "drawnBy": "calendar",
@@ -58,9 +59,11 @@
   },
   "length": {
     "liveRegion": "polite",
-    "pending": "the length of the run that would exist if the pending end were chosen; with the run whole, the length of the value",
+    "drawnBy": "picker-panel",
+    "between": "the two halves of the head, with a step of one day of the end either way",
+    "pending": "the length of the run that would exist if the pending end were chosen; with the run whole, the length of the draft",
     "label": "the days.length or nights.length message, a plural over the count, laid over per instance through messages",
-    "sameDay": "the same day at both ends is 1 day or 0 nights, and the band says so"
+    "sameDay": "the same day at both ends is 1 day or 0 nights, and the head says so"
   },
   "position": {
     "meaning": "the end the next press in the grid writes, and the field that carries data-current",
@@ -101,10 +104,9 @@
     "fields": "the two fields do not draw their own clear; one button on the frame empties both ends with reason clear"
   },
   "preset": {
-    "reason": "select",
-    "selectedAttribute": "data-selected",
-    "value": "a DateRange, or a function returning one, resolved on press",
-    "invalid": "a preset whose range fails a rule still writes it and the value is invalid; the preset is not hidden"
+    "shape": "{ label, value | () => value }",
+    "result": "the two ends, the parts they share written once",
+    "invalid": "a shortcut whose run fails a rule is disabled"
   },
   "keyboard": [
     {
@@ -137,12 +139,7 @@
   "dismissal": {
     "escape": "through dismissable-layer, in the capture phase",
     "outsidePress": true,
-    "closeOnSelect": "auto closes when the run becomes whole, by a second press or a preset; always closes on any press that changes the value; never closes on none"
-  },
-  "responsive": {
-    "sheet": "below 480px on a coarse pointer, the content takes the sheet presentation",
-    "decidedIn": "the stylesheet; the DOM does not change",
-    "months": "two by default; the calendar wraps the second under the first when the container is narrow"
+    "discards": "the draft"
   },
   "forms": {
     "react": ["startName", "endName"],
@@ -152,26 +149,26 @@
     "size": ["sm", "md", "lg"],
     "variant": ["outline", "subtle", "plain"],
     "placement": ["bottom-start", "bottom", "bottom-end", "top-start", "top", "top-end"],
-    "closeOnSelect": ["auto", "always", "never"],
     "count": ["days", "nights"],
     "position": ["start", "end"],
-    "calendar": ["gregory"]
+    "calendar": ["gregory"],
+    "confirm": ["on", "off"]
   },
   "resolution": {
     "size": ["prop", "field", "defaults", "md"],
     "variant": ["prop", "defaults", "outline"],
     "placement": ["prop", "defaults", "bottom-start"],
-    "closeOnSelect": ["prop", "defaults", "auto"],
     "count": ["prop", "defaults", "days"],
     "months": ["prop", "defaults", "2"],
     "locale": ["prop", "slotted", "en-US"],
     "timeZone": ["prop", "defaults", "runtime"],
-    "calendar": ["prop", "defaults", "gregory"]
+    "calendar": ["prop", "defaults", "gregory"],
+    "confirm": ["prop", "defaults", "on"]
   },
   "provides": {
     "dateRangePickerDefaults": [
       "calendar",
-      "closeOnSelect",
+      "confirm",
       "count",
       "months",
       "placement",
@@ -186,6 +183,9 @@
     "clear",
     "end",
     "start",
+    "bounds",
+    "order",
+    "unavailable",
     "days.length",
     "days.between",
     "days.atLeast",
@@ -202,15 +202,10 @@
     "readonly": "data-readonly",
     "required": "data-required",
     "open": "data-open",
-    "current": "data-current",
-    "selected": "data-selected"
+    "current": "data-current"
   },
   "dataAttributes": {
-    "data-count": "days or nights, on the root",
-    "data-placeholder": "on head-start or head-end: the end does not exist yet",
-    "data-pending": "on head-start, head-end or length: what is shown is the pending end, not the value",
-    "data-placement": "the side and alignment the positioner resolved",
-    "data-presentation": "popover or sheet"
+    "data-count": "days or nights, on the root"
   },
   "stateModel": {
     "value": {
@@ -235,9 +230,7 @@
       "carries": ["value", "previous", "reason", "event"]
     }
   },
-  "literals": {
-    "--slotted-date-range-picker-sheet-inline-size": "100%, which the shared exemption list already holds."
-  },
+  "literals": {},
   "members": {
     "dateRangePicker": {
       "nativeElement": "div",
@@ -245,12 +238,12 @@
         "size": "md",
         "variant": "outline",
         "placement": "bottom-start",
-        "closeOnSelect": "auto",
         "count": "days",
         "months": 2,
         "contiguous": true,
         "calendar": "gregory",
-        "clearable": false
+        "clearable": false,
+        "confirm": true
       },
       "capabilities": [
         "value",
@@ -276,47 +269,37 @@
         "readonly",
         "required",
         "open",
-        "current",
-        "selected"
+        "current"
       ],
-      "parts": [
-        "root",
-        "control",
-        "start",
-        "separator",
-        "end",
-        "clear",
-        "trigger",
-        "positioner",
-        "content",
-        "grip",
-        "head",
-        "head-start",
-        "head-end",
-        "length",
-        "limit",
-        "panels",
-        "presets",
-        "preset",
-        "footer"
-      ]
+      "parts": ["root", "control", "start", "separator", "end", "clear", "trigger"]
     }
   },
   "scenarios": {
     "dateRangePicker": [
       "playground",
-      "sizes",
-      "variants",
       "length",
       "limits",
-      "unavailable",
       "presets",
+      "confirm",
+      "weeks",
+      "unavailable",
       "open-end",
+      "sizes",
+      "variants",
       "states",
       "forms",
       "narrow",
       "composition",
       "keyboard"
     ]
+  },
+  "over": {
+    "draws": "data-over on the days of a run past maxLength",
+    "says": "by how much, in the footer, with Apply off"
+  },
+  "months": {
+    "default": 2,
+    "oneColumn": 1,
+    "weeks": "as many as the longer month needs, unless fixedWeeks"
   }
 }

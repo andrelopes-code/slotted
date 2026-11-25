@@ -1,10 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
-import {
-  SlDateRangePicker,
-  SlDateRangePickerPreset,
-  SlDateRangePickerPresets,
-  type DateRange,
-} from '@slotted/angular/date-range-picker';
+import { SlDateRangePicker, type DateRange } from '@slotted/angular/date-range-picker';
 import { SlField, SlFieldLabel } from '@slotted/angular/field';
 import { SlGrid } from '@slotted/angular/grid';
 import { SlStack } from '@slotted/angular/stack';
@@ -18,14 +13,20 @@ import {
   SlStatCardPeriod,
   SlStatCardValue,
 } from '@slotted/angular/stat-card';
-import { addDays, daysBetween, plainDate, type PlainDate } from '@slotted/core/date';
+import {
+  addDays,
+  daysBetween,
+  plainDate,
+  type PickerPreset,
+  type PlainDate,
+} from '@slotted/core/date';
 
 const TODAY = plainDate(2026, 9, 30);
 const LAST_7_DAYS: DateRange = { start: addDays(TODAY, -6), end: TODAY };
-const PRESETS: { label: string; range: DateRange }[] = [
-  { label: 'Last 7 days', range: LAST_7_DAYS },
-  { label: 'Last 30 days', range: { start: addDays(TODAY, -29), end: TODAY } },
-  { label: 'This quarter', range: { start: plainDate(2026, 7, 1), end: TODAY } },
+const PRESETS: PickerPreset<DateRange>[] = [
+  { label: 'Last 7 days', value: LAST_7_DAYS },
+  { label: 'Last 30 days', value: { start: addDays(TODAY, -29), end: TODAY } },
+  { label: 'This quarter', value: { start: plainDate(2026, 7, 1), end: TODAY } },
 ];
 
 /** Orders shipped on one day, from the Northwind warehouse feed. */
@@ -43,8 +44,6 @@ const ordersBetween = (start: PlainDate, end: PlainDate) => {
   selector: 'app-date-range-picker-reporting-filter',
   imports: [
     SlDateRangePicker,
-    SlDateRangePickerPreset,
-    SlDateRangePickerPresets,
     SlField,
     SlFieldLabel,
     SlGrid,
@@ -65,15 +64,10 @@ const ordersBetween = (start: PlainDate, end: PlainDate) => {
         <div
           slDateRangePicker
           [max]="today"
+          [presets]="presets"
           [value]="period()"
           (valueChange)="period.set($event.value)"
-        >
-          <div slDateRangePickerPresets>
-            @for (preset of presets; track preset.label) {
-              <button [slDateRangePickerPreset]="preset.range">{{ preset.label }}</button>
-            }
-          </div>
-        </div>
+        ></div>
       </div>
       <div slGrid [gap]="4" minItemWidth="sm">
         <div slStatCard goodWhen="up" [delta]="figures().delta">

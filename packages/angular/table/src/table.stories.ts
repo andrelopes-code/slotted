@@ -12,7 +12,6 @@ import type {
 import { SlAvatar } from '@slotted/angular/avatar';
 import { SlIconButton } from '@slotted/angular/button';
 import { SlCheckbox } from '@slotted/angular/checkbox';
-import { SlDateRangePickerPreset } from '@slotted/angular/date-range-picker';
 import { SlDateTimeRangePickerPreset } from '@slotted/angular/datetime-range-picker';
 import { SlLink } from '@slotted/angular/link';
 import { SlNumberField, SlNumberFieldInput } from '@slotted/angular/number-field';
@@ -107,7 +106,6 @@ const meta: Meta<TableStoryArgs> = {
         SlTable,
         SlTableContent,
         ...SL_TABLE_PARTS,
-        SlDateRangePickerPreset,
         SlDateTimeRangePickerPreset,
         SlTimeRangePickerPreset,
         SlSelect,
@@ -1059,8 +1057,16 @@ function rangeProps() {
       kind: 'date',
     } as DateFilter | null,
     /** The range picker's presets: the application's own periods, in its own words. */
-    september: { end: plainDate(2026, 9, 30), start: plainDate(2026, 9, 1) },
-    quarter: { end: plainDate(2026, 12, 31), start: plainDate(2026, 10, 1) },
+    periods: [
+      {
+        label: 'September',
+        value: { end: plainDate(2026, 9, 30), start: plainDate(2026, 9, 1) },
+      },
+      {
+        label: 'Q4',
+        value: { end: plainDate(2026, 12, 31), start: plainDate(2026, 10, 1) },
+      },
+    ],
     visible(this: { dueAt: DateFilter | null }) {
       const keep = createFilterPredicate(this.dueAt);
       return INVOICES.filter((row) => keep(row.dueAt));
@@ -1069,10 +1075,6 @@ function rangeProps() {
 }
 
 const RANGE = `
-  <ng-template #presets>
-    <button slDateRangePickerPreset [range]="september">September</button>
-    <button slDateRangePickerPreset [range]="quarter">Q4</button>
-  </ng-template>
   <div slTable [columns]="3" variant="framed">
     <div slTableContent>
       <thead slTableHead>
@@ -1082,7 +1084,7 @@ const RANGE = `
           <th slTableColumnHeader text="nowrap">
             Due
             <span slTableColumnActions>
-              <span slTableDateFilter columnLabel="due" [presets]="presets" [(value)]="dueAt"></span>
+              <span slTableDateFilter columnLabel="due" [presets]="periods" [(value)]="dueAt"></span>
             </span>
           </th>
         </tr>
@@ -1117,7 +1119,7 @@ export const FilterRange: Story = {
 <div class="slotted-demo-grid" data-columns="1">
   ${scene(
     'Between two dates, drawn as one range picker',
-    "Where two date pickers stood, one date-range-picker: it says the run's length while it is drawn, takes the ends in either order, and carries the application's presets — September and Q4 here, as a template of slDateRangePickerPreset buttons. The descriptor is unchanged: between, an ISO day and another, whichever control produced them.",
+    "Where two date pickers stood, one date-range-picker: it says the run's length while it is drawn, takes the ends in either order, and carries the application's presets — September and Q4 here. The descriptor is unchanged: between, an ISO day and another, whichever control produced them.",
     RANGE,
   )}
 </div>`,

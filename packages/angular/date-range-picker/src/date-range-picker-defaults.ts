@@ -6,13 +6,6 @@ export type { DateRange } from '@slotted/angular/calendar';
 export type DateRangePickerPlacement =
   'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
 
-/**
- * Whether choosing closes the surface. `auto` closes when the run becomes
- * whole — by the second press, or by a preset — and stays open after the
- * first, because the second press has to reach the same surface.
- */
-export type DateRangePickerCloseOnSelect = 'auto' | 'always' | 'never';
-
 export type DateRangePickerSize = 'sm' | 'md' | 'lg';
 export type DateRangePickerVariant = 'outline' | 'subtle' | 'plain';
 export type DateRangePickerCalendar = 'gregory';
@@ -29,7 +22,8 @@ export type DateRangePickerPosition = 'start' | 'end';
 
 export interface DateRangePickerDefaults {
   calendar: DateRangePickerCalendar;
-  closeOnSelect: DateRangePickerCloseOnSelect;
+  /** Whether the panel keeps a draft until Apply. */
+  confirm: boolean;
   count: DateRangePickerCount;
   months: number;
   placement: DateRangePickerPlacement;
@@ -40,7 +34,7 @@ export interface DateRangePickerDefaults {
 
 const FALLBACK: DateRangePickerDefaults = {
   calendar: 'gregory',
-  closeOnSelect: 'auto',
+  confirm: true,
   count: 'days',
   months: 2,
   placement: 'bottom-start',

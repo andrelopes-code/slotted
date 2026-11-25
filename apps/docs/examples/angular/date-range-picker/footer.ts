@@ -1,33 +1,18 @@
 import { Component } from '@angular/core';
-import { SlButton } from '@slotted/angular/button';
 import { SlDateRangePicker, SlDateRangePickerFooter } from '@slotted/angular/date-range-picker';
 import { SlField, SlFieldDescription, SlFieldLabel } from '@slotted/angular/field';
 import { plainDate } from '@slotted/core/date';
 
 @Component({
   selector: 'app-date-range-picker-footer',
-  imports: [
-    SlButton,
-    SlDateRangePicker,
-    SlDateRangePickerFooter,
-    SlField,
-    SlFieldDescription,
-    SlFieldLabel,
-  ],
+  imports: [SlDateRangePicker, SlDateRangePickerFooter, SlField, SlFieldDescription, SlFieldLabel],
   template: `
     <div slField>
       <label slFieldLabel>Stock count freeze</label>
-      <div
-        slDateRangePicker
-        #picker="slDateRangePicker"
-        closeOnSelect="never"
-        [defaultValue]="freeze"
-      >
-        <div slDateRangePickerFooter>
-          <button slButton size="sm" type="button" (click)="picker.closeSurface()">Done</button>
-        </div>
+      <div slDateRangePicker confirm="false" [defaultValue]="freeze">
+        <span slDateRangePickerFooter>No shipments leave on these days</span>
       </div>
-      <span slFieldDescription>The calendar stays open until you press Done.</span>
+      <span slFieldDescription>The second press sets the freeze.</span>
     </div>
   `,
 })

@@ -7,8 +7,8 @@ import { describe, expect, it, vi } from 'vitest';
 import contract from '../../../../specs/components/date-range-picker/contract.json';
 import { Field, FieldLabel } from '../field';
 import { SlottedProvider } from '../i18n';
-import { DateRangePicker, DateRangePickerDefaultsProvider, DateRangePickerPreset } from './index';
-import type { DateRange, DateRangePickerHandle } from './index';
+import { DateRangePicker, DateRangePickerDefaultsProvider } from './index';
+import type { DateRange, DateRangePickerHandle, DateRangePickerProps } from './index';
 
 /** Focus moves into the surface in the frame after it opens. */
 const nextFrame = () =>
@@ -42,41 +42,6 @@ describe('what it is made of', () => {
     expect(document.querySelectorAll('[data-ui="calendar"]')).toHaveLength(1);
     expect(root()).toHaveAttribute('data-ui', contract.ui);
     expect(root()).toHaveAttribute('data-count', 'days');
-  });
-
-  it('declares every part the contract names', () => {
-    /* The grip is drawn in the sheet presentation only. */
-    vi.stubGlobal('matchMedia', (query: string) => ({
-      matches: true,
-      media: query,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-    }));
-    render(
-      <DateRangePicker
-        clearable
-        defaultOpen
-        defaultValue={RUN}
-        footer={<button type="button">Aplicar</button>}
-        locale="pt-BR"
-        maxLength={7}
-        presets={<DateRangePickerPreset value={RUN}>This week</DateRangePickerPreset>}
-      />,
-    );
-
-    const present = new Set(
-      [
-        ...document.querySelectorAll(
-          '[data-ui="date-range-picker"][data-part], [data-ui="date-range-picker"] [data-part]',
-        ),
-      ].map((element) => (element as HTMLElement).dataset['part']),
-    );
-    for (const name of contract.members.dateRangePicker.parts) {
-      if (name === 'root') continue;
-      expect(present, `${name} is not rendered`).toContain(name);
-    }
-
-    vi.unstubAllGlobals();
   });
 
   it('carries the dialog role and points the trigger at it while it is open', () => {
@@ -137,238 +102,9 @@ describe('what the trigger says', () => {
   });
 });
 
-describe('the length, said while the run is drawn', () => {
-  it('says the length of a whole value', () => {
-    render(<DateRangePicker defaultOpen defaultValue={RUN} locale="pt-BR" />);
-    expect(part('length')).toHaveTextContent('5 days');
-    expect(part('length')).toHaveAttribute('aria-live', 'polite');
-    expect(part('length')).not.toHaveAttribute('data-pending');
-  });
-
-  it('says the length the pending end would give, and marks it pending', () => {
-    render(
-      <DateRangePicker
-        count="nights"
-        defaultOpen
-        defaultValue={{ start: SEVENTH, end: null }}
-        locale="pt-BR"
-      />,
-    );
-
-    fireEvent.pointerEnter(dayFor(11));
-    expect(part('length')).toHaveTextContent('4 nights');
-    expect(part('length')).toHaveAttribute('data-pending');
-    expect(part('head-end')).toHaveAttribute('data-pending');
-    expect(part('head-start')).not.toHaveAttribute('data-placeholder');
-  });
-
-  it('draws the missing end as a placeholder', () => {
-    render(<DateRangePicker defaultOpen locale="pt-BR" />);
-    expect(part('head-start')).toHaveAttribute('data-placeholder');
-    expect(part('head-end')).toHaveAttribute('data-placeholder');
-    expect(part('length')).toBeEmptyDOMElement();
-  });
-
-  it('counts the same day as one day or no nights', () => {
-    const { rerender } = render(
-      <DateRangePicker defaultOpen locale="pt-BR" value={{ start: SEVENTH, end: SEVENTH }} />,
-    );
-    expect(part('length')).toHaveTextContent('1 day');
-    rerender(
-      <DateRangePicker
-        count="nights"
-        defaultOpen
-        locale="pt-BR"
-        value={{ start: SEVENTH, end: SEVENTH }}
-      />,
-    );
-    expect(part('length')).toHaveTextContent('0 nights');
-  });
-
-  it('names a limit while one is set', () => {
-    render(
-      <DateRangePicker count="nights" defaultOpen locale="pt-BR" maxLength={7} minLength={2} />,
-    );
-    expect(part('limit')).toHaveTextContent('2 to 7 nights');
-  });
-});
-
 describe('choosing a run', () => {
-  it('holds the first press as a draft and emits the whole run on the second', () => {
-    const onValueChange = vi.fn();
-    const onPositionChange = vi.fn();
-    render(
-      <DateRangePicker
-        defaultOpen
-        locale="pt-BR"
-        onPositionChange={onPositionChange}
-        onValueChange={onValueChange}
-      />,
-    );
-
-    fireEvent.click(dayFor(7));
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(onPositionChange).toHaveBeenLastCalledWith(
-      'end',
-      expect.objectContaining({ reason: 'select' }),
-    );
-    expect(part('end')).toHaveAttribute('data-current');
-    expect(part('head-start')).toHaveTextContent('7');
-
-    fireEvent.click(dayFor(11));
-    expect(onValueChange).toHaveBeenCalledTimes(1);
-    /* The calendar opens on today's month, so the run is read by its days. */
-    const [run, request] = onValueChange.mock.lastCall as [DateRange, { reason: string }];
-    expect([run.start?.day, run.end?.day]).toEqual([7, 11]);
-    expect(run.start?.month).toBe(run.end?.month);
-    expect(request.reason).toBe('select');
-    expect(onPositionChange).toHaveBeenLastCalledWith(
-      'start',
-      expect.objectContaining({ reason: 'select' }),
-    );
-  });
-
-  it('closes when the run becomes whole and returns focus to the trigger', () => {
-    const onOpenChange = vi.fn();
-    render(<DateRangePicker defaultOpen locale="pt-BR" onOpenChange={onOpenChange} />);
-
-    fireEvent.click(dayFor(7));
-    expect(onOpenChange).not.toHaveBeenCalled();
-    fireEvent.click(dayFor(11));
-    expect(onOpenChange).toHaveBeenLastCalledWith(
-      false,
-      expect.objectContaining({ reason: 'select' }),
-    );
-    expect(trigger()).toHaveFocus();
-  });
-
-  it('stays open when asked to never close, and closes on any press when asked to always', () => {
-    const onOpenChange = vi.fn();
-    const { unmount } = render(
-      <DateRangePicker
-        closeOnSelect="never"
-        defaultOpen
-        locale="pt-BR"
-        onOpenChange={onOpenChange}
-      />,
-    );
-    fireEvent.click(dayFor(7));
-    fireEvent.click(dayFor(11));
-    expect(onOpenChange).not.toHaveBeenCalled();
-    unmount();
-
-    render(
-      <DateRangePicker
-        closeOnSelect="always"
-        defaultOpen
-        locale="pt-BR"
-        onOpenChange={onOpenChange}
-      />,
-    );
-    fireEvent.click(dayFor(7));
-    expect(onOpenChange).toHaveBeenLastCalledWith(
-      false,
-      expect.objectContaining({ reason: 'select' }),
-    );
-  });
-
   /** The gap no surveyed implementation closes well: a panel closed with one end chosen. */
-  it('abandons the draft when the surface closes', async () => {
-    const onValueChange = vi.fn();
-    render(
-      <DateRangePicker
-        defaultOpen
-        defaultValue={RUN}
-        locale="pt-BR"
-        onValueChange={onValueChange}
-      />,
-    );
-
-    fireEvent.click(dayFor(20));
-    fireEvent.keyDown(document, { key: 'Escape' });
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(document.querySelector('input[data-part="hidden-input"]')).toHaveValue('2026-09-07');
-
-    open();
-
-    await nextFrame();
-    expect(part('head-start')).toHaveTextContent('7');
-    expect(part('head-end')).toHaveTextContent('11');
-  });
-
   /** With `position: 'end'` the next press writes the end instead of restarting. */
-  it('writes the end when the end is the current position', () => {
-    const onValueChange = vi.fn();
-    render(
-      <DateRangePicker
-        defaultOpen
-        defaultValue={RUN}
-        locale="pt-BR"
-        onValueChange={onValueChange}
-        position="end"
-      />,
-    );
-
-    fireEvent.click(dayFor(20));
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      { start: d(7), end: d(20) },
-      expect.objectContaining({ reason: 'select' }),
-    );
-  });
-
-  it('treats a typed open end as an open run', () => {
-    const onValueChange = vi.fn();
-    render(
-      <DateRangePicker
-        defaultOpen
-        defaultValue={{ start: SEVENTH, end: null }}
-        locale="pt-BR"
-        onValueChange={onValueChange}
-      />,
-    );
-    fireEvent.click(dayFor(11));
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      { start: d(7), end: d(11) },
-      expect.objectContaining({ reason: 'select' }),
-    );
-  });
-
-  it('writes a preset with the select reason, marks the one equal to the value, and closes', () => {
-    const onValueChange = vi.fn();
-    const onOpenChange = vi.fn();
-    render(
-      <DateRangePicker
-        defaultOpen
-        locale="pt-BR"
-        onOpenChange={onOpenChange}
-        onValueChange={onValueChange}
-        presets={
-          <>
-            <DateRangePickerPreset value={RUN}>This week</DateRangePickerPreset>
-            <DateRangePickerPreset value={() => ({ start: d(1), end: d(30) })}>
-              This month
-            </DateRangePickerPreset>
-          </>
-        }
-        value={RUN}
-      />,
-    );
-
-    const presets = document.querySelectorAll('[data-part="preset"]');
-    expect(presets[0]).toHaveAttribute('data-selected');
-    expect(presets[1]).not.toHaveAttribute('data-selected');
-
-    fireEvent.click(presets[1] as HTMLElement);
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      { start: d(1), end: d(30) },
-      expect.objectContaining({ reason: 'select' }),
-    );
-    expect(onOpenChange).toHaveBeenLastCalledWith(
-      false,
-      expect.objectContaining({ reason: 'select' }),
-    );
-  });
-
   it('empties both ends from one clear', () => {
     const onValueChange = vi.fn();
     render(
@@ -413,24 +149,6 @@ describe('choosing a run', () => {
 });
 
 describe('the limits', () => {
-  it('refuses the days beyond the limit while a start is chosen, and explains it', () => {
-    render(
-      <DateRangePicker
-        count="nights"
-        defaultOpen
-        defaultValue={{ start: SEVENTH, end: null }}
-        locale="pt-BR"
-        maxLength={7}
-        minLength={2}
-      />,
-    );
-    expect(dayFor(8).closest('[data-part="cell"]')).toHaveAttribute('data-unavailable');
-    expect(dayFor(9).closest('[data-part="cell"]')).not.toHaveAttribute('data-unavailable');
-    expect(dayFor(14).closest('[data-part="cell"]')).not.toHaveAttribute('data-unavailable');
-    expect(dayFor(15).closest('[data-part="cell"]')).toHaveAttribute('data-unavailable');
-    expect(part('limit')).toHaveTextContent('2 to 7 nights');
-  });
-
   it('refuses the days beyond an unavailable one while the run must be contiguous', () => {
     const { rerender } = render(
       <DateRangePicker
@@ -566,37 +284,6 @@ describe('opening and closing', () => {
 });
 
 describe('what an application sets once', () => {
-  it('takes the unit and the months from a provider, and its words from the language in force', () => {
-    render(
-      <SlottedProvider catalogs={{ 'pt-BR': PT_BR }} locale="pt-BR">
-        <DateRangePickerDefaultsProvider count="nights" months={1}>
-          <DateRangePicker defaultOpen defaultValue={RUN} />
-        </DateRangePickerDefaultsProvider>
-      </SlottedProvider>,
-    );
-    expect(root()).toHaveAttribute('data-count', 'nights');
-    expect(part('length')).toHaveTextContent('4 noites');
-    // language: pt-BR
-    expect(trigger().getAttribute('aria-label')).toContain('Alterar período');
-    // language: en-US
-    expect(document.querySelectorAll('[data-part="grid"]')).toHaveLength(1);
-  });
-
-  it('lays its own messages over the catalog, a counting phrase included', () => {
-    render(
-      <DateRangePicker
-        count="nights"
-        defaultOpen
-        defaultValue={RUN}
-        messages={{
-          nights: { length: '{count, plural, one {# room-night} other {# room-nights}}' },
-        }}
-      />,
-    );
-    expect(part('length')).toHaveTextContent('4 room-nights');
-    expect(trigger().getAttribute('aria-label')).toContain('Change range');
-  });
-
   it('changes its words and its dates together with the language in force', () => {
     const inLocale = (locale: string) => (
       <SlottedProvider catalogs={{ 'pt-BR': PT_BR }} locale={locale}>
@@ -634,23 +321,6 @@ describe('the composition surface', () => {
   it('substitutes the element the root renders', () => {
     render(<DateRangePicker locale="pt-BR" render={(props) => <section {...props} />} />);
     expect(root().tagName).toBe('SECTION');
-  });
-
-  it('lets the consumer’s own handlers run first', () => {
-    const onClick = vi.fn();
-    render(
-      <DateRangePicker
-        defaultOpen
-        locale="pt-BR"
-        presets={
-          <DateRangePickerPreset onClick={onClick} value={RUN}>
-            This week
-          </DateRangePickerPreset>
-        }
-      />,
-    );
-    fireEvent.click(part('preset'));
-    expect(onClick).toHaveBeenCalled();
   });
 });
 
@@ -693,27 +363,6 @@ describe('where focus goes when it opens', () => {
     render(<DateRangePicker defaultOpen defaultValue={RUN} locale="en-US" />);
 
     expect(document.activeElement).toBe(document.body);
-  });
-
-  it('keeps Tab inside the surface while it is open', () => {
-    render(
-      <DateRangePicker
-        defaultOpen
-        defaultValue={RUN}
-        footer={<button type="button">Apply</button>}
-        locale="en-US"
-        presets={<DateRangePickerPreset value={RUN}>This week</DateRangePickerPreset>}
-      />,
-    );
-    const first = screen.getByRole('button', { name: 'This week' });
-    const last = screen.getByRole('button', { name: 'Apply' });
-
-    act(() => last.focus());
-    fireEvent.keyDown(last, { key: 'Tab' });
-    expect(first).toHaveFocus();
-
-    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
-    expect(last).toHaveFocus();
   });
 });
 
@@ -764,3 +413,262 @@ describe('inside a field', () => {
     expect(new Set(ids).size).toBe(3);
   });
 });
+
+describe('the head of the panel', () => {
+  it('declares every part the contract names, and opens the shared panel', () => {
+    draw({ clearable: true, defaultOpen: true, defaultValue: RUN });
+
+    for (const name of contract.members.dateRangePicker.parts) {
+      expect(part(name), name).toBeInTheDocument();
+    }
+    expect(document.querySelector('[data-ui="picker-panel"][data-part="root"]')).toHaveAttribute(
+      'data-kind',
+      'date-range',
+    );
+  });
+
+  it('writes each end in words, and the length between them', () => {
+    draw({ defaultOpen: true, defaultValue: RUN });
+
+    expect(halves()).toEqual(['Mon, Sep 7', 'Fri, Sep 11']);
+    expect(span()).toBe('5 days');
+  });
+
+  it('says the length the pending end would give', () => {
+    draw({ defaultOpen: true, defaultValue: { start: d(21), end: d(22) } });
+
+    fireEvent.click(dayFor(7));
+    fireEvent.pointerEnter(dayFor(9));
+    expect(span()).toBe('3 days');
+    expect(halves()).toEqual(['Mon, Sep 7', 'Choose a day']);
+  });
+
+  it('counts nights when asked, and the same day as none', () => {
+    const { unmount } = render(
+      <DateRangePicker {...base} count="nights" defaultOpen defaultValue={RUN} />,
+    );
+    expect(span()).toBe('4 nights');
+    unmount();
+
+    draw({ count: 'nights', defaultOpen: true, defaultValue: { start: d(7), end: d(7) } });
+    expect(span()).toBe('0 nights');
+  });
+
+  it('marks the end the next press writes, and follows the press on the other', () => {
+    draw({ defaultOpen: true, defaultValue: RUN });
+    expect(currentHalf()).toBe('Start');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fri, Sep 11' }));
+    expect(currentHalf()).toBe('End');
+  });
+
+  it('lengthens and shortens the run inside its limits', () => {
+    draw({
+      count: 'nights',
+      defaultOpen: true,
+      defaultValue: RUN,
+      maxLength: 5,
+      minLength: 4,
+    });
+    const [shorter, longer] = ['Shorten', 'Lengthen'].map((name) =>
+      screen.getByRole('button', { name }),
+    );
+    expect(shorter).toBeDisabled();
+
+    fireEvent.click(longer!);
+    expect(span()).toBe('5 nights');
+    expect(longer).toBeDisabled();
+    expect(shorter).toBeEnabled();
+  });
+});
+
+describe('the draft', () => {
+  it('opens on the first press, closes on the second, and reaches the value on Apply', () => {
+    const change = draw({ defaultOpen: true, defaultValue: RUN });
+
+    fireEvent.click(dayFor(14));
+    expect(halves()).toEqual(['Mon, Sep 14', 'Choose a day']);
+    expect(apply()).toBeDisabled();
+
+    fireEvent.click(dayFor(18));
+    expect(halves()).toEqual(['Mon, Sep 14', 'Fri, Sep 18']);
+    expect(change).not.toHaveBeenCalled();
+
+    fireEvent.click(apply());
+    expect(change.mock.lastCall?.[0]).toEqual({ start: d(14), end: d(18) });
+    expect(change.mock.lastCall?.[1].reason).toBe('select');
+    expect(trigger()).toHaveFocus();
+  });
+
+  it('orders the two ends whichever is pressed first', () => {
+    const change = draw({ defaultOpen: true, defaultValue: RUN });
+
+    fireEvent.click(dayFor(18));
+    fireEvent.click(dayFor(14));
+    fireEvent.click(apply());
+    expect(change.mock.lastCall?.[0]).toEqual({ start: d(14), end: d(18) });
+  });
+
+  it('is abandoned when the panel closes', () => {
+    const change = draw({ defaultOpen: true, defaultValue: RUN });
+
+    fireEvent.click(dayFor(14));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    open();
+    expect(halves()).toEqual(['Mon, Sep 7', 'Fri, Sep 11']);
+    expect(change).not.toHaveBeenCalled();
+  });
+
+  it('writes the end when the end is the current position', () => {
+    const change = draw({ defaultOpen: true, defaultPosition: 'end', defaultValue: RUN });
+
+    fireEvent.click(dayFor(18));
+    fireEvent.click(apply());
+    expect(change.mock.lastCall?.[0]).toEqual({ start: d(7), end: d(18) });
+  });
+
+  it('treats a typed open end as an open run', () => {
+    const change = draw({ defaultOpen: true, defaultValue: { start: d(7), end: null } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Choose a day' }));
+    fireEvent.click(dayFor(11));
+    fireEvent.click(apply());
+    expect(change.mock.lastCall?.[0]).toEqual(RUN);
+  });
+
+  it('is written by the press that closes the run, without a confirmation', () => {
+    const change = draw({ confirm: false, defaultOpen: true, defaultValue: RUN });
+
+    fireEvent.click(dayFor(14));
+    expect(change).not.toHaveBeenCalled();
+    fireEvent.click(dayFor(18));
+    expect(change.mock.lastCall?.[0]).toEqual({ start: d(14), end: d(18) });
+    expect(document.querySelector('[data-part="positioner"][data-open]')).toBeNull();
+  });
+
+  it('is emptied by Clear, and Apply writes the empty value', () => {
+    const change = draw({ defaultOpen: true, defaultValue: RUN });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.click(apply());
+    expect(change.mock.lastCall?.[0]).toBeNull();
+  });
+});
+
+describe('the rules of a run', () => {
+  it('say the limit, and refuse the days beyond it while a start is chosen', () => {
+    draw({ count: 'nights', defaultOpen: true, defaultValue: RUN, maxLength: 3, minLength: 2 });
+    fireEvent.click(dayFor(14));
+
+    expect(dayFor(17)).not.toHaveAttribute('aria-disabled');
+    expect(dayFor(18)).toHaveAttribute('aria-disabled', 'true');
+    expect(hint()).toBe('2 to 3 nights');
+  });
+
+  it('say by how much a run is over, and mark its days past the limit', () => {
+    draw({
+      count: 'nights',
+      defaultOpen: true,
+      defaultValue: { start: d(7), end: d(12) },
+      maxLength: 3,
+    });
+
+    expect(hint()).toBe('2 nights over the limit');
+    expect(apply()).toBeDisabled();
+    expect(
+      [...document.querySelectorAll('[data-part="cell"][data-over]')].map((x) => x.textContent),
+    ).toEqual(['11', '12']);
+  });
+
+  it('say an end before its start, and an unavailable day inside', () => {
+    const { unmount } = render(
+      <DateRangePicker {...base} defaultOpen defaultValue={{ start: d(11), end: d(7) }} />,
+    );
+    expect(hint()).toBe('The end must come after the start');
+    unmount();
+
+    draw({ defaultOpen: true, defaultValue: RUN, isDateUnavailable: (date) => date.day === 9 });
+    expect(hint()).toBe('Crosses an unavailable day');
+  });
+});
+
+describe('the shortcuts', () => {
+  const week: DateRange = { start: d(14), end: d(18) };
+
+  it('say the run they write, and mark the one the draft is', () => {
+    const change = draw({
+      defaultOpen: true,
+      presets: [{ label: 'Next week', value: () => week }],
+    });
+    const preset = screen.getByRole('button', { name: /^Next week/ });
+    expect(preset).toHaveTextContent('Sep 14');
+
+    fireEvent.click(preset);
+    expect(preset).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(apply());
+    expect(change.mock.lastCall?.[0]).toEqual(week);
+  });
+
+  it('are off when the rules refuse them', () => {
+    draw({ defaultOpen: true, maxLength: 3, presets: [{ label: 'Next week', value: week }] });
+
+    expect(screen.getByRole('button', { name: /^Next week/ })).toBeDisabled();
+  });
+});
+
+describe('what the application states once', () => {
+  it('is the unit, the months and the confirmation', () => {
+    render(
+      <DateRangePickerDefaultsProvider confirm={false} count="nights" months={1}>
+        <DateRangePicker {...base} defaultOpen defaultValue={RUN} />
+      </DateRangePickerDefaultsProvider>,
+    );
+
+    expect(span()).toBe('4 nights');
+    expect(document.querySelectorAll('[data-part="month"]')).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: 'Apply' })).toBeNull();
+  });
+
+  it('is laid over by its own messages, a counting phrase included', () => {
+    draw({
+      defaultOpen: true,
+      defaultValue: RUN,
+      messages: { days: { length: '{count} working days' }, start: 'Pickup' },
+    });
+
+    expect(span()).toBe('5 working days');
+    expect(currentHalf()).toBe('Pickup');
+  });
+
+  it('is in the language in force', () => {
+    render(
+      <SlottedProvider catalogs={{ 'pt-BR': PT_BR }} locale="pt-BR">
+        <DateRangePicker count="nights" defaultOpen defaultValue={RUN} />
+      </SlottedProvider>,
+    );
+
+    // language: pt-BR
+    expect(span()).toBe('4 noites');
+    expect(screen.getByRole('button', { name: 'Aplicar' })).toBeInTheDocument();
+    // language: en-US
+  });
+});
+
+const base = { locale: 'en-US' } as const;
+
+type Change = NonNullable<DateRangePickerProps['onValueChange']>;
+
+function draw(props: Partial<DateRangePickerProps> = {}) {
+  const change = vi.fn<Change>();
+  render(<DateRangePicker {...base} onValueChange={change} {...props} />);
+
+  return change;
+}
+
+const apply = () => screen.getByRole('button', { name: 'Apply' });
+const span = () => part('span-text').textContent;
+const hint = () => part('hint').textContent;
+const halves = () =>
+  [...document.querySelectorAll('[data-part="half-day"]')].map((half) => half.textContent);
+const currentHalf = () =>
+  document.querySelector('[data-part="half"][data-current] [data-part="half-label"]')?.textContent;

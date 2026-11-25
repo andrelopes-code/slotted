@@ -7,7 +7,7 @@ import type {
 
 const FALLBACK: DateRangePickerDefaults = {
   calendar: 'gregory',
-  closeOnSelect: 'auto',
+  confirm: true,
   count: 'days',
   months: 2,
   placement: 'bottom-start',
@@ -39,7 +39,7 @@ export function DateRangePickerDefaultsProvider({
     <DateRangePickerDefaultsContext.Provider
       value={{
         calendar: defaults.calendar ?? inherited.calendar,
-        closeOnSelect: defaults.closeOnSelect ?? inherited.closeOnSelect,
+        confirm: defaults.confirm ?? inherited.confirm,
         count: defaults.count ?? inherited.count,
         months: defaults.months ?? inherited.months,
         placement: defaults.placement ?? inherited.placement,
