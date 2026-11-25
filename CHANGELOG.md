@@ -2,6 +2,59 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.40 — 2026-11-25
+
+- test(angular): the datetime-picker spec holds no empty suite, and the inline-message snippet is formatted
+- test(agent-docs): the inline-message page is read in the words it states
+- chore: an editor's swap file is no change of the tree
+- feat(release, docs): every release publishes the docs and both Storybooks on GitHub Pages
+- test(picker-panel): the sheet, the backdrop and the stories are read on the shared panel
+- fix(calendar, picker-panel): a chosen day and a length are drawn in forced colors
+- chore(demo): move Nexora to 0.1.0-beta.39 and the tokens of the picker panel
+- fix(agent-docs): a shell with no reference is no family of the site
+- refactor(core): the list helpers no panel draws are gone
+- feat(datetime-range-picker): the four halves of a run on one panel
+- feat(time-range-picker): the day as one axis, a clock for each end, and lengths
+- feat(datetime-picker): a month beside a clock, and a draft that Apply writes
+- feat(date-range-picker): each end in words, the length as a control, and shortcuts with their dates
+- feat(date-picker): the value in words, shortcuts with their date, and the year a press away
+- feat(time-picker): a clock behind the field, and a draft that Apply writes
+- feat(calendar): a header per month, and weeks that are chosen whole
+- feat(clock): every hour of the day in one grid
+- feat(core): the arithmetic of a clock, and how far a date is
+- docs(result-state): the page of the family, with 12 examples in both frameworks
+- docs(inline-message): the page of the family, with 11 examples in both frameworks
+- docs(skeleton): the page of the family, with 11 examples in both frameworks
+- docs(link): the page of the family, with 10 examples in both frameworks
+- docs(card): the page of the family, with 11 examples in both frameworks
+- docs(visually-hidden): the page of the family, with 4 examples in both frameworks
+- docs(aspect-ratio): the page of the family, with 7 examples in both frameworks
+- docs(divider): the page of the family, with 8 examples in both frameworks
+- docs(container): the page of the family, with 6 examples in both frameworks
+- docs(grid): the page of the family, with 8 examples in both frameworks
+- docs(inline): the page of the family, with 7 examples in both frameworks
+- docs(stack): the page of the family, with 6 examples in both frameworks
+- fix(link): a target on the anchor decides over external in Angular
+- fix(divider): the name a page writes wins over the label in React
+- fix(skeleton): a placeholder that covers content takes its exact place
+- fix(aspect-ratio): the frame grows around taller content in a flex column
+- fix(grid): a zero gap keeps the stated columns
+- docs(tag): the page of the family, with 12 examples in both frameworks
+- docs(progress-indicator): the page of the family, with 12 examples in both frameworks
+- fix(progress-indicator): an indicator that is not loading draws nothing
+- docs(kbd): the page of the family, with 11 examples in both frameworks
+- fix(kbd): a key with no spoken name is read in Angular
+- docs(badge): the page of the family, with 12 examples in both frameworks
+- fix(badge): an anchored badge stays on its host in a layout that stretches its items
+- docs(avatar): the page of the family, with 12 examples in both frameworks
+- fix(avatar): a link and a button drawn as an avatar keep their own role
+- docs(alert): the page of the family, with 12 examples in both frameworks
+- fix(alert): the server HTML names the box by its title
+- docs(toast): the page of the family, with 16 examples in both frameworks
+- fix(toast): a controlled queue reaches the region in Angular, and defaultToasts seeds it in both bindings
+- docs(tree): the page of the family, with 28 examples in both frameworks
+- feat(tree)!: the cells of a row are written by name, and its keys, search and loading work in both bindings
+
 ## 0.1.0-beta.39 — 2026-11-24
 
 - fix(docs): a code block is highlighted whatever the load of the machine
