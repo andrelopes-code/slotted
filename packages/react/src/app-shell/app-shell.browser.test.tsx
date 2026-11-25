@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { page } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -11,6 +11,7 @@ import {
   AppShellMain,
   AppShellNav,
   AppShellNavBody,
+  AppShellNavRail,
 } from './app-shell-parts';
 import type { AppShellCanvas, AppShellNavSide } from './app-shell.types';
 
@@ -113,5 +114,83 @@ describe('the scrollbar of a region', () => {
 
     expect(bar('nav-body')).toBe('rgb(1, 2, 3) rgba(0, 0, 0, 0)');
     expect(bar('aside-body')).not.toBe(bar('nav-body'));
+  });
+});
+
+/**
+ * A scroll container that is not positioned neither clips nor scrolls an
+ * absolutely positioned descendant: the shell's root holds it instead, below
+ * the fold, and the document grows to reach it.
+ */
+describe('an absolutely positioned descendant of a scrolling region', () => {
+  beforeEach(async () => {
+    await page.viewport(1440, 900);
+  });
+  afterEach(async () => {
+    await page.viewport(412, 915);
+  });
+
+  const hidden: CSSProperties = {
+    blockSize: 1,
+    clipPath: 'inset(50%)',
+    inlineSize: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+  };
+  const long = (
+    <>
+      <div style={{ blockSize: 2000, flex: 'none' }} />
+      <span data-testid="hidden" style={hidden}>
+        Hidden text
+      </span>
+    </>
+  );
+
+  it.each<[string, ReactNode, number?]>([
+    ['main', <AppShellMain key="main">{long}</AppShellMain>],
+    ['nav', <AppShellNav key="nav">{long}</AppShellNav>],
+    [
+      'nav-body',
+      <AppShellNav key="nav">
+        <AppShellNavBody>{long}</AppShellNavBody>
+      </AppShellNav>,
+    ],
+    [
+      'nav-rail',
+      <AppShellNav key="nav">
+        <AppShellNavRail>{long}</AppShellNavRail>
+      </AppShellNav>,
+    ],
+    [
+      'aside-body',
+      <AppShellAside key="aside">
+        <AppShellAsideBody>{long}</AppShellAsideBody>
+      </AppShellAside>,
+    ],
+    /* The pane is a scroll container of its own where it is a row. */
+    ['aside', <AppShellAside key="aside">{long}</AppShellAside>, 500],
+  ])('scrolls with the %s region and not with the document', (part, region, inlineSize) => {
+    render(
+      <AppShell
+        asideMode="inline"
+        asideOpen
+        navOpen
+        scroll="content"
+        style={{ blockSize: '100dvh', inlineSize }}
+      >
+        {region}
+      </AppShell>,
+    );
+    const scroller = document.querySelector<HTMLElement>(`[data-part="${part}"]`)!;
+    const target = document.querySelector<HTMLElement>('[data-testid="hidden"]')!;
+    const root = document.documentElement;
+
+    expect(root.scrollHeight).toBe(root.clientHeight);
+
+    const before = target.getBoundingClientRect().top;
+    scroller.scrollTop = 100;
+
+    expect(scroller.scrollTop).toBe(100);
+    expect(target.getBoundingClientRect().top).toBeCloseTo(before - 100, 0);
   });
 });

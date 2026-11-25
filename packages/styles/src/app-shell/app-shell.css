@@ -471,6 +471,7 @@
     overflow-inline: hidden;
     overflow-block: auto;
     overscroll-behavior: contain;
+    position: relative;
     transition:
       inline-size var(--_duration) var(--_easing),
       visibility var(--_duration) step-start;
@@ -552,6 +553,7 @@
     overflow-block: auto;
     overscroll-behavior: contain;
     padding-block: var(--slotted-space-4, 0.5rem);
+    position: relative;
     scrollbar-gutter: stable;
     scrollbar-width: thin;
   }
@@ -576,8 +578,15 @@
     min-block-size: 0;
     min-inline-size: 0;
   }
+  /**
+   * Positioned because it scrolls, as every scroll container of the family is:
+   * one that is no containing block neither clips nor scrolls an absolutely
+   * positioned descendant, and a visually hidden caption below the fold made
+   * the document scroll.
+   */
   [data-ui-app-shell][data-scroll='content'] > [data-part-main] {
     overflow: auto;
+    position: relative;
   }
 
   /**
@@ -650,6 +659,7 @@
   }
   [data-ui-app-shell][data-scroll='content'] > [data-part-aside] {
     overflow: auto;
+    position: relative;
   }
   [data-ui-app-shell]:not([data-aside-mode='overlay']) > [data-part-aside]:not([data-open]) {
     display: none;
@@ -703,6 +713,7 @@
     overscroll-behavior: contain;
     padding-block: var(--slotted-space-5, 0.75rem);
     padding-inline: calc(var(--_row-inset) + var(--_row-gap));
+    position: relative;
     scrollbar-gutter: stable;
     scrollbar-width: thin;
   }
@@ -1440,6 +1451,7 @@
     overflow: auto;
     overscroll-behavior: contain;
     padding-block: var(--_row-inset);
+    position: relative;
     scrollbar-width: none;
   }
   [data-ui-app-shell] > [data-part-nav]:has(> [data-part-nav-rail]) > [data-part-nav-header] {
