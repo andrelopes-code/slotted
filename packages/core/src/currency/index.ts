@@ -4,7 +4,6 @@ export {
   currencyAffix,
   MAX_AMOUNT_DIGITS,
   requestInUnit,
-  shiftIntoRun,
   withAmount,
 } from './currency';
 export type {

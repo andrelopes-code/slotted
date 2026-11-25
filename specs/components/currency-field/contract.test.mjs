@@ -150,16 +150,19 @@ test('ships both entry models and defaults to the cash register', () => {
 /**
  * Under cents-first entry the text is generated on every keystroke, which is
  * the rule `number-field` forbids itself. It is legal here because there is no
- * typed text to protect: the digits are the value, the separator is never
- * typed, and the caret has exactly one legal position.
+ * typed text to protect: the digits are the value and the separator is never
+ * typed. The digits are still the reader's, so the caret keeps the count of the
+ * ones on its right, which the generated separators do not change.
  */
 test('states how each entry model treats the text, the caret and the digits', () => {
   assert.deepEqual(contract.entryModel.cents, {
     digitsAre: 'the value',
     shiftBy: 'minorUnits',
     writesTextOn: 'input',
-    caret: 'after the last digit',
-    caretIgnored: true,
+    caret: "the reader's, held by the count of digits on its right",
+    caretAtEnd: 'on a focus by keyboard and on a press of an amount that is nought',
+    leadingZeros: 'kept on the right of the caret until blur',
+    separatorDeleted: 'Backspace erases the digit on its left, Delete the digit on its right',
     separatorTyped: false,
     signKeys: ['-', '+'],
     pasteParsed: true,
@@ -171,14 +174,6 @@ test('states how each entry model treats the text, the caret and the digits', ()
   assert.deepEqual(contract.entryModel.natural.signKeys, []);
 });
 
-/**
- * The one legal caret position is also the only one the amount is read from.
- * A digit typed against the first character of `R$ 0,00` produced `R$ 20,00`
- * while the digits were read out of the text the browser had already edited:
- * the caret decided the amount, and a cash register has no caret. The digits
- * the reader added or took away are read from the difference between the text
- * before the edit and the text after it, so both edits land at the right.
- */
 /**
  * An amount is not an optional number by default. A total, a price and a
  * balance are all nought when nothing is in them, and a field that emitted
@@ -192,9 +187,13 @@ test('settles an emptied amount on nought unless the consumer allows nothing', (
   assert.equal(contract.entryModel.natural.emptyValue, 'allowEmpty');
 });
 
-test('reads the amount from the digits that changed, not from where they landed', () => {
-  assert.equal(contract.entryModel.cents.caretIgnored, true);
-  assert.equal(contract.entryModel.cents.caret, 'after the last digit');
+/**
+ * An edit applied to the last digit wherever the caret is leaves one way to
+ * correct an amount: erasing it from the right.
+ */
+test('edits the digit the caret is against, and is the cash register at the end', () => {
+  assert.match(contract.entryModel.cents.caret, /digits on its right/);
+  assert.match(contract.entryModel.cents.caretAtEnd, /keyboard/);
   assert.equal(contract.entryModel.natural.caret, "the reader's");
 });
 

@@ -84,7 +84,7 @@ export const Entry: Story = {
       <Scene
         label="Cents first, the cash register"
         layout="stack"
-        note="Type 1, 2, 3, 4 without touching a separator: the digits enter at the cent and shift left, and the caret stays after the last one."
+        note="Type 1, 2, 3, 4 without touching a separator: the digits enter at the cent and shift left, and a digit in the middle is corrected where it is."
       >
         <Field>
           <FieldLabel>Amount received</FieldLabel>
@@ -231,7 +231,7 @@ export const Alignment: Story = {
       <Scene
         label="Set against the reading end"
         layout="stack"
-        note="Read the column down: the cents of every row line up, so a magnitude is one glance rather than three. It is the default, and it is where the cents-first caret already lives."
+        note="Read the column down: the cents of every row line up, so a magnitude is one glance rather than three. It is the default, and it is where a cents-first amount is typed."
       >
         <CurrencyField align="end" currency="BRL" defaultValue={12} locale="pt-BR" />
         <CurrencyField align="end" currency="BRL" defaultValue={1480} locale="pt-BR" />

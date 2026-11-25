@@ -9,6 +9,7 @@ import {
   requestInUnit,
   withAmount,
 } from '@slotted/core/currency';
+import type { AmountEdit } from '@slotted/core/currency';
 import { currencyFieldMessages } from '@slotted/core/i18n';
 import { clamp as clampNumber } from '@slotted/core/measure';
 import {
@@ -77,8 +78,8 @@ const SIGN_KEYS = new Set(['-', '−', '+', '(']);
  * family reads the digits out of the text and divides by the currency's minor
  * units, so `1234` is `R$ 12,34`. The text is generated rather than typed,
  * which is why rewriting it on every keystroke is legal here and forbidden in
- * the sibling family: there is no typed text to protect, and the caret has
- * exactly one legal position.
+ * the sibling family: there is no typed text to protect. The digits are
+ * still the reader's, so the caret is held by the count of digits on its right.
  *
  * **A paste is parsed.** `R$ 1.480,00` copied from a bank statement is one
  * thousand four hundred and eighty, not fourteen and eighty.
@@ -117,7 +118,11 @@ export function CurrencyField({
   name,
   onBlur,
   onChange,
+  onClick,
+  onFocus,
   onKeyDown,
+  onPointerDown,
+  onPointerUp,
   onValueChange,
   readOnly,
   ref,
@@ -374,12 +379,6 @@ export function CurrencyField({
   }, [formatter, settled, value]);
 
   /**
-   * The caret, under cents-first entry, put back where the next keystroke
-   * means something: after the last digit, and before whatever affix the locale
-   * writes at the end. It is a layout effect because the browser must not paint
-   * the caret at the end of a symbol first.
-   */
-  /**
    * Where the caret goes after a keystroke the family reshaped the text around
    * under `entry="natural"`. `null` is "the family did not move it", which is
    * every render that was not a live regrouping.
@@ -394,22 +393,42 @@ export function CurrencyField({
     element.setSelectionRange(caret, caret);
   });
 
-  const restoreCaret = useRef(false);
+  /**
+   * The edit the reader just made under cents-first entry, until the render
+   * that follows it: the text it left and the digits on the caret's right,
+   * before and after. A consumer who refused it puts the amount, and the
+   * caret, back where they were.
+   */
+  const edited = useRef<{ edit: AmountEdit; before: number } | null>(null);
+  /** The digits on the caret's right, while a render has to put it back. */
+  const held = useRef<number | null>(null);
   useLayoutEffect(() => {
-    const element = inputRef.current;
-    if (!restoreCaret.current || element === null) return;
-    restoreCaret.current = false;
-    if (element.ownerDocument.activeElement !== element) return;
-
-    let position = element.value.length;
-    for (let index = element.value.length; index > 0; index -= 1) {
-      if (formatter.digitsOf(element.value[index - 1] ?? '') !== '') {
-        position = index;
-        break;
-      }
+    const pending = edited.current;
+    edited.current = null;
+    if (pending !== null && formatter.toMinorUnits(current) !== pending.edit.minorUnits) {
+      held.current = pending.before;
+      setText(formatter.format(current));
+      return;
     }
-    element.setSelectionRange(position, position);
+
+    const element = inputRef.current;
+    if (held.current === null || element === null) return;
+    const position = formatter.caretAt(element.value, held.current);
+    held.current = null;
+    if (element.ownerDocument.activeElement === element) {
+      element.setSelectionRange(position, position);
+    }
   });
+
+  /** Where the caret was before the edit, and whether it was a caret and not a selection. */
+  const selected = useRef({ collapsed: true, right: 0 });
+  /** A press is under way, so focus arrived with a place for the caret. */
+  const pressing = useRef(false);
+
+  const caretToEnd = (element: HTMLInputElement) => {
+    const end = formatter.caretAt(element.value, 0);
+    element.setSelectionRange(end, end);
+  };
 
   /**
    * The keystroke filter, on the native event rather than on React's synthetic
@@ -423,6 +442,10 @@ export function CurrencyField({
 
     const onBeforeInput = (event: InputEvent) => {
       if (event.defaultPrevented) return;
+      selected.current = {
+        collapsed: element.selectionStart === element.selectionEnd,
+        right: formatter.digitsAfter(element.value, element.selectionEnd ?? element.value.length),
+      };
       /* An IME commits a whole run; refusing it character by character would
          make a full-width `１２３` untypeable. */
       if (event.isComposing) return;
@@ -460,8 +483,8 @@ export function CurrencyField({
         pendingNegative.current = wanted;
         if (current === null || current === 0 || current < 0 === wanted) return;
         const next = -current;
+        held.current = formatter.digitsAfter(element.value, selectionEnd);
         settle(next, request(next, 'keyboard', event, formatter.toMinorUnits(next)));
-        restoreCaret.current = true;
         return;
       }
 
@@ -478,7 +501,7 @@ export function CurrencyField({
       if (resolvedClamp !== 'strict') return;
       const edit = formatter.editFromText({
         text: next,
-        previous: element.value,
+        caret: selectionStart + inserted.length,
         negative: negativeNow(),
         allowNegative,
         allowEmpty,
@@ -722,6 +745,8 @@ export function CurrencyField({
       inputMode={inputMode ?? derivedInputMode}
       onBlur={(event) => {
         onBlur?.(event);
+        pressing.current = false;
+        pendingNegative.current = false;
         commit('blur', event);
       }}
       onChange={(event) => {
@@ -767,24 +792,55 @@ export function CurrencyField({
           return;
         }
 
+        const element = event.currentTarget;
         const inputType = (event.nativeEvent as InputEvent).inputType;
         const edit = formatter.editFromText({
           text: next,
-          /* What the element showed before this keystroke, which is what turns
-             the digits the reader added into digits at the right rather than
-             digits where the caret happened to be. */
-          previous: text,
+          caret: element.selectionStart ?? next.length,
           negative: negativeNow(),
           allowNegative,
           allowEmpty,
+          ...(selected.current.collapsed ? { previous: text } : {}),
           ...(inputType === undefined ? {} : { inputType }),
         });
-        if (edit.value === null) pendingNegative.current = false;
-        else pendingNegative.current = edit.value < 0;
-        restoreCaret.current = true;
-        settle(edit.value, request(edit.value, 'keyboard', event, edit.minorUnits));
+        /* The digits kept on the caret's right are a debit's until it is left. */
+        pendingNegative.current =
+          edit.value !== null &&
+          (edit.value < 0 || (edit.value === 0 && edit.right > 0 && negativeNow()));
+        edited.current = { edit, before: selected.current.right };
+        selected.current = { collapsed: true, right: edit.right };
+        held.current = edit.right;
+        /* Written on the element too: an edit that leaves the text as it was
+           renders nothing, and the browser's own caret would stay. */
+        if (element.value !== edit.text) element.value = edit.text;
+        if (element.ownerDocument.activeElement === element) {
+          const position = formatter.caretAt(edit.text, edit.right);
+          element.setSelectionRange(position, position);
+        }
+        setText(edit.text);
+        request(edit.value, 'keyboard', event, edit.minorUnits);
+      }}
+      onClick={(event) => {
+        onClick?.(event);
+        const element = event.currentTarget;
+        pressing.current = false;
+        /* A press on an amount that is nought has no digit to point at. */
+        if (!cents || (current !== null && current !== 0)) return;
+        if (element.selectionStart === element.selectionEnd) caretToEnd(element);
+      }}
+      onFocus={(event) => {
+        onFocus?.(event);
+        if (cents && !pressing.current) caretToEnd(event.currentTarget);
       }}
       onKeyDown={keyDown}
+      onPointerDown={(event) => {
+        onPointerDown?.(event);
+        pressing.current = true;
+      }}
+      onPointerUp={(event) => {
+        onPointerUp?.(event);
+        pressing.current = false;
+      }}
       readOnly={resolvedReadOnly}
       ref={(element: HTMLInputElement | null) => {
         inputRef.current = element;

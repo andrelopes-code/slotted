@@ -25,15 +25,16 @@ export type CurrencyFieldAppearance = 'control' | 'display';
  * How the reader types the amount.
  *
  * `cents` is the cash register: digits enter at the minor unit and shift left,
- * so `1234` is `R$ 12,34`. The separator is never typed and the caret has one
- * legal position. `natural` is the spreadsheet, and the model `number-field`
+ * so `1234` is `R$ 12,34`. The separator is never typed. The caret
+ * keeps the count of digits on its right, so a digit is corrected where it is
+ * and the end is the register. `natural` is the spreadsheet, and the model `number-field`
  * uses: the text is the reader's until a commit.
  */
 export type CurrencyFieldEntry = 'cents' | 'natural';
 
 /**
  * Which edge the amount is set against. `end` by default: a column of amounts
- * is compared on its last digit, and the cents-first caret already lives there.
+ * is compared on its last digit, which is where a cents-first amount is typed.
  */
 export type CurrencyFieldAlign = 'end' | 'start';
 

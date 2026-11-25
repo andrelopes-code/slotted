@@ -208,6 +208,29 @@ describe('an amount held in minor units', () => {
   });
 });
 
+/** An edit the browser made, with `|` where it left the caret. */
+function editAt(marked: string) {
+  const next = marked.replace('R$ ', 'R$\u00a0');
+  const caret = next.indexOf('|');
+  const element = control();
+  /* The native setter, as the browser writes: React's own would hide the change. */
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(
+    element,
+    next.replace('|', ''),
+  );
+  element.setSelectionRange(caret, caret);
+  act(() => {
+    element.dispatchEvent(new InputEvent('input', { bubbles: true }));
+  });
+}
+
+/** What the control shows, with `|` where the caret is. */
+function caretText() {
+  const { selectionStart, value } = control();
+  const at = selectionStart ?? value.length;
+  return plain(`${value.slice(0, at)}|${value.slice(at)}`);
+}
+
 describe('cents-first entry', () => {
   it('shifts each digit left by the currency minor units', () => {
     render(<CurrencyField currency="BRL" locale="pt-BR" />);
@@ -271,65 +294,87 @@ describe('cents-first entry', () => {
     expect(control().value).toBe('');
   });
 
-  /**
-   * The caret is not where a digit lands. A cash register takes the digit at
-   * the minor unit whatever the reader is pointing at, and this is the whole
-   * of `entry="cents"`.
-   */
-  it('takes a digit typed against the first character at the right anyway', () => {
-    render(<CurrencyField currency="BRL" locale="pt-BR" />);
-
-    typeDigits('0');
-    expect(plain(control().value)).toBe('R$ 0,00');
-
-    /* What the browser produces for `2` typed with the caret before the nought. */
-    type('R$\u00a020,00');
-    expect(plain(control().value)).toBe('R$ 0,02');
-  });
-
-  it('takes a digit typed into the middle of the amount at the right anyway', () => {
-    render(<CurrencyField currency="BRL" locale="pt-BR" />);
-    typeDigits('1234');
-    expect(plain(control().value)).toBe('R$ 12,34');
-
-    /* `9` typed with the caret between the two whole digits. */
-    type('R$\u00a012,934');
-    expect(plain(control().value)).toBe('R$ 123,49');
-  });
-
-  /**
-   * A selection is not a place either. Two digits went and one came, so two
-   * come off the right and one goes on it.
-   */
-  it('replaces a selection at the right rather than where it stood', () => {
+  /** The caret is held by the digits on its right; `|` is where it stands. */
+  it('edits the digit the caret is against', () => {
     render(<CurrencyField currency="BRL" locale="pt-BR" />);
     typeDigits('1234');
 
-    /* `5` typed over `2,3`. */
-    type('R$\u00a0154');
-    expect(plain(control().value)).toBe('R$ 1,25');
-  });
-
-  it('takes the digit at the right off, whatever the caret was against', () => {
-    render(<CurrencyField currency="BRL" locale="pt-BR" />);
-    typeDigits('1234');
-
-    /* Backspace pressed against the second whole digit. */
-    type('R$\u00a01,34');
-    expect(plain(control().value)).toBe('R$ 1,23');
-  });
-
-  /** The caret has one legal position, and every keystroke returns it there. */
-  it('puts the caret back after the last digit', () => {
-    render(<CurrencyField currency="BRL" locale="pt-BR" />);
     control().focus();
+    editAt('R$ 12,9|34');
+    expect(caretText()).toBe('R$ 129|,34');
+
+    editAt('R$ 12|,34');
+    expect(caretText()).toBe('R$ 12|,34');
+  });
+
+  it('replaces a selection where it stood', () => {
+    render(<CurrencyField currency="BRL" locale="pt-BR" />);
     typeDigits('1234');
 
-    control().setSelectionRange(3, 3);
-    /* `9` typed against the first digit. */
-    type('R$\u00a0912,34');
-    expect(plain(control().value)).toBe('R$ 123,49');
-    expect(control().selectionStart).toBe(control().value.length);
+    control().focus();
+    /* `5` typed over `2,3`. */
+    editAt('R$ 15|4');
+    expect(caretText()).toBe('R$ 1,5|4');
+  });
+
+  it('keeps the zeros on the right of the caret until blur, controlled or not', () => {
+    const Controlled = () => {
+      const [value, setValue] = useState<number | null>(1000000);
+      return (
+        <CurrencyField
+          currency="BRL"
+          locale="pt-BR"
+          onValueChange={setValue}
+          unit="minor"
+          value={value}
+        />
+      );
+    };
+    for (const node of [
+      <Controlled key="controlled" />,
+      <CurrencyField currency="BRL" defaultValue={10000} key="own" locale="pt-BR" />,
+    ]) {
+      const { unmount } = render(node);
+      control().focus();
+      editAt('R$ |0.000,00');
+      expect(caretText()).toBe('R$ |0.000,00');
+      expect(control()).toHaveAttribute('aria-valuenow', '0');
+
+      editAt('R$ 2|0.000,00');
+      expect(caretText()).toBe('R$ 2|0.000,00');
+      expect(control()).toHaveAttribute('aria-valuenow', '20000');
+
+      editAt('R$ |0.000,00');
+      fireEvent.blur(control());
+      expect(plain(control().value)).toBe('R$ 0,00');
+      unmount();
+    }
+  });
+
+  it('puts the text and the caret back when the consumer refuses the edit', () => {
+    render(<CurrencyField currency="BRL" locale="pt-BR" value={12.34} />);
+    control().focus();
+    control().setSelectionRange(5, 5);
+    beforeInput('9');
+    editAt('R$ 129|,34');
+
+    expect(caretText()).toBe('R$ 12|,34');
+  });
+
+  it('keeps a debit a debit while its first digit is exchanged', () => {
+    const onValueChange = vi.fn();
+    render(
+      <CurrencyField
+        currency="BRL"
+        defaultValue={-100}
+        locale="pt-BR"
+        onValueChange={onValueChange}
+      />,
+    );
+    editAt('-R$ |00,00');
+    editAt('R$ 2|00,00');
+
+    expect(onValueChange).toHaveBeenLastCalledWith(-200, expect.anything());
   });
 
   it('keeps a nought a reader actually typed', () => {

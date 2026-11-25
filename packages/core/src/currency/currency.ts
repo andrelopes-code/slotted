@@ -15,8 +15,11 @@
  *    `($1,234.56)` and every surveyed parser reads it as a credit.
  * 3. **The cents-first entry model.** Digits enter at the minor unit and shift
  *    left, which is what a cash register does and what ngx-currency calls
- *    `Financial`. It lives here rather than in a binding, so React and Angular
- *    cannot disagree about what the fourth keystroke of `1234` means.
+ *    `Financial`. The caret is held by the count of digits on its right, which
+ *    the generated separators do not change, so a digit in the middle of an
+ *    amount is corrected where it stands. It lives here rather than in a
+ *    binding, so React and Angular cannot disagree about what the fourth
+ *    keystroke of `1234` means.
  *
  * Nothing here touches the DOM or a framework.
  */
@@ -64,16 +67,18 @@ export interface AmountEditRequest {
   /** What the element holds after the browser applied the edit. */
   text: string;
   /**
-   * What it held before the browser applied it. Given both, the digits the
-   * reader added or took away are read from the difference between the two
-   * runs rather than from where the caret was, which is what makes the caret
-   * irrelevant to the amount.
-   *
-   * Left out, the digits of `text` are the run, which is what a text with no
-   * edit behind it means.
+   * Where the caret stands in `text` after the browser applied the edit. The
+   * digits on its right are kept whatever is typed before them, leading zeros
+   * included. Left out, the caret is at the end: the cash register.
+   */
+  caret?: number | undefined;
+  /**
+   * What the element held before the browser applied the edit, with the caret
+   * and no selection. A deletion that took a separator and no digit is read
+   * from it, and erases the digit beside the separator.
    */
   previous?: string | undefined;
-  /** `InputEvent.inputType`, which is what says whether this was a paste. */
+  /** `InputEvent.inputType`, which says whether this was a paste or a deletion. */
   inputType?: string | undefined;
   /** The sign the amount carried before the edit. */
   negative?: boolean | undefined;
@@ -95,6 +100,13 @@ export interface AmountEdit {
   value: number | null;
   /** The same amount as the integer a payment API is charged in. */
   minorUnits: number | null;
+  /**
+   * What the field shows until it is left: the amount, and the zeros on the
+   * right of the caret that the amount alone would drop.
+   */
+  text: string;
+  /** How many digits stand on the right of the caret. */
+  right: number;
 }
 
 export interface CurrencyFormat extends NumberFormat {
@@ -107,6 +119,10 @@ export interface CurrencyFormat extends NumberFormat {
   fromMinorUnits(units: number | null): number | null;
   /** Every digit in the text, in Latin, whatever the locale writes them as. */
   digitsOf(text: string): string;
+  /** How many digits of the text stand on the right of a position in it. */
+  digitsAfter(text: string, caret: number): number;
+  /** The position with that many digits on its right, against the digit on its left. */
+  caretAt(text: string, right: number): number;
   /** What the text the browser produced means, under cents-first entry. */
   editFromText(request: AmountEditRequest): AmountEdit;
 }
@@ -188,41 +204,6 @@ export function requestInUnit(
 function minorUnitsOf(locale: string | undefined, currency: string) {
   const probe = new Intl.NumberFormat(locale, { style: 'currency', currency });
   return probe.resolvedOptions().maximumFractionDigits ?? 2;
-}
-
-/**
- * The digit run a keystroke leaves behind, under the cash register's rule:
- * whatever the reader took out comes off the right, and whatever they put in
- * goes on the right, wherever the caret actually was.
- *
- * The two runs are compared from both ends. What they share at the front and
- * at the back is what the edit did not touch; what is left in the middle of
- * `before` is what went, and what is left in the middle of `after` is what
- * came. A selection replaced by a digit is therefore a removal and an
- * insertion in one keystroke, which is why the two are counted separately
- * rather than from the change in length.
- *
- * `0,00` with the caret at the front and `2` pressed gives `2000` here and
- * `0002` — two cents — as the run, because the `2` that appeared at the front
- * is the middle of `after` and it is appended rather than left where it fell.
- */
-export function shiftIntoRun(before: string, after: string): string {
-  const shortest = Math.min(before.length, after.length);
-
-  let head = 0;
-  while (head < shortest && before[head] === after[head]) head += 1;
-
-  let tail = 0;
-  while (
-    tail < shortest - head &&
-    before[before.length - 1 - tail] === after[after.length - 1 - tail]
-  ) {
-    tail += 1;
-  }
-
-  const removed = before.length - head - tail;
-  const inserted = after.slice(head, after.length - tail);
-  return before.slice(0, before.length - removed) + inserted;
 }
 
 /**
@@ -352,11 +333,48 @@ export function createCurrencyFormat({
     return Math.sign(shifted) * Math.round(Math.abs(shifted));
   };
 
+  const own = localeDigits(base.locale);
+
+  /**
+   * A digit run as the field shows it, its leading zeros included: a run the
+   * amount alone would shorten is written over an amount as long, so `000000`
+   * takes the grouping of `1.000,00` and reads `0.000,00`.
+   */
+  const formatRun = (run: string, signed: number) => {
+    const canonical = base.format(fromMinorUnits(signed));
+    if (digitsOf(canonical).length >= run.length) return canonical;
+
+    const longest = Number(`1${run.slice(1)}`);
+    const template = base.format(fromMinorUnits(signed < 0 ? -longest : longest));
+    if (digitsOf(template).length !== run.length) return canonical;
+
+    let index = 0;
+    return [...template]
+      .map((character) => (digitsOf(character) === '' ? character : own[Number(run[index++])]))
+      .join('');
+  };
+
+  const digitsAfter = (text: string, caret: number) => digitsOf(text.slice(caret)).length;
+
+  const caretAt = (text: string, right: number) => {
+    let first = -1;
+    let seen = 0;
+    for (let index = text.length - 1; index >= 0; index -= 1) {
+      if (digitsOf(text[index]!) === '') continue;
+      if (seen === right) return index + 1;
+      seen += 1;
+      first = index;
+    }
+    return first < 0 ? text.length : first;
+  };
+
   return {
     ...base,
     currency,
     minorUnits,
     digitsOf,
+    digitsAfter,
+    caretAt,
     fromMinorUnits,
     toMinorUnits,
 
@@ -373,6 +391,7 @@ export function createCurrencyFormat({
 
     editFromText({
       text,
+      caret = text.length,
       previous,
       inputType,
       negative = false,
@@ -391,21 +410,41 @@ export function createCurrencyFormat({
         if (parsed !== null) {
           const signed = parenthesised ? -parsed : parsed;
           const held = allowNegative ? signed : Math.abs(signed);
-          return { value: held, minorUnits: toMinorUnits(held) };
+          return {
+            value: held,
+            minorUnits: toMinorUnits(held),
+            text: base.format(held),
+            right: 0,
+          };
         }
       }
 
-      const run =
-        previous === undefined ? digitsOf(text) : shiftIntoRun(digitsOf(previous), digitsOf(text));
-      const accumulated = run.slice(0, MAX_AMOUNT_DIGITS);
-      if (accumulated === '') {
-        return allowEmpty ? { value: null, minorUnits: null } : { value: 0, minorUnits: 0 };
+      let left = digitsOf(text.slice(0, caret));
+      let right = digitsOf(text.slice(caret));
+      if (previous !== undefined && digitsOf(previous) === left + right) {
+        if (inputType === 'deleteContentBackward') left = left.slice(0, -1);
+        if (inputType === 'deleteContentForward') right = right.slice(1);
+      }
+      if (left + right === '' && allowEmpty) {
+        return { value: null, minorUnits: null, text: '', right: 0 };
       }
 
-      const magnitude = Number(accumulated);
+      /* Nought at the front says nothing; on the caret's right it is a digit
+         of the amount being corrected. Past the length limit the digits on the
+         right are the ones kept. */
+      right = right.slice(-MAX_AMOUNT_DIGITS);
+      left = left.replace(/^0+/, '').slice(0, MAX_AMOUNT_DIGITS - right.length);
+      const run = (left + right).padStart(minorUnits + 1, '0');
+
+      const magnitude = Number(run);
       /* Nought has no sign: `-0` and `0` are one amount written two ways. */
       const signed = magnitude === 0 || !negative || !allowNegative ? magnitude : -magnitude;
-      return { value: fromMinorUnits(signed), minorUnits: signed };
+      return {
+        value: fromMinorUnits(signed),
+        minorUnits: signed,
+        text: formatRun(run, signed),
+        right: right.length,
+      };
     },
   };
 }

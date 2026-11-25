@@ -155,7 +155,7 @@ export const Entry: Story = {
       2,
       scene(
         'Cents first, the cash register',
-        'Type 1, 2, 3, 4 without touching a separator: the digits enter at the cent and shift left, and the caret stays after the last one.',
+        'Type 1, 2, 3, 4 without touching a separator: the digits enter at the cent and shift left, and a digit in the middle is corrected where it is.',
         `<div slField>
            <label slFieldLabel>Amount received</label>
            <div slCurrencyField>
@@ -344,7 +344,7 @@ export const Alignment: Story = {
       2,
       scene(
         'Set against the reading end',
-        'Read the column down: the cents of every row line up, so a magnitude is one glance rather than three. It is the default, and it is where the cents-first caret already lives.',
+        'Read the column down: the cents of every row line up, so a magnitude is one glance rather than three. It is the default, and it is where a cents-first amount is typed.',
         `<div slCurrencyField align="end">
            <input slCurrencyFieldInput currency="BRL" locale="pt-BR" defaultValue="12" />
          </div>

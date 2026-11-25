@@ -123,7 +123,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'angular',
       label: 'The cash register and the spreadsheet',
       source: `<!-- The default. 1234 is R$ 12,34, the separator is never typed, and the
-     caret has one legal position: after the last digit. -->
+     caret keeps the count of digits on its right. -->
 <div slCurrencyField>
   <input slCurrencyFieldInput currency="BRL" locale="pt-BR" entry="cents" />
 </div>
@@ -503,7 +503,7 @@ export const ANGULAR_CURRENCY_FIELD_DOCS = {
         "'cents' | 'natural'",
         'cents',
         'slCurrencyFieldInput, provideCurrencyFieldDefaults',
-        'How the reader types. cents is the cash register: digits enter at the minor unit and shift left, the separator is never typed and the caret has one legal position. natural is the spreadsheet, and the model number-field uses. The frame paints what the control resolved',
+        'How the reader types. cents is the cash register: digits enter at the minor unit and shift left, the separator is never typed and the caret keeps the count of digits on its right. natural is the spreadsheet, and the model number-field uses. The frame paints what the control resolved',
       ],
       [
         'formatOn',
@@ -524,7 +524,7 @@ export const ANGULAR_CURRENCY_FIELD_DOCS = {
         "'end' | 'start'",
         'end',
         'slCurrencyField, provideCurrencyFieldDefaults',
-        'Which edge the amount is set against. end by default: a column of amounts is compared on its last digit, and the cents-first caret already lives there',
+        'Which edge the amount is set against. end by default: a column of amounts is compared on its last digit, which is where a cents-first amount is typed',
       ],
       [
         'locale',
@@ -744,7 +744,7 @@ export const ANGULAR_CURRENCY_FIELD_DOCS = {
       'The pattern is the WAI-ARIA APG’s Spinbutton (w3.org/WAI/ARIA/apg/patterns/spinbutton/), taken whole: role="spinbutton" on the focusable element with aria-valuenow, aria-valuemin, aria-valuemax and aria-valuetext, Up and Down stepping, Home and End reaching the bounds, and Page Up and Page Down as the larger step the pattern lists as optional.',
       'aria-valuenow is the amount in major units and aria-valuetext is the string the reader sees, because aria-valuenow alone announces 1480 for a control showing R$ 1.480,00. When the control is empty neither property is set: no amount is not an amount of nought.',
       'The frame carries no role. WAI-ARIA requires the children of a spinbutton to be non-interactive and presentational, so the two steppers are the control’s siblings inside a box that announces nothing.',
-      'Under cents-first entry the caret is put back after the last digit on every edit, and it decides nothing while it is anywhere else: a digit typed against the front of R$ 0,00 is two cents, not twenty reais, because the digits that changed are read from the difference between the text before the edit and the text after it. That is legal here and forbidden in number-field for one reason: the text is generated rather than typed, so there is no reader’s caret to preserve and exactly one position where the next keystroke means something. A separator keystroke is refused outright, and the sign is a key of its own so it never enters the digit run.',
+      'Under cents-first entry the caret keeps the count of digits on its right through each edit, which the generated separators do not change: a digit is typed, erased or exchanged where the caret is, and at the end the field is the cash register. Zeros on the right of the caret stay until blur, so the first digit of R$ 10.000,00 can be exchanged. Backspace on a separator erases the digit on its left and Delete the digit on its right; a digit past the fifteenth is refused. A focus by keyboard, and a press on an amount that is nought, put the caret at the end. A separator keystroke is refused outright, and the sign is a key of its own so it never enters the digit run.',
       'inputmode is numeric under cents-first entry — the separator is never typed and the sign is a single key — and derived from the format under natural entry. A static inputmode the consumer wrote is read with HostAttributeToken before the binding computes, so it survives.',
       'aria-required, never the native required. The native attribute engages browser constraint validation and changes submit behavior, which the library must not impose as a side effect of describing a field. disabled and readonly are native, because that is what those two words mean.',
       'transaction-amount and transaction-currency are the standard autofill field names for a payment amount, and naming a field’s purpose is what WCAG 2.2 SC 1.3.5 asks for. The family leaves autocomplete off by default and documents the token.',

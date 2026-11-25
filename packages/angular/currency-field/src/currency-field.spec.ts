@@ -34,6 +34,7 @@ import {
 })
 class Host {
   readonly value = signal<number | null | undefined>(undefined);
+  readonly amount = signal<number | null>(10000);
   readonly seen = signal<CurrencyChangeRequest[]>([]);
   readonly control = new FormControl<number | null>(1480);
 
@@ -222,6 +223,26 @@ describe('SlCurrencyField', () => {
   });
 });
 
+/** An edit the browser made, with `|` where it left the caret. */
+function editAt(fixture: ReturnType<typeof renderTemplate>, marked: string, inputType?: string) {
+  const next = marked.replace('R$ ', 'R$\u00a0');
+  const element = input(fixture);
+  element.value = next.replace('|', '');
+  element.setSelectionRange(next.indexOf('|'), next.indexOf('|'));
+  element.dispatchEvent(
+    new InputEvent('input', { bubbles: true, ...(inputType === undefined ? {} : { inputType }) }),
+  );
+  fixture.detectChanges();
+}
+
+/** What the control shows, with `|` where the caret is. */
+function caretText(fixture: ReturnType<typeof renderTemplate>) {
+  const { selectionStart, value } = input(fixture);
+  const at = selectionStart ?? value.length;
+
+  return plain(`${value.slice(0, at)}|${value.slice(at)}`);
+}
+
 describe('cents-first entry', () => {
   it('shifts each digit left by the currency minor units', () => {
     const fixture = renderTemplate(`
@@ -251,49 +272,73 @@ describe('cents-first entry', () => {
     expect(input(dinar).getAttribute('aria-valuenow')).toBe('1.234');
   });
 
-  /**
-   * The caret is not where a digit lands. A cash register takes the digit at
-   * the minor unit whatever the reader is pointing at, and this is the whole
-   * of `entry="cents"`.
-   */
-  it('takes every edit at the right, wherever the caret was', () => {
+  /** The caret is held by the digits on its right; `|` is where it stands. */
+  it('edits the digit the caret is against', () => {
     const fixture = renderTemplate(`
       <div slCurrencyField>
         <input slCurrencyFieldInput currency="BRL" locale="pt-BR" />
       </div>`);
-
-    typeDigits(fixture, '1234');
-
-    /* `9` typed against the first digit. */
-    type(input(fixture), 'R$\u00a0912,34');
-    fixture.detectChanges();
-    expect(plain(input(fixture).value)).toBe('R$ 123,49');
-
-    /* Backspace pressed against the second whole digit. */
-    type(input(fixture), 'R$\u00a012,49', 'deleteContentBackward');
-    fixture.detectChanges();
-    expect(plain(input(fixture).value)).toBe('R$ 12,34');
-
-    /* `5` typed over `2,3`. */
-    type(input(fixture), 'R$\u00a0154');
-    fixture.detectChanges();
-    expect(plain(input(fixture).value)).toBe('R$ 1,25');
-  });
-
-  it('puts the caret back after the last digit', () => {
-    const fixture = renderTemplate(`
-      <div slCurrencyField>
-        <input slCurrencyFieldInput currency="BRL" locale="pt-BR" />
-      </div>`);
-
     input(fixture).focus();
     typeDigits(fixture, '1234');
-    input(fixture).setSelectionRange(3, 3);
-    type(input(fixture), 'R$\u00a0912,34');
-    fixture.detectChanges();
 
-    expect(plain(input(fixture).value)).toBe('R$ 123,49');
-    expect(input(fixture).selectionStart).toBe(input(fixture).value.length);
+    editAt(fixture, 'R$ 12,9|34');
+    expect(caretText(fixture)).toBe('R$ 129|,34');
+
+    /* `5` typed over `9,3`. */
+    editAt(fixture, 'R$ 125|4');
+    expect(caretText(fixture)).toBe('R$ 12,5|4');
+  });
+
+  it('erases the digit beside a separator', () => {
+    const fixture = renderTemplate(`
+      <div slCurrencyField>
+        <input slCurrencyFieldInput currency="BRL" locale="pt-BR" />
+      </div>`);
+    input(fixture).focus();
+    typeDigits(fixture, '123456');
+
+    editAt(fixture, 'R$ 1|234,56', 'deleteContentBackward');
+    expect(caretText(fixture)).toBe('R$ |234,56');
+
+    editAt(fixture, 'R$ 234|56', 'deleteContentForward');
+    expect(caretText(fixture)).toBe('R$ 23,4|6');
+  });
+
+  it.each([
+    ['uncontrolled', '[defaultValue]="10000"'],
+    ['controlled', '[value]="amount()" (valueChange)="amount.set($event.value)"'],
+  ])('keeps the zeros on the right of the caret until blur, %s', (_name, binding) => {
+    const fixture = renderTemplate(`
+      <div slCurrencyField>
+        <input slCurrencyFieldInput currency="BRL" locale="pt-BR" ${binding} />
+      </div>`);
+    input(fixture).focus();
+
+    editAt(fixture, 'R$ |0.000,00');
+    expect(caretText(fixture)).toBe('R$ |0.000,00');
+    expect(input(fixture).getAttribute('aria-valuenow')).toBe('0');
+
+    editAt(fixture, 'R$ 2|0.000,00');
+    expect(caretText(fixture)).toBe('R$ 2|0.000,00');
+    expect(input(fixture).getAttribute('aria-valuenow')).toBe('20000');
+
+    editAt(fixture, 'R$ |0.000,00');
+    input(fixture).blur();
+    fixture.detectChanges();
+    expect(plain(input(fixture).value)).toBe('R$ 0,00');
+  });
+
+  it('puts the text and the caret back when the consumer refuses the edit', () => {
+    const fixture = renderTemplate(`
+      <div slCurrencyField>
+        <input slCurrencyFieldInput currency="BRL" locale="pt-BR" [value]="12.34" />
+      </div>`);
+    input(fixture).focus();
+    input(fixture).setSelectionRange(5, 5);
+    beforeInput(input(fixture), '9');
+    editAt(fixture, 'R$ 129|,34');
+
+    expect(caretText(fixture)).toBe('R$ 12|,34');
   });
 
   /**

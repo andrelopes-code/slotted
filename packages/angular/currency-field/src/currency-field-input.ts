@@ -25,6 +25,7 @@ import {
   withAmount,
 } from '@slotted/core/currency';
 import type {
+  AmountEdit,
   CurrencyAffix,
   CurrencyChangeRequest,
   CurrencyFormat,
@@ -66,8 +67,8 @@ const SIGN_KEYS = new Set(['-', '−', '+', '(']);
  * directive reads the digits out of the text and divides by the currency's
  * minor units, so `1234` is `R$ 12,34`. The text is generated rather than
  * typed, which is why rewriting it on every keystroke is legal here and
- * forbidden in `number-field`: there is no typed text to protect, and the caret
- * has exactly one legal position.
+ * forbidden in `number-field`: there is no typed text to protect. The digits are
+ * still the reader's, so the caret is held by the count of digits on its right.
  *
  * **Unset means ask the field.** `disabled`, `readOnly` and `invalid` default to
  * `undefined` rather than `false`. A value the consumer wrote as a static
@@ -111,6 +112,10 @@ const SIGN_KEYS = new Set(['-', '−', '+', '(']);
     '(beforeinput)': 'onBeforeInput($event)',
     '(keydown)': 'onKeyDown($event)',
     '(blur)': 'onBlur($event)',
+    '(focus)': 'onFocus()',
+    '(click)': 'onClick()',
+    '(pointerdown)': 'pressing = true',
+    '(pointerup)': 'pressing = false',
   },
 })
 export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCurrencyFieldControl {
@@ -272,6 +277,12 @@ export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCur
    * empty amount and then a digit produces a debit, which a sign derived from
    * the text alone could not express.
    */
+  /** Where the caret was before the edit, and whether it was a caret and not a selection. */
+  private selected = { collapsed: true, right: 0 };
+  /** The edit a controlled amount has not answered yet. */
+  private pending: AmountEdit | null = null;
+  /** A press is under way, so focus arrived with a place for the caret. */
+  protected pressing = false;
   private pendingNegative = false;
   private onChangeFn: (value: number | null) => void = () => undefined;
   private onTouchedFn: () => void = () => undefined;
@@ -438,7 +449,15 @@ export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCur
     effect(() => {
       const next = this.numberValue();
       const formatter = this.formatter();
+      const pending = this.pending;
       if (Object.is(next, formatter.parse(this.text()))) return;
+
+      this.pending = null;
+      if (pending !== null && formatter.toMinorUnits(next) === pending.minorUnits) {
+        this.write(pending.text, pending.right);
+        return;
+      }
+
       this.write(formatter.format(next));
     });
 
@@ -547,17 +566,43 @@ export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCur
     const inputType = (event as InputEvent).inputType;
     const edit = formatter.editFromText({
       text: next,
-      /* What the element showed before this keystroke, which is what turns the
-         digits the reader added into digits at the right rather than digits
-         where the caret happened to be. */
-      previous: this.text(),
+      caret: this.element.selectionStart ?? next.length,
       negative: this.negativeNow(),
       allowNegative: this.allowNegative(),
       allowEmpty: this.allowEmpty(),
+      ...(this.selected.collapsed ? { previous: this.text() } : {}),
       ...(inputType === undefined ? {} : { inputType }),
     });
-    this.pendingNegative = edit.value !== null && edit.value < 0;
-    this.settle(edit.value, this.request(edit.value, 'keyboard', event, edit.minorUnits));
+    const before = this.selected.right;
+    this.selected = { collapsed: true, right: edit.right };
+    /* The digits kept on the caret's right are a debit's until it is left. */
+    this.pendingNegative =
+      edit.value !== null &&
+      (edit.value < 0 || (edit.value === 0 && edit.right > 0 && this.negativeNow()));
+
+    const moved = this.request(edit.value, 'keyboard', event, edit.minorUnits);
+    const shown = this.numberValue();
+    if (moved || formatter.toMinorUnits(shown) === edit.minorUnits) {
+      this.pending = null;
+      this.write(edit.text, edit.right);
+      return;
+    }
+
+    /* The consumer's own value answers on the next check, or never. */
+    this.pending = edit;
+    this.write(formatter.format(shown), before);
+  }
+
+  protected onFocus() {
+    if (this.resolvedEntry() === 'cents' && !this.pressing) this.placeCaret(0);
+  }
+
+  protected onClick() {
+    this.pressing = false;
+    if (this.resolvedEntry() !== 'cents') return;
+    const { selectionEnd, selectionStart } = this.element;
+    /* A press on an amount that is nought has no digit to point at. */
+    if ((this.numberValue() ?? 0) === 0 && selectionStart === selectionEnd) this.placeCaret(0);
   }
 
   /**
@@ -568,6 +613,11 @@ export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCur
    */
   protected onBeforeInput(event: InputEvent) {
     if (event.defaultPrevented) return;
+    const { selectionEnd, selectionStart, value } = this.element;
+    this.selected = {
+      collapsed: selectionStart === selectionEnd,
+      right: this.formatter().digitsAfter(value, selectionEnd ?? value.length),
+    };
     /* An IME commits a whole run; refusing it character by character would
        make a full-width `１２３` untypeable. */
     if (event.isComposing) return;
@@ -607,10 +657,12 @@ export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCur
       const current = this.numberValue();
       if (current === null || current === 0 || current < 0 === wanted) return;
       const flipped = -current;
+      const { right } = this.selected;
       this.settle(
         flipped,
         this.request(flipped, 'keyboard', event, formatter.toMinorUnits(flipped)),
       );
+      this.placeCaret(right);
       return;
     }
 
@@ -627,7 +679,7 @@ export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCur
     if (this.resolvedClamp() !== 'strict') return;
     const edit = formatter.editFromText({
       text: next,
-      previous: this.element.value,
+      caret: start + inserted.length,
       negative: this.negativeNow(),
       allowNegative: this.allowNegative(),
       allowEmpty: this.allowEmpty(),
@@ -689,6 +741,9 @@ export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCur
 
   protected onBlur(event: FocusEvent) {
     this.onTouchedFn();
+    this.pressing = false;
+    this.pending = null;
+    this.pendingNegative = false;
     this.commit('blur', event);
   }
 
@@ -804,25 +859,20 @@ export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCur
 
   /**
    * One place the element's text is written, so the signal never drifts from
-   * it. Under cents-first entry the caret goes back after the last digit —
-   * before whatever affix the locale writes at the end — because that is the
-   * only position where the next keystroke means anything.
+   * it. Under cents-first entry the caret keeps the digits on its right, or
+   * goes after the last one, before whatever affix the locale writes at the end.
    */
-  private write(value: string) {
+  private write(value: string, right = 0) {
     if (this.element.value !== value) this.element.value = value;
     this.text.set(value);
 
-    if (this.resolvedEntry() !== 'cents') return;
+    if (this.resolvedEntry() === 'cents') this.placeCaret(right);
+  }
+
+  private placeCaret(right: number) {
     if (this.element.ownerDocument.activeElement !== this.element) return;
 
-    const formatter = this.formatter();
-    let position = value.length;
-    for (let index = value.length; index > 0; index -= 1) {
-      if (formatter.digitsOf(value[index - 1] ?? '') !== '') {
-        position = index;
-        break;
-      }
-    }
+    const position = this.formatter().caretAt(this.element.value, right);
     this.element.setSelectionRange(position, position);
   }
 }

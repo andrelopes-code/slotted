@@ -7,10 +7,9 @@ import {
   currencyAffix,
   MAX_AMOUNT_DIGITS,
   requestInUnit,
-  shiftIntoRun,
   withAmount,
 } from './index';
-import type { CurrencyChangeRequest } from './index';
+import type { AmountEditRequest, CurrencyChangeRequest } from './index';
 
 describe('createCurrencyFormat', () => {
   it('writes the symbol the currency names and the separators the locale writes', () => {
@@ -120,7 +119,7 @@ describe('createCurrencyFormat', () => {
     expect(bare.format(1480)).toBe('1.480,00');
     expect(bare.minorUnits).toBe(2);
     expect(bare.parse('1.480,00')).toBe(1480);
-    expect(bare.editFromText({ text: '1234' })).toEqual({ value: 12.34, minorUnits: 1234 });
+    expect(bare.editFromText({ text: '1234' })).toMatchObject({ value: 12.34, minorUnits: 1234 });
 
     const yen = createCurrencyFormat({ locale: 'pt-BR', currency: 'JPY', currencyDisplay: 'none' });
     expect(yen.format(1480)).toBe('1.480');
@@ -181,15 +180,18 @@ describe('cents-first entry', () => {
 
   /** The cash register: digits enter at the cent and shift left. */
   it('shifts each digit left by the currency minor units', () => {
-    expect(brazil.editFromText({ text: '1' })).toEqual({ value: 0.01, minorUnits: 1 });
-    expect(brazil.editFromText({ text: '12' })).toEqual({ value: 0.12, minorUnits: 12 });
-    expect(brazil.editFromText({ text: '123' })).toEqual({ value: 1.23, minorUnits: 123 });
-    expect(brazil.editFromText({ text: '1234' })).toEqual({ value: 12.34, minorUnits: 1234 });
+    expect(brazil.editFromText({ text: '1' })).toMatchObject({ value: 0.01, minorUnits: 1 });
+    expect(brazil.editFromText({ text: '12' })).toMatchObject({ value: 0.12, minorUnits: 12 });
+    expect(brazil.editFromText({ text: '123' })).toMatchObject({ value: 1.23, minorUnits: 123 });
+    expect(brazil.editFromText({ text: '1234' })).toMatchObject({ value: 12.34, minorUnits: 1234 });
   });
 
   it('ignores every separator and affix the formatter wrote', () => {
-    expect(brazil.editFromText({ text: 'R$ 12,34' })).toEqual({ value: 12.34, minorUnits: 1234 });
-    expect(brazil.editFromText({ text: 'R$ 1.234,56' })).toEqual({
+    expect(brazil.editFromText({ text: 'R$ 12,34' })).toMatchObject({
+      value: 12.34,
+      minorUnits: 1234,
+    });
+    expect(brazil.editFromText({ text: 'R$ 1.234,56' })).toMatchObject({
       value: 1234.56,
       minorUnits: 123456,
     });
@@ -207,119 +209,130 @@ describe('cents-first entry', () => {
    * A form where it is genuinely absent asks for that with `allowEmpty`.
    */
   it('empties to nought, and to nothing only when nothing is allowed', () => {
-    expect(brazil.editFromText({ text: '' })).toEqual({ value: 0, minorUnits: 0 });
-    expect(brazil.editFromText({ text: 'R$ ' })).toEqual({ value: 0, minorUnits: 0 });
+    expect(brazil.editFromText({ text: '' })).toMatchObject({ value: 0, minorUnits: 0 });
+    expect(brazil.editFromText({ text: 'R$ ' })).toMatchObject({ value: 0, minorUnits: 0 });
 
-    expect(brazil.editFromText({ text: '', allowEmpty: true })).toEqual({
+    expect(brazil.editFromText({ text: '', allowEmpty: true })).toMatchObject({
       value: null,
       minorUnits: null,
     });
-    expect(brazil.editFromText({ text: 'R$ ', allowEmpty: true })).toEqual({
+    expect(brazil.editFromText({ text: 'R$ ', allowEmpty: true })).toMatchObject({
       value: null,
       minorUnits: null,
     });
   });
 
   it('keeps a nought a reader actually typed', () => {
-    expect(brazil.editFromText({ text: '0' })).toEqual({ value: 0, minorUnits: 0 });
+    expect(brazil.editFromText({ text: '0' })).toMatchObject({ value: 0, minorUnits: 0 });
   });
 
   /**
-   * The caret, given the text before the edit as well as the text after it.
-   * Every case here is one the reader can produce from `R$ 12,34` without
-   * moving anything but the caret, and every one of them ends at the right.
+   * A caret written as `|`: the text the browser produced, and where it left
+   * the caret in it.
    */
-  describe('where the caret was', () => {
-    const before = 'R$ 12,34';
+  const at = (marked: string) => ({
+    caret: marked.indexOf('|'),
+    text: marked.replace('|', ''),
+  });
+  const edited = (marked: string, more: Partial<AmountEditRequest> = {}) => {
+    const edit = brazil.editFromText({ ...at(marked), ...more });
+    const position = brazil.caretAt(edit.text, edit.right);
+    return `${edit.text.slice(0, position)}|${edit.text.slice(position)}`.replace('\u00a0', ' ');
+  };
 
-    it('takes a digit typed against the first character at the right', () => {
-      expect(brazil.editFromText({ previous: before, text: 'R$ 912,34' })).toEqual({
-        value: 123.49,
-        minorUnits: 12349,
-      });
+  /** The caret keeps the count of digits on its right through each edit. */
+  describe('where the caret is', () => {
+    it('is the cash register at the end', () => {
+      expect(edited('R$ 0,001|')).toBe('R$ 0,01|');
+      expect(edited('R$ 0,012|')).toBe('R$ 0,12|');
+      expect(edited('R$ 12,3|')).toBe('R$ 1,23|');
+      expect(edited('R$ 0,0|')).toBe('R$ 0,00|');
     });
 
-    it('takes a digit typed into the middle at the right', () => {
-      expect(brazil.editFromText({ previous: before, text: 'R$ 12,934' })).toEqual({
-        value: 123.49,
-        minorUnits: 12349,
-      });
+    it('takes a digit where the reader put it', () => {
+      expect(edited('R$ 15|0.000,00')).toBe('R$ 15|0.000,00');
+      expect(edited('R$ 9|12,34')).toBe('R$ 9|12,34');
+      expect(edited('R$ 12,9|34')).toBe('R$ 129|,34');
     });
 
-    it('takes the digit at the right off, whatever the caret was against', () => {
-      expect(brazil.editFromText({ previous: before, text: 'R$ 1,34' })).toEqual({
-        value: 1.23,
-        minorUnits: 123,
-      });
-      expect(brazil.editFromText({ previous: before, text: 'R$ 12,4' })).toEqual({
-        value: 1.23,
-        minorUnits: 123,
-      });
+    it('keeps the zeros on its right, so the first digit is exchanged', () => {
+      expect(edited('R$ |0.000,00')).toBe('R$ |0.000,00');
+      expect(brazil.editFromText(at('R$ |0.000,00'))).toMatchObject({ value: 0, minorUnits: 0 });
+      expect(edited('R$ 2|0.000,00')).toBe('R$ 2|0.000,00');
     });
 
-    it('replaces a selection at the right rather than where it stood', () => {
-      /* `5` typed over `2,3`: two digits went, one came. */
-      expect(brazil.editFromText({ previous: before, text: 'R$ 154' })).toEqual({
-        value: 1.25,
-        minorUnits: 125,
-      });
+    it('drops the zeros on its left', () => {
+      expect(edited('R$ 0|0.000,00')).toBe('R$ |0.000,00');
+      expect(edited('R$ 0,7|05')).toBe('R$ 7|,05');
+    });
+
+    it('erases the digit beside a separator, and not the separator', () => {
+      const previous = 'R$ 1.234,56';
+
+      expect(edited('R$ 1|234,56', { inputType: 'deleteContentBackward', previous })).toBe(
+        'R$ |234,56',
+      );
+      expect(edited('R$ 1|234,56', { inputType: 'deleteContentForward', previous })).toBe(
+        'R$ 1|34,56',
+      );
+      expect(edited('R$|1.234,56', { inputType: 'deleteContentBackward', previous })).toBe(
+        'R$ |1.234,56',
+      );
+    });
+
+    it('erases the last digit from behind a trailing symbol', () => {
+      const germany = createCurrencyFormat({ locale: 'de-DE', currency: 'EUR' });
+      const previous = germany.format(12.34);
+
+      expect(
+        germany.editFromText({
+          inputType: 'deleteContentBackward',
+          previous,
+          text: previous.slice(0, -1),
+        }).value,
+      ).toBe(1.23);
+    });
+
+    it('replaces a selection where it stood', () => {
+      /* `5` typed over `2,3`. */
+      expect(edited('R$ 15|4')).toBe('R$ 1,5|4');
+    });
+
+    it('refuses the digits past the length limit, and keeps the ones on its right', () => {
+      const full = '9'.repeat(MAX_AMOUNT_DIGITS);
+
+      expect(brazil.editFromText({ caret: 2, text: `12${full}` }).minorUnits).toBe(Number(full));
+    });
+
+    it('keeps the sign of a debit, and the digits of another script', () => {
+      expect(edited('-R$ 15|0,00', { negative: true })).toBe('-R$ 15|0,00');
+
+      const egypt = createCurrencyFormat({ locale: 'ar-EG', currency: 'EGP' });
+      const edit = egypt.editFromText({ caret: 0, text: egypt.format(0).replace('٠', '٠٠٠') });
+
+      expect(egypt.digitsOf(edit.text)).toBe('00000');
+      expect(edit.text).toMatch(/٠/);
     });
 
     it('empties the run when the whole amount is deleted at once', () => {
-      expect(brazil.editFromText({ previous: before, text: '' })).toEqual({
-        value: 0,
-        minorUnits: 0,
-      });
-      expect(brazil.editFromText({ previous: before, text: '', allowEmpty: true })).toEqual({
+      expect(edited('|')).toBe('R$ 0,00|');
+      expect(brazil.editFromText({ text: '', allowEmpty: true })).toEqual({
         value: null,
         minorUnits: null,
+        text: '',
+        right: 0,
       });
-    });
-
-    it('reads the text alone when there is no text behind it', () => {
-      expect(brazil.editFromText({ text: 'R$ 912,34' })).toEqual({
-        value: 912.34,
-        minorUnits: 91234,
-      });
-    });
-  });
-
-  /**
-   * The rule itself, over runs rather than over amounts: what the two runs
-   * share at either end is what the edit did not touch, and the middle of each
-   * is what went and what came.
-   */
-  describe('shiftIntoRun', () => {
-    it('appends what came, wherever it appeared', () => {
-      expect(shiftIntoRun('000', '2000')).toBe('0002');
-      expect(shiftIntoRun('1234', '12934')).toBe('12349');
-      expect(shiftIntoRun('1234', '12345')).toBe('12345');
-      expect(shiftIntoRun('', '5')).toBe('5');
-    });
-
-    it('takes off what went, from the right', () => {
-      expect(shiftIntoRun('1234', '134')).toBe('123');
-      expect(shiftIntoRun('1234', '123')).toBe('123');
-      expect(shiftIntoRun('1234', '')).toBe('');
-    });
-
-    it('counts a replacement as both, in one keystroke', () => {
-      expect(shiftIntoRun('1234', '154')).toBe('125');
-      expect(shiftIntoRun('1234', '9')).toBe('9');
-    });
-
-    it('leaves a run nothing happened to alone', () => {
-      expect(shiftIntoRun('1234', '1234')).toBe('1234');
-      expect(shiftIntoRun('', '')).toBe('');
     });
   });
 
   it('carries the sign the family holds rather than reading it from the text', () => {
-    expect(brazil.editFromText({ text: '1234', negative: true })).toEqual({
+    expect(brazil.editFromText({ text: '1234', negative: true })).toMatchObject({
       value: -12.34,
       minorUnits: -1234,
     });
-    expect(brazil.editFromText({ text: '1234', negative: true, allowNegative: false })).toEqual({
+    expect(
+      brazil.editFromText({ text: '1234', negative: true, allowNegative: false }),
+    ).toMatchObject({
       value: 12.34,
       minorUnits: 1234,
     });
@@ -330,16 +343,16 @@ describe('cents-first entry', () => {
    * an amount copied from a bank statement is not a run of digits.
    */
   it('parses a paste instead of accumulating its digits', () => {
-    expect(brazil.editFromText({ text: 'R$\u00a01.480,00', inputType: 'insertFromPaste' })).toEqual(
-      {
-        value: 1480,
-        minorUnits: 148000,
-      },
-    );
+    expect(
+      brazil.editFromText({ text: 'R$\u00a01.480,00', inputType: 'insertFromPaste' }),
+    ).toMatchObject({
+      value: 1480,
+      minorUnits: 148000,
+    });
   });
 
   it('falls back to the digits when a paste means nothing on its own', () => {
-    expect(brazil.editFromText({ text: 'nota 12', inputType: 'insertFromPaste' })).toEqual({
+    expect(brazil.editFromText({ text: 'nota 12', inputType: 'insertFromPaste' })).toMatchObject({
       value: 0.12,
       minorUnits: 12,
     });
@@ -348,13 +361,13 @@ describe('cents-first entry', () => {
   it('shifts by nothing in a currency with no cent', () => {
     const japan = createCurrencyFormat({ locale: 'ja-JP', currency: 'JPY' });
 
-    expect(japan.editFromText({ text: '1234' })).toEqual({ value: 1234, minorUnits: 1234 });
+    expect(japan.editFromText({ text: '1234' })).toMatchObject({ value: 1234, minorUnits: 1234 });
   });
 
   it('shifts by three in a currency with three', () => {
     const kuwait = createCurrencyFormat({ locale: 'ar-KW', currency: 'KWD' });
 
-    expect(kuwait.editFromText({ text: '1234' })).toEqual({ value: 1.234, minorUnits: 1234 });
+    expect(kuwait.editFromText({ text: '1234' })).toMatchObject({ value: 1.234, minorUnits: 1234 });
   });
 
   /** A numbering system is part of the locale, and the reader types in it. */
