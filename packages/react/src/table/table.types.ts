@@ -19,6 +19,7 @@ import type {
 import type { PickerPreset, PlainTime, TimeGranularity } from '@slotted/core/date';
 import type { FamilyTranslator, PartialMessages, TableMessages } from '@slotted/core/i18n';
 import type { DateRange } from '../calendar';
+import type { DateTimeRange } from '../datetime-range-picker';
 import type { TimeFieldHourCycle } from '../time-field';
 import type { TimeRange } from '../time-range-picker';
 import type { ChangeRequest } from '@slotted/core/state';
@@ -279,11 +280,11 @@ export interface TableDateTimeFilterProps extends TableConditionFilterProps<
   /** The zone "now" is read in. Defaults to the runtime's. */
   timeZone?: string | undefined;
   /**
-   * The application's own windows — the last 24 hours, this week — as
-   * `DateTimeRangePickerPreset`s, offered inside the range picker `between`
-   * draws. The descriptor still receives two ISO date-times.
+   * The application's own windows — the last 24 hours, this week — offered
+   * inside the range picker `between` draws. The descriptor still receives two
+   * ISO date-times.
    */
-  presets?: ReactNode | undefined;
+  presets?: readonly PickerPreset<DateTimeRange>[] | undefined;
 }
 
 /** A column of two answers, called by the catalog's `true` and `false`. */

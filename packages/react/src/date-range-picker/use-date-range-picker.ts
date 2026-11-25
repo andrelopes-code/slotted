@@ -1,17 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { rangeProblems } from '@slotted/core/date';
-import { createControllable } from '@slotted/core/state';
-import type { ChangeReason } from '@slotted/core/state';
 
 import { useToday } from '../date-picker/use-date-picker';
 import { useField } from '../field';
 import { useLocale } from '../i18n';
 import { useDateRangePickerDefaults } from './date-range-picker-defaults';
-import type {
-  DateRange,
-  DateRangePickerPosition,
-  DateRangePickerProps,
-} from './date-range-picker.types';
+import type { DateRange, DateRangePickerProps } from './date-range-picker.types';
 
 /** What a picker renders as: its own word, then the field's, then the application's. */
 export function useDateRangePickerConfig(props: DateRangePickerProps) {
@@ -54,25 +48,4 @@ export function useRangeRules(props: DateRangePickerProps, count: 'days' | 'nigh
 /** What a held run fails, read by the frame and by the field of the end. */
 export function useRangeProblems(held: DateRange | null, rules: ReturnType<typeof useRangeRules>) {
   return useMemo(() => rangeProblems(held, rules), [held, rules]);
-}
-
-/** The end being edited, owned by the consumer or by the picker. */
-export function useRangePosition({
-  defaultPosition = 'start',
-  onPositionChange,
-  position,
-}: DateRangePickerProps) {
-  const [own, setOwn] = useState<DateRangePickerPosition>(defaultPosition);
-  const current = position ?? own;
-
-  function request(next: DateRangePickerPosition, reason: ChangeReason, source: unknown) {
-    const state = createControllable<DateRangePickerPosition>({
-      controlled: position,
-      initial: current,
-      onRequest: (asked) => onPositionChange?.(asked.value, asked),
-    });
-    if (state.request(next, reason, source)) setOwn(next);
-  }
-
-  return [current, request] as const;
 }

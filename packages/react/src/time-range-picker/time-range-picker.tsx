@@ -1,15 +1,17 @@
 import { keyedProps } from '@slotted/core/selector-key';
 import '@slotted/styles/time-range-picker/time-range-picker.css';
 
-import { timeRangeProblems } from '@slotted/core/date';
+import { timeRangeProblems, toISOTime } from '@slotted/core/date';
+import type { PlainTime } from '@slotted/core/date';
 import { useImperativeHandle, useRef } from 'react';
 import type { MouseEvent } from 'react';
 
 import type { ClockHandle } from '../clock';
+import { PickerFrame } from '../picker-panel/picker-frame';
 import { PickerLayer } from '../picker-panel/picker-layer';
 import { usePickerLayer } from '../picker-panel/use-picker-layer';
+import { usePickerPosition } from '../picker-panel/use-picker-position';
 import { usePickerValue } from '../picker-panel/use-picker-value';
-import { TimeRangeControl } from './time-range-control';
 import { TimeRangePanel } from './time-range-panel';
 import type {
   TimeRange,
@@ -18,11 +20,7 @@ import type {
 } from './time-range-picker.types';
 import { isSameTimeRange, normalizeTimes, timeSummary, timeTriggerName } from './time-range-words';
 import { useTimeRangePanel } from './use-time-range-panel';
-import {
-  useTimeRangePickerConfig,
-  useTimeRangePosition,
-  useTimeRangeWords,
-} from './use-time-range-picker';
+import { useTimeRangePickerConfig, useTimeRangeWords } from './use-time-range-picker';
 
 /**
  * A one-line frame — the run in words, a clear and the trigger — and behind it
@@ -89,7 +87,7 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
   } = props;
   const config = useTimeRangePickerConfig(props);
   const words = useTimeRangeWords(props, config);
-  const [position, requestPosition] = useTimeRangePosition(props);
+  const [position, requestPosition] = usePickerPosition(props);
   const rootRef = useRef<HTMLElement | null>(null);
   const clockRefs = { start: useRef<ClockHandle>(null), end: useRef<ClockHandle>(null) };
 
@@ -147,16 +145,18 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
   }
 
   const children = (
-    <TimeRangeControl
+    <PickerFrame
       clearLabel={t('clear')}
       editable={config.editable}
-      endName={endName}
-      held={held}
+      glyph="clock"
       layer={layer}
       onClear={clearable && held !== null ? handleClear : undefined}
       placeholder={t('choose')}
+      posted={{
+        end: { name: endName, value: posted(held?.end) },
+        start: { name: startName, value: posted(held?.start) },
+      }}
       spoken={spoken}
-      startName={startName}
       summary={timeSummary(held, words)}
     />
   );
@@ -215,4 +215,8 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
       </PickerLayer>
     </>
   );
+}
+
+function posted(time: PlainTime | null | undefined): string {
+  return time == null ? '' : toISOTime(time);
 }

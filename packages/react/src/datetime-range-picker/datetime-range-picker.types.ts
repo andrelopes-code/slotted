@@ -1,15 +1,16 @@
 import type {
   DateTimeRangeValue,
+  PickerPreset,
   PlainDate,
   PlainDateTime,
   PlainTime,
   TimeGranularity,
-  TimeOption,
 } from '@slotted/core/date';
 import type { DatetimeRangePickerMessages, PartialMessages } from '@slotted/core/i18n';
 import type { ChangeRequest } from '@slotted/core/state';
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref } from 'react';
 
+import type { ClockSlotState } from '../clock';
 import type { DateTimeFieldHourCycle } from '../datetime-field';
 
 /** A run of datetimes, either end of which may be open. */
@@ -19,28 +20,11 @@ export type DateTimeRange = DateTimeRangeValue;
 export type DateTimeRangePickerPlacement =
   'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
 
-/**
- * Whether choosing closes the surface. `auto` closes when the work becomes
- * whole — by a press in a list, by `now` or by a preset — and stays open
- * while an end is still missing, because the next press has to reach the
- * same surface.
- */
-export type DateTimeRangePickerCloseOnSelect = 'auto' | 'always' | 'never';
-
-/** What a time a bound or the predicate refuses looks like in a list. */
-export type DateTimeRangePickerUnavailableOptions = 'disable' | 'hide';
-
 export type DateTimeRangePickerSize = 'sm' | 'md' | 'lg';
 export type DateTimeRangePickerVariant = 'outline' | 'subtle' | 'plain';
 
-/** The end being edited: the field and the panel carrying `data-current`. */
+/** The end being edited: the half and the clock carrying `data-current`. */
 export type DateTimeRangePickerPosition = 'start' | 'end';
-
-/** The highlighted option of each list. */
-export interface DateTimeRangePickerHighlight {
-  readonly start: PlainTime | null;
-  readonly end: PlainTime | null;
-}
 
 export type DateTimeRangePickerValueReason = Extract<
   ChangeRequest<DateTimeRange | null>['reason'],
@@ -52,22 +36,20 @@ export type DateTimeRangePickerCalendar = 'gregory';
 
 export interface DateTimeRangePickerDefaults {
   calendar: DateTimeRangePickerCalendar;
-  closeOnSelect: DateTimeRangePickerCloseOnSelect;
+  /** Whether the panel keeps a draft until Apply. */
+  confirm: boolean;
   firstDayOfWeek: number | undefined;
   granularity: TimeGranularity;
   hourCycle: DateTimeFieldHourCycle | undefined;
   /** "2 hr 30 min", in the product's own words; seconds in, and the family's locale. */
   lengthLabel: (seconds: number, locale: string | undefined) => string;
-  /** How many rows a list may reach before it is cut. */
-  maxOptions: number;
-  /** How many months the grid shows; one, because two lists stand beside it. */
+  /** How many months the panel shows; one, in one column. */
   months: number;
   placement: DateTimeRangePickerPlacement;
   size: DateTimeRangePickerSize;
   /** Seconds between two offered times. */
   step: number;
   timeZone: string | undefined;
-  unavailableOptions: DateTimeRangePickerUnavailableOptions;
   variant: DateTimeRangePickerVariant;
 }
 
@@ -98,19 +80,11 @@ export interface DateTimeRangePickerHandle {
   close(): void;
 }
 
-/** What `renderOption` receives: the row's own state, and the time it holds. */
-export interface DateTimeRangePickerOptionState {
+/** What `renderSlot` is handed: one whole time, the end it is of, and that end's day. */
+export interface DateTimeRangePickerSlotState extends ClockSlotState {
+  /** The day of the end in the draft, `null` before one is chosen. */
+  readonly date: PlainDate | null;
   readonly position: DateTimeRangePickerPosition;
-  /** The day this list serves: the date of its end, or the grid's focused day. */
-  readonly date: PlainDate;
-  readonly time: PlainTime;
-  /** The whole time in the locale's shape, which is what the row draws. */
-  readonly label: string;
-  /** The duration the run would have with the other end as it stands, in words; `null` when the row carries none. */
-  readonly duration: string | null;
-  readonly selected: boolean;
-  readonly current: boolean;
-  readonly unavailable: boolean;
 }
 
 export interface DateTimeRangePickerProps extends Omit<
@@ -139,16 +113,6 @@ export interface DateTimeRangePickerProps extends Omit<
       ) => void)
     | undefined;
 
-  /** Where the reader is in each list. Present means the consumer owns it. */
-  highlighted?: DateTimeRangePickerHighlight | undefined;
-  defaultHighlighted?: DateTimeRangePickerHighlight | undefined;
-  onHighlightedChange?:
-    | ((
-        value: DateTimeRangePickerHighlight,
-        request: ChangeRequest<DateTimeRangePickerHighlight>,
-      ) => void)
-    | undefined;
-
   /** The whole-value bounds: where the range starts and ends. */
   min?: PlainDateTime | undefined;
   max?: PlainDateTime | undefined;
@@ -157,12 +121,13 @@ export interface DateTimeRangePickerProps extends Omit<
   maxTime?: PlainTime | undefined;
   /** Answers a whole day and feeds the grid. */
   isDateUnavailable?: ((date: PlainDate) => boolean) | undefined;
-  /** Answers one time on one day and feeds the lists. */
+  /** Answers one time on one day and feeds the clocks. */
   isTimeUnavailable?: ((time: PlainTime, date: PlainDate) => boolean) | undefined;
   /**
    * Whether a run may cross an unavailable day. On, and with a start chosen,
    * the days beyond the first unavailable one are refused in the grid, and on
-   * the same day the times beyond the first unavailable one in the end list.
+   * the same day the times beyond the first unavailable one in the clock of the
+   * end.
    */
   contiguous?: boolean | undefined;
   /** The shortest and longest run allowed, in seconds. */
@@ -174,13 +139,10 @@ export interface DateTimeRangePickerProps extends Omit<
   step?: number | undefined;
   /** The times to offer, stated rather than stepped; the same list for both ends. */
   options?: readonly PlainTime[] | undefined;
-  /** How many rows a list may reach before it is cut. */
-  maxOptions?: number | undefined;
-  unavailableOptions?: DateTimeRangePickerUnavailableOptions | undefined;
 
   months?: number | undefined;
   weekNumbers?: boolean | undefined;
-  /** Six rows whatever the month needs, so a press of "next" moves no target. On by default. */
+  /** Six rows whatever the months need. Off: two months end where the longer one does. */
   fixedWeeks?: boolean | undefined;
 
   /** BCP 47. Unset, the language in force (`SlottedProvider`) decides. */
@@ -197,7 +159,11 @@ export interface DateTimeRangePickerProps extends Omit<
   size?: DateTimeRangePickerSize | undefined;
   variant?: DateTimeRangePickerVariant | undefined;
   placement?: DateTimeRangePickerPlacement | undefined;
-  closeOnSelect?: DateTimeRangePickerCloseOnSelect | undefined;
+  /**
+   * Whether the panel keeps a draft until Apply. `false` writes a whole run on
+   * every press, and closes on the one that completes it. Defaults to `true`.
+   */
+  confirm?: boolean | undefined;
 
   disabled?: boolean | undefined;
   readOnly?: boolean | undefined;
@@ -206,12 +172,11 @@ export interface DateTimeRangePickerProps extends Omit<
 
   /** Draws one clear on the frame, which empties both ends. */
   clearable?: boolean | undefined;
-  /** Whether the two fields in the band take the relative expression. */
+  /** Whether the fields of the two ends take the relative expression. */
   relative?: boolean | undefined;
   /**
    * Words laid over the catalog of the language in force, key by key: the
-   * trigger's names, the two ends, the hint, the limit, and what a panel says
-   * when it is empty or cut short.
+   * trigger's names, the two ends, the limits, and what is said of a refused run.
    */
   messages?: PartialMessages<DatetimeRangePickerMessages> | undefined;
 
@@ -219,33 +184,18 @@ export interface DateTimeRangePickerProps extends Omit<
   startName?: string | undefined;
   endName?: string | undefined;
 
-  /** The consumer's own shortcuts, as `DateTimeRangePickerPreset` elements. */
-  presets?: ReactNode | undefined;
-  /** The consumer's own actions, under the grid and the lists. */
+  /** The consumer's own shortcuts. The panel writes the run each one is. */
+  presets?: readonly PickerPreset<DateTimeRange>[] | undefined;
+  /**
+   * Lengths the run can take from its start, in seconds. Defaults to one day
+   * through fourteen.
+   */
+  durations?: readonly number[] | undefined;
+  /** What the footer says when nothing is wrong. Unset, the limits, the zone or the step. */
   footer?: ReactNode | undefined;
-  /** What one row draws. The row is the family's; what is in it is not. */
-  renderOption?: ((state: DateTimeRangePickerOptionState) => ReactNode) | undefined;
+  /** What one whole time of `options` draws. The button around it is the clock's. */
+  renderSlot?: ((state: DateTimeRangePickerSlotState) => ReactNode) | undefined;
 
   render?: ((props: DateTimeRangePickerRootProps) => ReactNode) | undefined;
   ref?: Ref<DateTimeRangePickerHandle> | undefined;
 }
-
-export interface DateTimeRangePickerPresetRootProps extends HTMLAttributes<HTMLElement> {
-  'data-part': string;
-  'data-selected'?: '' | undefined;
-  disabled?: boolean | undefined;
-  type: 'button';
-  ref?: Ref<HTMLElement> | undefined;
-}
-
-export interface DateTimeRangePickerPresetProps extends Omit<
-  ComponentPropsWithRef<'button'>,
-  'value' | 'ref'
-> {
-  /** The range the press writes, or a function resolving it at the press. */
-  value: DateTimeRange | (() => DateTimeRange);
-  render?: ((props: DateTimeRangePickerPresetRootProps) => ReactNode) | undefined;
-  ref?: Ref<HTMLButtonElement> | undefined;
-}
-
-export type { TimeOption };

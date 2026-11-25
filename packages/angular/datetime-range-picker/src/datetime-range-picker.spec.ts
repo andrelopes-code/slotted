@@ -1,347 +1,419 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { plainDate, plainTime } from '@slotted/core/date';
-import type { PlainDate, PlainDateTime, PlainTime } from '@slotted/core/date';
+import { SlClockSlot } from '@slotted/angular/clock';
 import { provideSlotted } from '@slotted/angular/i18n';
+import { plainDate, plainDateTime, plainTime } from '@slotted/core/date';
+import type { PlainDate } from '@slotted/core/date';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
-import type { ChangeRequest } from '@slotted/core/state';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/datetime-range-picker/contract.json';
-import { SlDateTimeRangePicker, SlDateTimeRangePickerPreset } from './datetime-range-picker';
+import { SlDateTimeRangePicker } from './datetime-range-picker';
 import { provideDateTimeRangePickerDefaults } from './datetime-range-picker-defaults';
-import type { DateTimeRange, DateTimeRangePickerPosition } from './datetime-range-picker-defaults';
-import {
-  SlDateTimeRangePickerFooter,
-  SlDateTimeRangePickerOption,
-  SlDateTimeRangePickerPresets,
-} from './datetime-range-picker-parts';
+import type { DateTimeRange } from './datetime-range-picker-defaults';
+import { SlDateTimeRangePickerFooter } from './datetime-range-picker-parts';
 
-const d = (day: number) => plainDate(2026, 9, day);
-const t = (hour: number, minute = 0) => plainTime(hour, minute);
-const dt = (day: number, hour: number, minute = 0): PlainDateTime => ({
-  date: d(day),
-  time: t(hour, minute),
-});
-const RUN: DateTimeRange = { start: dt(12, 14), end: dt(16, 11) };
-const NOON = dt(14, 12);
+const at = (day: number, hour: number, minute = 0) =>
+  plainDateTime(plainDate(2026, 9, day), plainTime(hour, minute));
+
+/** A Thursday. Stated rather than read from the clock, so every assertion is fixed. */
+const NOW = at(10, 10, 20);
+const RUN: DateTimeRange = { start: at(14, 17), end: at(17, 10, 30) };
 
 @Component({
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    SlDateTimeRangePicker,
-    SlDateTimeRangePickerFooter,
-    SlDateTimeRangePickerOption,
-    SlDateTimeRangePickerPresets,
-    SlDateTimeRangePickerPreset,
-  ],
+  imports: [ReactiveFormsModule, SlClockSlot, SlDateTimeRangePicker, SlDateTimeRangePickerFooter],
   template: `<div slDateTimeRangePicker></div>`,
 })
 class Host {
   readonly run = RUN;
-  readonly sameDay: DateTimeRange = { start: dt(12, 14), end: dt(12, 16, 30) };
-  readonly openRun: DateTimeRange = { start: dt(12, 14), end: null };
-  readonly lateSame: DateTimeRange = { start: dt(12, 17), end: dt(12, 17) };
-  readonly reversed: DateTimeRange = { start: dt(16, 11), end: dt(12, 14) };
-  readonly noon = NOON;
-  readonly eight = t(8);
-  readonly seventeen = t(17);
-  readonly eighteen = t(18);
+  readonly openRun: DateTimeRange = { start: at(14, 17), end: null };
+  readonly sameDay: DateTimeRange = { start: at(14, 17), end: at(14, 20) };
+  readonly reversed: DateTimeRange = { start: RUN.end, end: RUN.start };
+  readonly now = NOW;
+  readonly closes = at(17, 12);
+  readonly listed = [plainTime(9), plainTime(17)];
+  readonly trips = [{ label: 'Next week', value: () => RUN }];
+  readonly words = { start: 'Pickup' };
+  readonly closed = ({ day }: PlainDate) => day === 16;
   readonly control = new FormControl<DateTimeRange | null>(RUN);
-  readonly values: (DateTimeRange | null)[] = [];
-  readonly opens: boolean[] = [];
-  readonly positions: DateTimeRangePickerPosition[] = [];
-  readonly onValue = vi.fn((request: ChangeRequest<DateTimeRange | null>) => {
-    this.values.push(request.value);
-  });
-  readonly onOpen = vi.fn((request: ChangeRequest<boolean>) => {
-    this.opens.push(request.value);
-  });
-  readonly onPosition = vi.fn((request: ChangeRequest<DateTimeRangePickerPosition>) => {
-    this.positions.push(request.value);
-  });
-  readonly closedTwelveAtThree = (time: PlainTime, date: PlainDate) =>
-    date.day === 12 && time.hour === 15;
+  readonly onValue = vi.fn();
+  readonly onPosition = vi.fn();
 }
 
-function renderTemplate(template: string, providers: unknown[] = []) {
+afterEach(() => vi.unstubAllGlobals());
+
+describe('what it is made of', () => {
+  it('declares every part the contract names, and opens the shared panel', () => {
+    const fixture = draw('clearable defaultOpen [defaultValue]="run"');
+
+    for (const name of contract.members.dateTimeRangePicker.parts) {
+      expect(part(fixture, name), name).not.toBeNull();
+    }
+    expect(root(fixture).dataset['ui']).toBe(contract.ui);
+    expect(all(fixture, '[data-kind="datetime-range"]')).toHaveLength(1);
+    expect(all(fixture, '[data-part="half"] [data-ui="datetime-field"]')).toHaveLength(2);
+    expect(all(fixture, '[data-ui="clock"]')).toHaveLength(2);
+    expect(all(fixture, '[role="grid"]')).toHaveLength(2);
+  });
+
+  it('is a one-line frame: the run in words, and its name with the length', () => {
+    const fixture = draw('[defaultValue]="run"');
+
+    expect(texts(fixture, '[data-part="summary"]')).toEqual(['Sep 14, 17:00 – Sep 17, 10:30']);
+    expect(trigger(fixture).getAttribute('aria-label')).toMatch(
+      /^Change range, .*, 2 days 17 hr 30 min$/,
+    );
+  });
+
+  it('writes how far each end is, and the days of each shortcut', () => {
+    const fixture = draw('defaultOpen [defaultValue]="run" [presets]="trips"');
+
+    expect(texts(fixture, '[data-part="range-head"] > * > [data-part="half-meta"]')).toEqual([
+      'Mon, in 4 days',
+      'Thu, in 7 days',
+    ]);
+    expect(texts(fixture, '[data-part="preset-result"]')).toEqual(['Sep 14 – 17']);
+    expect(texts(fixture, '[data-part="chip"]')).toHaveLength(6);
+  });
+
+  it('draws a stated list the consumer’s own way, per end and day', () => {
+    const fixture = draw(
+      'defaultOpen [defaultValue]="run" [options]="listed"',
+      '<ng-template slClockSlot let-date="date" let-position="position" let-state="state">{{ position }} {{ date?.day }} {{ state.label }}</ng-template>',
+    );
+
+    expect(texts(fixture, '[data-ui="clock"] [role="option"]')).toEqual([
+      'start 14 09:00',
+      'start 14 17:00',
+      'end 17 09:00',
+      'end 17 17:00',
+    ]);
+  });
+});
+
+describe('the four halves', () => {
+  it('are chosen one after the other, each press bringing the next grid', async () => {
+    const fixture = draw('defaultOpen');
+
+    click(fixture, day(fixture, 14));
+    await fixture.whenStable();
+    expect(options(fixture, 'Start', 'Hours')).toContain(document.activeElement);
+
+    click(fixture, options(fixture, 'Start', 'Hours')[17]!);
+    click(fixture, options(fixture, 'Start', 'Minutes')[0]!);
+    expect(fixture.componentInstance.onPosition).toHaveBeenLastCalledWith(
+      expect.objectContaining({ value: 'end' }),
+    );
+
+    click(fixture, day(fixture, 17));
+    await fixture.whenStable();
+    expect(options(fixture, 'End', 'Hours')).toContain(document.activeElement);
+    expect((part(fixture, 'apply') as HTMLButtonElement).disabled).toBe(true);
+
+    click(fixture, options(fixture, 'End', 'Hours')[10]!);
+    expect(written(fixture)).toEqual([]);
+    click(fixture, part(fixture, 'apply'));
+    expect(written(fixture)).toEqual([{ start: at(14, 17), end: at(17, 10) }]);
+    expect(part(fixture, 'content')).toBeNull();
+  });
+
+  it('are written in words while one of an end is missing', () => {
+    const fixture = draw('defaultOpen');
+
+    click(fixture, day(fixture, 14));
+    expect(texts(fixture, '[data-part="half-day"]')).toEqual(['Mon, Sep 14']);
+    expect(texts(fixture, '[data-part="half-time"]')).toEqual(['Time']);
+  });
+
+  it('keep their times under new days, and are typed in the head', () => {
+    const fixture = draw('defaultOpen [defaultValue]="run"');
+
+    click(fixture, day(fixture, 24));
+    click(fixture, day(fixture, 21));
+    key(fixture, all(fixture, '[data-part="half"] [role="spinbutton"]')[3]!, 'ArrowUp');
+    click(fixture, part(fixture, 'apply'));
+    expect(written(fixture)).toEqual([{ start: at(21, 18), end: at(24, 10, 30) }]);
+  });
+});
+
+describe('the draft', () => {
+  it('takes a step, a length and a shortcut', () => {
+    const fixture = draw('defaultOpen [defaultValue]="run" [presets]="trips"');
+
+    click(fixture, all(fixture, '[data-part="span"] [data-part="step"]')[1]!);
+    expect(text(fixture, 'span-text')).toBe('3 days 17 hr 30 min');
+    click(fixture, all(fixture, '[data-part="chip"]')[4]!);
+    expect(text(fixture, 'span-text')).toBe('7 days');
+    click(fixture, part(fixture, 'preset'));
+    key(fixture, part(fixture, 'content'), 'Enter', { ctrlKey: true });
+    expect(text(fixture, 'summary')).toContain('Sep 17');
+  });
+
+  it('says the days of the run the pointer would draw', () => {
+    const fixture = draw('defaultOpen [defaultValue]="run"');
+
+    click(fixture, day(fixture, 21));
+    day(fixture, 26).dispatchEvent(new Event('pointerenter'));
+    fixture.detectChanges();
+    expect(text(fixture, 'span-text')).toBe('4 days 17 hr 30 min');
+  });
+
+  it('is discarded by Escape, and emptied by Clear', () => {
+    const fixture = draw('defaultOpen [defaultValue]="run"');
+
+    click(fixture, all(fixture, '[data-part="chip"]')[0]!);
+    document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
+    fixture.detectChanges();
+    click(fixture, trigger(fixture));
+    expect(text(fixture, 'span-text')).toBe('2 days 17 hr 30 min');
+
+    click(fixture, all(fixture, '[data-part="footer"] [data-part="clear"]')[0]!);
+    click(fixture, part(fixture, 'apply'));
+    expect(written(fixture)).toEqual([null]);
+  });
+
+  it('is written as it goes, without a confirmation', () => {
+    const fixture = draw('confirm="false" defaultOpen [defaultValue]="run"');
+
+    click(fixture, all(fixture, '[data-part="span"] [data-part="step"]')[1]!);
+    expect(written(fixture)).toEqual([{ ...RUN, end: at(18, 10, 30) }]);
+
+    key(fixture, all(fixture, '[data-part="half"] [role="spinbutton"]')[3]!, 'ArrowUp');
+    expect(written(fixture).at(-1)).toEqual({ start: at(14, 18), end: at(18, 10, 30) });
+
+    click(fixture, options(fixture, 'End', 'Minutes')[0]!);
+    expect(written(fixture).at(-1)).toEqual({ start: at(14, 18), end: at(18, 10) });
+    expect(part(fixture, 'content')).toBeNull();
+  });
+});
+
+describe('the rules', () => {
+  it('strike in the clock of the end what a start of the same day refuses', () => {
+    const fixture = draw('defaultOpen step="3600" [defaultValue]="sameDay"');
+
+    expect(offered(fixture, 'Start')).toHaveLength(24);
+    expect(offered(fixture, 'End')).toEqual([18, 19, 20, 21, 22, 23]);
+  });
+
+  it('bound each clock on its own day', () => {
+    const fixture = draw('defaultOpen step="3600" [defaultValue]="run" [max]="closes"');
+
+    expect(offered(fixture, 'End').at(-1)).toBe(12);
+  });
+
+  it('stop the days of a run at an unavailable one, unless it may cross it', () => {
+    const rules = 'defaultOpen [defaultValue]="openRun" [isDateUnavailable]="closed"';
+
+    expect(day(draw(rules), 17).getAttribute('aria-disabled')).toBe('true');
+    expect(day(draw(`contiguous="false" ${rules}`), 17).getAttribute('aria-disabled')).toBeNull();
+  });
+
+  it('say why a run is refused, and by how much', () => {
+    const reversed = draw('defaultOpen [defaultValue]="reversed"');
+    expect(text(reversed, 'hint')).toBe('The end must come after the start');
+
+    const over = draw('defaultOpen maxLength="172800" [defaultValue]="run"');
+    expect(text(over, 'hint')).toBe('17 hr 30 min over the limit');
+    expect(texts(over, '[data-part="cell"][data-over]')).toEqual(['17']);
+    expect((part(over, 'apply') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('name the limits in the footer, and the zone without one', () => {
+    expect(text(draw('defaultOpen minLength="86400"'), 'hint')).toBe('at least 1 day');
+    expect(text(draw('defaultOpen timeZone="Europe/Lisbon"'), 'hint')).toBe('Europe/Lisbon');
+  });
+});
+
+describe('one part at a time', () => {
+  it('shows the day or the time of one end, and the halves bring them', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      addEventListener: () => undefined,
+      matches: query.includes('760px'),
+      removeEventListener: () => undefined,
+    }));
+    const fixture = draw('defaultOpen [defaultValue]="run"');
+    const showing = () => all(fixture, '[data-kind]')[0]!.dataset['showing'];
+    expect(showing()).toBe('day');
+    expect(all(fixture, '[role="grid"]')).toHaveLength(1);
+
+    click(fixture, all(fixture, '[data-part="half-time"]')[1]!);
+    expect(showing()).toBe('time');
+    expect(all(fixture, '[data-ui="clock"]')[1]!.hasAttribute('data-current')).toBe(true);
+
+    click(fixture, all(fixture, '[data-part="half-day"]')[0]!);
+    expect(showing()).toBe('day');
+  });
+});
+
+describe('what a form sees', () => {
+  it('is the whole range, with the family’s own errors', () => {
+    const fixture = draw('defaultOpen [formControl]="control" [minLength]="604800"');
+    const { control } = fixture.componentInstance;
+    expect(control.errors).toEqual({
+      slottedDateTimeRangeLength: { actual: RUN, maxLength: undefined, minLength: 604800 },
+    });
+
+    click(fixture, all(fixture, '[data-part="chip"]')[4]!);
+    click(fixture, part(fixture, 'apply'));
+    expect(control.value).toEqual({ ...RUN, end: at(21, 17) });
+    expect(control.errors).toBeNull();
+
+    control.setValue({ start: RUN.end, end: RUN.start });
+    expect(control.errors?.['slottedDateTimeRangeOrder']).toBeDefined();
+
+    control.disable();
+    fixture.detectChanges();
+    expect(trigger(fixture).disabled).toBe(true);
+  });
+
+  it('is two named inputs, which a reset takes back to the first run', () => {
+    const fixture = draw(
+      'defaultOpen endName="to" startName="from" [defaultValue]="run"',
+      '',
+      (picker) => `<form>${picker}</form>`,
+    );
+    const posted = () =>
+      (
+        all(fixture, '[data-part="control"] > [data-part="hidden-input"]') as HTMLInputElement[]
+      ).map((input) => [input.name, input.value]);
+
+    click(fixture, all(fixture, '[data-part="chip"]')[4]!);
+    click(fixture, part(fixture, 'apply'));
+    expect(posted()).toEqual([
+      ['from', '2026-09-14T17:00:00'],
+      ['to', '2026-09-21T17:00:00'],
+    ]);
+
+    (fixture.nativeElement.querySelector('form') as HTMLFormElement).reset();
+    fixture.detectChanges();
+    expect(posted()[1]).toEqual(['to', '2026-09-17T10:30:00']);
+  });
+
+  it('is emptied by the clear on the frame', () => {
+    const fixture = draw('clearable [defaultValue]="run"');
+
+    click(fixture, part(fixture, 'clear'));
+    expect(written(fixture)).toEqual([null]);
+    expect(document.activeElement).toBe(trigger(fixture));
+  });
+});
+
+describe('what the application states once', () => {
+  it('is the months, the step and the confirmation', () => {
+    const fixture = draw('defaultOpen [defaultValue]="run"', '', undefined, [
+      provideDateTimeRangePickerDefaults({ confirm: false, months: 1, step: 3600 }),
+    ]);
+
+    expect(all(fixture, '[role="grid"]')).toHaveLength(1);
+    expect(options(fixture, 'Start', 'Minutes')).toHaveLength(0);
+    expect(part(fixture, 'apply')).toBeNull();
+  });
+
+  it('is laid over by its own messages and footer', () => {
+    const fixture = draw(
+      'defaultOpen [defaultValue]="run" [messages]="words"',
+      '<span slDateTimeRangePickerFooter>Keys at the desk</span>',
+    );
+
+    expect(texts(fixture, '[data-part="half-label"]')).toEqual(['Pickup', 'End']);
+    expect(text(fixture, 'hint')).toBe('Keys at the desk');
+  });
+
+  it('is the language in force', () => {
+    const fixture = draw(
+      'defaultOpen minLength="86400" [defaultValue]="run"',
+      '',
+      (picker) => picker.replace('locale="en-US"', ''),
+      [provideSlotted({ catalogs: { 'pt-BR': PT_BR }, locale: 'pt-BR' })],
+    );
+
+    // language: pt-BR
+    expect(text(fixture, 'hint')).toBe('pelo menos 1 dia');
+    expect(text(fixture, 'half-meta')).toBe('seg., em 4 dias');
+    // language: en-US
+  });
+});
+
+function draw(
+  attributes: string,
+  content = '',
+  wrap: (picker: string) => string = (picker) => picker,
+  providers: unknown[] = [],
+) {
+  const picker = `<div slDateTimeRangePicker locale="en-US" [hourCycle]="24" [referenceDateTime]="now" ${attributes} (valueChange)="onValue($event)" (positionChange)="onPosition($event)">${content}</div>`;
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({ providers: providers as never[] });
-  TestBed.overrideComponent(Host, { set: { template } });
+  TestBed.overrideComponent(Host, { set: { template: wrap(picker) } });
   const fixture = TestBed.createComponent(Host);
   fixture.detectChanges();
+
   return fixture;
 }
 
-type Fixture = ReturnType<typeof renderTemplate>;
+type Fixture = ReturnType<typeof draw>;
 
-const BASE = `slDateTimeRangePicker locale="en" [hourCycle]="24" [referenceDateTime]="noon"`;
+function all(fixture: Fixture, selector: string) {
+  return [...fixture.nativeElement.querySelectorAll(selector)] as HTMLElement[];
+}
 
-const root = (fixture: Fixture) =>
-  fixture.nativeElement.querySelector(
+function texts(fixture: Fixture, selector: string) {
+  return all(fixture, selector).map((element) =>
+    (element.textContent ?? '').trim().replaceAll(/\s/g, ' '),
+  );
+}
+
+function part(fixture: Fixture, name: string) {
+  return fixture.nativeElement.querySelector(`[data-part="${name}"]`) as HTMLElement;
+}
+
+function text(fixture: Fixture, name: string) {
+  return (part(fixture, name)?.textContent ?? '').trim();
+}
+
+function root(fixture: Fixture) {
+  return fixture.nativeElement.querySelector(
     '[data-ui="datetime-range-picker"][data-part="root"]',
   ) as HTMLElement;
-const part = (fixture: Fixture, name: string) =>
-  fixture.nativeElement.querySelector(`[data-part="${name}"]`) as HTMLElement;
-const text = (fixture: Fixture, name: string) => (part(fixture, name)?.textContent ?? '').trim();
-const surface = (fixture: Fixture) =>
-  fixture.nativeElement.querySelector('[data-part="content"]') as HTMLElement | null;
-const tab = (fixture: Fixture, position: DateTimeRangePickerPosition) =>
-  fixture.nativeElement.querySelector(
-    `[data-part="tab"][data-position="${position}"]`,
-  ) as HTMLElement;
-/** The one panel, which is the current end's; asking for the other end swaps the tab. */
-const panel = (fixture: Fixture, position: DateTimeRangePickerPosition) => {
-  if (!tab(fixture, position).hasAttribute('data-current')) {
-    tab(fixture, position).click();
-    fixture.detectChanges();
-  }
-  return fixture.nativeElement.querySelector(
-    `[data-part="panel"][data-position="${position}"]`,
-  ) as HTMLElement;
-};
-const list = (fixture: Fixture, position: DateTimeRangePickerPosition) =>
-  panel(fixture, position).querySelector('[data-part="list"]') as HTMLElement;
-const optionFor = (fixture: Fixture, position: DateTimeRangePickerPosition, label: string) =>
-  [...list(fixture, position).querySelectorAll<HTMLElement>('[data-part="option"]')].find((row) =>
-    (row.textContent ?? '').trim().startsWith(label),
-  ) as HTMLElement;
-const dayFor = (fixture: Fixture, number: number) =>
-  [...fixture.nativeElement.querySelectorAll('[data-part="day"]')].find(
-    (element: Element) =>
-      ((element as HTMLElement).textContent ?? '').trim() === String(number) &&
+}
+
+function trigger(fixture: Fixture) {
+  return part(fixture, 'trigger') as HTMLButtonElement;
+}
+
+function day(fixture: Fixture, date: number) {
+  return all(fixture, '[data-part="day"]').find(
+    (element) =>
+      element.textContent?.trim() === String(date) &&
       element.closest('[data-part="cell"]')?.hasAttribute('data-outside-month') === false,
-  ) as HTMLElement;
-const click = (fixture: Fixture, element: HTMLElement) => {
+  )!;
+}
+
+function options(fixture: Fixture, end: string, unit: string) {
+  return all(
+    fixture,
+    `[data-ui="clock"][aria-label="${end}"] [role="listbox"][aria-label="${unit}"] [role="option"]`,
+  );
+}
+
+/** The hours the clock of an end accepts. */
+function offered(fixture: Fixture, end: string) {
+  return options(fixture, end, 'Hours').flatMap((hour, index) =>
+    hour.getAttribute('aria-disabled') === 'true' ? [] : [index],
+  );
+}
+
+function written(fixture: Fixture) {
+  return fixture.componentInstance.onValue.mock.calls.map(([request]) => request.value);
+}
+
+function click(fixture: Fixture, element: HTMLElement) {
   element.click();
   fixture.detectChanges();
-};
-const escape = (fixture: Fixture) => {
-  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+}
+
+function key(fixture: Fixture, element: HTMLElement, name: string, init: KeyboardEventInit = {}) {
+  element.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: name, ...init }));
   fixture.detectChanges();
-};
-
-describe('what it is made of', () => {
-  it('renders a one-line frame, and two tabs, one field, one calendar and one list behind it', () => {
-    const fixture = renderTemplate(`<div ${BASE} defaultOpen [defaultValue]="run"></div>`);
-    expect(root(fixture).getAttribute('data-ui')).toBe(contract.ui);
-    expect(part(fixture, 'control').querySelectorAll('[data-ui="datetime-field"]')).toHaveLength(0);
-    expect(surface(fixture)?.querySelectorAll('[data-ui="datetime-field"]')).toHaveLength(1);
-    expect(surface(fixture)?.querySelectorAll('[data-ui="calendar"]')).toHaveLength(1);
-    expect(surface(fixture)?.querySelectorAll('[role="listbox"]')).toHaveLength(1);
-    expect(surface(fixture)?.querySelectorAll('[role="tab"]')).toHaveLength(2);
-    expect(text(fixture, 'summary')).toMatch(/Sep 12.*14:00.*–.*Sep 16.*11:00/);
-    expect(tab(fixture, 'start').textContent).toMatch(/Sep 12.*14:00/);
-    expect(tab(fixture, 'end').textContent).toMatch(/Sep 16.*11:00/);
-  });
-
-  it('declares every part the contract names', () => {
-    /* The grip is drawn in the sheet presentation only. */
-    vi.stubGlobal('matchMedia', (query: string) => ({
-      matches: true,
-      media: query,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-    }));
-    const fixture = renderTemplate(
-      `<div ${BASE} defaultOpen clearable [defaultValue]="lateSame" [maxTime]="seventeen" [minLength]="900" [maxLength]="14400" unavailableOptions="hide">
-         <div slDateTimeRangePickerPresets>
-           <button [slDateTimeRangePickerPreset]="run">Estadia</button>
-         </div>
-         <div slDateTimeRangePickerFooter><button type="button">Aplicar</button></div>
-       </div>`,
-    );
-    /* One end at a time: the empty end and the list of the other are two tabs. */
-    const collect = () =>
-      [...fixture.nativeElement.querySelectorAll('[data-part]')].map(
-        (element: Element) => (element as HTMLElement).dataset['part'],
-      );
-    const present = new Set(collect());
-    click(fixture, tab(fixture, 'end'));
-    for (const name of collect()) present.add(name);
-    for (const name of contract.members.dateTimeRangePicker.parts) {
-      expect(present, `${name} is not rendered`).toContain(name);
-    }
-
-    vi.unstubAllGlobals();
-  });
-
-  it('names the list by the current tab, says what to choose, and submits two named values', () => {
-    const fixture = renderTemplate(
-      `<div ${BASE} defaultOpen [defaultValue]="run" startName="start" endName="end" [messages]="{ start: 'Pickup', end: 'Return' }"></div>`,
-    );
-    expect(
-      document.getElementById(list(fixture, 'start').getAttribute('aria-labelledby') ?? ''),
-    ).toBe(tab(fixture, 'start'));
-    expect(text(fixture, 'hint')).toBe('');
-
-    const empty = renderTemplate(
-      `<div ${BASE} defaultOpen [messages]="{ start: 'Pickup', end: 'Return' }"></div>`,
-    );
-    expect(text(empty, 'hint')).toBe('Pickup: choose a day');
-    click(empty, dayFor(empty, 12));
-    expect(text(empty, 'hint')).toMatch(/^Pickup: choose a time on .*12/);
-    expect(
-      (fixture.nativeElement.querySelector('input[name="start"]') as HTMLInputElement).value,
-    ).toBe('2026-09-12T14:00:00');
-    expect(
-      (fixture.nativeElement.querySelector('input[name="end"]') as HTMLInputElement).value,
-    ).toBe('2026-09-16T11:00:00');
-  });
-
-  /** Both marks are `Glyph` elements inside an `Icon` box, never masks. */
-  it('draws the calendar and the cross as glyph elements', () => {
-    const fixture = renderTemplate(`<div ${BASE} clearable [defaultValue]="run"></div>`);
-    const glyph = (name: string) =>
-      part(fixture, name)
-        ?.querySelector("[data-ui='icon'] > svg[data-glyph]")
-        ?.getAttribute('data-glyph');
-    expect(glyph('trigger')).toBe(contract.triggerIcon);
-    expect(glyph('clear')).toBe('x');
-  });
-});
-
-describe('the duration and the lists', () => {
-  it('says the duration across days, and writes it beside the rows on the same day only', () => {
-    const across = renderTemplate(`<div ${BASE} defaultOpen [defaultValue]="run"></div>`);
-    expect(text(across, 'length')).toBe('3 days 21 hr');
-    expect(
-      optionFor(across, 'end', '15:00').querySelector('[data-part="option-duration"]'),
-    ).toBeNull();
-
-    const same = renderTemplate(`<div ${BASE} defaultOpen [defaultValue]="sameDay"></div>`);
-    expect(
-      optionFor(same, 'end', '15:00').querySelector('[data-part="option-duration"]')?.textContent,
-    ).toBe('1 hr');
-    expect(optionFor(same, 'end', '13:45').getAttribute('aria-disabled')).toBe('true');
-  });
-
-  it('runs each list inside the day window, and refuses a time unavailable on its own day', () => {
-    const fixture = renderTemplate(
-      `<div ${BASE} defaultOpen [defaultValue]="run" [minTime]="eight" [maxTime]="eighteen" [isTimeUnavailable]="closedTwelveAtThree"></div>`,
-    );
-    expect(optionFor(fixture, 'start', '07:45')).toBeUndefined();
-    expect(optionFor(fixture, 'end', '18:15')).toBeUndefined();
-    expect(optionFor(fixture, 'start', '15:00').getAttribute('aria-disabled')).toBe('true');
-    expect(optionFor(fixture, 'end', '15:00').hasAttribute('aria-disabled')).toBe(false);
-  });
-
-  it('says the duration a pending day would give', () => {
-    const fixture = renderTemplate(`<div ${BASE} defaultOpen [defaultValue]="openRun"></div>`);
-    dayFor(fixture, 13).dispatchEvent(new Event('pointerenter', { bubbles: true }));
-    fixture.detectChanges();
-    expect(text(fixture, 'length')).toBe('10 hr');
-    expect(part(fixture, 'length').hasAttribute('data-pending')).toBe(true);
-  });
-});
-
-describe('choosing a run', () => {
-  it('walks the reader through the four halves and closes on the last', () => {
-    const fixture = renderTemplate(
-      `<div ${BASE} defaultOpen (valueChange)="onValue($event)" (openChange)="onOpen($event)" (positionChange)="onPosition($event)"></div>`,
-    );
-    const host = fixture.componentInstance;
-    click(fixture, dayFor(fixture, 12));
-    expect(host.values).toEqual([]);
-    expect(tab(fixture, 'start').textContent).toMatch(/12/);
-
-    click(fixture, optionFor(fixture, 'start', '14:00'));
-    expect(host.values).toEqual([]);
-    expect(host.positions.at(-1)).toBe('end');
-    expect(tab(fixture, 'end').hasAttribute('data-current')).toBe(true);
-
-    click(fixture, dayFor(fixture, 16));
-    expect(host.values).toEqual([]);
-
-    click(fixture, optionFor(fixture, 'end', '11:00'));
-    expect(host.values).toEqual([{ start: dt(12, 14), end: dt(16, 11) }]);
-    expect(host.opens).toEqual([false]);
-  });
-
-  it('keeps the panel open when a whole work is changed, and abandons the work on Escape', () => {
-    const fixture = renderTemplate(
-      `<div ${BASE} defaultOpen [defaultValue]="run" (valueChange)="onValue($event)" (openChange)="onOpen($event)"></div>`,
-    );
-    click(fixture, optionFor(fixture, 'end', '12:00'));
-    expect(fixture.componentInstance.values).toEqual([{ start: dt(12, 14), end: dt(16, 12) }]);
-    expect(fixture.componentInstance.opens).toEqual([]);
-    escape(fixture);
-    expect(root(fixture).hasAttribute('data-open')).toBe(false);
-    expect(fixture.componentInstance.values).toHaveLength(1);
-  });
-
-  it('writes now, both halves, into the current end', () => {
-    const fixture = renderTemplate(
-      `<div ${BASE} defaultOpen [defaultValue]="openRun" (valueChange)="onValue($event)"></div>`,
-    );
-    panel(fixture, 'end');
-    click(fixture, part(fixture, 'now'));
-    expect(fixture.componentInstance.values.at(-1)).toEqual({ start: dt(12, 14), end: NOON });
-  });
-
-  it('draws a consumer template inside each row, with the day', () => {
-    const fixture = renderTemplate(
-      `<div ${BASE} defaultOpen [defaultValue]="sameDay">
-         <ng-template slDateTimeRangePickerOption let-time let-date="date" let-duration="duration">
-           <em>{{ date.day }} {{ time.hour }} {{ duration }}</em>
-         </ng-template>
-       </div>`,
-    );
-    expect(optionFor(fixture, 'end', '12 15').querySelector('em')?.textContent?.trim()).toBe(
-      '12 15 1 hr',
-    );
-  });
-});
-
-describe('forms and ownership', () => {
-  it("belongs in a reactive form, and reports the family's own errors", () => {
-    const fixture = renderTemplate(`<div ${BASE} [formControl]="control" [minTime]="eight"></div>`);
-    const control = fixture.componentInstance.control;
-    expect(control.errors).toBeNull();
-    control.setValue({ start: dt(12, 7), end: dt(12, 9) });
-    fixture.detectChanges();
-    expect(control.errors?.['slottedDateTimeRangeMin']).toBeDefined();
-    control.setValue({ start: dt(16, 11), end: dt(12, 14) });
-    fixture.detectChanges();
-    expect(control.errors?.['slottedDateTimeRangeOrder']).toBeDefined();
-    expect(root(fixture).hasAttribute('data-invalid')).toBe(true);
-  });
-
-  it('reads the defaults an application provided once', () => {
-    const fixture = renderTemplate(`<div ${BASE} defaultOpen></div>`, [
-      provideDateTimeRangePickerDefaults({ months: 2 }),
-    ]);
-    expect(fixture.nativeElement.querySelectorAll('[data-part="grid"]')).toHaveLength(2);
-  });
-
-  it('changes its words and its date and time format together with the language in force', () => {
-    const locale = signal('pt-BR');
-    const fixture = renderTemplate(
-      `<div slDateTimeRangePicker [referenceDateTime]="noon" [defaultValue]="run"></div>`,
-      [provideSlotted({ locale, catalogs: { 'pt-BR': PT_BR } })],
-    );
-    const name = () => part(fixture, 'trigger')?.getAttribute('aria-label') ?? '';
-
-    // language: pt-BR
-    expect(name()).toMatch(/^Alterar período, /);
-    // language: en-US
-    expect(text(fixture, 'summary')).toMatch(/12 de set.*14:00/);
-
-    locale.set('en-US');
-    fixture.detectChanges();
-    expect(name()).toMatch(/^Change range, /);
-    expect(text(fixture, 'summary')).toMatch(/Sep 12.*2:00\sPM/);
-  });
-
-  it('names the limit in the language in force', () => {
-    const fixture = renderTemplate(
-      `<div slDateTimeRangePicker defaultOpen [referenceDateTime]="noon" [minLength]="86400" [maxLength]="604800"></div>`,
-      [provideSlotted({ locale: 'pt-BR', catalogs: { 'pt-BR': PT_BR } })],
-    );
-    // language: pt-BR
-    expect(text(fixture, 'limit')).toBe('de 1 dia a 7 dias');
-    // language: en-US
-  });
-});
+}

@@ -6,7 +6,7 @@ import type {
   ReferenceImport,
   ReferenceSceneMeta,
 } from '@slotted/storybook-workbench';
-import dateTimeRangePickerTokens from '@slotted/styles/datetime-range-picker/tokens.json';
+import tokens from '@slotted/styles/datetime-range-picker/tokens.json';
 
 type ApiTuple = readonly [string, string, string, string, string];
 const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
@@ -18,14 +18,14 @@ const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
     description,
   }));
 
-export const REACT_DATETIME_RANGE_PICKER_TOKENS = dateTimeRangePickerTokens.map((name) => ({
+export const REACT_DATETIME_RANGE_PICKER_TOKENS = tokens.map((name) => ({
   name,
-  purpose: 'Theme-owned Date Time Range Picker decision',
+  purpose: 'Theme-owned Datetime Range Picker decision',
 }));
 
 const imports: ReferenceImport = {
   source:
-    "import { DateTimeRangePicker, DateTimeRangePickerDefaultsProvider, DateTimeRangePickerPreset, SlottedProvider } from '@slotted/react';",
+    "import { DateTimeRangePicker, DateTimeRangePickerDefaultsProvider } from '@slotted/react';",
 };
 
 const anatomy: AnatomyRow[] = [
@@ -34,199 +34,38 @@ const anatomy: AnatomyRow[] = [
     element: 'div, or the element render returns',
     required: true,
     purpose:
-      'The box the family is selected by. Carries data-ui="datetime-range-picker", the axes, data-granularity, data-open and the state attributes. className, style and every native attribute reach it.',
+      'The frame of the picker. Carries data-ui="datetime-range-picker", data-calendar, data-granularity, data-size, data-variant, data-open and the state attributes.',
   },
   {
     part: 'control',
     element: 'div',
     required: true,
-    purpose:
-      'The frame: one line at the control height, at any width, and what the positioner measures. Two datetime fields need three hundred and sixty pixels on one line; the current end’s field lives in the band now, where the width is the surface’s.',
+    purpose: 'The box the panel hangs from, around the field and the trigger.',
   },
   {
     part: 'trigger',
     element: 'button',
     required: true,
     purpose:
-      'Fills the frame and opens the surface. Its accessible name carries both ends in words and the duration, because focus returns here when the surface closes. The calendar glyph sits at its reading end.',
+      'The button that fills the frame and opens the panel. Its name carries both ends and the length written.',
   },
   {
     part: 'summary',
     element: 'span',
     required: true,
-    purpose:
-      'The value written short — "12 Sep, 14:00 – 16 Sep, 11:00" — or the placeholder with data-placeholder. Cut with an ellipsis where it does not fit; the trigger’s name carries it whole.',
+    purpose: 'The run in words, one line, or the placeholder with data-placeholder.',
   },
   {
     part: 'clear',
     element: 'button',
     required: false,
-    purpose:
-      'Empties both ends with the clear reason. Drawn with clearable, and the only clear in the family: the field in the band draws none.',
+    purpose: 'Empties both ends, with clearable and a value.',
   },
   {
     part: 'hidden-input',
     element: 'input',
     required: true,
-    purpose:
-      'Two, under startName and endName, carrying YYYY-MM-DDTHH:mm:ss for a plain form post. They live in the frame because the surface is portalled and unmounted while it is closed.',
-  },
-  {
-    part: 'positioner',
-    element: 'div',
-    required: false,
-    purpose:
-      'The layer the surface stands on, and what packages/core/src/positioner writes its position and custom properties onto. Carries data-presentation: popover, or sheet on a coarse pointer below 480 pixels.',
-  },
-  {
-    part: 'content',
-    element: 'div',
-    required: false,
-    purpose:
-      'The painted surface, carrying role="dialog" and the same name as the trigger. Sized by the calendar and the list, capped at thirty rems and by the room the positioner measured.',
-  },
-  {
-    part: 'grip',
-    element: 'span, aria-hidden',
-    required: false,
-    purpose:
-      'The pill at the top of the sheet, drawn only while data-presentation is sheet, in the drawer grip’s geometry and line color. A pull down past half the sheet, or a flick down, closes it with the reason pointer; Escape and the press outside stay the accessible ways out.',
-  },
-  {
-    part: 'head',
-    element: 'div',
-    required: false,
-    purpose:
-      'The band, three rows: the two tabs; the field of the current end and now; the hint, then the duration and the limit. It renders at the surface’s width and contributes nothing to it.',
-  },
-  {
-    part: 'tabs',
-    element: 'div',
-    required: false,
-    purpose: 'role="tablist": the two ends, one at a time.',
-  },
-  {
-    part: 'tab',
-    element: 'button',
-    required: false,
-    purpose:
-      'role="tab", data-position="start" or "end". aria-selected and data-current on the current end, painted as an underline; data-placeholder while the end has no value. Its accessible name — the label and the value — names the list.',
-  },
-  {
-    part: 'tab-label',
-    element: 'span',
-    required: false,
-    purpose: '"Start" or "End", from the start and end messages.',
-  },
-  {
-    part: 'tab-value',
-    element: 'span',
-    required: false,
-    purpose: 'The end written short — "12 Sep, 14:00" — a day alone, a time alone, or a dash.',
-  },
-  {
-    part: 'field',
-    element: 'div',
-    required: false,
-    purpose:
-      'Holds the current end’s datetime-field in variant="plain", data-position. Drawn on a fine pointer only: a segment is a spinbutton and raises no keyboard on a phone.',
-  },
-  {
-    part: 'now',
-    element: 'button',
-    required: false,
-    purpose:
-      'Beside the field: writes the current date and time — referenceDateTime, or the clock — into the current end, both halves, and follows the focus rule.',
-  },
-  {
-    part: 'hint',
-    element: 'span',
-    required: false,
-    purpose:
-      'What the next press should be, or what is wrong — "Return: choose a day", "Return: choose a time on 16 Sep", "The end must come after the start" — from the chooseDay, chooseTime, order, length, unavailable and bounds messages. data-invalid while it names a problem; aria-describedby of the list and the field. Empty while the work is whole and valid.',
-  },
-  {
-    part: 'length',
-    element: 'span',
-    required: false,
-    purpose:
-      '"3 days 21 hr": the duration of the run the pending end would make — a day under the pointer in the grid, or a time in the list — or of the work. A polite live region. data-pending while it is a proposal.',
-  },
-  {
-    part: 'limit',
-    element: 'span',
-    required: false,
-    purpose: '"1 hr to 30 days", drawn while minLength or maxLength is set.',
-  },
-  {
-    part: 'presets',
-    element: 'div',
-    required: false,
-    purpose:
-      'The row of the consumer’s own shortcuts, rendered from the presets prop, between the band and the panel; it wraps.',
-  },
-  {
-    part: 'preset',
-    element: 'button',
-    required: false,
-    purpose:
-      'One shortcut, a DateTimeRangePickerPreset. Writes its range with the select reason and carries data-selected while the value equals it.',
-  },
-  {
-    part: 'panel',
-    element: 'div',
-    required: false,
-    purpose:
-      'The current end, one at a time: data-position="start" or "end". The calendar with both dates drawn, and the list of that end beside it, under it where the row cannot hold both.',
-  },
-  {
-    part: 'date-panel',
-    element: 'div',
-    required: false,
-    purpose:
-      'Inside the panel, before the list: the calendar in range mode — one month by default — with both dates drawn and the pending band date-range-picker gave it. It names itself; nothing is drawn over it.',
-  },
-  {
-    part: 'list',
-    element: 'div',
-    required: false,
-    purpose:
-      'role="listbox": the times of the current end on its own day, inside that day’s window from both pairs of bounds, and the only thing that scrolls; named by the current tab. data-truncated when it stops at maxOptions.',
-  },
-  {
-    part: 'option',
-    element: 'div',
-    required: false,
-    purpose:
-      'role="option", one whole time. data-selected for the end this list holds, data-current for the highlight, data-disabled and aria-disabled for a time a bound, the predicate or the other end refuses.',
-  },
-  {
-    part: 'option-duration',
-    element: 'span',
-    required: false,
-    purpose:
-      'Beside the time, the duration the run would have with the other end — "15:00 · 1 hr" — while the two ends are on the same day; across days the band alone says it. renderOption replaces the row’s content, this span included.',
-  },
-  {
-    part: 'empty',
-    element: 'div',
-    required: false,
-    purpose:
-      'Drawn in place of the list when its day offers no time at all — a closed Saturday, a day outside the bounds.',
-  },
-  {
-    part: 'footer',
-    element: 'div',
-    required: false,
-    purpose:
-      'The consumer’s own actions, rendered from the footer prop, and done at its reading end.',
-  },
-  {
-    part: 'done',
-    element: 'button',
-    required: false,
-    purpose:
-      'Closes with what is written: a whole work is emitted as the value first; one end alone stays as it is. Always drawn — a sheet that fills the screen has no outside to press.',
+    purpose: 'One for each end, posted under startName and endName.',
   },
 ];
 
@@ -234,250 +73,218 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'A car picked up on the 12th and returned on the 16th. The frame is one line: press it and the two tabs, the field, the hint, the calendar and the list of the current end open under it. Every prop is on the controls panel.',
+    note: 'A day, its time, the other day, its time: each press brings the grid of the half that is missing, and Apply writes the run.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-playground',
-      label: 'A rental',
+      label: 'Playground',
       language: 'tsx',
-      source: `<Field>
-  <FieldLabel>Pickup and return</FieldLabel>
-  <DateTimeRangePicker
-    clearable
-    defaultValue={rental}
-    locale="pt-BR"
-    messages={{ start: 'Pickup', end: 'Return' }}
-  />
-</Field>;`,
+      source: `<DateTimeRangePicker defaultValue={RENTAL} />;`,
     }),
   },
   {
     id: 'panel',
-    title: 'One end at a time',
-    note: 'Already open: two tabs say the two ends, and the panel shows the one being chosen — the calendar with both dates drawn, and the list of that end running on its day. Press a day: the run restarts on it, and the end’s time is kept.',
+    title: 'Two months and two clocks',
+    note: 'The run is drawn over its months, both ends are typed or pressed, and each clock answers the day of its own end.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-panel',
-      label: 'A grid and one list',
+      label: 'Two months and two clocks',
       language: 'tsx',
-      source: `<DateTimeRangePicker defaultOpen defaultValue={rental} locale="pt-BR" />;`,
-    }),
-  },
-  {
-    id: 'completeness',
-    title: 'Focus follows the missing half',
-    note: 'Press a day: focus moves to the list, because the start has no time. Press a time: the tab moves to the return and focus goes back to the grid, because the return has no date. Press a day and then a time: the work is whole and the surface closes. The hint says each step.',
-    snippet: defineSnippet({
-      id: 'datetime-range-picker-react-completeness',
-      label: 'Four presses',
-      language: 'tsx',
-      source: `<DateTimeRangePicker defaultOpen locale="pt-BR" />;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} defaultOpen />;`,
     }),
   },
   {
     id: 'length',
-    title: 'The duration, while the run is drawn',
-    note: 'Move along the grid: the band says the days and hours the rental would last for the day under you, with the time the end already holds. On the same day, every row of the end list says it too.',
+    title: 'The length',
+    note: 'One day of the end either way, between the two ends. lengthLabel writes it in the product’s own words.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-length',
-      label: 'Said as it is drawn',
+      label: 'The length',
       language: 'tsx',
-      source: `<DateTimeRangePicker defaultValue={{ start: pickup, end: null }} locale="pt-BR" />;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} />;`,
+    }),
+  },
+  {
+    id: 'durations',
+    title: 'Durations',
+    note: 'Lengths the run takes from its start. One a rule refuses is off, and an empty list draws none.',
+    snippet: defineSnippet({
+      id: 'datetime-range-picker-react-durations',
+      label: 'Durations',
+      language: 'tsx',
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} durations={[43200, 86400, 604800]} />;`,
     }),
   },
   {
     id: 'limits',
-    title: 'Limits, explained',
-    note: 'A rental lasts an hour to thirty days. With a pickup chosen, the grid refuses the days past the thirtieth, the end list refuses the times inside the first hour, and the band says the rule. minLength and maxLength are seconds.',
+    title: 'The shortest and the longest run',
+    note: 'In seconds, the unit step is written in. A run that is over says by how much, marks its days, and turns Apply off.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-limits',
-      label: 'An hour to thirty days',
+      label: 'The shortest and the longest run',
       language: 'tsx',
-      source: `<DateTimeRangePicker maxLength={30 * 86400} minLength={3600} />;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} maxLength={604800} minLength={86400} />;`,
     }),
   },
   {
     id: 'day-window',
-    title: 'Two bounds, and the day they meet on',
-    note: 'The agency opens from 08:00 to 18:00, and the fleet is booked from the 10th at 09:00. min and minTime both apply: on the 10th the lists start at 09:00, on every later day at 08:00 — the rule MUI declines.',
+    title: 'The hours of every day',
+    note: 'min and max bound the whole run, and minTime and maxTime bound every day inside it. Each clock runs on the day of its own end.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-day-window',
-      label: 'Opening hours inside a season',
+      label: 'The hours of every day',
       language: 'tsx',
-      source: `<DateTimeRangePicker
-  max={{ date: plainDate(2026, 12, 20), time: plainTime(18) }}
-  maxTime={plainTime(18)}
-  min={{ date: plainDate(2026, 9, 10), time: plainTime(9) }}
-  minTime={plainTime(8)}
-/>;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} maxTime={EIGHT_PM} minTime={EIGHT} />;`,
     }),
   },
   {
     id: 'unavailable',
-    title: 'Unavailable days and times',
-    note: 'The agency is closed on Sundays, and closes at noon on Saturdays. isDateUnavailable greys the Sundays; isTimeUnavailable empties the afternoon of a Saturday, on that day only. A rental cannot cross a Sunday while it is contiguous.',
+    title: 'Days the product refuses',
+    note: 'A run may not cross an unavailable day while contiguous holds, and the grid refuses the days beyond it.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-unavailable',
-      label: 'Closed on Sunday',
+      label: 'Days the product refuses',
       language: 'tsx',
-      source: `<DateTimeRangePicker
-  isDateUnavailable={(date) => dayOfWeek(date) === 0}
-  isTimeUnavailable={(time, date) => dayOfWeek(date) === 6 && time.hour >= 12}
-/>;`,
+      source: `<DateTimeRangePicker {...BASE} isDateUnavailable={isTaken} />;`,
+    }),
+  },
+  {
+    id: 'explicit',
+    title: 'Whole times',
+    note: 'options states the times there are, for both ends, under the part of the day each one is in.',
+    snippet: defineSnippet({
+      id: 'datetime-range-picker-react-explicit',
+      label: 'Whole times',
+      language: 'tsx',
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} options={DESK} />;`,
     }),
   },
   {
     id: 'months',
     title: 'Months',
-    note: 'One month by default, because the list stands beside the grid and two months beside a list do not fit in 720 pixels. Ask for two: the list drops under the grid where the row is too narrow.',
+    note: 'Two by default, over two clocks of the same width. One in one column, and one where a run stays inside a month.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-months',
-      label: 'Two months',
+      label: 'Months',
       language: 'tsx',
-      source: `<DateTimeRangePicker months={2} />;`,
-    }),
-  },
-  {
-    id: 'now',
-    title: 'Now',
-    note: '"Now" writes the current date and time into the current end, both halves, and the focus rule takes over. referenceDateTime fixes the clock for a story or a test.',
-    snippet: defineSnippet({
-      id: 'datetime-range-picker-react-now',
-      label: 'One now per end',
-      language: 'tsx',
-      source: `<DateTimeRangePicker messages={{ now: 'Agora' }} referenceDateTime={now} />;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} months={1} />;`,
     }),
   },
   {
     id: 'presets',
-    title: 'Presets',
-    note: 'The rentals the agency offers by name. Each is a DateTimeRangePickerPreset with its own range; pressing one writes the value and closes, and the one equal to the value is marked. The list is the product’s.',
+    title: 'Shortcuts',
+    note: 'A label and a run, or a function that resolves one. The panel writes the two days, and a run the rules refuse is off.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-presets',
-      label: 'Named rentals',
+      label: 'Shortcuts',
       language: 'tsx',
-      source: `<DateTimeRangePicker
-  presets={
-    <>
-      <DateTimeRangePickerPreset value={weekend}>Weekend</DateTimeRangePickerPreset>
-      <DateTimeRangePickerPreset value={() => week(pickup)}>One week</DateTimeRangePickerPreset>
-    </>
-  }
-/>;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} presets={PRESETS} />;`,
+    }),
+  },
+  {
+    id: 'confirm',
+    title: 'With and without a confirmation',
+    note: 'The panel keeps a draft until Apply. confirm={false} writes a whole run on every change, and closes on the press that completes it.',
+    snippet: defineSnippet({
+      id: 'datetime-range-picker-react-confirm',
+      label: 'With and without a confirmation',
+      language: 'tsx',
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} />;`,
     }),
   },
   {
     id: 'open-end',
-    title: 'One end only',
-    note: 'A pickup and no return, written where the reader sees it. Open the surface: it opens on the return tab, the grid holds the start of an open run, and the list runs on the day the grid has focused until a return day is pressed.',
+    title: 'An open end',
+    note: 'A start with no end is a value a filter may hold, and the dash says so.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-open-end',
-      label: 'From the 12th at 14:00',
+      label: 'An open end',
       language: 'tsx',
-      source: `<DateTimeRangePicker clearable defaultValue={{ start: pickup, end: null }} />;`,
+      source: `<DateTimeRangePicker {...BASE} defaultPosition="end" defaultValue={OPEN} />;`,
     }),
   },
   {
     id: 'sizes',
     title: 'Size',
-    note: 'The three steps the frame takes. Type, height, gutter and the clear’s box follow the control scales, so a rental in a dense fleet table shrinks whole rather than in parts.',
+    note: 'The three heights every control has. The panel keeps its own measures at each of them.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-sizes',
-      label: 'The three steps',
+      label: 'Size',
       language: 'tsx',
-      source: `<>
-  <DateTimeRangePicker size="sm" />
-  <DateTimeRangePicker size="md" />
-  <DateTimeRangePicker size="lg" />
-</>;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} size="sm" />;`,
     }),
   },
   {
     id: 'variants',
     title: 'Variant',
-    note: 'How much frame the control shows at rest. plain is for a box that belongs to something else — a table cell — and draws its ring inward.',
+    note: 'The three frames every field has, so a picker stands beside a field of its own variant.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-variants',
-      label: 'The three frames',
+      label: 'Variant',
       language: 'tsx',
-      source: `<>
-  <DateTimeRangePicker variant="outline" />
-  <DateTimeRangePicker variant="subtle" />
-  <DateTimeRangePicker variant="plain" />
-</>;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} variant="outline" />;`,
     }),
   },
   {
     id: 'states',
     title: 'States',
-    note: 'Read-only, disabled, invalid from the family and invalid from the consumer. A return before its pickup is invalid on the end field and on the frame, and nothing is swapped.',
+    note: 'Each is the frame’s own, and the trigger answers it.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-states',
-      label: 'Four states',
+      label: 'States',
       language: 'tsx',
-      source: `<>
-  <DateTimeRangePicker defaultValue={rental} readOnly />
-  <DateTimeRangePicker defaultValue={rental} disabled />
-  <DateTimeRangePicker defaultValue={{ start: dropoff, end: pickup }} />
-  <Field invalid>
-    <DateTimeRangePicker defaultValue={rental} />
-  </Field>
-</>;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} disabled />;`,
     }),
   },
   {
     id: 'forms',
-    title: 'Forms',
-    note: 'Two hidden inputs under startName and endName send YYYY-MM-DDTHH:mm:ss with a plain form post, whether the reader typed the values or pressed them.',
+    title: 'In a form',
+    note: 'startName and endName post the two moments, a reset returns to the first run, and a Field names the frame and not the panel.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-forms',
-      label: 'A plain form post',
+      label: 'In a form',
       language: 'tsx',
-      source: `<form onSubmit={onSubmit}>
-  <DateTimeRangePicker endName="devolucao" required startName="retirada" />
-  <Button type="submit">Reservar</Button>
-</form>;`,
+      source: `<Field>
+  <FieldLabel>Rental</FieldLabel>
+  <DateTimeRangePicker endName="to" startName="from" />
+</Field>;`,
     }),
   },
   {
     id: 'narrow',
-    title: 'Narrow',
-    note: 'In a column narrower than the value the frame stays one line and the summary is cut with an ellipsis; the trigger’s name carries it whole. Open it: the list drops under the grid.',
+    title: 'One column',
+    note: 'Under 760 pixels the two ends are written as a day and a time, and each is a press that brings its grid. On a finger it is a sheet.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-narrow',
-      label: 'In a narrow column',
+      label: 'One column',
       language: 'tsx',
-      source: `<DateTimeRangePicker defaultValue={rental} locale="pt-BR" />;`,
+      source: `<DateTimeRangePicker {...BASE} defaultValue={RENTAL} presets={PRESETS} />;`,
     }),
   },
   {
     id: 'composition',
-    title: 'Composition',
-    note: 'The provider sets the months, the step and how a duration is written once, SlottedProvider the language and every word; the handle opens, closes and focuses; renderOption replaces what a row draws; position — which tab — is the consumer’s to own.',
+    title: 'Composition and escape hatches',
+    note: 'The consumer may own the value, the open state and the end being edited, and a provider states the shape once.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-composition',
-      label: 'Set once, and the handle',
+      label: 'Composition and escape hatches',
       language: 'tsx',
-      source: `<SlottedProvider locale="pt-BR">
-  <DateTimeRangePickerDefaultsProvider months={2}>
-    <DateTimeRangePicker ref={handle} />
-  </DateTimeRangePickerDefaultsProvider>
-</SlottedProvider>;`,
+      source: `<DateTimeRangePicker footer="Keys at the desk" onValueChange={setRun} value={run} />;`,
     }),
   },
   {
     id: 'keyboard',
-    title: 'Keyboard',
-    note: 'Enter opens onto the field of the current end; ArrowDown opens onto the grid, on its day. ArrowLeft and ArrowRight on a tab move to the other end. In the grid, the arrows move by day and the band says the duration; Enter writes a date and carries focus to the list. Escape walks the calendar down a view, then abandons the work.',
+    title: 'The keyboard',
+    note: 'The fields, the months and the clocks keep their keys.',
     snippet: defineSnippet({
       id: 'datetime-range-picker-react-keyboard',
-      label: 'The keys',
+      label: 'The keyboard',
       language: 'tsx',
-      source: `// Enter, Space         open onto the current end's field
-// ArrowDown, Alt+Down  open onto the current end's day in the grid
-// ArrowLeft, Right     on a tab: the other end, and its panel
-// the grid's keys      calendar's, unchanged; the band says the duration
-// Arrows, Page keys    move the list's highlight; Enter writes the time
-// Escape               the calendar's view, then close and abandon
-// Tab                  tabs, field, now, presets, grid, list, footer, done`,
+      source: `// Enter, Space, ArrowDown  opens on the day of the current end
+// Arrows, Home, End        move in the months, and in a grid of a clock
+// PageUp / PageDown        turn the month, and with Shift the year
+// Enter / Space            chooses, and brings the half that is missing
+// Ctrl + Enter             applies
+// Escape                   walks down a view, then discards and closes`,
     }),
   },
 ];
@@ -488,302 +295,218 @@ const api: ApiRow[] = apiRows([
     'DateTimeRange | null',
     '—',
     'DateTimeRangePicker',
-    '{ start, end }, each end nullable. Present means the consumer owns it. Both ends null is null.',
+    'The run held, either end of which may be null. Present means the consumer owns it.',
   ],
   [
     'defaultValue',
     'DateTimeRange | null',
-    '—',
+    'null',
     'DateTimeRangePicker',
-    'What it starts from when nobody else writes one. Read once.',
+    'What it starts from, and returns to on a form reset. Read once.',
   ],
-  [
-    'open',
-    'boolean',
-    '—',
-    'DateTimeRangePicker',
-    'Whether the surface is showing. Present means the consumer owns it.',
-  ],
-  ['defaultOpen', 'boolean', 'false', 'DateTimeRangePicker', 'Whether it opens already showing.'],
   [
     'position',
     "'start' | 'end'",
     '—',
     'DateTimeRangePicker',
-    'The end being edited: the field and the panel carrying data-current, and where focus lands when the surface opens. Present means the consumer owns it.',
+    'The end being edited. Present means the consumer owns it.',
   ],
-  ['defaultPosition', "'start' | 'end'", 'start', 'DateTimeRangePicker', 'Where editing starts.'],
+  ['defaultPosition', "'start' | 'end'", 'start', 'DateTimeRangePicker', 'The end it starts on.'],
+  ['minLength', 'number', '—', 'DateTimeRangePicker', 'The shortest run, in seconds.'],
+  ['maxLength', 'number', '—', 'DateTimeRangePicker', 'The longest run, in seconds.'],
   [
-    'highlighted',
-    '{ start: PlainTime | null; end: PlainTime | null }',
-    '—',
+    'contiguous',
+    'boolean',
+    'true',
     'DateTimeRangePicker',
-    'The highlighted option of each end’s list. Present means the consumer owns it. Moving it moves no value.',
+    'Whether a run may cross an unavailable day.',
   ],
-  [
-    'defaultHighlighted',
-    '{ start: PlainTime | null; end: PlainTime | null }',
-    '—',
-    'DateTimeRangePicker',
-    'Where the highlights start; otherwise a list opens on its end, or on the nearest offered step.',
-  ],
-  [
-    'min',
-    'PlainDateTime',
-    '—',
-    'DateTimeRangePicker',
-    'Where the range starts: the earliest whole value. Its time bounds the first day only, the platform’s own rule. Crossed with the work between the two fields.',
-  ],
-  [
-    'max',
-    'PlainDateTime',
-    '—',
-    'DateTimeRangePicker',
-    'Where the range ends; its time bounds the last day only.',
-  ],
+  ['min', 'PlainDateTime', '—', 'DateTimeRangePicker', 'The earliest accepted moment.'],
+  ['max', 'PlainDateTime', '—', 'DateTimeRangePicker', 'The latest accepted moment.'],
   [
     'minTime',
     'PlainTime',
     '—',
     'DateTimeRangePicker',
-    'The earliest time on every day inside the range, applied together with min — the pair MUI declines to combine.',
+    'The earliest time of every day inside the range.',
   ],
   [
     'maxTime',
     'PlainTime',
     '—',
     'DateTimeRangePicker',
-    'The latest time on every day inside the range.',
+    'The latest time of every day inside the range.',
   ],
   [
     'isDateUnavailable',
     '(date: PlainDate) => boolean',
     '—',
     'DateTimeRangePicker',
-    'Refuses whole days. The grid greys them and a list on such a day is empty.',
+    'Refuses particular dates.',
   ],
   [
     'isTimeUnavailable',
     '(time: PlainTime, date: PlainDate) => boolean',
     '—',
     'DateTimeRangePicker',
-    'Refuses one time on one day. Asked once per row of a list, on the day that list serves.',
+    'Refuses particular times of a day.',
   ],
-  [
-    'contiguous',
-    'boolean',
-    'true',
-    'DateTimeRangePicker',
-    'Whether a run may cross an unavailable day. On, and with a start chosen, the days beyond the first unavailable one are refused in the grid, and on the same day the times beyond the first unavailable one in the end list.',
-  ],
-  [
-    'minLength',
-    'number',
-    '—',
-    'DateTimeRangePicker',
-    'The shortest run allowed, in seconds. The grid and the list refuse shorter ones and the band names the limit.',
-  ],
-  ['maxLength', 'number', '—', 'DateTimeRangePicker', 'The longest run allowed, in seconds.'],
   [
     'lengthLabel',
-    '(seconds: number, locale?: string) => string',
-    'durationLabel',
+    '(seconds: number, locale: string | undefined) => string',
+    'the locale’s',
     'DateTimeRangePicker',
-    'What the band and the rows say for a duration, in the product’s own words. The default writes "3 days 21 hr" in the family’s locale.',
+    'Writes a length in words.',
   ],
   [
     'step',
     'number',
     '900',
     'DateTimeRangePicker',
-    'Seconds between two offered times, counted from min’s time on the first day and from midnight elsewhere. Ignored when options states the list.',
+    'Seconds between two offered times, counted from the first of the day.',
   ],
   [
     'options',
     'readonly PlainTime[]',
     '—',
     'DateTimeRangePicker',
-    'The times to offer, stated rather than stepped; the same list for both ends. The bounds and the predicate still refuse.',
+    'The times there are, stated rather than stepped, for both ends.',
   ],
   [
-    'maxOptions',
-    'number',
-    '1440',
+    'presets',
+    'readonly PickerPreset<DateTimeRange>[]',
+    '—',
     'DateTimeRangePicker',
-    'How many rows a list may reach before it is cut. Cut, the list carries data-truncated and the panel’s description says the rest is typed.',
+    'The consumer’s own shortcuts.',
   ],
   [
-    'unavailableOptions',
-    "'disable' | 'hide'",
-    'disable',
+    'durations',
+    'readonly number[]',
+    '1 to 14 days',
     'DateTimeRangePicker',
-    'What a refused time looks like in a list: drawn muted with aria-disabled, or left out.',
+    'Lengths the run takes from its start, in seconds. An empty list draws none.',
+  ],
+  [
+    'confirm',
+    'boolean',
+    'true',
+    'DateTimeRangePicker',
+    'Whether the panel keeps a draft until Apply.',
   ],
   [
     'months',
     'number',
-    '1',
+    '2',
     'DateTimeRangePicker',
-    'How many months the grid shows. One, because the list stands beside it; a second wraps under the first where the surface is narrow.',
+    'How many months the panel shows. One below 760 pixels.',
   ],
   [
     'weekNumbers',
     'boolean',
-    '—',
+    'false',
     'DateTimeRangePicker',
-    'Draws the ISO week number beside each row of the grid.',
+    'Draws the ISO week number, as a press that chooses the week.',
   ],
-  [
-    'fixedWeeks',
-    'boolean',
-    'true',
-    'DateTimeRangePicker',
-    'Six rows whatever the month needs, so a press of "next" moves no target.',
-  ],
-  [
-    'locale',
-    'string',
-    'SlottedProvider',
-    'DateTimeRangePicker',
-    'BCP 47. Decides the field order, the digits, the month names, the day-period names and the duration’s units. Unset, the language in force decides.',
-  ],
-  ['timeZone', 'string', '—', 'DateTimeRangePicker', 'The zone "now" is read in.'],
-  [
-    'hourCycle',
-    '12 | 24',
-    '—',
-    'DateTimeRangePicker',
-    'Twelve- or twenty-four-hour times. Unset, the locale decides.',
-  ],
+  ['fixedWeeks', 'boolean', 'false', 'DateTimeRangePicker', 'Six rows whatever the months need.'],
   [
     'granularity',
     "'hour' | 'minute' | 'second'",
     'minute',
     'DateTimeRangePicker',
-    'How much of a time the fields and the rows write.',
-  ],
-  ['calendar', "'gregory'", 'gregory', 'DateTimeRangePicker', 'The calendar system. One today.'],
-  [
-    'firstDayOfWeek',
-    'number',
-    '—',
-    'DateTimeRangePicker',
-    'Which day the grid’s week starts on. Unset, the locale decides.',
+    'The finest unit written.',
   ],
   [
-    'yearPivot',
-    'number',
-    '—',
+    'hourCycle',
+    '12 | 24',
+    'the locale’s',
     'DateTimeRangePicker',
-    'The pivot two typed year digits are resolved through.',
+    'The clock the moments are written on.',
   ],
   [
     'referenceDateTime',
     'PlainDateTime',
+    'now',
+    'DateTimeRangePicker',
+    'The moment it is, which the distances are counted from.',
+  ],
+  [
+    'relative',
+    'boolean',
+    'true',
+    'DateTimeRangePicker',
+    'Whether + and - open the duration expression in the fields.',
+  ],
+  ['firstDayOfWeek', 'number', 'the locale’s', 'DateTimeRangePicker', '0 is Sunday.'],
+  ['yearPivot', 'number', '—', 'DateTimeRangePicker', 'How a two-digit typed year resolves.'],
+  ['calendar', "'gregory'", 'gregory', 'DateTimeRangePicker', 'The calendar system.'],
+  ['startName', 'string', '—', 'DateTimeRangePicker', 'The name a form posts the start under.'],
+  ['endName', 'string', '—', 'DateTimeRangePicker', 'The name a form posts the end under.'],
+  [
+    'invalid',
+    'boolean',
     '—',
     'DateTimeRangePicker',
-    'What "now" is, for a story or a test; the clock otherwise. Anchors now, the day the panel opens on, and the relative expression.',
+    'Stated by the consumer; a run that fails a rule is invalid without it.',
   ],
-  ['size', "'sm' | 'md' | 'lg'", 'md', 'DateTimeRangePicker', 'The control scale of the frame.'],
   [
-    'variant',
-    "'outline' | 'subtle' | 'plain'",
-    'outline',
+    'open',
+    'boolean',
+    '—',
     'DateTimeRangePicker',
-    'How much frame the control shows at rest.',
+    'Whether the panel is showing. Present means the consumer owns it.',
+  ],
+  [
+    'defaultOpen',
+    'boolean',
+    'false',
+    'DateTimeRangePicker',
+    'Whether it starts open when nobody else says. Read once.',
   ],
   [
     'placement',
     "'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end'",
     'bottom-start',
     'DateTimeRangePicker',
-    'Where the surface opens, before the positioner has read the room.',
+    'Where the panel opens, before the positioner has read the room.',
   ],
   [
-    'closeOnSelect',
-    "'auto' | 'always' | 'never'",
-    'auto',
+    'size',
+    "'sm' | 'md' | 'lg'",
+    'md',
     'DateTimeRangePicker',
-    'auto closes when a press completes the work; always closes on any press that changes the value; never closes on none.',
-  ],
-  ['disabled', 'boolean', '—', 'DateTimeRangePicker', 'Nothing answers; the value stays readable.'],
-  [
-    'readOnly',
-    'boolean',
-    '—',
-    'DateTimeRangePicker',
-    'Legible and copyable; the trigger and the clear are out of the tab sequence.',
+    'The height of the control. The field around it answers when the picker does not.',
   ],
   [
-    'invalid',
-    'boolean',
-    '—',
+    'variant',
+    "'outline' | 'subtle' | 'plain'",
+    'outline',
     'DateTimeRangePicker',
-    'The consumer’s own word. Set, it wins; unset, the family’s own rules and the field around it decide.',
-  ],
-  ['required', 'boolean', '—', 'DateTimeRangePicker', 'Reaches both fields as aria-required.'],
-  [
-    'clearable',
-    'boolean',
-    'false',
-    'DateTimeRangePicker',
-    'Draws one clear on the frame, which empties both ends.',
+    'How the control draws its frame.',
   ],
   [
-    'relative',
-    'boolean',
-    '—',
+    'locale',
+    'string',
+    'the language in force',
     'DateTimeRangePicker',
-    'Whether the field in the band takes the relative expression — +2d, 1h30, = — the way a datetime-field does.',
+    'BCP 47. Writes the field, the panel and the trigger’s name.',
   ],
+  [
+    'timeZone',
+    'string',
+    'the runtime’s',
+    'DateTimeRangePicker',
+    'Which zone answers "what is now".',
+  ],
+  ['disabled', 'boolean', '—', 'DateTimeRangePicker', 'Answers no key and no press.'],
+  ['readOnly', 'boolean', '—', 'DateTimeRangePicker', 'Readable and not changeable.'],
+  ['required', 'boolean', '—', 'DateTimeRangePicker', 'The form needs a value.'],
+  ['clearable', 'boolean', 'false', 'DateTimeRangePicker', 'Draws a clear on the control.'],
   [
     'messages',
     'Partial<DatetimeRangePickerMessages>',
     '—',
     'DateTimeRangePicker',
-    'Words laid over the language in force, key by key: the two ends (start, end), the trigger’s names (choose; change with {start}, {end} and {length}; changeReversed), the hint (chooseDay with {end}; chooseTime with {end} and {day}; order, length, unavailable, bounds), the limit (limit.between, limit.atLeast, limit.atMost), now, done, clear, and a panel that is empty or cut short (empty, truncated).',
-  ],
-  [
-    'startName',
-    'string',
-    '—',
-    'DateTimeRangePicker',
-    'The name of the hidden input carrying the start.',
-  ],
-  [
-    'endName',
-    'string',
-    '—',
-    'DateTimeRangePicker',
-    'The name of the hidden input carrying the end.',
-  ],
-  [
-    'presets',
-    'ReactNode',
-    '—',
-    'DateTimeRangePicker',
-    'The consumer’s shortcuts, as DateTimeRangePickerPreset elements.',
-  ],
-  [
-    'footer',
-    'ReactNode',
-    '—',
-    'DateTimeRangePicker',
-    'The consumer’s own actions, under the lists.',
-  ],
-  [
-    'renderOption',
-    '(state: DateTimeRangePickerOptionState) => ReactNode',
-    '—',
-    'DateTimeRangePicker',
-    'What one row draws. The state carries the end, the day the list serves, the time, its label, its duration, and whether it is selected, current or unavailable.',
-  ],
-  [
-    'value',
-    'DateTimeRange | (() => DateTimeRange)',
-    '—',
-    'DateTimeRangePickerPreset',
-    'The range the press writes, or a function resolving it at the press.',
+    'Words laid over the language in force: the trigger’s names, the two ends, the limits, and what is said of a refused run.',
   ],
 ]);
 
@@ -791,22 +514,18 @@ const events: EventRow[] = [
   {
     name: 'onValueChange',
     payload: '(value: DateTimeRange | null, request: ChangeRequest<DateTimeRange | null>)',
-    when: 'Before the value moves, and cancellable. keyboard, blur or clear when an end was typed in the band, select when a press in the grid or the list, now, done or a preset completed the work or changed a whole one, clear for the clear button. A press that leaves a half missing emits nothing.',
+    when: 'Before the value moves, and cancellable: from Apply, and from the clear of the frame.',
   },
   {
     name: 'onOpenChange',
     payload: '(open: boolean, request: ChangeRequest<boolean>)',
-    when: 'Before the surface opens or closes, and cancellable. pointer for the trigger and for done, keyboard for a key on the trigger, escape for the key, outsidePress for a press elsewhere, select for a press that completed the work.',
+    when: 'Before the panel opens or closes, with the reason.',
   },
   {
     name: 'onPositionChange',
-    payload: "(position: 'start' | 'end', request: ChangeRequest<'start' | 'end'>)",
-    when: 'Before the current end moves. pointer for a press on a tab, keyboard for the arrows on one, select when a press in the grid, the list or a preset moved it, clear for the clear button, programmatic when the panel opened on the first end with a half missing.',
-  },
-  {
-    name: 'onHighlightedChange',
-    payload: '(value: { start; end }, request: ChangeRequest<{ start; end }>)',
-    when: 'Before a highlight moves in either list. keyboard for the arrows and type-ahead, pointer for a press, programmatic when a list opened or changed under it.',
+    payload:
+      '(position: DateTimeRangePickerPosition, request: ChangeRequest<DateTimeRangePickerPosition>)',
+    when: 'Before the end being edited moves.',
   },
 ];
 
@@ -816,44 +535,46 @@ const composition: ApiRow[] = apiRows([
     'component',
     '—',
     'application',
-    'Sets timeZone, calendar, firstDayOfWeek, months, hourCycle, granularity, step, maxOptions, unavailableOptions, closeOnSelect, placement, size, variant and lengthLabel once for everything under it. The locale and the words come from SlottedProvider.',
+    'Sets calendar, confirm, firstDayOfWeek, granularity, hourCycle, lengthLabel, months, placement, size, step, timeZone and variant once.',
   ],
   [
-    'DateTimeRangePickerPreset',
-    'component',
-    '—',
-    'presets',
-    'One shortcut inside presets. Takes every button prop, composes onClick, and takes render to substitute its element.',
+    'footer',
+    'ReactNode',
+    'the limits, the zone or the step',
+    'DateTimeRangePicker',
+    'What the footer says when nothing is wrong.',
+  ],
+  [
+    'renderSlot',
+    '(state: DateTimeRangePickerSlotState) => ReactNode',
+    'the time',
+    'DateTimeRangePicker',
+    'What one whole time of options draws.',
   ],
   [
     'render',
     '(props: DateTimeRangePickerRootProps) => ReactNode',
     '—',
     'DateTimeRangePicker',
-    'Substitutes the element the root renders. The props carry the ref, which the positioner measures its anchor through.',
+    'Substitutes the element the root renders.',
   ],
   [
     'ref',
     'Ref<DateTimeRangePickerHandle>',
     '—',
     'DateTimeRangePicker',
-    'focus() puts the reader on the trigger; open() and close() move the surface without a controlled prop.',
-  ],
-  [
-    'onKeyDown',
-    'KeyboardEventHandler',
-    '—',
-    'DateTimeRangePicker',
-    'Runs before the trigger, the tabs and the list read a key, and calling preventDefault stops them.',
+    'focus(), open() and close().',
   ],
 ]);
 
 const accessibility: string[] = [
-  'The trigger’s accessible name carries both ends in words and the duration — "Change range, 12 September 2026 at 14:00 – 16 September 2026 at 11:00, 3 days 21 hr". Focus returns to it when the surface closes; the summary’s ellipsis removes nothing a screen-reader user cannot hear.',
-  'The two ends are a tablist with automatic activation, and the panel is one end at a time: a grid and a listbox, the listbox named by the current tab, so "Pickup, 12 Sep, 14:00" is heard before the first option. The hint is the list’s description, so what to choose next — the day, then the time — is read with it.',
-  'The duration is a polite live region: a sighted reader sees it follow the pointer across the grid and beside every row of a same-day list; a screen-reader user hears it on every arrow.',
-  'The rule datetime-picker wrote, once per end: a press that leaves a half missing carries focus to it — the grid for a date, the list for a time, the tab moving when it is the other end’s — and the press that completes the work closes the panel. A half-drawn run never reaches a form. Done is the way out when nothing closed it.',
-  'Typing lives in the band: Enter on the trigger opens onto the first segment of the current end’s field, and the field keeps every key a datetime-field has. On a coarse pointer the field is not drawn and Enter opens onto the grid. Escape is staged: the field’s expression first, the calendar’s view second, the surface last.',
+  'The trigger says aria-haspopup="dialog" and its name carries the value written, which is where focus returns when the panel closes.',
+  'The panel is a dialog with its Tab wrapped, and each grid inside it is one stop.',
+  'Escape discards the draft and returns focus to the trigger. Ctrl+Enter applies from anywhere in the panel.',
+  'The footer’s hint is a status region, so the reason Apply is off is spoken as well as drawn.',
+  'Alt+ArrowDown opens the panel and leaves focus in the field, so the segments keep every key they had.',
+  'The length between the two halves is a status region, so a reader hears it on every arrow in the months and on every step.',
+  'The press that leaves a half missing carries focus to its grid, so the four halves are one path and not four searches.',
 ];
 
 export const REACT_DATETIME_RANGE_PICKER_DOCS = {

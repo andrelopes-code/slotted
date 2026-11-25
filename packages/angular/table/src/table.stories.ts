@@ -12,7 +12,6 @@ import type {
 import { SlAvatar } from '@slotted/angular/avatar';
 import { SlIconButton } from '@slotted/angular/button';
 import { SlCheckbox } from '@slotted/angular/checkbox';
-import { SlDateTimeRangePickerPreset } from '@slotted/angular/datetime-range-picker';
 import { SlLink } from '@slotted/angular/link';
 import { SlNumberField, SlNumberFieldInput } from '@slotted/angular/number-field';
 import { SlSelect, SlSelectItem } from '@slotted/angular/select';
@@ -105,7 +104,6 @@ const meta: Meta<TableStoryArgs> = {
         SlTable,
         SlTableContent,
         ...SL_TABLE_PARTS,
-        SlDateTimeRangePickerPreset,
         SlSelect,
         SlSelectItem,
         SlTableBooleanFilter,
@@ -972,10 +970,15 @@ function dateTimeProps() {
       join: 'and',
       kind: 'datetime',
     } as DateTimeFilter | null,
-    earlyOctober: {
-      end: plainDateTime(plainDate(2026, 10, 15), plainTime(18)),
-      start: plainDateTime(plainDate(2026, 10, 1), plainTime(8)),
-    },
+    windows: [
+      {
+        label: 'Early October',
+        value: {
+          end: plainDateTime(plainDate(2026, 10, 15), plainTime(18)),
+          start: plainDateTime(plainDate(2026, 10, 1), plainTime(8)),
+        },
+      },
+    ],
     slot: (value: string) => SLOT.format(new Date(value)),
     visible(this: { scheduled: DateTimeFilter | null }) {
       const keep = createFilterPredicate(this.scheduled);
@@ -985,9 +988,6 @@ function dateTimeProps() {
 }
 
 const DATE_TIME = `
-  <ng-template #windows>
-    <button slDateTimeRangePickerPreset [range]="earlyOctober">Early October</button>
-  </ng-template>
   <div slTable [columns]="3" variant="framed">
     <div slTableContent>
       <thead slTableHead>

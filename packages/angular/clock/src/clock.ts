@@ -49,6 +49,8 @@ interface ClockSlotContext {
   readonly $implicit: PlainTime;
   /** The day it is a time of, in a picker that has one. */
   readonly date?: PlainDate | null;
+  /** The end it is a time of, in a picker of a run. */
+  readonly position?: 'end' | 'start';
   readonly state: ClockSlotState;
 }
 

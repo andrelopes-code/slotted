@@ -713,6 +713,7 @@ export function TableDateTimeFilter(props: TableDateTimeFilterProps) {
              draft as no operand, so the condition stays inactive until both
              exist. No `applyOnEnter`: the frame is a button. */
           <DateTimeRangePicker
+            confirm={false}
             messages={{ start: t('filterFrom'), end: t('filterTo') }}
             onValueChange={(next) => setOperands(iso(next?.start), iso(next?.end))}
             size="sm"

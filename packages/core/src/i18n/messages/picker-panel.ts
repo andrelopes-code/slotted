@@ -27,6 +27,8 @@ export interface PickerPanelMessages {
   readonly endHandle: Message;
   /** How far a date is from today, already in words, and the week it is in. */
   readonly dayInWeek: Message<{ day: string; week: number }>;
+  /** A weekday and how far it is: "Fri, in 2 days". */
+  readonly weekdayIn: Message<{ weekday: string; distance: string }>;
   /** What stands under an empty head. */
   readonly todayIs: Message<{ day: string }>;
   /** The head of a run: its two ends, and how many days it holds. */
@@ -65,6 +67,7 @@ export const en: PickerPanelMessages = {
   startHandle: 'Start',
   endHandle: 'End',
   dayInWeek: '{day}, week {week}',
+  weekdayIn: '{weekday}, {distance}',
   todayIs: 'Today: {day}',
   runOfDays: '{run}, {count, plural, one {# day} other {# days}}',
   ahead: 'in {length}',

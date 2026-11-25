@@ -13,6 +13,7 @@ import { useMessages } from '../i18n';
 import { PickerLayer } from '../picker-panel/picker-layer';
 import { isOpenChord, PickerTrigger } from '../picker-panel/picker-trigger';
 import { usePickerLayer } from '../picker-panel/use-picker-layer';
+import { usePickerPosition } from '../picker-panel/use-picker-position';
 import { usePickerValue } from '../picker-panel/use-picker-value';
 import { DateRangeControl } from './date-range-control';
 import { DateRangePanel } from './date-range-panel';
@@ -22,12 +23,7 @@ import type {
   DateRangePickerRootProps,
 } from './date-range-picker.types';
 import { normalizeRange } from './range-words';
-import {
-  useDateRangePickerConfig,
-  useRangePosition,
-  useRangeProblems,
-  useRangeRules,
-} from './use-date-range-picker';
+import { useDateRangePickerConfig, useRangeProblems, useRangeRules } from './use-date-range-picker';
 import { useRangePanel } from './use-range-panel';
 
 /**
@@ -101,7 +97,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
   const calendarRef = useRef<CalendarHandle | null>(null);
 
   const rules = useRangeRules(props, config.count);
-  const [position, requestPosition] = useRangePosition(props);
+  const [position, requestPosition] = usePickerPosition(props);
   const { held, requestValue } = usePickerValue<DateRange | null>({
     defaultValue: normalizeRange(defaultValue ?? null),
     equals: isSameValue,

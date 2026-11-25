@@ -1,6 +1,6 @@
 import type { FamilyTranslator } from '../i18n/translator';
 import type { PickerPanelMessages } from '../i18n/messages/picker-panel';
-import { isoWeekNumber } from './plain-date';
+import { daysBetween, isoWeekNumber } from './plain-date';
 import type { PlainDate } from './plain-date';
 import type { PlainDateTime } from './plain-date-time';
 import { secondsOfDay } from './plain-time';
@@ -42,6 +42,18 @@ export function headDay(date: PlainDate, today: PlainDate, locale: string): stri
 /** A run of days, the parts the two ends share written once: "Nov 27 – Dec 4". */
 export function shortRun(start: PlainDate, end: PlainDate, locale: string): string {
   return dayFormat(locale, { day: 'numeric', month: 'short' }).formatRange(utc(start), utc(end));
+}
+
+/** A weekday and how far its date is from today: "Fri, in 2 days". */
+export function weekdayMeta(date: PlainDate, today: PlainDate, locale: string, t: Words): string {
+  const days = daysBetween(today, date);
+  /* Short: a half has no room for "the day after tomorrow", which some locales write. */
+  const numeric = Math.abs(days) > 1 ? 'always' : 'auto';
+
+  return t('weekdayIn', {
+    distance: new Intl.RelativeTimeFormat(locale, { numeric }).format(days, 'day'),
+    weekday: dayFormat(locale, { weekday: 'short' }).format(utc(date)),
+  });
 }
 
 /** A moment as a shortcut writes it: "Nov 30, 2:30 PM". */

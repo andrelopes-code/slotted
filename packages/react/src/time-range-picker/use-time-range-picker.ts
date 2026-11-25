@@ -1,14 +1,12 @@
 import { isSameTime, nowIn } from '@slotted/core/date';
 import type { PlainTime } from '@slotted/core/date';
 import { clockMessages, pickerPanelMessages, timeRangePickerMessages } from '@slotted/core/i18n';
-import { createControllable } from '@slotted/core/state';
-import type { ChangeReason } from '@slotted/core/state';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useField } from '../field';
 import { useLocale, useMessages } from '../i18n';
 import { useTimeRangePickerDefaults } from './time-range-picker-defaults';
-import type { TimeRangePickerPosition, TimeRangePickerProps } from './time-range-picker.types';
+import type { TimeRangePickerProps } from './time-range-picker.types';
 import type { TimeRangeWords } from './time-range-words';
 
 /** What an empty panel opens at before the browser has said what time it is. */
@@ -70,27 +68,6 @@ export function useTimeRangeWords(
   );
 
   return { clock, granularity, hourCycle, lengthLabel, locale, rules, t, words };
-}
-
-/** The end being edited, owned by the consumer or by the picker. */
-export function useTimeRangePosition({
-  defaultPosition = 'start',
-  onPositionChange,
-  position,
-}: TimeRangePickerProps) {
-  const [own, setOwn] = useState<TimeRangePickerPosition>(defaultPosition);
-  const current = position ?? own;
-
-  function request(next: TimeRangePickerPosition, reason: ChangeReason, source: unknown) {
-    const state = createControllable<TimeRangePickerPosition>({
-      controlled: position,
-      initial: current,
-      onRequest: (asked) => onPositionChange?.(asked.value, asked),
-    });
-    if (state.request(next, reason, source)) setOwn(next);
-  }
-
-  return [current, request] as const;
 }
 
 /** The time it is, read once the browser can say it. */

@@ -154,6 +154,7 @@ function RangeOperand({
   if (kind === 'datetime') {
     return (
       <DateTimeRangePicker
+        confirm={false}
         {...shared}
         {...ends}
         onValueChange={(next) =>

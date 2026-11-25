@@ -69,10 +69,8 @@ import { SlDatePicker } from '@slotted/angular/date-picker';
 import { SlDateRangePicker } from '@slotted/angular/date-range-picker';
 import type { DateRange } from '@slotted/angular/date-range-picker';
 import { SlDateTimePicker } from '@slotted/angular/datetime-picker';
-import {
-  SlDateTimeRangePicker,
-  SlDateTimeRangePickerPresets,
-} from '@slotted/angular/datetime-range-picker';
+import { SlDateTimeRangePicker } from '@slotted/angular/datetime-range-picker';
+import type { DateTimeRange } from '@slotted/angular/datetime-range-picker';
 import { SlNumberField, SlNumberFieldInput } from '@slotted/angular/number-field';
 import {
   SlPopover,
@@ -857,13 +855,7 @@ export class SlTableTimeFilter extends SlTableFilterBase {
 @Component({
   selector: 'span[slTableDateTimeFilter]',
   exportAs: 'slTableDateTimeFilter',
-  imports: [
-    NgTemplateOutlet,
-    SlTableFilterShell,
-    SlDateTimePicker,
-    SlDateTimeRangePicker,
-    SlDateTimeRangePickerPresets,
-  ],
+  imports: [SlTableFilterShell, SlDateTimePicker, SlDateTimeRangePicker],
   template: `<span [slTableFilterShell]="this" [operand]="operand"></span>
     <ng-template #operand let-context>
       @if (context.slots.length === 2) {
@@ -879,15 +871,10 @@ export class SlTableTimeFilter extends SlTableFilterBase {
           [min]="dateTimeOf(min())"
           [max]="dateTimeOf(max())"
           [messages]="{ start: context.label(0), end: context.label(1) }"
+          [presets]="presets()"
           [value]="range(context.condition)"
           (valueChange)="context.setBoth(iso($event.value?.start), iso($event.value?.end))"
-        >
-          @if (presets(); as presetsTemplate) {
-            <div slDateTimeRangePickerPresets>
-              <ng-container [ngTemplateOutlet]="presetsTemplate" />
-            </div>
-          }
-        </div>
+        ></div>
       } @else {
         <div
           slDateTimePicker
@@ -931,12 +918,11 @@ export class SlTableDateTimeFilter extends SlTableFilterBase {
   /** The latest, as ISO date-time text. */
   readonly max = input<string | undefined>(undefined);
   /**
-   * The application's own windows — the last 24 hours, this week — as
-   * `slDateTimeRangePickerPreset` buttons in a template, offered inside the
-   * range picker `between` draws. The descriptor still receives two ISO
-   * date-times.
+   * The application's own windows — the last 24 hours, this week — offered
+   * inside the range picker `between` draws. The descriptor still receives two
+   * ISO date-times.
    */
-  readonly presets = input<TemplateRef<unknown> | undefined>(undefined);
+  readonly presets = input<readonly PickerPreset<DateTimeRange>[]>([]);
 
   protected override rangeOperand() {
     return true;

@@ -2996,6 +2996,7 @@ export type ComponentToken =
   | '--slotted-calendar-invalid-edge-width'
   | '--slotted-calendar-invalid-focus-ring-color'
   | '--slotted-calendar-line-color'
+  | '--slotted-calendar-month-gap'
   | '--slotted-calendar-outside-color'
   | '--slotted-calendar-over-background'
   | '--slotted-calendar-over-color'
@@ -3492,56 +3493,21 @@ export type ComponentToken =
   | '--slotted-datetime-range-picker-background'
   | '--slotted-datetime-range-picker-border-color'
   | '--slotted-datetime-range-picker-color'
-  | '--slotted-datetime-range-picker-content-border-color'
-  | '--slotted-datetime-range-picker-content-color'
-  | '--slotted-datetime-range-picker-content-max-inline-size'
-  | '--slotted-datetime-range-picker-content-padding'
-  | '--slotted-datetime-range-picker-content-radius'
-  | '--slotted-datetime-range-picker-content-shadow'
-  | '--slotted-datetime-range-picker-current-color'
-  | '--slotted-datetime-range-picker-current-size'
   | '--slotted-datetime-range-picker-disabled-background'
   | '--slotted-datetime-range-picker-disabled-border-color'
   | '--slotted-datetime-range-picker-disabled-color'
-  | '--slotted-datetime-range-picker-done-active-background'
-  | '--slotted-datetime-range-picker-done-background'
-  | '--slotted-datetime-range-picker-done-color'
-  | '--slotted-datetime-range-picker-done-hover-background'
-  | '--slotted-datetime-range-picker-hint-color'
   | '--slotted-datetime-range-picker-hover-border-color'
   | '--slotted-datetime-range-picker-invalid-border-color'
-  | '--slotted-datetime-range-picker-invalid-color'
   | '--slotted-datetime-range-picker-invalid-edge-width'
   | '--slotted-datetime-range-picker-invalid-focus-ring-color'
-  | '--slotted-datetime-range-picker-label-color'
-  | '--slotted-datetime-range-picker-length-color'
-  | '--slotted-datetime-range-picker-limit-color'
-  | '--slotted-datetime-range-picker-list-block-size'
-  | '--slotted-datetime-range-picker-list-min-inline-size'
-  | '--slotted-datetime-range-picker-now-color'
-  | '--slotted-datetime-range-picker-option-current-background'
-  | '--slotted-datetime-range-picker-option-hover-background'
-  | '--slotted-datetime-range-picker-option-radius'
-  | '--slotted-datetime-range-picker-option-selected-background'
-  | '--slotted-datetime-range-picker-option-selected-color'
-  | '--slotted-datetime-range-picker-option-selected-hover-background'
   | '--slotted-datetime-range-picker-placeholder-color'
   | '--slotted-datetime-range-picker-plain-hover-background'
-  | '--slotted-datetime-range-picker-preset-active-background'
-  | '--slotted-datetime-range-picker-preset-background'
-  | '--slotted-datetime-range-picker-preset-hover-background'
-  | '--slotted-datetime-range-picker-preset-radius'
-  | '--slotted-datetime-range-picker-preset-selected-background'
-  | '--slotted-datetime-range-picker-preset-selected-color'
   | '--slotted-datetime-range-picker-radius'
   | '--slotted-datetime-range-picker-readonly-background'
   | '--slotted-datetime-range-picker-shadow'
-  | '--slotted-datetime-range-picker-sheet-inline-size'
   | '--slotted-datetime-range-picker-subtle-background'
   | '--slotted-datetime-range-picker-subtle-border-color'
   | '--slotted-datetime-range-picker-subtle-hover-background'
-  | '--slotted-datetime-range-picker-surface'
-  | '--slotted-datetime-range-picker-tab-block-size'
   | '--slotted-description-list-cell-padding-block'
   | '--slotted-description-list-cell-padding-inline'
   | '--slotted-description-list-clamp'
@@ -3839,7 +3805,6 @@ export type ComponentToken =
   | '--slotted-kbd-radius'
   | '--slotted-kbd-surface'
   | '--slotted-kbd-symbol-font-family'
-  | '--slotted-letter-spacing-wide'
   | '--slotted-link-color'
   | '--slotted-link-color-active'
   | '--slotted-link-color-current'
@@ -4365,7 +4330,6 @@ export type ComponentToken =
   | '--slotted-radio-group-tile-radius'
   | '--slotted-radio-group-tile-readonly-background'
   | '--slotted-radio-group-tile-readonly-border-color'
-  | '--slotted-radius-pill'
   | '--slotted-rating-active-background'
   | '--slotted-rating-bar-color'
   | '--slotted-rating-bar-size'
@@ -4999,7 +4963,6 @@ export type ComponentToken =
   | '--slotted-toggle-pressed-hover-background'
   | '--slotted-toggle-radius'
   | '--slotted-toggle-shadow'
-  | '--slotted-tone-secondary-subtle'
   | '--slotted-toolbar-background'
   | '--slotted-toolbar-border-color'
   | '--slotted-toolbar-gap'
@@ -5314,6 +5277,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-calendar-invalid-edge-width",
   "--slotted-calendar-invalid-focus-ring-color",
   "--slotted-calendar-line-color",
+  "--slotted-calendar-month-gap",
   "--slotted-calendar-outside-color",
   "--slotted-calendar-over-background",
   "--slotted-calendar-over-color",
@@ -5810,56 +5774,21 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-datetime-range-picker-background",
   "--slotted-datetime-range-picker-border-color",
   "--slotted-datetime-range-picker-color",
-  "--slotted-datetime-range-picker-content-border-color",
-  "--slotted-datetime-range-picker-content-color",
-  "--slotted-datetime-range-picker-content-max-inline-size",
-  "--slotted-datetime-range-picker-content-padding",
-  "--slotted-datetime-range-picker-content-radius",
-  "--slotted-datetime-range-picker-content-shadow",
-  "--slotted-datetime-range-picker-current-color",
-  "--slotted-datetime-range-picker-current-size",
   "--slotted-datetime-range-picker-disabled-background",
   "--slotted-datetime-range-picker-disabled-border-color",
   "--slotted-datetime-range-picker-disabled-color",
-  "--slotted-datetime-range-picker-done-active-background",
-  "--slotted-datetime-range-picker-done-background",
-  "--slotted-datetime-range-picker-done-color",
-  "--slotted-datetime-range-picker-done-hover-background",
-  "--slotted-datetime-range-picker-hint-color",
   "--slotted-datetime-range-picker-hover-border-color",
   "--slotted-datetime-range-picker-invalid-border-color",
-  "--slotted-datetime-range-picker-invalid-color",
   "--slotted-datetime-range-picker-invalid-edge-width",
   "--slotted-datetime-range-picker-invalid-focus-ring-color",
-  "--slotted-datetime-range-picker-label-color",
-  "--slotted-datetime-range-picker-length-color",
-  "--slotted-datetime-range-picker-limit-color",
-  "--slotted-datetime-range-picker-list-block-size",
-  "--slotted-datetime-range-picker-list-min-inline-size",
-  "--slotted-datetime-range-picker-now-color",
-  "--slotted-datetime-range-picker-option-current-background",
-  "--slotted-datetime-range-picker-option-hover-background",
-  "--slotted-datetime-range-picker-option-radius",
-  "--slotted-datetime-range-picker-option-selected-background",
-  "--slotted-datetime-range-picker-option-selected-color",
-  "--slotted-datetime-range-picker-option-selected-hover-background",
   "--slotted-datetime-range-picker-placeholder-color",
   "--slotted-datetime-range-picker-plain-hover-background",
-  "--slotted-datetime-range-picker-preset-active-background",
-  "--slotted-datetime-range-picker-preset-background",
-  "--slotted-datetime-range-picker-preset-hover-background",
-  "--slotted-datetime-range-picker-preset-radius",
-  "--slotted-datetime-range-picker-preset-selected-background",
-  "--slotted-datetime-range-picker-preset-selected-color",
   "--slotted-datetime-range-picker-radius",
   "--slotted-datetime-range-picker-readonly-background",
   "--slotted-datetime-range-picker-shadow",
-  "--slotted-datetime-range-picker-sheet-inline-size",
   "--slotted-datetime-range-picker-subtle-background",
   "--slotted-datetime-range-picker-subtle-border-color",
   "--slotted-datetime-range-picker-subtle-hover-background",
-  "--slotted-datetime-range-picker-surface",
-  "--slotted-datetime-range-picker-tab-block-size",
   "--slotted-description-list-cell-padding-block",
   "--slotted-description-list-cell-padding-inline",
   "--slotted-description-list-clamp",
@@ -6157,7 +6086,6 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-kbd-radius",
   "--slotted-kbd-surface",
   "--slotted-kbd-symbol-font-family",
-  "--slotted-letter-spacing-wide",
   "--slotted-link-color",
   "--slotted-link-color-active",
   "--slotted-link-color-current",
@@ -6683,7 +6611,6 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-radio-group-tile-radius",
   "--slotted-radio-group-tile-readonly-background",
   "--slotted-radio-group-tile-readonly-border-color",
-  "--slotted-radius-pill",
   "--slotted-rating-active-background",
   "--slotted-rating-bar-color",
   "--slotted-rating-bar-size",
@@ -7317,7 +7244,6 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-toggle-pressed-hover-background",
   "--slotted-toggle-radius",
   "--slotted-toggle-shadow",
-  "--slotted-tone-secondary-subtle",
   "--slotted-toolbar-background",
   "--slotted-toolbar-border-color",
   "--slotted-toolbar-gap",

@@ -393,7 +393,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'tsx',
       label: 'A date-time filter over a wall-clock column',
       source:
-        'const [scheduled, setScheduled] = useState<DateTimeFilter | null>(null);\nconst keep = useMemo(\n  () => createFilterPredicate(scheduled, { timeZone: \'Europe/Lisbon\' }),\n  [scheduled],\n);\n\n<TableDateTimeFilter\n  columnLabel="scheduled"\n  onValueChange={setScheduled}\n  presets={\n    <DateTimeRangePickerPreset value={EARLY_OCTOBER}>Early October</DateTimeRangePickerPreset>\n  }\n  value={scheduled}\n/>;',
+        "const [scheduled, setScheduled] = useState<DateTimeFilter | null>(null);\nconst keep = useMemo(\n  () => createFilterPredicate(scheduled, { timeZone: 'Europe/Lisbon' }),\n  [scheduled],\n);\n\n<TableDateTimeFilter\n  columnLabel=\"scheduled\"\n  onValueChange={setScheduled}\n  presets={[{ label: 'Early October', value: EARLY_OCTOBER }]}\n  value={scheduled}\n/>;",
     }),
   },
   {
@@ -734,10 +734,10 @@ export const REACT_TABLE_DOCS = {
       ],
       [
         'presets',
-        'ReactNode',
+        'readonly PickerPreset[]',
         '—',
         'TableDateFilter, TableTimeFilter, TableDateTimeFilter',
-        'DateRangePickerPreset, TimeRangePickerPreset or DateTimeRangePickerPreset buttons offered inside the range picker between draws. The descriptor still receives two ISO values.',
+        'The application’s own ranges, each a label and a run, offered inside the range picker between draws. The descriptor still receives two ISO values.',
       ],
       [
         'granularity',

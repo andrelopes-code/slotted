@@ -12,6 +12,7 @@ import {
   shortTimeRun,
   stepLabel,
   timeMeta,
+  weekdayMeta,
 } from './picker-words';
 import { plainDate } from './plain-date';
 import { plainDateTime } from './plain-date-time';
@@ -24,6 +25,15 @@ describe('the words of a panel', () => {
   it('say how far a date is from today, and its week', () => {
     expect(dayMeta(plainDate(2026, 11, 30), plainDate(2026, 11, 25), 'en-US', t)).toBe(
       'in 5 days, week 49',
+    );
+  });
+
+  it('say the weekday of a date, and how far it is', () => {
+    expect(weekdayMeta(plainDate(2026, 11, 27), plainDate(2026, 11, 25), 'en-US', t)).toBe(
+      'Fri, in 2 days',
+    );
+    expect(weekdayMeta(plainDate(2026, 11, 26), plainDate(2026, 11, 25), 'en-US', t)).toBe(
+      'Thu, tomorrow',
     );
   });
 

@@ -20,6 +20,7 @@ export const ptBR: PickerPanelMessages = {
   startHandle: 'Início',
   endHandle: 'Fim',
   dayInWeek: '{day}, semana {week}',
+  weekdayIn: '{weekday}, {distance}',
   todayIs: 'Hoje: {day}',
   runOfDays: '{run}, {count, plural, one {# dia} other {# dias}}',
   ahead: 'em {length}',

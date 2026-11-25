@@ -15,7 +15,6 @@ import { useMemo, useState } from 'react';
 
 import { Avatar } from '../avatar';
 import { IconButton } from '../button';
-import { DateTimeRangePickerPreset } from '../datetime-range-picker';
 import { Link } from '../link';
 import { NumberField } from '../number-field';
 import { ProgressBar } from '../progress-indicator';
@@ -974,11 +973,7 @@ function DateTimeFilterDemo() {
                   columnLabel="scheduled"
                   hourCycle={24}
                   onValueChange={setScheduled}
-                  presets={
-                    <DateTimeRangePickerPreset value={EARLY_OCTOBER}>
-                      Early October
-                    </DateTimeRangePickerPreset>
-                  }
+                  presets={[{ label: 'Early October', value: EARLY_OCTOBER }]}
                   value={scheduled}
                 />
               </TableColumnActions>

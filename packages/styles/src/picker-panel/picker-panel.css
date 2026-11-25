@@ -430,12 +430,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* Alone in the rail, the group is the rail: one length a row, down to the footer. */
-  [data-ui-picker-panel] [data-part-group]:only-child {
+  /* With no shortcut over it, the group takes their place: one length a row. */
+  [data-ui-picker-panel] [data-part-group]:first-child {
     max-block-size: none;
   }
 
-  [data-ui-picker-panel] [data-part-group]:only-child > [data-part-chips] {
+  [data-ui-picker-panel] [data-part-group]:first-child > [data-part-chips] {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -564,9 +564,13 @@
     display: grid;
     flex: none;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    /* The modules decide the width; what is typed in a half is clipped by it. */
+    inline-size: 0;
+    min-inline-size: 100%;
   }
 
-  [data-ui-picker-panel] [data-part-half] {
+  /* A child of the head: a datetime field inside a half has halves of its own. */
+  [data-ui-picker-panel] [data-part-range-head] > [data-part-half] {
     align-content: center;
     display: grid;
     gap: var(--slotted-border-width-thin, 1px) var(--slotted-space-4, 0.5rem);
@@ -608,14 +612,15 @@
   }
 
   /* The end the next press writes: the tint, and a line that says it without color. */
-  [data-ui-picker-panel] [data-part-half][data-current] {
+  [data-ui-picker-panel] [data-part-range-head] > [data-part-half][data-current] {
     background-color: var(--_tint);
     box-shadow: inset 0 calc(-1 * var(--slotted-border-width-thick, 2px)) 0
       var(--slotted-tone-accent-solid, Highlight);
   }
 
   [data-ui-picker-panel]
-    [data-part-half][data-current]
+    [data-part-range-head]
+    > [data-part-half][data-current]
     :is([data-part-half-label], [data-part-half-meta]) {
     color: var(--slotted-tone-accent-text);
   }
@@ -648,6 +653,11 @@
     grid-template-rows: 1fr;
     justify-items: center;
     padding: var(--slotted-space-3, 0.375rem) var(--_pad) var(--slotted-space-4, 0.5rem);
+  }
+
+  /* Two months are two modules: the gap is the air of one and of the other. */
+  [data-ui-picker-panel] [data-part-body] > [data-ui-calendar] {
+    --slotted-calendar-month-gap: calc(var(--_pad) * 2);
   }
 
   [data-ui-picker-panel] [data-part-body] > [data-ui-clock] {
@@ -893,7 +903,7 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    [data-ui-picker-panel] [data-part-half] ~ [data-part-half] {
+    [data-ui-picker-panel] [data-part-range-head] > [data-part-half] ~ [data-part-half] {
       border-inline-start: var(--_edge);
     }
 
@@ -1051,7 +1061,7 @@
     }
 
     [data-ui-picker-panel] :is([data-part-preset], [data-part-jump-month])[data-selected],
-    [data-ui-picker-panel] [data-part-half][data-current] {
+    [data-ui-picker-panel] [data-part-range-head] > [data-part-half][data-current] {
       outline: var(--slotted-border-width-thin, 1px) solid Highlight;
       outline-offset: calc(-1 * var(--slotted-border-width-thin, 1px));
     }

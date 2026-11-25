@@ -203,6 +203,7 @@ export {
   shortTimeRun,
   stepLabel,
   timeMeta,
+  weekdayMeta,
 } from './picker-words';
 export {
   dayTimes,
@@ -214,6 +215,20 @@ export {
   stepToDay,
 } from './moment';
 export type { DayTimes, MomentDraft, MomentRules } from './moment';
+export {
+  closingMoments,
+  isPastRunLimit,
+  isSameMomentRunDraft,
+  missingHalf,
+  momentRunDraft,
+  momentRunFor,
+  momentRunOf,
+  refusalOfMoments,
+  runDayRefusal,
+  stepMomentRun,
+  withRunDays,
+} from './moment-run';
+export type { MomentRunDraft, MomentRunHalf, MomentRunRules } from './moment-run';
 export { isPastLimit, lengthOf, refusalOf, stepRun } from './range-panel';
 export type { RunRefusal } from './range-panel';
 export { closingTimes, refusalOfSeconds, refusalOfTimes, stepTimeRun, timeRunOf } from './time-run';

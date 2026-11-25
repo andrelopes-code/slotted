@@ -1,444 +1,575 @@
-import { plainDate, plainTime } from '@slotted/core/date';
-import type { PlainDate, PlainDateTime, PlainTime } from '@slotted/core/date';
+import { plainDate, plainDateTime, plainTime, toISODateTime } from '@slotted/core/date';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import type { ComponentProps } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { createRef, useState } from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/datetime-range-picker/contract.json';
+import { Field, FieldLabel } from '../field';
 import { SlottedProvider } from '../i18n';
-import {
-  DateTimeRangePicker,
-  DateTimeRangePickerDefaultsProvider,
-  DateTimeRangePickerPreset,
-} from './index';
-import type { DateTimeRange, DateTimeRangePickerHandle } from './index';
+import { DateTimeRangePicker, DateTimeRangePickerDefaultsProvider } from './index';
+import type { DateTimeRange, DateTimeRangePickerHandle, DateTimeRangePickerProps } from './index';
 
-const d = (day: number) => plainDate(2026, 9, day);
-const t = (hour: number, minute = 0) => plainTime(hour, minute);
-const dt = (day: number, hour: number, minute = 0): PlainDateTime => ({
-  date: d(day),
-  time: t(hour, minute),
-});
-const RUN: DateTimeRange = { start: dt(12, 14), end: dt(16, 11) };
-const SAME_DAY: DateTimeRange = { start: dt(12, 14), end: dt(12, 16, 30) };
-const NOON = dt(14, 12);
+const DAY = 86_400;
+const at = (day: number, hour: number, minute = 0) =>
+  plainDateTime(plainDate(2026, 9, day), plainTime(hour, minute));
 
-/** Every scene writes 24-hour English times on the fourteenth, so a row can be found by its text. */
-const DTRP = (props: ComponentProps<typeof DateTimeRangePicker>) => (
-  <DateTimeRangePicker hourCycle={24} locale="en" referenceDateTime={NOON} {...props} />
-);
+/** A Thursday. Stated rather than read from the clock, so every assertion is fixed. */
+const NOW = at(10, 10, 20);
+const RUN: DateTimeRange = { start: at(14, 17), end: at(17, 10, 30) };
+const BASE = { hourCycle: 24, locale: 'en-US', referenceDateTime: NOW } as const;
 
-const root = () =>
-  document.querySelector('[data-ui="datetime-range-picker"][data-part="root"]') as HTMLElement;
-const part = (name: string) => document.querySelector(`[data-part="${name}"]`) as HTMLElement;
-const trigger = () => part('trigger') as HTMLButtonElement;
-const surface = () => document.querySelector('[data-part="content"]');
-const tab = (position: 'start' | 'end') =>
-  document.querySelector(`[data-part="tab"][data-position="${position}"]`) as HTMLElement;
-/** The one panel, which is the current end's; asking for the other end swaps the tab. */
-const panel = (position: 'start' | 'end') => {
-  if (!tab(position).hasAttribute('data-current')) fireEvent.click(tab(position));
-  return document.querySelector(`[data-part="panel"][data-position="${position}"]`) as HTMLElement;
-};
-const list = (position: 'start' | 'end') =>
-  panel(position).querySelector('[data-part="list"]') as HTMLElement;
-const optionFor = (position: 'start' | 'end', text: string) =>
-  [...list(position).querySelectorAll<HTMLElement>('[data-part="option"]')].find((row) =>
-    row.textContent?.startsWith(text),
-  ) as HTMLElement;
-const dayFor = (number: number) =>
-  screen
-    .getAllByRole('button')
-    .find(
-      (element) =>
-        element.textContent === String(number) &&
-        element.closest('[data-part="cell"]')?.hasAttribute('data-outside-month') === false,
-    ) as HTMLElement;
-const hint = () => part('hint');
+afterEach(() => vi.unstubAllGlobals());
 
 describe('what it is made of', () => {
-  it('renders a one-line frame, and two tabs, one field, one calendar and one list behind it', () => {
-    render(<DTRP defaultOpen defaultValue={RUN} />);
-    expect(root()).toHaveAttribute('data-ui', contract.ui);
-    expect(part('control').querySelectorAll('[data-ui="datetime-field"]')).toHaveLength(0);
-    expect(surface()?.querySelectorAll('[data-ui="datetime-field"]')).toHaveLength(1);
-    expect(surface()?.querySelectorAll('[data-ui="calendar"]')).toHaveLength(1);
-    expect(surface()?.querySelectorAll('[role="listbox"]')).toHaveLength(1);
-    expect(surface()?.querySelectorAll('[role="tab"]')).toHaveLength(2);
-    expect(part('summary').textContent).toMatch(/Sep 12.*14:00.*–.*Sep 16.*11:00/);
-    expect(tab('start').textContent).toMatch(/Sep 12.*14:00/);
-    expect(tab('end').textContent).toMatch(/Sep 16.*11:00/);
-  });
+  it('declares every part the contract names, and opens the shared panel', () => {
+    draw({ clearable: true, defaultOpen: true, defaultValue: RUN });
 
-  it('declares every part the contract names', () => {
-    /* The grip is drawn in the sheet presentation only. */
-    vi.stubGlobal('matchMedia', (query: string) => ({
-      matches: true,
-      media: query,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-    }));
-    render(
-      <DTRP
-        clearable
-        defaultOpen
-        defaultValue={{ start: dt(12, 17), end: dt(12, 17) }}
-        footer={<button type="button">Aplicar</button>}
-        maxLength={4 * 3600}
-        maxTime={t(17)}
-        minLength={900}
-        presets={<DateTimeRangePickerPreset value={RUN}>Week</DateTimeRangePickerPreset>}
-        unavailableOptions="hide"
-      />,
-    );
-    /* One end at a time: the empty end and the list of the other are two tabs. */
-    const collect = () =>
-      [
-        ...document.querySelectorAll(
-          '[data-ui="datetime-range-picker"][data-part], [data-ui="datetime-range-picker"] [data-part]',
-        ),
-      ].map((element) => (element as HTMLElement).dataset['part']);
-    const present = new Set(collect());
-    fireEvent.click(tab('end'));
-    for (const name of collect()) present.add(name);
-    for (const name of contract.members.dateTimeRangePicker.parts) {
-      if (name === 'root') continue;
-      expect(present, `${name} is not rendered`).toContain(name);
+    for (const part of contract.members.dateTimeRangePicker.parts) {
+      expect(document.querySelector(`[data-part="${part}"]`), part).not.toBeNull();
     }
-
-    vi.unstubAllGlobals();
+    expect(root()).toHaveAttribute('data-ui', contract.ui);
+    expect(panel()).toHaveAttribute('data-kind', 'datetime-range');
   });
 
-  it('shows one month by default and names the list by the current tab', () => {
-    render(<DTRP defaultOpen defaultValue={RUN} messages={{ start: 'Pickup', end: 'Return' }} />);
-    /* The calendar writes `data-months` only past one. */
-    expect(document.querySelector('[data-ui="calendar"]')).not.toHaveAttribute('data-months');
-    expect(document.querySelectorAll('[data-part="grid"]')).toHaveLength(1);
-    expect(screen.getByRole('listbox', { name: /^Pickup/ })).toBe(list('start'));
-    const end = list('end');
-    expect(screen.getByRole('listbox', { name: /^Return/ })).toBe(end);
+  it('is a one-line frame: the run in words, and no field in it', () => {
+    draw({ defaultValue: RUN });
+
+    expect(summary()).toBe('Sep 14, 17:00 – Sep 17, 10:30');
+    expect(root().querySelector('[data-ui="datetime-field"]')).toBeNull();
+    expect(trigger()).toHaveAttribute('aria-haspopup', 'dialog');
   });
 
-  it('says which half to choose, with the day once there is one', () => {
-    const empty = render(<DTRP defaultOpen messages={{ start: 'Pickup', end: 'Return' }} />);
-    expect(hint()).toHaveTextContent('Pickup: choose a day');
-    fireEvent.click(dayFor(12));
-    expect(hint().textContent).toMatch(/Pickup: choose a time on .*12/);
-    empty.unmount();
+  it('writes an open end with the dash and nothing beside it', () => {
+    draw({ defaultValue: { start: at(14, 17), end: null } });
 
-    render(<DTRP defaultOpen defaultValue={{ start: dt(16, 11), end: dt(12, 14) }} />);
-    expect(hint()).toHaveTextContent('The end must come after the start');
-    expect(hint()).toHaveAttribute('data-invalid');
+    expect(summary()).toBe('Sep 14, 17:00 –');
   });
 
-  it('submits two named values from the frame', () => {
-    render(<DTRP defaultValue={RUN} endName="end" startName="start" />);
-    expect(document.querySelector('input[name="start"]')).toHaveValue('2026-09-12T14:00:00');
-    expect(document.querySelector('input[name="end"]')).toHaveValue('2026-09-16T11:00:00');
+  it('draws a typed half and a clock for each end, under two months', () => {
+    draw({ defaultOpen: true, defaultValue: RUN });
+
+    expect(panel().querySelectorAll('[data-part="half"] [data-ui="datetime-field"]')).toHaveLength(
+      2,
+    );
+    expect(panel().querySelectorAll('[data-ui="clock"]')).toHaveLength(2);
+    expect(screen.getAllByRole('grid')).toHaveLength(2);
+    expect(metas()).toEqual(['Mon, in 4 days', 'Thu, in 7 days']);
   });
 
-  /** Both marks are `Glyph` elements inside an `Icon` box, never masks. */
-  it('draws the calendar and the cross as glyph elements', () => {
-    render(<DTRP clearable defaultValue={RUN} />);
-    const glyph = (name: string) => part(name).querySelector("[data-ui='icon'] > svg[data-glyph]");
-    expect(glyph('trigger')).toHaveAttribute('data-glyph', contract.triggerIcon);
-    expect(glyph('clear')).toHaveAttribute('data-glyph', 'x');
+  it('draws the shortcuts with their days, and the lengths', () => {
+    draw({ defaultOpen: true, defaultValue: RUN, presets: [{ label: 'Next week', value: RUN }] });
+
+    expect(texts('[data-part="preset-result"]')).toEqual(['Sep 14 – 17']);
+    expect(texts('[data-part="chip"]')).toEqual([
+      '1 day',
+      '2 days',
+      '3 days',
+      '5 days',
+      '7 days',
+      '14 days',
+    ]);
+  });
+
+  it('has no rail with neither', () => {
+    draw({ defaultOpen: true, durations: [] });
+
+    expect(panel().querySelector('[data-part="rail"]')).toBeNull();
   });
 });
 
-describe('the duration, said while the run is drawn', () => {
-  it('says the duration of a whole value across days', () => {
-    render(<DTRP defaultOpen defaultValue={RUN} />);
-    expect(part('length')).toHaveTextContent('3 days 21 hr');
-    expect(trigger().getAttribute('aria-label')).toContain('3 days 21 hr');
-  });
+describe('the trigger', () => {
+  it('asks for a run, then carries both ends and the length', () => {
+    const { rerender } = render(<DateTimeRangePicker {...BASE} />);
+    expect(trigger()).toHaveAccessibleName('Choose range');
 
-  it('writes the duration beside the rows only while the two ends are on the same day', () => {
-    const same = render(<DTRP defaultOpen defaultValue={SAME_DAY} />);
-    expect(
-      optionFor('end', '15:00').querySelector('[data-part="option-duration"]'),
-    ).toHaveTextContent('1 hr');
-    same.unmount();
-    render(<DTRP defaultOpen defaultValue={RUN} />);
-    expect(optionFor('end', '15:00').querySelector('[data-part="option-duration"]')).toBeNull();
-  });
-
-  it('says the duration a pending day would give, with the time the end holds', () => {
-    render(<DTRP defaultOpen defaultValue={{ start: dt(12, 14), end: null }} />);
-    fireEvent.pointerEnter(dayFor(13));
-    expect(part('length')).toHaveTextContent('10 hr');
-    expect(part('length')).toHaveAttribute('data-pending');
+    rerender(<DateTimeRangePicker {...BASE} value={RUN} />);
+    expect(trigger().getAttribute('aria-label')).toMatch(
+      /^Change range, .*September 14.* – .*September 17.*, 2 days 17 hr 30 min$/,
+    );
   });
 });
 
-describe('what each list refuses', () => {
-  it('runs each list on the day of its own end, inside the day window', () => {
-    render(<DTRP defaultOpen defaultValue={RUN} maxTime={t(18)} minTime={t(8)} />);
-    expect(optionFor('start', '07:45')).toBeUndefined();
-    expect(optionFor('start', '08:00')).toBeDefined();
-    expect(optionFor('end', '18:00')).toBeDefined();
-    expect(optionFor('end', '18:15')).toBeUndefined();
-  });
+describe('the four halves', () => {
+  it('are chosen one after the other, each press bringing the next grid', () => {
+    const { onPositionChange, onValueChange } = draw({ defaultOpen: true });
 
-  it('refuses, on the same day, the times before the start', () => {
-    render(<DTRP defaultOpen defaultValue={{ start: dt(12, 14), end: dt(12, 16) }} />);
-    expect(optionFor('end', '13:45')).toHaveAttribute('aria-disabled', 'true');
-    expect(optionFor('end', '14:00')).not.toHaveAttribute('aria-disabled');
-  });
+    fireEvent.click(day(14));
+    expect(hours('Start')).toContain(document.activeElement);
 
-  it('applies the duration limits across days', () => {
-    render(
-      <DTRP
-        defaultOpen
-        defaultValue={{ start: dt(12, 14), end: dt(13, 8) }}
-        maxLength={12 * 3600}
-      />,
-    );
-    /* On the thirteenth, 02:00 is exactly twelve hours; 02:15 is past it. */
-    expect(optionFor('end', '02:00')).not.toHaveAttribute('aria-disabled');
-    expect(optionFor('end', '02:15')).toHaveAttribute('aria-disabled', 'true');
-  });
-
-  it("runs a list on the grid's focused day while the end has no date", () => {
-    render(<DTRP defaultOpen minTime={t(8)} />);
-    /* The fourteenth is today; the list runs there, inside the day window. */
-    expect(optionFor('start', '08:00')).toBeDefined();
-    expect(optionFor('start', '07:45')).toBeUndefined();
-    expect(tab('start')).toHaveAttribute('data-placeholder');
-  });
-
-  it('empties a list on a closed day', () => {
-    render(
-      <DTRP
-        defaultOpen
-        defaultValue={{ start: dt(17, 9), end: null }}
-        messages={{ empty: 'Fechado' }}
-        isDateUnavailable={(date: PlainDate) => date.day === 19}
-      />,
-    );
-    fireEvent.click(dayFor(19));
-    expect(panel('end').querySelector('[data-part="empty"]')).toBeNull();
-  });
-});
-
-describe('choosing a run', () => {
-  it('walks the reader through the four halves and closes on the last', () => {
-    const onValueChange = vi.fn();
-    const onOpenChange = vi.fn();
-    const onPositionChange = vi.fn();
-    render(
-      <DTRP
-        defaultOpen
-        onOpenChange={onOpenChange}
-        onPositionChange={onPositionChange}
-        onValueChange={onValueChange}
-      />,
-    );
-
-    fireEvent.click(dayFor(12));
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(tab('start').textContent).toMatch(/12/);
-    /* The start is still the current end: its time is what is missing. */
-    expect(onPositionChange).not.toHaveBeenCalled();
-
-    fireEvent.click(optionFor('start', '14:00'));
-    expect(onValueChange).not.toHaveBeenCalled();
+    fireEvent.click(hours('Start')[17]!);
+    fireEvent.click(minutes('Start')[0]!);
     expect(onPositionChange).toHaveBeenLastCalledWith('end', expect.anything());
-    expect(tab('end')).toHaveAttribute('data-current');
+    expect(panel().querySelector('[data-ui="calendar"]')).toContainElement(
+      document.activeElement as HTMLElement,
+    );
 
-    fireEvent.click(dayFor(16));
+    fireEvent.click(day(17));
+    expect(hours('End')).toContain(document.activeElement);
+    expect(apply()).toBeDisabled();
+
+    fireEvent.click(hours('End')[10]!);
     expect(onValueChange).not.toHaveBeenCalled();
-    expect(tab('end').textContent).toMatch(/16/);
+    fireEvent.click(apply());
+    expect(onValueChange).toHaveBeenCalledWith(
+      { start: at(14, 17), end: at(17, 10) },
+      expect.objectContaining({ reason: 'select' }),
+    );
+    expect(trigger()).toHaveFocus();
+  });
 
-    fireEvent.click(optionFor('end', '11:00'));
+  it('are written in words while one of an end is missing', () => {
+    draw({ defaultOpen: true });
+
+    fireEvent.click(day(14));
+    expect(half('Start').querySelector('[data-ui="datetime-field"]')).toBeNull();
+    expect(within(half('Start')).getByRole('button', { name: 'Mon, Sep 14' })).toBeInTheDocument();
+
+    fireEvent.click(within(half('Start')).getByRole('button', { name: 'Time' }));
+    fireEvent.click(hours('Start')[17]!);
+    expect(half('Start').querySelector('[data-ui="datetime-field"]')).not.toBeNull();
+  });
+
+  it('keep their times under new days, in the order the days fall', () => {
+    const { onValueChange } = draw({ defaultOpen: true, defaultValue: RUN });
+
+    fireEvent.click(day(24));
+    fireEvent.click(day(21));
+    fireEvent.click(apply());
+    expect(onValueChange).toHaveBeenCalledWith(
+      { start: at(21, 17), end: at(24, 10, 30) },
+      expect.anything(),
+    );
+  });
+
+  it('are typed in the head', () => {
+    const { onValueChange } = draw({ defaultOpen: true, defaultValue: RUN });
+    const [month] = within(half('Start')).getAllByRole('spinbutton');
+
+    fireEvent.keyDown(month!, { key: 'ArrowDown' });
+    fireEvent.click(apply());
+    expect(onValueChange).toHaveBeenCalledWith(
+      { ...RUN, start: plainDateTime(plainDate(2026, 8, 14), plainTime(17)) },
+      expect.anything(),
+    );
+  });
+});
+
+describe('the length', () => {
+  it('says how long the run is, and steps its end by a day', () => {
+    draw({ defaultOpen: true, defaultValue: RUN });
+    expect(spanText()).toBe('2 days 17 hr 30 min');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lengthen' }));
+    expect(spanText()).toBe('3 days 17 hr 30 min');
+  });
+
+  it('says the days of the run the pointer would draw', () => {
+    draw({ defaultOpen: true, defaultValue: RUN });
+
+    fireEvent.click(day(21));
+    fireEvent.pointerEnter(day(24));
+    expect(spanText()).toBe('2 days 17 hr 30 min');
+    fireEvent.pointerEnter(day(26));
+    expect(spanText()).toBe('4 days 17 hr 30 min');
+  });
+
+  it('is set by a duration, from the start', () => {
+    const { onValueChange } = draw({ defaultOpen: true, defaultValue: RUN });
+
+    fireEvent.click(chip('7 days'));
+    expect(chip('7 days')).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(apply());
+    expect(onValueChange).toHaveBeenCalledWith({ ...RUN, end: at(21, 17) }, expect.anything());
+  });
+
+  it('takes no duration without a whole start', () => {
+    draw({ defaultOpen: true });
+
+    expect(chip('1 day')).toBeDisabled();
+  });
+
+  it('stops at its limits, which the footer says', () => {
+    draw({ defaultOpen: true, defaultValue: RUN, maxLength: 3 * DAY, minLength: DAY });
+
+    expect(screen.getByRole('button', { name: 'Lengthen' })).toBeDisabled();
+    expect(chip('5 days')).toBeDisabled();
+    expect(hint()).toBe('1 day to 3 days');
+  });
+});
+
+describe('the draft', () => {
+  it('takes a shortcut, and is applied by Ctrl and Enter', () => {
+    const { onValueChange } = draw({
+      defaultOpen: true,
+      presets: [{ label: 'Next week', value: () => RUN }],
+    });
+    const preset = screen.getByRole('button', { name: /Next week/ });
+
+    fireEvent.click(preset);
+    expect(preset).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.keyDown(panel(), { ctrlKey: true, key: 'Enter' });
+    expect(onValueChange).toHaveBeenCalledWith(RUN, expect.anything());
+  });
+
+  it('is discarded by Escape, and emptied by Clear', () => {
+    const { onValueChange } = draw({ defaultOpen: true, defaultValue: RUN });
+
+    fireEvent.click(chip('7 days'));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    fireEvent.click(trigger());
+    expect(spanText()).toBe('2 days 17 hr 30 min');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.click(apply());
     expect(onValueChange).toHaveBeenCalledTimes(1);
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      { start: dt(12, 14), end: dt(16, 11) },
-      expect.objectContaining({ reason: 'select' }),
-    );
-    expect(onOpenChange).toHaveBeenLastCalledWith(
-      false,
-      expect.objectContaining({ reason: 'select' }),
-    );
+    expect(onValueChange).toHaveBeenCalledWith(null, expect.anything());
   });
 
-  it('keeps the hours with their ends when the grid orders the dates', () => {
-    const onValueChange = vi.fn();
-    render(
-      <DTRP
-        defaultOpen
-        defaultPosition="end"
-        defaultValue={{ start: dt(16, 14), end: null }}
-        onValueChange={onValueChange}
-      />,
-    );
-    fireEvent.click(dayFor(12));
-    fireEvent.click(optionFor('end', '11:00'));
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      { start: dt(12, 14), end: dt(16, 11) },
-      expect.anything(),
-    );
-  });
+  it('is written as it goes, without a confirmation', () => {
+    const { onOpenChange, onValueChange } = draw({
+      confirm: false,
+      defaultOpen: true,
+      defaultValue: RUN,
+    });
 
-  it('keeps the panel open when a whole work is changed', () => {
-    const onOpenChange = vi.fn();
-    const onValueChange = vi.fn();
-    render(
-      <DTRP
-        defaultOpen
-        defaultValue={RUN}
-        onOpenChange={onOpenChange}
-        onValueChange={onValueChange}
-      />,
-    );
-    fireEvent.click(optionFor('end', '12:00'));
+    fireEvent.click(screen.getByRole('button', { name: 'Lengthen' }));
+    expect(onValueChange).toHaveBeenCalledWith({ ...RUN, end: at(18, 10, 30) }, expect.anything());
+
+    fireEvent.keyDown(within(half('End')).getAllByRole('spinbutton')[3]!, { key: 'ArrowUp' });
     expect(onValueChange).toHaveBeenLastCalledWith(
-      { start: dt(12, 14), end: dt(16, 12) },
-      expect.anything(),
+      { ...RUN, end: at(18, 11, 30) },
+      expect.objectContaining({ reason: 'keyboard' }),
     );
     expect(onOpenChange).not.toHaveBeenCalled();
+
+    fireEvent.click(minutes('End')[0]!);
+    expect(onValueChange).toHaveBeenLastCalledWith({ ...RUN, end: at(18, 11) }, expect.anything());
+    expect(onOpenChange).toHaveBeenLastCalledWith(false, expect.anything());
+  });
+});
+
+describe('the rules', () => {
+  it('strike in the clock of the end what a start of the same day refuses', () => {
+    draw({
+      defaultOpen: true,
+      defaultValue: { start: at(14, 17), end: at(14, 20) },
+      step: 3600,
+    });
+
+    expect(offered('Start')).toHaveLength(24);
+    expect(offered('End')).toEqual([18, 19, 20, 21, 22, 23]);
   });
 
-  it('abandons the work on Escape, walking the calendar down a view first', () => {
-    const onValueChange = vi.fn();
-    render(<DTRP defaultOpen defaultValue={RUN} onValueChange={onValueChange} />);
-    fireEvent.click(document.querySelector('[data-part="heading"]') as HTMLElement);
-    fireEvent.keyDown(document, { key: 'Escape' });
-    expect(root()).toHaveAttribute('data-open');
-    fireEvent.keyDown(document, { key: 'Escape' });
-    expect(root()).not.toHaveAttribute('data-open');
-    expect(onValueChange).not.toHaveBeenCalled();
+  it('bound each clock on its own day', () => {
+    draw({
+      defaultOpen: true,
+      defaultValue: RUN,
+      max: at(17, 12),
+      min: at(14, 16),
+      step: 3600,
+    });
+
+    expect(offered('Start')[0]).toBe(16);
+    expect(offered('End').at(-1)).toBe(12);
   });
 
-  it('writes now, both halves, into the current end', () => {
-    const onValueChange = vi.fn();
-    render(
-      <DTRP
-        defaultOpen
-        defaultValue={{ start: dt(12, 9), end: null }}
-        onValueChange={onValueChange}
-      />,
-    );
-    panel('end');
-    fireEvent.click(part('now'));
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      { start: dt(12, 9), end: NOON },
-      expect.objectContaining({ reason: 'select' }),
-    );
+  it('stop the days of a run at an unavailable one, unless it may cross it', () => {
+    const rules = {
+      defaultOpen: true,
+      defaultValue: { start: at(14, 17), end: null },
+      isDateUnavailable: ({ day: date }: { day: number }) => date === 16,
+    };
+    const { unmount } = draw(rules);
+    expect(day(17)).toHaveAttribute('aria-disabled', 'true');
+    unmount();
+
+    draw({ ...rules, contiguous: false });
+    expect(day(17)).not.toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('writes a preset whole and marks it selected', () => {
-    const onValueChange = vi.fn();
-    render(
-      <DTRP
-        defaultOpen
-        onValueChange={onValueChange}
-        presets={<DateTimeRangePickerPreset value={RUN}>Estadia</DateTimeRangePickerPreset>}
-      />,
+  it('say by how much a run is over, and mark its days', () => {
+    draw({ defaultOpen: true, defaultValue: RUN, maxLength: 2 * DAY });
+
+    expect(hint()).toBe('17 hr 30 min over the limit');
+    expect(apply()).toBeDisabled();
+    expect(
+      [...panel().querySelectorAll('[data-part="cell"][data-over]')].map(
+        (cell) => cell.textContent,
+      ),
+    ).toEqual(['17']);
+  });
+
+  it('say why a run is refused', () => {
+    draw({ defaultOpen: true, defaultValue: { start: RUN.end, end: RUN.start } });
+
+    expect(hint()).toBe('The end must come after the start');
+    expect(root()).toHaveAttribute('data-invalid');
+  });
+
+  it('name the zone in the footer, when one is stated and no limit is', () => {
+    draw({ defaultOpen: true, timeZone: 'Europe/Lisbon' });
+
+    expect(hint()).toBe('Europe/Lisbon');
+  });
+});
+
+describe('one part at a time', () => {
+  it('shows the day or the time of one end, and the halves bring them', () => {
+    stubNarrow();
+    draw({ defaultOpen: true, defaultValue: RUN });
+    expect(panel()).toHaveAttribute('data-showing', 'day');
+    expect(screen.getAllByRole('grid')).toHaveLength(1);
+    expect(panel().querySelector('[data-part="half"] [data-ui="datetime-field"]')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: '10:30' }));
+    expect(panel()).toHaveAttribute('data-showing', 'time');
+    expect(clock('End')).toHaveAttribute('data-current');
+    expect(clock('Start')).not.toHaveAttribute('data-current');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mon, Sep 14' }));
+    expect(panel()).toHaveAttribute('data-showing', 'day');
+  });
+
+  it('moves to the time once a day is pressed, and to the other day once it is chosen', () => {
+    stubNarrow();
+    draw({ defaultOpen: true });
+
+    fireEvent.click(day(14));
+    expect(panel()).toHaveAttribute('data-showing', 'time');
+    fireEvent.click(hours('Start')[17]!);
+    fireEvent.click(minutes('Start')[0]!);
+    expect(panel()).toHaveAttribute('data-showing', 'day');
+    expect(half('End')).toHaveAttribute('data-current');
+  });
+});
+
+describe('the contract with the consumer', () => {
+  it('posts two values, and returns to the first run on a reset', async () => {
+    const { container } = draw(
+      { defaultOpen: true, defaultValue: RUN, endName: 'to', startName: 'from' },
+      'form',
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Estadia' }));
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      RUN,
-      expect.objectContaining({ reason: 'select' }),
+    const posted = () => ['from', 'to'].map((name) => hidden(name)?.value);
+
+    fireEvent.click(chip('7 days'));
+    fireEvent.click(apply());
+    await waitFor(() =>
+      expect(posted()).toEqual([toISODateTime(at(14, 17)), toISODateTime(at(21, 17))]),
     );
-    expect(screen.getByRole('button', { name: 'Estadia' })).toHaveAttribute('data-selected');
+
+    act(() => container.querySelector('form')?.reset());
+    await waitFor(() => expect(posted()[1]).toBe(toISODateTime(at(17, 10, 30))));
+  });
+
+  it('waits for the consumer when they own the value', async () => {
+    const Owned = () => {
+      const [value, setValue] = useState<DateTimeRange | null>(RUN);
+
+      return <DateTimeRangePicker {...BASE} defaultOpen onValueChange={setValue} value={value} />;
+    };
+    render(<Owned />);
+
+    fireEvent.click(chip('7 days'));
+    fireEvent.click(apply());
+    await waitFor(() => expect(summary()).toBe('Sep 14, 17:00 – Sep 21, 17:00'));
   });
 
   it('empties both ends from the clear on the frame', () => {
-    const onValueChange = vi.fn();
-    render(<DTRP clearable defaultValue={RUN} onValueChange={onValueChange} />);
-    fireEvent.click(part('clear'));
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      null,
-      expect.objectContaining({ reason: 'clear' }),
-    );
-  });
-});
+    const { onValueChange } = draw({ clearable: true, defaultValue: RUN });
 
-describe('validity', () => {
-  it('names the end field invalid when it comes before the start, and swaps nothing', () => {
-    render(<DTRP defaultOpen defaultValue={{ start: dt(16, 11), end: dt(12, 14) }} />);
-    expect(root()).toHaveAttribute('data-invalid');
-    panel('end');
-    expect(part('field').querySelector('[data-ui="datetime-field"]')).toHaveAttribute(
-      'data-invalid',
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Clear range' }));
+    expect(onValueChange).toHaveBeenCalledWith(null, expect.objectContaining({ reason: 'clear' }));
+    expect(trigger()).toHaveFocus();
   });
 
-  it('reports a value outside the day window', () => {
-    render(<DTRP defaultValue={{ start: dt(12, 7), end: dt(12, 9) }} minTime={t(8)} />);
-    expect(root()).toHaveAttribute('data-invalid');
-  });
-});
+  it('is opened, closed and focused from its ref', async () => {
+    const ref = createRef<DateTimeRangePickerHandle>();
+    draw({ defaultValue: RUN, ref });
 
-describe('keys and ownership', () => {
-  it('opens on ArrowDown onto the cell of the current end', async () => {
-    vi.useFakeTimers();
-    try {
-      render(<DTRP defaultValue={RUN} />);
-      fireEvent.keyDown(trigger(), { key: 'ArrowDown' });
-      await act(async () => {
-        vi.runAllTimers();
-      });
-      expect(document.activeElement).toBe(dayFor(12));
-    } finally {
-      vi.useRealTimers();
-    }
+    act(() => ref.current?.open());
+    await waitFor(() => expect(day(14)).toHaveFocus());
+    act(() => ref.current?.close());
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    act(() => ref.current?.focus());
+    expect(trigger()).toHaveFocus();
   });
 
-  it('exposes focus, open and close on the handle', () => {
-    const handle = { current: null as DateTimeRangePickerHandle | null };
-    const onOpenChange = vi.fn();
-    render(<DTRP onOpenChange={onOpenChange} ref={handle} />);
-    act(() => handle.current?.open());
-    expect(onOpenChange).toHaveBeenLastCalledWith(true, expect.anything());
-    act(() => handle.current?.focus());
-    expect(document.activeElement).toBe(trigger());
+  it('may own the end being edited', () => {
+    draw({ defaultOpen: true, defaultValue: RUN, position: 'end' });
+
+    fireEvent.pointerDown(half('Start'));
+    expect(half('End')).toHaveAttribute('data-current');
   });
 
-  it('reads the defaults an application set once', () => {
-    render(
-      <DateTimeRangePickerDefaultsProvider months={2}>
-        <DTRP defaultOpen />
-      </DateTimeRangePickerDefaultsProvider>,
-    );
-    expect(document.querySelector('[data-ui="calendar"]')).toHaveAttribute('data-months', '2');
-  });
-
-  it('changes its words and its date and time format together with the language in force', () => {
-    const inLocale = (locale: string) => (
-      <SlottedProvider catalogs={{ 'pt-BR': PT_BR }} locale={locale}>
-        <DateTimeRangePicker defaultValue={RUN} referenceDateTime={NOON} />
-      </SlottedProvider>
-    );
-    const { rerender } = render(inLocale('pt-BR'));
-
-    // language: pt-BR
-    expect(trigger().getAttribute('aria-label')).toMatch(/^Alterar período, /);
-    // language: en-US
-    expect(part('summary').textContent).toMatch(/12 de set.*14:00/);
-
-    rerender(inLocale('en-US'));
-    expect(trigger().getAttribute('aria-label')).toMatch(/^Change range, /);
-    expect(part('summary').textContent).toMatch(/Sep 12.*2:00\sPM/);
-  });
-
-  it('names the limit in the language in force', () => {
+  it('takes its shape from a provider, and its words from the language in force', () => {
     render(
       <SlottedProvider catalogs={{ 'pt-BR': PT_BR }} locale="pt-BR">
-        <DateTimeRangePicker defaultOpen maxLength={7 * 86400} minLength={86400} />
+        <DateTimeRangePickerDefaultsProvider confirm={false} months={1}>
+          <DateTimeRangePicker defaultOpen minLength={DAY} referenceDateTime={NOW} value={RUN} />
+        </DateTimeRangePickerDefaultsProvider>
       </SlottedProvider>,
     );
+
     // language: pt-BR
-    expect(part('limit')).toHaveTextContent(/^de 1 dia a 7 dias$/);
+    expect(hint()).toBe('pelo menos 1 dia');
+    expect(metas()[0]).toBe('seg., em 4 dias');
     // language: en-US
+    expect(screen.getAllByRole('grid')).toHaveLength(1);
+    expect(document.querySelector('[data-part="apply"]')).toBeNull();
   });
 
-  it('refuses a time unavailable on its day, and only there', () => {
-    const closed = (time: PlainTime, date: PlainDate) => date.day === 12 && time.hour === 15;
-    render(<DTRP defaultOpen defaultValue={RUN} isTimeUnavailable={closed} />);
-    expect(optionFor('start', '15:00')).toHaveAttribute('aria-disabled', 'true');
-    expect(optionFor('end', '15:00')).not.toHaveAttribute('aria-disabled');
+  it('lays its own messages and its own footer', () => {
+    draw({ defaultOpen: true, footer: 'Keys at the desk', messages: { start: 'Pickup' } });
+
+    expect(half('Pickup')).toBeInTheDocument();
+    expect(hint()).toBe('Keys at the desk');
+  });
+
+  it('draws the whole times of a stated list its own way, per end and day', () => {
+    draw({
+      defaultOpen: true,
+      defaultValue: RUN,
+      options: [plainTime(9), plainTime(17)],
+      renderSlot: ({ date, label, position }) => `${position} ${String(date?.day)} ${label}`,
+    });
+
+    expect(texts('[data-ui="clock"] [role="option"]')).toEqual([
+      'start 14 09:00',
+      'start 14 17:00',
+      'end 17 09:00',
+      'end 17 17:00',
+    ]);
+  });
+
+  it('names its panel for itself, and not for the field around it', () => {
+    render(
+      <Field>
+        <FieldLabel>Rental</FieldLabel>
+        <DateTimeRangePicker {...BASE} defaultOpen />
+      </Field>,
+    );
+
+    expect(screen.getByRole('dialog')).toHaveAccessibleName('Choose range');
+  });
+
+  it.each(['disabled', 'readOnly'] as const)('does not open while %s', (state) => {
+    draw({ defaultValue: RUN, [state]: true });
+
+    expect(trigger()).toBeDisabled();
+    expect(root()).toHaveAttribute(`data-${state.toLowerCase()}`);
   });
 });
+
+function draw(props: Partial<DateTimeRangePickerProps> = {}, Wrapper: 'div' | 'form' = 'div') {
+  const onOpenChange = vi.fn();
+  const onPositionChange = vi.fn();
+  const onValueChange = vi.fn();
+  const view = render(
+    <Wrapper>
+      <DateTimeRangePicker
+        {...BASE}
+        onOpenChange={onOpenChange}
+        onPositionChange={onPositionChange}
+        onValueChange={onValueChange}
+        {...props}
+      />
+    </Wrapper>,
+  );
+
+  return { ...view, onOpenChange, onPositionChange, onValueChange };
+}
+
+function root() {
+  return document.querySelector<HTMLElement>(
+    '[data-ui="datetime-range-picker"][data-part="root"]',
+  )!;
+}
+
+function panel() {
+  return document.querySelector<HTMLElement>('[data-ui="picker-panel"][data-part="root"]')!;
+}
+
+function trigger() {
+  return root().querySelector<HTMLButtonElement>('[data-part="trigger"]')!;
+}
+
+function summary() {
+  return root().querySelector('[data-part="summary"]')?.textContent?.replaceAll(/\s/g, ' ');
+}
+
+function hidden(name: string) {
+  return root().querySelector<HTMLInputElement>(`input[name="${name}"]`);
+}
+
+function apply() {
+  return screen.getByRole('button', { name: 'Apply' });
+}
+
+function hint() {
+  return panel().querySelector('[data-part="hint"]')?.textContent;
+}
+
+function spanText() {
+  return panel().querySelector('[data-part="span-text"]')?.textContent;
+}
+
+function half(name: string) {
+  return [...panel().querySelectorAll<HTMLElement>('[data-part="half"]')].find(
+    (element) => element.querySelector('[data-part="half-label"]')?.textContent === name,
+  )!;
+}
+
+function texts(selector: string) {
+  return [...panel().querySelectorAll(selector)].map((element) =>
+    element.textContent?.replaceAll(/\s/g, ' '),
+  );
+}
+
+function metas() {
+  return texts('[data-part="half-meta"]');
+}
+
+function day(date: number) {
+  return [...panel().querySelectorAll<HTMLElement>('[data-part="day"]')].find(
+    (element) =>
+      element.textContent === String(date) &&
+      element.closest('[data-part="cell"]')?.hasAttribute('data-outside-month') !== true,
+  )!;
+}
+
+function clock(name: string) {
+  return panel().querySelector<HTMLElement>(`[data-ui="clock"][aria-label="${name}"]`)!;
+}
+
+function grid(name: string, unit: string) {
+  return within(within(clock(name)).getByRole('listbox', { name: unit })).getAllByRole('option');
+}
+
+function hours(name: string) {
+  return grid(name, 'Hours');
+}
+
+function minutes(name: string) {
+  return grid(name, 'Minutes');
+}
+
+/** The hours the clock of an end accepts. */
+function offered(name: string) {
+  return hours(name).flatMap((hour, index) =>
+    hour.getAttribute('aria-disabled') === 'true' ? [] : [index],
+  );
+}
+
+function chip(label: string) {
+  return screen.getByRole('button', { name: label });
+}
+
+/** A viewport under the widest panel. */
+function stubNarrow() {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    addEventListener: () => undefined,
+    matches: query.includes('760px'),
+    removeEventListener: () => undefined,
+  }));
+}

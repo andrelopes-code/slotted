@@ -396,7 +396,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'angular',
       label: 'A date-time filter over a wall-clock column',
       source:
-        '<ng-template #windows>\n  <button slDateTimeRangePickerPreset [range]="earlyOctober">Early October</button>\n</ng-template>\n<span\n  slTableDateTimeFilter\n  columnLabel="scheduled"\n  timeZone="Europe/Lisbon"\n  [presets]="windows"\n  [(value)]="scheduled"\n></span>',
+        '<span\n  slTableDateTimeFilter\n  columnLabel="scheduled"\n  timeZone="Europe/Lisbon"\n  [presets]="windows"\n  [(value)]="scheduled"\n></span>',
     }),
   },
   {
@@ -751,10 +751,10 @@ export const ANGULAR_TABLE_DOCS = {
       ],
       [
         'presets',
-        'TemplateRef',
+        'readonly PickerPreset[]',
         '—',
         'slTableDateFilter, slTableTimeFilter, slTableDateTimeFilter',
-        'A template of slDateRangePickerPreset, slTimeRangePickerPreset or slDateTimeRangePickerPreset buttons offered inside the range picker between draws. The descriptor still receives two ISO values.',
+        'The application’s own ranges, each a label and a run, offered inside the range picker between draws. The descriptor still receives two ISO values.',
       ],
       [
         'granularity',
