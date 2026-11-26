@@ -1,0 +1,78 @@
+---
+title: Accordion
+description: A set of sections that expand and collapse, with one or several open at a time and a keyboard path between headers.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## One panel at a time
+
+By default the set holds one open panel. Opening a section closes the one that was open, and that panel is told the reason was `select`. Each section is a `Collapsible` whose `value` names it in the set's array of open values. Pass `defaultValue` in React, or an initial `value` in Angular, to choose what starts open.
+
+## Several panels at once
+
+`multiple` lets any number of panels stay open, so a reader can compare sections without closing one to read another. Use it when the sections are independent, as the tasks of a shift are.
+
+<Example name="multiple" />
+
+## A set that never empties
+
+`requireOpen` keeps one panel open. The open header cannot be pressed to close it, and it carries `aria-disabled="true"`, which the pattern asks for an accordion that does not permit its panel to be collapsed. The header stays focusable and announced. Open another section and the new one takes its place.
+
+<Example name="require-open" />
+
+## Variants
+
+`variant` sets how the set is drawn. `plain` paints nothing, `ruled` puts one hairline at each seam and closes the stack at the bottom, `framed` wraps the ruled set in one frame, and `separated` gives each section a card of its own. The set hands each item the variant it needs, so the items never select into the set's styles.
+
+<Example name="variants" />
+
+## Sizes
+
+`size` sets the type of every title and the rhythm of every row to one step: `sm` for dense panels, `md` for most pages, `lg` for sparse pages. Under `separated`, the gap between cards moves with it.
+
+<Example name="sizes" />
+
+## Indicator and placement
+
+`indicator` picks the mark on each header: `chevron`, which turns when the panel opens, `plus-minus`, which swaps between two glyphs, or `none`, which leaves the title alone. `togglePlacement="start"` moves the mark before the title; the default, `end`, puts it after.
+
+<Example name="indicator" />
+
+## Heading level
+
+Each header is a heading, so a screen reader user can move through the sections as an outline. In React, `headingLevel` renders each header as that heading element, and `none` renders a plain `div`; the default is `3`. In Angular, a native heading element is left as it is, so level 2 is an `h2` in the template; any other element receives `role="heading"` and the `aria-level` the set resolves, and `none` removes both.
+
+<Example name="headings" />
+
+## When panels are built
+
+`mount` decides when a panel's content exists. `eager`, the default, renders every panel and makes the closed ones inert. `lazy` renders a panel on its first open and keeps it. `active` renders only the open panel and discards the content on close. `until-found` keeps the closed panel hidden but searchable: the browser's find-in-page opens it when the text matches. Type a note, close the section and open it again: `active` loses the text, the others keep it.
+
+<Example name="mount" />
+
+## States
+
+`disabled` on the set reaches every trigger as the native attribute and takes each out of the tab order. `disabled` on one `Collapsible` leaves the rest of the set live.
+
+<Example name="states" />
+
+## Controlled
+
+Pass `value` to own the set of open panels. In React, `onValueChange` receives the new array and a request that carries the reason (`pointer`, `keyboard`, `select` or `programmatic`) and a `cancel()` that refuses the move. In Angular, `[(value)]` writes the array back and `valueChangeRequest` emits the same request. A change made by the application's own code, such as the button here, emits no request.
+
+<Example name="controlled" />
+
+## Open all and close all
+
+An array cannot express "every section" when the set owns it, so the set exposes `openAll()` and `closeAll()`. In React they sit on the object passed to `handle`; in Angular, `exportAs` reaches the set from the template. Both carry the reason `programmatic`. `openAll` skips a disabled section and opens only the first when `multiple` is off, and `closeAll` leaves one open when `requireOpen` is on.
+
+<Example name="imperative" />
+
+## Defaults for an application
+
+`AccordionDefaultsProvider` in React and `provideAccordionDefaults` in Angular set the ten decisions an application takes once: `multiple`, `requireOpen`, `loop`, `size`, `variant`, `indicator`, `togglePlacement`, `headingLevel`, `mount` and `truncate`. A set that states one of them keeps its own value. Here `truncate` clips each long title to one line, and the second set overrides the variant.
+
+<Example name="defaults" />
