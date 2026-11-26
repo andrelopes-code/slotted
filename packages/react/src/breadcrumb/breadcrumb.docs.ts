@@ -114,7 +114,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'separator',
     title: 'The mark between two crumbs',
-    note: 'Empty, the stylesheet draws a rotated rule that mirrors in a right-to-left document. Anything you put in the separator replaces the drawing without replacing the element.',
+    note: 'Empty, the stylesheet draws a rotated rule that mirrors in a right-to-left document. Anything placed in the separator replaces the drawing without replacing the element.',
     snippet: defineSnippet({
       id: 'breadcrumb-react-separator',
       language: 'tsx',
@@ -125,7 +125,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'current',
-    title: 'The page you are on',
+    title: 'The current page',
     note: 'The last crumb is a span carrying aria-current="page", which is the value the ARIA specification names for a link inside a set of pages. It gains weight rather than color alone.',
     snippet: defineSnippet({
       id: 'breadcrumb-react-current',
@@ -173,13 +173,13 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'switcher',
     title: 'Crumbs that switch between siblings',
-    note: 'Organization, project and environment each open a menu of their siblings. The open one keeps its underline and turns its chevron, and the environment the reader is on still says it is this page.',
+    note: 'A ledger and a period each open a menu of their siblings. The open one keeps its underline and turns its chevron, and the period the reader is on still says it is this page.',
     snippet: defineSnippet({
       id: 'breadcrumb-react-switcher',
       language: 'tsx',
       label: 'A crumb composed with Menu',
       source:
-        '<BreadcrumbItem>\n  <Menu>\n    <MenuTrigger\n      render={(props) => (\n        <BreadcrumbTrigger {...props} current>\n          Production\n        </BreadcrumbTrigger>\n      )}\n    />\n    <MenuContent>\n      <MenuItem>Preview</MenuItem>\n      <MenuItem>Development</MenuItem>\n    </MenuContent>\n  </Menu>\n</BreadcrumbItem>;',
+        '<BreadcrumbItem>\n  <Menu>\n    <MenuTrigger\n      render={(props) => (\n        <BreadcrumbTrigger {...props} current>\n          August 2026\n        </BreadcrumbTrigger>\n      )}\n    />\n    <MenuContent>\n      <MenuItem>July 2026</MenuItem>\n      <MenuItem>August 2026</MenuItem>\n    </MenuContent>\n  </Menu>\n</BreadcrumbItem>;',
     }),
   },
   {
@@ -302,7 +302,7 @@ export const REACT_BREADCRUMB_DOCS = {
         '() => BreadcrumbContextValue',
         '—',
         'inside a Breadcrumb',
-        'The collapse state and the request that moves it, for a control of your own',
+        'The collapse state and the request that moves it, for a control the application writes',
       ],
       [
         'BreadcrumbDefaultsProvider',
@@ -314,13 +314,13 @@ export const REACT_BREADCRUMB_DOCS = {
     ]),
     accessibility: [
       'The rendered elements are a nav and an ol, which is the whole of the APG Breadcrumb pattern: it lists no keyboard interaction, and the two attributes it does list — a name on the landmark and aria-current="page" on the last crumb — are written here rather than reimplemented.',
-      'The current page is a span rather than a link, because a link to the page the reader is already on goes nowhere. The APG makes aria-current optional there; this family writes it anyway, so the end of the trail is announced as this page.',
+      'The current page is a span rather than a link, because a link to the page the reader is already on goes nowhere. The APG makes aria-current optional there; Breadcrumb writes it anyway, so the end of the trail is announced as this page.',
       'The separator is never announced. It is drawn as geometry in CSS — a rotated rule, not a character and not a glyph — which is the same reasoning the APG example gives, and it mirrors from :dir(rtl) so a trail inside a left-to-right island leans the way that island reads.',
       'A crumb the collapse hides carries the hidden attribute, so it leaves the accessibility tree with the page. That is the cost of expanding in place rather than into an overlay, and it is paid by the ellipsis: its accessible name says how many crumbs it hides, and it carries aria-expanded.',
       'A crumb the width folds is hidden the same way, and the ellipsis counts it with the others. Hiding only the label of a narrow crumb would leave the link named by nothing but an aria-hidden icon; a folded crumb is out of the tree whole, and the ellipsis says so.',
       'A switcher is a button with aria-haspopup from the menu composed on it, and the switcher of this page keeps aria-current="page", so the end of the trail is still announced as the current page when it opens a menu.',
       'Pressing the ellipsis removes it, so focus is given to the first crumb it revealed. Focus on a removed element falls to the body, which is the defect that rule exists to prevent.',
-      'A crumb wider than the trail truncates with an ellipsis, and the full string stays in the DOM and in the accessible name — the repository rule for every truncation.',
+      'A crumb wider than the trail truncates with an ellipsis, and the full string stays in the DOM and in the accessible name — the same rule every truncated string follows.',
     ],
     snippets: [
       defineSnippet({

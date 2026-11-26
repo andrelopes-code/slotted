@@ -1,0 +1,76 @@
+---
+title: Breadcrumb
+description: A trail of links from the root of the application to the current page, which folds when it gets too deep or too wide for its container.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## The current page
+
+A trail is a `nav` landmark around an ordered list. Each ancestor is a `BreadcrumbLink` in React and an `a` with `slBreadcrumbLink` in Angular. The last crumb is a `BreadcrumbPage`, a `span` that carries `aria-current="page"` and takes more weight than the links before it. It is text rather than a link, because a link to the page the reader is already on goes nowhere. Every item draws the separator after itself except the last, so no crumb writes one.
+
+## Separator
+
+With no `separator`, the stylesheet draws a one-pixel rule rotated into a slash, which mirrors in a right-to-left document. Any content in the separator replaces the drawing and keeps the element, which stays `aria-hidden`. React takes a `ReactNode`; Angular takes a `TemplateRef`, rendered once per item.
+
+<Example name="separator" />
+
+## Above a page heading
+
+A trail sits above the heading of the page it describes, at the type size of the interface rather than of the page title. It shows where the page sits in the hierarchy, not where the reader came from, so it never stands in for a back button.
+
+<Example name="page-header" />
+
+## Collapsing a deep trail
+
+Above `maxItems` crumbs, the middle of the trail folds behind one ellipsis button. `itemsBeforeCollapse` crumbs at the start and `itemsAfterCollapse` at the end never fold. The defaults are 8, 1 and 2, and `maxItems={0}` never folds by count. The ellipsis names how many crumbs it holds, and the root carries the same number in `data-collapsed`. A press, or Enter or Space, expands the trail in place with no overlay, and focus moves to the first crumb the press revealed. This trail has seven crumbs and `maxItems` of 4, so the four in the middle fold.
+
+<Example name="collapse" />
+
+## Starting expanded
+
+`defaultExpanded` starts the trail unfolded and is read once. An expanded trail has no ellipsis, so nothing in the trail folds it again.
+
+<Example name="initially-expanded" />
+
+## Controlled expansion
+
+`expanded` makes the application the owner of the state. A press on the ellipsis calls `onExpandedChange(expanded, request)` in React and emits `expandedChange` in Angular, with a `ChangeRequest` whose `value` is `true`, whose `reason` is `pointer` or `keyboard`, and whose cancellation commits nothing. The trail expands only when the application passes `true` back, and it folds again when the application passes `false`. Here the button folds the trail again.
+
+<Example name="controlled" />
+
+## Overflow by width
+
+With `overflow="collapse"`, the default, the trail measures its container and folds the middle crumbs that do not fit into the same ellipsis. The crumb nearest the root folds first, so the folded run stays beside the ellipsis. `overflow="wrap"` keeps every crumb and breaks the row onto further lines instead. A trail that has been expanded does not fold by width, because expanding was the reader's choice; a narrower container wraps it. A count that already folds the trail leaves nothing for the width to fold. The first trail below folds in this column and the second wraps.
+
+<Example name="overflow" />
+
+## Crumbs that switch between siblings
+
+A crumb that moves between siblings, such as a ledger or a period, opens a menu of them. `BreadcrumbTrigger` is a `button` with a chevron after its label, because an `a` without `href` takes no focus. In React, `MenuTrigger` hands its wiring to a `BreadcrumbTrigger` through `render`. In Angular, `slMenuTriggerFor` goes on the same button. `current` keeps `aria-current="page"` on the switcher of the page the reader is on, so the end of the trail is still announced as the current page when it opens a menu.
+
+<Example name="switcher" />
+
+## Long and single-crumb trails
+
+A trail whose fixed crumbs alone exceed its width wraps, and the widest crumb truncates with an ellipsis. The full string stays in the DOM and in the accessible name. A trail whose only crumb is the page draws no separator.
+
+<Example name="content" />
+
+## Defaults for an application
+
+`BreadcrumbDefaultsProvider` in React and `provideBreadcrumbDefaults` in Angular set `maxItems`, `itemsBeforeCollapse`, `itemsAfterCollapse`, `overflow` and `separator` once for every trail below them. A prop or an input on a trail still wins. Here the provider sets `maxItems` to 4 and `itemsAfterCollapse` to 1; the second trail states `maxItems={0}` and `overflow="wrap"` and keeps every crumb.
+
+<Example name="defaults" />
+
+## Messages
+
+`messages` replaces the words of one trail, key by key: `label` names the landmark and `showHidden` names the ellipsis, with the number of folded crumbs in `{count}`. The words come from the language in force when `messages` is absent. A static `aria-label` on the `nav` wins over `label` in both frameworks.
+
+<Example name="messages" />
+
+## Router links
+
+Each part accepts the application's own element. In React, `render` on `BreadcrumbLink` receives the props to spread on a router link, and every data attribute reaches it. In Angular, `slBreadcrumbLink` claims no destination, so `routerLink` stays on the anchor that already carries the directive.
