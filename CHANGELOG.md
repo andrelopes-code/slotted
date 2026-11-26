@@ -2,6 +2,41 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.42 — 2026-11-26
+
+- feat(app-shell): nav-pinned holds commands above the list that scrolls
+- feat(menu): a menu can be a sheet on a phone, its submenus a second step
+- feat(select): the listbox can be a sheet on a phone
+- feat(field): the help of a field can be a sheet on a phone
+- fix(picker-panel): the sheet of a picker is modal over a scrim, and slides in and out
+- fix(drawer): a content-sized bottom sheet follows its content both ways
+- fix(popover, picker-panel): a sheet's grip has round ends, and the popover scrim reads the drawer's filter
+- docs(toggle-group): the page of the family, with 13 examples in both frameworks
+- docs(toggle): the page of the family, with 10 examples in both frameworks
+- docs(pagination): the page of the family, with 12 examples in both frameworks
+- docs(breadcrumb): the page of the family, with 11 examples in both frameworks
+- test(docs): parity admits a folded breadcrumb's ellipsis item on the server
+- fix(breadcrumb): Angular starts unfolded under defaultExpanded
+- fix(toggle): React draws the label box and hands render the button wiring
+- fix(pagination): a control in link mode has the box of a button
+- fix(pagination): Last is disabled when the count is unset
+- fix(collapsible): the contract lists peek among the provider's defaults
+- fix(collapsible): a cancelled request inside an accordion no longer opens the panel
+- docs(collapsible): the page of the family, with 12 examples in both frameworks
+- docs(accordion): the page of the family, with 12 examples in both frameworks
+- docs(loading-overlay): the page of the family, with 11 examples in both frameworks
+- docs(floating-panel): the page of the family, with 7 examples in both frameworks
+- docs(menubar): the page of the family, with 9 examples in both frameworks
+- docs(context-menu): the page of the family, with 10 examples in both frameworks
+- docs(hover-card): the page of the family, with 9 examples in both frameworks
+- docs(action-sheet): the page of the family, with 12 examples in both frameworks
+- test(docs): parity admits a page-scope loading overlay and a closed floating panel
+- test(menubar): a disabled bar marks every Angular trigger disabled and opens none
+- fix(floating-panel): a closed Angular panel is taken out of the page
+- fix(hover-card): a shared card finds its trigger with target.closest(), since the delayed open reads no currentTarget
+- fix(loading-overlay): the Angular cancel on slButton leaves the button the root of its family, and still takes focus
+- fix(action-sheet): the Angular trigger on slButton leaves the button the root of its family
+
 ## 0.1.0-beta.41 — 2026-11-26
 
 - fix(textarea): one row is as tall as the control height of its size
