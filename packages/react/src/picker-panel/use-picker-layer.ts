@@ -63,12 +63,14 @@ export function usePickerLayer(options: PickerLayerOptions): PickerLayer {
 
   /* A pull down on the sheet's grip dismisses it, as the grip of every other sheet does. */
   useEffect(() => {
-    const grip = layerNode?.querySelector<HTMLElement>(':scope > * > [data-part="grip"]');
-    if (!sheet || !isOpen || layerNode === null || grip == null) return;
+    const panel = layerNode?.querySelector<HTMLElement>(':scope > [data-part="content"]');
+    const grip = panel?.querySelector<HTMLElement>(':scope > [data-part="grip"]');
+    if (!sheet || !isOpen || panel == null || grip == null) return;
 
     return attachGripDismiss({
       grip,
-      sheet: layerNode,
+      scrim: layerNode?.querySelector<HTMLElement>(':scope > [data-part="backdrop"]'),
+      sheet: panel,
       onDismiss: (event) => setOpen(false, 'pointer', event),
     });
   }, [isOpen, layerNode, setOpen, sheet]);
@@ -93,29 +95,44 @@ export function usePickerLayer(options: PickerLayerOptions): PickerLayer {
   }, [layerNode, placement, rootRef, sheet]);
 
   /* The trigger is a branch, so pressing it again closes the surface instead
-     of dismissing and reopening it in one gesture. */
+     of dismissing and reopening it in one gesture. The sheet is modal: the
+     page is inert under its scrim, and a press on the scrim is outside. */
   useEffect(() => {
     if (layerNode === null || !isOpen) return;
 
     const layer = createDismissableLayer(layerNode, {
+      back: sheet,
       branches: triggerRef.current === null ? [] : [triggerRef.current],
+      content: layerNode.querySelector(':scope > [data-part="content"]') ?? layerNode,
       escape: true,
       focusOutside: false,
-      modal: false,
+      modal: sheet,
       outsidePress: true,
-      scrollLock: false,
+      outsidePressEvent: sheet ? 'click' : 'pointerdown',
+      scrollLock: sheet,
       onDismiss: ({ reason, source }) => {
         if (reason === 'escape' && escapeRef.current?.() === true) return;
 
-        setOpen(false, reason === 'escape' ? 'escape' : 'outsidePress', source);
+        /* The platform's way back is the sheet's Escape. */
+        const key = reason === 'escape' || reason === 'back';
+        setOpen(false, key ? 'escape' : 'outsidePress', source);
         /* Focus goes back to the trigger on a key and stays where the reader
            put it on a press outside. */
         if (reason === 'escape') triggerRef.current?.focus({ preventScroll: true });
       },
     });
 
-    return () => layer.destroy();
-  }, [isOpen, layerNode, setOpen]);
+    return () => {
+      /* A press on the scrim blurs the panel: focus is then on the body. */
+      const { activeElement, body } = layerNode.ownerDocument;
+      const held =
+        activeElement === null || activeElement === body || layerNode.contains(activeElement);
+      /* The layer first: focus given back to an `inert` trigger is refused. */
+      layer.destroy();
+      /* A sheet covered the field: its close puts the reader back beside it. */
+      if (sheet && held) triggerRef.current?.focus({ preventScroll: true });
+    };
+  }, [isOpen, layerNode, setOpen, sheet]);
 
   /* Left on the trigger, focus would be a whole page away from a panel in a
      portal. It moves in the frame after the panel is in the node that stays. */

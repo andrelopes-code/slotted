@@ -6,7 +6,8 @@
  * The sheet moves by an inline `translate` with its transition off, so the
  * stylesheet's own rest and entrance stay in force once the hand lifts. A
  * dismissal keeps the offset: the sheet fades out from where the hand let go,
- * and the next attach takes the offset back.
+ * and the next attach takes the offset back. The scrim, when given, dims with
+ * the travel: at half the sheet's height it is half as dark.
  */
 
 import {
@@ -22,13 +23,21 @@ export interface GripDismissOptions {
   readonly grip: HTMLElement;
   /** What moves with the hand: the fixed box the sheet is drawn in. */
   readonly sheet: HTMLElement;
+  /** The scrim under the sheet, whose opacity follows the pull. */
+  readonly scrim?: HTMLElement | null | undefined;
   /** A release that dismisses, with the pointer event that ended the pull. */
   readonly onDismiss: (event: PointerEvent) => void;
 }
 
-export function attachGripDismiss({ grip, sheet, onDismiss }: GripDismissOptions): () => void {
+export function attachGripDismiss({
+  grip,
+  sheet,
+  scrim,
+  onDismiss,
+}: GripDismissOptions): () => void {
   sheet.style.removeProperty('translate');
   sheet.style.removeProperty('transition');
+  rest(scrim);
 
   let pointer: number | null = null;
   let start = 0;
@@ -50,6 +59,11 @@ export function attachGripDismiss({ grip, sheet, onDismiss }: GripDismissOptions
     samples = addExtentSample(samples, { fraction: pulled, at: event.timeStamp });
     sheet.style.transition = 'none';
     sheet.style.translate = `0 ${String(pulled)}px`;
+    if (scrim == null) return;
+
+    const height = sheet.offsetHeight;
+    scrim.style.transition = 'none';
+    scrim.style.opacity = String(height > 0 ? Math.max(0, 1 - pulled / height) : 1);
   };
 
   const up = (event: PointerEvent) => {
@@ -61,10 +75,14 @@ export function attachGripDismiss({ grip, sheet, onDismiss }: GripDismissOptions
       extentVelocity(samples, event.timeStamp) > SHEET_FLING_PX_PER_S;
     if (pulled > sheet.offsetHeight / 2 || flung) {
       onDismiss(event);
+      /* Taken back in the task that closes the layer, so the scrim fades out
+         from where the hand let it, as the sheet goes on from where it is. */
+      rest(scrim);
       return;
     }
 
     sheet.style.removeProperty('translate');
+    rest(scrim);
   };
 
   const cancel = (event: PointerEvent) => {
@@ -72,6 +90,7 @@ export function attachGripDismiss({ grip, sheet, onDismiss }: GripDismissOptions
     pointer = null;
     sheet.style.removeProperty('transition');
     sheet.style.removeProperty('translate');
+    rest(scrim);
   };
 
   grip.addEventListener('pointerdown', down);
@@ -85,4 +104,10 @@ export function attachGripDismiss({ grip, sheet, onDismiss }: GripDismissOptions
     grip.removeEventListener('pointerup', up);
     grip.removeEventListener('pointercancel', cancel);
   };
+}
+
+/** The scrim back on the stylesheet's own opacity and fade. */
+function rest(scrim: HTMLElement | null | undefined) {
+  scrim?.style.removeProperty('opacity');
+  scrim?.style.removeProperty('transition');
 }

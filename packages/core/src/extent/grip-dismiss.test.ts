@@ -82,4 +82,33 @@ describe('attachGripDismiss', () => {
 
     expect(sheet.style.translate).toBe('');
   });
+
+  it('dims the scrim with the pull, and gives it back to the stylesheet on a release', () => {
+    detach();
+    const scrim = document.createElement('div');
+    detach = attachGripDismiss({ grip, scrim, sheet, onDismiss });
+
+    grip.dispatchEvent(pointer('pointerdown', 100, 0));
+    grip.dispatchEvent(pointer('pointermove', 200, 500));
+    expect(scrim.style.opacity).toBe('0.75');
+    expect(scrim.style.transition).toBe('none');
+
+    grip.dispatchEvent(pointer('pointerup', 200, 1000));
+    expect(scrim.style.opacity).toBe('');
+    expect(scrim.style.transition).toBe('');
+  });
+
+  it('hands the scrim to the closing stylesheet in the task of a dismissing pull', () => {
+    detach();
+    const scrim = document.createElement('div');
+    const seen: string[] = [];
+    onDismiss.mockImplementation(() => seen.push(scrim.style.opacity));
+    detach = attachGripDismiss({ grip, scrim, sheet, onDismiss });
+
+    pull(300, 1000);
+
+    expect(seen).toEqual(['0.25']);
+    expect(scrim.style.opacity).toBe('');
+    expect(scrim.style.transition).toBe('');
+  });
 });

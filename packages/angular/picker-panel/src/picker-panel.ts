@@ -18,16 +18,20 @@ import { tabbables } from '@slotted/core/focus';
 import type { PickerLayer } from './picker-layer';
 import type { PickerKind, PickerShowing } from './picker-views';
 
-/** The positioned dialog of a picker. */
+/** The positioned dialog of a picker; on a phone, a modal bottom sheet over a scrim. */
 @Component({
   selector: '[slPickerLayer]',
   standalone: true,
   template: `
+    @if (layer().sheet()) {
+      <div aria-hidden="true" data-part="backdrop" data-part-backdrop=""></div>
+    }
     <div
       data-part="content"
       data-part-content=""
       role="dialog"
       [attr.aria-label]="label()"
+      [attr.aria-modal]="layer().sheet() ? 'true' : null"
       [attr.id]="layer().contentId"
       (keydown)="onKeydown($event)"
     >
@@ -45,7 +49,7 @@ import type { PickerKind, PickerShowing } from './picker-views';
     'data-ui-picker-panel': '',
     'data-part': 'positioner',
     'data-part-positioner': '',
-    'data-open': '',
+    '[attr.data-open]': "layer().isOpen() ? '' : null",
     '[attr.data-presentation]': "layer().sheet() ? 'sheet' : 'popover'",
   },
 })

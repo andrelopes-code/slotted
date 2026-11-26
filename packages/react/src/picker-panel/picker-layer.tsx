@@ -15,7 +15,10 @@ interface PickerLayerProps {
   readonly onApply?: ((event: KeyboardEvent<HTMLElement>) => void) | undefined;
 }
 
-/** The positioned dialog of a picker, moved out of the flow so nothing can clip it. */
+/**
+ * The positioned dialog of a picker, moved out of the flow so nothing can clip
+ * it. On a phone it is a modal bottom sheet over a scrim.
+ */
 export function PickerLayer({ children, label, layer, onApply }: PickerLayerProps) {
   if (!layer.mounted) return null;
 
@@ -37,8 +40,10 @@ export function PickerLayer({ children, label, layer, onApply }: PickerLayerProp
       ref={layer.setLayerNode}
       {...(layer.isOpen ? { 'data-open': '' } : {})}
     >
+      {layer.sheet && <div aria-hidden="true" data-part="backdrop" data-part-backdrop="" />}
       <div
         aria-label={label}
+        aria-modal={layer.sheet ? true : undefined}
         data-part="content"
         data-part-content=""
         id={layer.contentId}

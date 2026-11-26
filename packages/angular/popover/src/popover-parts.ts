@@ -380,6 +380,7 @@ export class SlPopoverLayer {
         ? () => undefined
         : attachGripDismiss({
             grip,
+            scrim: layer.querySelector<HTMLElement>(':scope > [data-part="backdrop"]'),
             sheet: content,
             onDismiss: (event) => this.popover.toggle(false, 'pointer', event),
           });

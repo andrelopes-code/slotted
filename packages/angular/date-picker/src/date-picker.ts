@@ -155,7 +155,7 @@ import type {
       </div>
     </div>
 
-    @if (layer.isOpen()) {
+    @if (layer.mounted()) {
       <div slPickerLayer [label]="triggerLabel()" [layer]="layer" (applied)="apply($event)">
         <div slPickerPanel kind="date">
           @if (presetViews().length > 0) {
@@ -363,7 +363,7 @@ export class SlDatePicker<V extends CalendarValue | PlainYearMonth = CalendarVal
   readonly valueChange = output<ChangeRequest<V | null>>();
   readonly openChange = output<ChangeRequest<boolean>>();
 
-  @ViewChild('trigger') protected triggerRef?: ElementRef<HTMLButtonElement>;
+  @ViewChild('trigger', { read: ElementRef }) protected triggerRef?: ElementRef<HTMLButtonElement>;
   @ViewChild('field') protected field?: SlDateField;
 
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;

@@ -531,10 +531,11 @@ function useSheet(layer: HTMLElement | null) {
 
     return attachGripDismiss({
       grip,
+      scrim: layer?.querySelector<HTMLElement>(':scope > [data-part="backdrop"]'),
       sheet: shown,
       onDismiss: (event) => latest.current.toggle(false, 'pointer', event),
     });
-  }, [shown]);
+  }, [layer, shown]);
 }
 
 /**

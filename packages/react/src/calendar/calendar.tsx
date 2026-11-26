@@ -13,7 +13,6 @@ import {
   startOfWeek,
   stepMonth,
   stepYear,
-  todayIn,
   visibleMonths,
   yearPage,
 } from '@slotted/core/date';
@@ -43,6 +42,7 @@ import type {
   CalendarValue,
   CalendarView,
 } from './calendar.types';
+import { useClockToday } from './use-clock-today';
 
 /** The month and year views are drawn three across; a week is seven. */
 const VIEW_COLUMNS: Record<CalendarView, number> = { day: 7, month: 3, year: 3 };
@@ -152,13 +152,8 @@ export function Calendar({
     [resolvedFirstDay, resolvedLocale],
   );
 
-  /**
-   * Which day it is, resolved after the first paint rather than during it. A
-   * server and a browser in different zones disagree about today, and a value
-   * read during render would hydrate to different markup on the two sides.
-   */
-  const [clockToday, setClockToday] = useState<PlainDate | null>(null);
-  useEffect(() => setClockToday(todayIn(resolvedTimeZone)), [resolvedTimeZone]);
+  /* Which day it is: unknown in the markup a server writes (`useClockToday`). */
+  const clockToday = useClockToday(resolvedTimeZone);
   /* A day the application states is known on the server as well. */
   const statedToday = todayProp ?? defaults.today;
   const today = statedToday ?? clockToday;
@@ -190,8 +185,14 @@ export function Calendar({
     focusedDate ??
     firstHeld ??
     (statedToday === undefined ? plainDate(2026, 1, 1) : clampDate(statedToday, min, max));
+  /* A calendar mounted after the page loaded knows the clock's day at once:
+     it opens there, and no later page change replaces the grid under focus. */
+  const opening =
+    anchored || statedToday !== undefined || clockToday === null
+      ? anchor
+      : clampDate(clockToday, min, max);
 
-  const [ownFocused, setOwnFocused] = useState<PlainDate>(anchor);
+  const [ownFocused, setOwnFocused] = useState<PlainDate>(opening);
   const focused = focusedDate ?? ownFocused;
   /** The focus is only moved into the DOM after a key, never on a render. */
   const shouldRestoreFocus = useRef(false);
@@ -237,8 +238,8 @@ export function Calendar({
    * every surveyed implementation does and what `pageBehavior` is named for.
    */
   const [page, setPage] = useState<{ year: number; month: number }>(() => ({
-    year: anchor.year,
-    month: anchor.month,
+    year: opening.year,
+    month: opening.month,
   }));
 
   const pageFor = useCallback(

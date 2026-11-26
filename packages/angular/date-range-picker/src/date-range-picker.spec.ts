@@ -410,6 +410,19 @@ describe('where focus goes when it opens', () => {
       ? (document.activeElement.textContent ?? '').trim()
       : null;
 
+  it('gives focus back to the trigger on Escape', async () => {
+    const fixture = renderTemplate(
+      `<div slDateRangePicker locale="en-US" [defaultValue]="run"></div>`,
+    );
+    click(fixture, trigger(fixture));
+    await fixture.whenStable();
+    fixture.detectChanges();
+    escape(fixture);
+
+    expect(surface(fixture)).toBeNull();
+    expect(document.activeElement).toBe(trigger(fixture));
+  });
+
   it('moves focus to the cell of the current end when the trigger opens it', async () => {
     const fixture = renderTemplate(
       `<div slDateRangePicker locale="en-US" defaultPosition="end" [defaultValue]="run"></div>`,

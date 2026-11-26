@@ -262,6 +262,7 @@ describe('the keyboard', () => {
 
     escape(fixture);
     expect(fixture.componentInstance.opens.at(-1)).toBe(false);
+    expect(document.activeElement).toBe(trigger(fixture));
   });
 
   /**
@@ -693,6 +694,8 @@ describe('what each segment is called', () => {
 });
 
 describe('as a sheet', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   /** jsdom has no `PointerEvent` constructor; a mouse event with the pointer's fields stands in. */
   const pointer = (type: string, clientY: number) => {
     const event = new MouseEvent(type, { bubbles: true, button: 0, clientY });
@@ -726,6 +729,54 @@ describe('as a sheet', () => {
       expect.objectContaining({ reason: 'pointer' }),
     );
     vi.unstubAllGlobals();
+  });
+
+  it('is modal over a scrim, and a press on the scrim closes it with focus on the trigger', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    }));
+    const fixture = renderTemplate(
+      `<button type="button" data-testid="page">On the page</button>
+       <div slDatePicker locale="en-US" (openChange)="onOpen($event)"></div>`,
+    );
+    await fixture.whenStable();
+    click(fixture, trigger(fixture));
+    await fixture.whenStable();
+    const panel = surface(fixture)!;
+    const layer = panel.parentElement!;
+    const scrim = layer.querySelector<HTMLElement>(':scope > [data-part="backdrop"]');
+    const page = fixture.nativeElement.querySelector('[data-testid="page"]') as HTMLElement;
+
+    expect(layer.dataset['presentation']).toBe('sheet');
+    expect(scrim?.getAttribute('aria-hidden')).toBe('true');
+    expect(panel.getAttribute('aria-modal')).toBe('true');
+    expect(page.closest('[inert]')).not.toBeNull();
+
+    click(fixture, scrim!);
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.onOpen).toHaveBeenLastCalledWith(
+      expect.objectContaining({ reason: 'outsidePress', value: false }),
+    );
+    expect(document.activeElement).toBe(trigger(fixture));
+    expect(document.querySelector('[inert]')).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it('is anchored and not modal anywhere else', async () => {
+    const fixture = renderTemplate(`<div slDatePicker locale="en-US"></div>`);
+    await fixture.whenStable();
+    click(fixture, trigger(fixture));
+    await fixture.whenStable();
+    const panel = surface(fixture)!;
+
+    expect(panel.parentElement!.dataset['presentation']).toBe('popover');
+    expect(panel.parentElement!.querySelector('[data-part="backdrop"]')).toBeNull();
+    expect(panel.hasAttribute('aria-modal')).toBe(false);
+    expect(document.querySelector('[inert]')).toBeNull();
   });
 });
 

@@ -999,6 +999,42 @@
     }
   }
 
+  /* ── The scrim of the sheet ───────────────────────────────────────────
+   *
+   * Drawn only under the sheet, in the drawer's scrim and filter tokens, with
+   * the pair of transitions every scrim takes (`scrim-motion.test.mjs`). A
+   * filter makes the scrim a stacking context, so it stands at the bottom of
+   * the layer's own, under the panel, and it comes and goes with the opacity.
+   */
+  [data-ui-picker-panel] > [data-part-backdrop] {
+    background: var(--slotted-drawer-scrim, var(--slotted-scrim, Canvas));
+    grid-area: 1 / 1;
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    z-index: -1;
+  }
+
+  [data-ui-picker-panel][data-open] > [data-part-backdrop] {
+    -webkit-backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+    backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+    opacity: 1;
+    transition: opacity var(--slotted-duration-long) var(--slotted-easing-standard);
+  }
+
+  [data-ui-picker-panel][data-part-positioner] > [data-part-backdrop] {
+    transition-property:
+      opacity,
+      -webkit-backdrop-filter,
+      backdrop-filter;
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-picker-panel][data-open] > [data-part-backdrop] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
   /* ── Narrow, on a finger ──────────────────────────────────────────────
    *
    * A popover on the desktop and a sheet in a narrow viewport. The query is on
@@ -1006,25 +1042,64 @@
    * container to ask, and the question really is how much screen there is.
    */
   @media (max-width: 480px) and (pointer: coarse) {
+    /**
+     * The bottom sheet of the drawer, which is the contract of every sheet: the
+     * layer is the screen, the scrim covers the page and the panel slides in
+     * from the bottom edge, in the drawer's scrim and slide tokens.
+     */
     [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'] {
       /* A sheet is not placed against an anchor, it is placed against the screen. */
-      inset: auto 0 0;
+      display: grid;
+      inset: 0;
       position: fixed;
-      translate: 0 var(--slotted-space-9, 2rem);
+      translate: 0 0;
+      /* What `presence` waits for: the panel's own way out. */
+      transition: translate
+        var(
+          --slotted-drawer-slide-exit-duration,
+          var(--slotted-drawer-slide-duration, var(--slotted-duration-short))
+        )
+        var(--slotted-easing-exit);
     }
 
     [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'][data-open] {
-      translate: 0 0;
+      animation: none;
+      pointer-events: auto;
     }
 
     [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'] > [data-part-content] {
+      align-self: end;
       border-block-end: 0;
       border-end-end-radius: 0;
       border-end-start-radius: 0;
       border-inline: 0;
+      grid-area: 1 / 1;
       inline-size: 100%;
       max-block-size: 90dvh;
       max-inline-size: none;
+      opacity: 1;
+      transform: translateY(100%);
+      transition: transform
+        var(
+          --slotted-drawer-slide-exit-duration,
+          var(--slotted-drawer-slide-duration, var(--slotted-duration-short))
+        )
+        var(--slotted-drawer-slide-exit-easing, var(--slotted-easing-exit));
+    }
+
+    [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'][data-open]
+      > [data-part-content] {
+      animation: slotted-picker-panel-sheet-enter
+        var(--slotted-drawer-slide-duration, var(--slotted-duration-long))
+        var(--slotted-drawer-slide-easing, var(--slotted-easing-standard));
+      transform: none;
+      transition: none;
+    }
+
+    @keyframes slotted-picker-panel-sheet-enter {
+      from {
+        transform: translateY(100%);
+      }
     }
 
     [data-ui-picker-panel][data-presentation='sheet'] [data-ui-picker-panel][data-part-root] {
@@ -1064,6 +1139,17 @@
       padding-block: calc((var(--slotted-target-min, 24px) - var(--slotted-space-2, 0.25rem)) / 2);
       position: absolute;
       touch-action: none;
+    }
+  }
+
+  /* Stillness keeps the scrim's fade and drops the slide: the panel is simply there. */
+  @media (max-width: 480px) and (pointer: coarse) and (prefers-reduced-motion: reduce) {
+    [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'] > [data-part-content],
+    [data-ui-picker-panel][data-part-positioner][data-presentation='sheet'][data-open]
+      > [data-part-content] {
+      animation: none;
+      transform: none;
+      transition: none;
     }
   }
 

@@ -130,7 +130,7 @@ function optionalBoolean(value: boolean | string | undefined): boolean | undefin
       </div>
     </div>
 
-    @if (layer.isOpen()) {
+    @if (layer.mounted()) {
       <div slPickerLayer [label]="triggerLabel()" [layer]="layer" (applied)="apply($event)">
         <div slPickerPanel kind="time">
           @if (hasRail()) {

@@ -195,7 +195,7 @@ function optionalNumber(value: unknown): number | undefined {
       />
     </div>
 
-    @if (layer.isOpen()) {
+    @if (layer.mounted()) {
       <div slPickerLayer [label]="triggerLabel()" [layer]="layer" (applied)="apply($event)">
         <div slPickerPanel kind="time-range">
           @if (presetViews().length > 0 || durationViews().length > 0) {

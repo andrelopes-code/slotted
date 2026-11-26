@@ -937,3 +937,21 @@ describe('the day it is, stated by the application', () => {
     }
   });
 });
+
+describe('the day the clock says it is', () => {
+  it('opens a calendar mounted after the page loaded on its month, and keeps the grid', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 25, 12));
+    try {
+      const pages = vi.fn();
+      render(<Calendar locale="en-US" onPageChange={pages} />);
+      const grid = document.querySelector('[data-part="month"]');
+
+      expect(document.querySelector('[data-part="heading"]')?.textContent).toBe('November 2026');
+      expect(pages.mock.calls).toEqual([[{ year: 2026, month: 11 }]]);
+      expect(document.querySelector('[data-part="month"]')).toBe(grid);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

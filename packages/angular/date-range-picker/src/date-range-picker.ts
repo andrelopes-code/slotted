@@ -233,7 +233,7 @@ let sequence = 0;
       ></button>
     </div>
 
-    @if (layer.isOpen()) {
+    @if (layer.mounted()) {
       <div slPickerLayer [label]="triggerLabel()" [layer]="layer" (applied)="apply($event)">
         <div slPickerPanel kind="date-range">
           @if (presetViews().length > 0) {
@@ -450,7 +450,7 @@ export class SlDateRangePicker implements ControlValueAccessor, Validator, OnIni
   readonly openChange = output<ChangeRequest<boolean>>();
   readonly positionChange = output<ChangeRequest<DateRangePickerPosition>>();
 
-  @ViewChild('trigger') protected triggerRef?: ElementRef<HTMLButtonElement>;
+  @ViewChild('trigger', { read: ElementRef }) protected triggerRef?: ElementRef<HTMLButtonElement>;
   @ViewChild('startField') protected startField?: SlDateField;
   @ViewChild('endField') protected endField?: SlDateField;
   @ViewChild('calendar') protected calendarRef?: SlCalendar;
