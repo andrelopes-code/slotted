@@ -586,6 +586,31 @@
     transition: opacity var(--slotted-duration-long) var(--slotted-easing-standard);
   }
 
+  /**
+   * The drawer's filter of the page under a modal layer. A filter makes the
+   * scrim a stacking context, so it stands at the bottom of the layer's own,
+   * under the panel, and it comes and goes with the scrim's opacity.
+   */
+  [data-ui-popover][data-presentation='sheet'] > [data-part-backdrop] {
+    transition-property:
+      opacity,
+      -webkit-backdrop-filter,
+      backdrop-filter;
+    z-index: -1;
+  }
+
+  [data-ui-popover][data-presentation='sheet'][data-open] > [data-part-backdrop] {
+    -webkit-backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+    backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-popover][data-presentation='sheet'][data-open] > [data-part-backdrop] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
   [data-ui-popover][data-presentation='sheet'] > [data-part-content] {
     --_sheet-radius: var(--slotted-drawer-radius, var(--_radius));
 
@@ -647,7 +672,10 @@
       var(--slotted-border-strong, ButtonBorder)
     );
     block-size: var(--slotted-space-2, 0.25rem);
-    border-radius: var(--slotted-radius-full, 9999px);
+    /* The bar is the content box: each radius less the padding on its axis is
+       half the bar's block size, so its ends are round. */
+    border-radius: calc(var(--slotted-space-2, 0.25rem) / 2) /
+      calc(var(--slotted-target-min, 24px) / 2);
     box-sizing: content-box;
     cursor: grab;
     inline-size: var(--slotted-space-11, 3rem);

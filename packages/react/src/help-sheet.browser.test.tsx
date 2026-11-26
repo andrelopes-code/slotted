@@ -16,6 +16,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from './popover';
+import { paintedGripRadii } from './test/grip';
 
 const NOTE = 'What the figure says. Its formula. An example.';
 
@@ -59,6 +60,20 @@ const families: { name: string; part: string; label: string; node: ReactNode }[]
   },
 ];
 
+const TITLED = (
+  <Popover presentation="auto">
+    <PopoverTrigger>Open</PopoverTrigger>
+    <PopoverLayer>
+      <PopoverContent>
+        <PopoverHeader>
+          <PopoverTitle>Savings rate</PopoverTitle>
+        </PopoverHeader>
+        <PopoverBody>{NOTE}</PopoverBody>
+      </PopoverContent>
+    </PopoverLayer>
+  </Popover>
+);
+
 const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
 const layer = () => document.querySelector<HTMLElement>('[data-ui="popover"][data-open]');
@@ -87,6 +102,7 @@ describe('a help note on a phone', () => {
   });
 
   afterEach(async () => {
+    document.documentElement.removeAttribute('style');
     await page.viewport(412, 915);
   });
 
@@ -165,6 +181,45 @@ describe('a help note on a phone', () => {
 
     await userEvent.click(dialog.querySelector<HTMLElement>('[data-part="close"]')!);
     await vi.waitFor(() => expect(layer()).toBeNull());
+  });
+
+  it('draws a grip with round ends, as the grip of a drawer', async () => {
+    render(TITLED);
+    await press(document.querySelector('button')!);
+    const grip = layer()!.querySelector<HTMLElement>('[data-part="grip"]')!;
+    const { corners, half } = paintedGripRadii(grip);
+
+    expect(half).toBeGreaterThan(0);
+    for (const corner of corners) {
+      expect(corner.inline).toBeCloseTo(half, 2);
+      expect(corner.block).toBeCloseTo(half, 2);
+    }
+  });
+
+  it("filters the page under its scrim with the drawer scrim's token", async () => {
+    document.documentElement.style.setProperty(
+      '--slotted-drawer-scrim-backdrop-filter',
+      'blur(6px)',
+    );
+    render(TITLED);
+    await press(document.querySelector('button')!);
+    const scrim = layer()!.querySelector<HTMLElement>('[data-part="backdrop"]')!;
+    const panel = layer()!.querySelector<HTMLElement>('[role="dialog"]')!.getBoundingClientRect();
+    const centre = document.elementFromPoint(
+      panel.left + panel.width / 2,
+      panel.top + panel.height / 2,
+    );
+
+    expect(getComputedStyle(scrim).backdropFilter).toBe('blur(6px)');
+    expect(layer()!.querySelector('[role="dialog"]')!.contains(centre)).toBe(true);
+  });
+
+  it('leaves the page under its scrim unfiltered without the token', async () => {
+    render(TITLED);
+    await press(document.querySelector('button')!);
+    const scrim = layer()!.querySelector<HTMLElement>('[data-part="backdrop"]')!;
+
+    expect(getComputedStyle(scrim).backdropFilter).toBe('none');
   });
 
   it('leaves a popover with no presentation anchored', async () => {

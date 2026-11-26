@@ -10,6 +10,7 @@ import { DateTimePicker } from '../datetime-picker';
 import { DateTimeRangePicker } from '../datetime-range-picker';
 import { TimePicker } from '../time-picker';
 import { TimeRangePicker } from '../time-range-picker';
+import { paintedGripRadii } from '../test/grip';
 
 const day = (date: number) => plainDate(2026, 11, date);
 const at = (date: number, hour: number) => plainDateTime(day(date), plainTime(hour));
@@ -69,6 +70,19 @@ describe('the panel of a picker', () => {
 
     expect(document.querySelector('[data-presentation="sheet"]')).not.toBeNull();
     expect(document.querySelector('[data-part="footer"]')).toBeNull();
+  });
+
+  it('draws the grip of a sheet with round ends, as the grip of a drawer', async () => {
+    await page.viewport(390, 844);
+    render(<DatePicker defaultOpen />);
+    const grip = document.querySelector<HTMLElement>('[data-part="grip"]')!;
+    const { corners, half } = paintedGripRadii(grip);
+
+    expect(half).toBeGreaterThan(0);
+    for (const corner of corners) {
+      expect(corner.inline).toBeCloseTo(half, 2);
+      expect(corner.block).toBeCloseTo(half, 2);
+    }
   });
 
   it('keeps each shortcut in reach where the room under the field is short', async () => {
