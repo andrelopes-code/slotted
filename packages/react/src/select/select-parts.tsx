@@ -16,6 +16,7 @@ import { useField } from '../field';
 import { Glyph, Icon } from '../icon';
 import { useSelect } from './select';
 import { ChipRow } from './select-tags';
+import { useSelectSheet } from './use-select-sheet';
 import {
   entryHighlight,
   moveHighlight,
@@ -186,7 +187,7 @@ export function SelectTrigger({
     if (close) select.setOpen(false, 'select', source);
   };
 
-  const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+  const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (select.disabled || select.readOnly) return;
     const alt = event.altKey;
 
@@ -301,6 +302,11 @@ export function SelectTrigger({
     const index = typeahead.current.match(event.key, labels, from);
     if (index !== -1) select.setHighlighted(valueOf(elements[index] as HTMLElement), 'keyboard');
   };
+
+  /* The sheet's list holds focus on a phone and answers the same keys. */
+  useLayoutEffect(() => {
+    select.keys.current = onKeyDown;
+  });
 
   const onClick = (event: MouseEvent<HTMLButtonElement>) => {
     /* A press on the field's label arrives here as the click the label
@@ -759,6 +765,7 @@ export function SelectContent({
 
   const [layerNode, setLayerNode] = useState<HTMLElement | null>(null);
   const [surfaceNode, setSurfaceNode] = useState<HTMLElement | null>(null);
+  const [listNode, setListNode] = useState<HTMLElement | null>(null);
   const [container, setContainer] = useState<Element | null>(null);
   const [status, setStatus] = useState<PresenceStatus>('unmounted');
   /**
@@ -866,8 +873,10 @@ export function SelectContent({
     });
   }, []);
 
+  const heading = useSelectSheet(layerNode, surfaceNode, listNode);
+
   useLayoutEffect(() => {
-    if (layerNode === null || select.triggerNode === null) return;
+    if (layerNode === null || select.triggerNode === null || select.sheet) return;
 
     /* The anchor is the frame rather than the button inside it, so the popup is
        as wide as the control the reader sees: the trigger is the frame less its
@@ -904,6 +913,7 @@ export function SelectContent({
     flip,
     hideWhenDetached,
     layerNode,
+    select.sheet,
     select.triggerNode,
     shift,
     side,
@@ -933,7 +943,7 @@ export function SelectContent({
    * in the same gesture.
    */
   useEffect(() => {
-    if (layerNode === null || !select.open) return;
+    if (layerNode === null || !select.open || select.sheet) return;
     const branches = [select.triggerNode].filter(
       (branch): branch is HTMLElement => branch !== null,
     );
@@ -976,6 +986,7 @@ export function SelectContent({
     select.closeOnEscape,
     select.closeOnOutsidePress,
     select.open,
+    select.sheet,
     select.triggerNode,
   ]);
 
@@ -1082,6 +1093,7 @@ export function SelectContent({
     'data-align': align,
     ...(select.open ? {} : { inert: true }),
     'data-part': 'positioner',
+    'data-presentation': select.sheet ? 'sheet' : 'popover',
     'data-size': select.size,
     'data-ui': 'select',
     'data-width': select.width,
@@ -1211,34 +1223,70 @@ export function SelectContent({
         attach(node, ref as Ref<HTMLDivElement> | undefined);
       }}
     >
-      <div
-        {...nativeProps}
-        {...withSelectorKey(select.search ? {} : listWiring, 'part', 'content')}
-        aria-labelledby={nativeProps['aria-label'] === undefined ? select.triggerId : undefined}
-        data-loading={select.loading ? '' : undefined}
-
-        {...(select.search ? { 'data-search': '' } : {})}
-        id={select.contentId}
-        ref={setSurfaceNode}
-        role={select.search ? 'dialog' : 'listbox'}
-      >
-        {select.search ? (
-          <>
-            <SelectSearch {...searchProps} />
-            <div
-              {...withSelectorKey(listWiring, 'part', 'list')}
-              aria-labelledby={select.triggerId}
-
-              id={select.listId}
-              role="listbox"
-            >
-              {rows}
+      {select.sheet && <div aria-hidden="true" data-part="backdrop" data-part-backdrop="" />}
+      {select.sheet && (
+        <div
+          {...nativeProps}
+          {...withSelectorKey({}, 'part', 'content')}
+          aria-labelledby={`${select.contentId}-heading`}
+          aria-modal="true"
+          data-loading={select.loading ? '' : undefined}
+          id={select.contentId}
+          ref={setSurfaceNode}
+          role="dialog"
+        >
+          <span aria-hidden="true" data-part="grip" data-part-grip="" />
+          <div data-part="header" data-part-header="">
+            <div data-part="title" data-part-title="" id={`${select.contentId}-heading`}>
+              {heading}
             </div>
-          </>
-        ) : (
-          rows
-        )}
-      </div>
+          </div>
+          <div
+            {...withSelectorKey(listWiring, 'part', 'list')}
+            aria-activedescendant={
+              select.highlighted === null ? undefined : select.optionId(select.highlighted)
+            }
+            aria-labelledby={select.triggerId}
+            id={select.listId}
+            onKeyDown={(event) => select.keys.current?.(event)}
+            ref={setListNode}
+            role="listbox"
+            tabIndex={-1}
+          >
+            {rows}
+          </div>
+        </div>
+      )}
+      {!select.sheet && (
+        <div
+          {...nativeProps}
+          {...withSelectorKey(select.search ? {} : listWiring, 'part', 'content')}
+          aria-labelledby={nativeProps['aria-label'] === undefined ? select.triggerId : undefined}
+          data-loading={select.loading ? '' : undefined}
+
+          {...(select.search ? { 'data-search': '' } : {})}
+          id={select.contentId}
+          ref={setSurfaceNode}
+          role={select.search ? 'dialog' : 'listbox'}
+        >
+          {select.search ? (
+            <>
+              <SelectSearch {...searchProps} />
+              <div
+                {...withSelectorKey(listWiring, 'part', 'list')}
+                aria-labelledby={select.triggerId}
+
+                id={select.listId}
+                role="listbox"
+              >
+                {rows}
+              </div>
+            </>
+          ) : (
+            rows
+          )}
+        </div>
+      )}
     </div>
   );
 

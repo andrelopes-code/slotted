@@ -20,6 +20,7 @@ export type {
   SelectOptionGroup,
   SelectOptionValue,
   SelectPositionerProps,
+  SelectPresentation,
   SelectProps,
   SelectSearchProps,
   SelectSearchReason,

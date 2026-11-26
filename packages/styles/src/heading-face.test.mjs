@@ -119,6 +119,11 @@ const HEADINGS = [
     selector: '[data-ui-event-calendar] > [data-part-header] > [data-part-title]',
   },
   {
+    family: 'select',
+    part: 'title',
+    selector: '[data-ui-select] > [data-part-content] > [data-part-header] > [data-part-title]',
+  },
+  {
     family: 'field-group',
     part: 'legend',
     selector: '[data-ui-field-group] > [data-part-legend] > :is(h1, h2, h3, h4, h5, h6)',

@@ -9,6 +9,12 @@ export type SelectAlign = 'start' | 'center' | 'end';
 /** As wide as the control it hangs from, or as wide as its own options. */
 export type SelectWidth = 'anchor' | 'content';
 export type SelectMount = 'active' | 'lazy' | 'eager';
+/**
+ * `auto` draws the listbox in a bottom sheet on a phone (`SHEET_QUERY`),
+ * headed by the field's label. A select with a search field keeps its
+ * anchored list: the on-screen keyboard covers the bottom of the screen.
+ */
+export type SelectPresentation = 'popover' | 'auto';
 export type SelectStrategy = 'absolute' | 'fixed';
 
 /**
@@ -101,6 +107,7 @@ export interface SelectDefaults {
   mount: SelectMount;
   multiple: boolean;
   portal: boolean;
+  presentation: SelectPresentation;
   readOnly: boolean;
   required: boolean;
   shift: boolean;
@@ -180,6 +187,8 @@ export interface SelectProps {
   portal?: boolean;
   readOnly?: boolean;
   ref?: Ref<SelectHandle>;
+  /** `auto` is a bottom sheet on a phone (`SelectPresentation`). Defaults to the provider, then `popover`. */
+  presentation?: SelectPresentation;
   required?: boolean;
   search?: boolean;
   searchValue?: string;

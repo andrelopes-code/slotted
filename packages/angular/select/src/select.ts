@@ -14,8 +14,10 @@ import { createPositioner } from '@slotted/core/positioner';
 import type { PositionerHandle } from '@slotted/core/positioner';
 import { createPresence } from '@slotted/core/presence';
 import type { PresenceHandle } from '@slotted/core/presence';
+import { attachGripDismiss, SHEET_QUERY, watchMedia } from '@slotted/core/extent';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeRequest } from '@slotted/core/state';
+import { spokenText } from '@slotted/core/text';
 import { createTypeahead, isPrintable } from '@slotted/core/typeahead';
 import type { TypeaheadHandle } from '@slotted/core/typeahead';
 import {
@@ -61,6 +63,7 @@ import type {
   SelectHighlightReason,
   SelectItems,
   SelectMount,
+  SelectPresentation,
   SelectOpenReason,
   SelectOption,
   SelectOptionGroup,
@@ -399,69 +402,104 @@ const flatten = (items: SelectItems | undefined): readonly SelectOption[] =>
         [attr.data-size]="resolvedSize()"
         [attr.data-width]="resolvedWidth()"
         [attr.data-open]="isOpen() ? '' : null"
+        [attr.data-presentation]="sheet() ? 'sheet' : 'popover'"
         [attr.inert]="isOpen() ? null : ''"
       >
-        <div
-          #surface
-          data-part="content"
-          data-part-content=""
-          [attr.role]="resolvedSearch() ? 'dialog' : 'listbox'"
-          [attr.data-search]="resolvedSearch() ? '' : null"
-          [id]="contentId"
-          [attr.aria-labelledby]="ariaLabel() === undefined ? triggerId : null"
-          [attr.aria-label]="ariaLabel() ?? null"
-          [attr.aria-multiselectable]="resolvedSearch() || !resolvedMultiple() ? null : true"
-          [attr.aria-busy]="resolvedSearch() || !loading() ? null : true"
-          [attr.data-loading]="loading() ? '' : null"
-        >
-          <!--
+        @if (sheet()) {
+          <div aria-hidden="true" data-part="backdrop" data-part-backdrop=""></div>
+          <div
+            data-part="content"
+            data-part-content=""
+            role="dialog"
+            aria-modal="true"
+            [id]="contentId"
+            [attr.aria-labelledby]="contentId + '-heading'"
+            [attr.data-loading]="loading() ? '' : null"
+          >
+            <span aria-hidden="true" data-part="grip" data-part-grip=""></span>
+            <div data-part="header" data-part-header="">
+              <div data-part="title" data-part-title="" [id]="contentId + '-heading'">
+                {{ heading() }}
+              </div>
+            </div>
+            <div
+              data-part="list"
+              data-part-list=""
+              role="listbox"
+              tabindex="-1"
+              [id]="listId"
+              [attr.aria-labelledby]="triggerId"
+              [attr.aria-activedescendant]="activeDescendant()"
+              [attr.aria-multiselectable]="resolvedMultiple() ? true : null"
+              [attr.aria-busy]="loading() ? true : null"
+              (keydown)="onKeyDown($event)"
+            >
+              <ng-container [ngTemplateOutlet]="rows" />
+            </div>
+          </div>
+        } @else {
+          <div
+            #surface
+            data-part="content"
+            data-part-content=""
+            [attr.role]="resolvedSearch() ? 'dialog' : 'listbox'"
+            [attr.data-search]="resolvedSearch() ? '' : null"
+            [id]="contentId"
+            [attr.aria-labelledby]="ariaLabel() === undefined ? triggerId : null"
+            [attr.aria-label]="ariaLabel() ?? null"
+            [attr.aria-multiselectable]="resolvedSearch() || !resolvedMultiple() ? null : true"
+            [attr.aria-busy]="resolvedSearch() || !loading() ? null : true"
+            [attr.data-loading]="loading() ? '' : null"
+          >
+            <!--
             The field the reader filters with, and the listbox one element in.
             The combobox pattern lists the four roles a popup may carry and a
             popup holding a text field is a dialog, so the listbox moves inside
             it: a listbox holds options and groups, and a text field is neither.
           -->
-          @if (resolvedSearch()) {
-            <div data-part="search" data-part-search="">
-              <span data-part="search-icon" data-part-search-icon="" aria-hidden="true"
-                ><span slIcon><svg slGlyph name="search"></svg></span
-              ></span>
-              <input
-                #search
-                type="text"
-                role="combobox"
-                data-part="search-input"
-                data-part-search-input=""
-                autocomplete="off"
-                spellcheck="false"
-                aria-expanded="true"
-                aria-autocomplete="list"
-                [id]="searchId"
-                [attr.aria-controls]="listId"
-                [attr.aria-activedescendant]="activeDescendant()"
-                [attr.aria-label]="t('search')"
-                [placeholder]="t('searchPlaceholder')"
-                [value]="query()"
-                (input)="onSearchInput($event)"
-                (keydown)="onSearchKeyDown($event)"
-              />
-            </div>
-          }
-          @if (resolvedSearch()) {
-            <div
-              data-part="list"
-              data-part-list=""
-              role="listbox"
-              [id]="listId"
-              [attr.aria-labelledby]="triggerId"
-              [attr.aria-multiselectable]="resolvedMultiple() ? true : null"
-              [attr.aria-busy]="loading() ? true : null"
-            >
+            @if (resolvedSearch()) {
+              <div data-part="search" data-part-search="">
+                <span data-part="search-icon" data-part-search-icon="" aria-hidden="true"
+                  ><span slIcon><svg slGlyph name="search"></svg></span
+                ></span>
+                <input
+                  #search
+                  type="text"
+                  role="combobox"
+                  data-part="search-input"
+                  data-part-search-input=""
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-expanded="true"
+                  aria-autocomplete="list"
+                  [id]="searchId"
+                  [attr.aria-controls]="listId"
+                  [attr.aria-activedescendant]="activeDescendant()"
+                  [attr.aria-label]="t('search')"
+                  [placeholder]="t('searchPlaceholder')"
+                  [value]="query()"
+                  (input)="onSearchInput($event)"
+                  (keydown)="onSearchKeyDown($event)"
+                />
+              </div>
+            }
+            @if (resolvedSearch()) {
+              <div
+                data-part="list"
+                data-part-list=""
+                role="listbox"
+                [id]="listId"
+                [attr.aria-labelledby]="triggerId"
+                [attr.aria-multiselectable]="resolvedMultiple() ? true : null"
+                [attr.aria-busy]="loading() ? true : null"
+              >
+                <ng-container [ngTemplateOutlet]="rows" />
+              </div>
+            } @else {
               <ng-container [ngTemplateOutlet]="rows" />
-            </div>
-          } @else {
-            <ng-container [ngTemplateOutlet]="rows" />
-          }
-        </div>
+            }
+          </div>
+        }
       </div>
     </ng-template>
   `,
@@ -534,6 +572,8 @@ export class SlSelect implements ControlValueAccessor, Validator {
   readonly shift = input(undefined, { transform: SlSelect.flag });
   readonly hideWhenDetached = input(undefined, { transform: SlSelect.flag });
   readonly portal = input(undefined, { transform: SlSelect.flag });
+  /** `auto` is a bottom sheet on a phone (`SelectPresentation`). Defaults to the provider, then `popover`. */
+  readonly presentation = input<SelectPresentation | undefined>(undefined);
   readonly fullWidth = input(undefined, { transform: SlSelect.flag });
   readonly disabled = input(undefined, { transform: SlSelect.flag });
   readonly readOnly = input(undefined, { transform: SlSelect.flag });
@@ -583,6 +623,10 @@ export class SlSelect implements ControlValueAccessor, Validator {
   private layer: DismissableLayerHandle | null = null;
   private presence: PresenceHandle | null = null;
   private typeaheadHandle: TypeaheadHandle | null = null;
+  private releaseGrip: (() => void) | null = null;
+  /** The layer standing is the sheet's, which gives focus back to the trigger as it goes. */
+  private modal = false;
+  private readonly phone = signal(false);
 
   private readonly hostLabelledBy = inject(new HostAttributeToken('aria-labelledby'), {
     optional: true,
@@ -601,6 +645,15 @@ export class SlSelect implements ControlValueAccessor, Validator {
   readonly resolvedClearable = computed(() => this.clearable() ?? this.defaults.clearable);
   readonly resolvedLoop = computed(() => this.loop() ?? this.defaults.loop);
   readonly resolvedSearch = computed(() => this.search() ?? this.defaults.search);
+  /** The listbox is a bottom sheet: `presentation="auto"`, no search field, on a phone. */
+  readonly sheet = computed(
+    () =>
+      (this.presentation() ?? this.defaults.presentation) === 'auto' &&
+      !this.resolvedSearch() &&
+      this.phone(),
+  );
+  /** The words that head the sheet: the label of the control, as a reader hears it. */
+  protected readonly heading = signal('');
   readonly resolvedHighlightMatch = computed(
     () => this.highlightMatch() ?? this.defaults.highlightMatch,
   );
@@ -819,6 +872,7 @@ export class SlSelect implements ControlValueAccessor, Validator {
 
     afterNextRender(() => {
       if (this.resolvedMount() === 'eager' && !this.isOpen()) this.build();
+      destroyRef.onDestroy(watchMedia(SHEET_QUERY, (matches) => this.phone.set(matches)));
     });
 
     destroyRef.onDestroy(() => {
@@ -1239,7 +1293,8 @@ export class SlSelect implements ControlValueAccessor, Validator {
 
   private show() {
     this.build();
-    this.position();
+    if (this.sheet()) this.heading.set(labelOf(this.triggerRef().nativeElement));
+    else this.position();
     this.bind();
     this.enter();
   }
@@ -1248,6 +1303,9 @@ export class SlSelect implements ControlValueAccessor, Validator {
     if (this.view !== null) {
       this.presence?.sync(this.isOpen());
       this.view.detectChanges();
+      /* The sheet and the anchored list are two surfaces: the one drawn now is the one read. */
+      this.surfaceNode =
+        this.layerNode?.querySelector<HTMLElement>("[data-part='content']") ?? null;
       return;
     }
 
@@ -1307,15 +1365,21 @@ export class SlSelect implements ControlValueAccessor, Validator {
 
     /* The control is a branch, so pressing the trigger again toggles the popup
        instead of dismissing it and reopening it in one gesture. */
+    /* The sheet is modal: the page is inert under its scrim, and a press on the scrim is outside. */
+    const sheet = this.sheet();
+    this.modal = sheet;
     this.layer = createDismissableLayer(this.layerNode, {
+      back: sheet,
       branches: [this.triggerRef().nativeElement.parentElement].filter(
         (branch): branch is HTMLElement => branch !== null,
       ),
+      content: this.surfaceNode ?? this.layerNode,
       escape: this.closeOnEscape() ?? this.defaults.closeOnEscape,
       focusOutside: false,
-      modal: false,
+      modal: sheet,
       outsidePress: this.closeOnOutsidePress() ?? this.defaults.closeOnOutsidePress,
-      scrollLock: false,
+      outsidePressEvent: sheet ? 'click' : 'pointerdown',
+      scrollLock: sheet,
       onDismiss: (request) => {
         const source = request.source as Event | undefined;
         /**
@@ -1331,12 +1395,24 @@ export class SlSelect implements ControlValueAccessor, Validator {
           this.setQuery('', 'clear', source);
           return;
         }
-        this.setOpen(false, request.reason === 'escape' ? 'escape' : 'outsidePress', source);
+        const key = request.reason === 'escape' || request.reason === 'back';
+        this.setOpen(false, key ? 'escape' : 'outsidePress', source);
         /* Focus goes back to the control on a key and stays where the reader
            put it on a press outside. */
         if (request.reason === 'escape') this.focus();
       },
     });
+
+    /* A pull down on the sheet's grip dismisses it, as the grip of every other sheet does. */
+    const grip = this.surfaceNode?.querySelector<HTMLElement>(':scope > [data-part="grip"]');
+    if (sheet && this.surfaceNode !== null && grip != null) {
+      this.releaseGrip = attachGripDismiss({
+        grip,
+        scrim: this.layerNode.querySelector<HTMLElement>(':scope > [data-part="backdrop"]'),
+        sheet: this.surfaceNode,
+        onDismiss: (event) => this.setOpen(false, 'pointer', event),
+      });
+    }
 
     if (this.resolvedTypeahead()) {
       this.typeaheadHandle = createTypeahead({
@@ -1357,6 +1433,12 @@ export class SlSelect implements ControlValueAccessor, Validator {
   private enter() {
     this.recount();
     if (this.resolvedSearch()) this.searchNode()?.focus({ preventScroll: true });
+    /* The sheet's list holds focus and names the highlighted option, as the trigger does anchored. */
+    if (this.sheet()) {
+      this.surfaceNode
+        ?.querySelector<HTMLElement>('[data-part="list"]')
+        ?.focus({ preventScroll: true });
+    }
     const list = this.options();
     if (list.length === 0) return;
 
@@ -1390,7 +1472,13 @@ export class SlSelect implements ControlValueAccessor, Validator {
   }
 
   private unbind() {
+    const modal = this.layer !== null && this.modal;
+    this.modal = false;
+    this.releaseGrip?.();
+    this.releaseGrip = null;
+    /* The layer first: focus given back to an `inert` trigger is refused. */
     this.layer?.destroy();
+    if (modal) this.focus();
     this.positioner?.destroy();
     this.typeaheadHandle?.destroy();
     this.layer = null;
@@ -1438,4 +1526,14 @@ export class SlSelect implements ControlValueAccessor, Validator {
     if (!this.resolvedRequired()) return null;
     return this.selection().length === 0 ? { required: true } : null;
   }
+}
+
+/** The label of a control, as a reader hears it, or its own name. */
+function labelOf(trigger: HTMLButtonElement): string {
+  const labelledBy = trigger.getAttribute('aria-labelledby');
+  const named = labelledBy === null ? null : trigger.ownerDocument.getElementById(labelledBy);
+  const label = named ?? trigger.labels?.[0] ?? null;
+  const text = label === null ? '' : spokenText(label);
+
+  return text === '' ? (trigger.getAttribute('aria-label') ?? '') : text;
 }

@@ -1647,6 +1647,173 @@
     cursor: progress;
   }
 
+  /* ── The sheet of a phone ─────────────────────────────────────────────── */
+
+  /**
+   * `presentation="auto"` on a phone, without a search field: the layer is the
+   * screen, the scrim covers the page and the panel slides in from the bottom
+   * edge, headed by the label of the control. The surface, the radius, the
+   * scrim, the grip and the slide are the drawer's tokens, so a theme that
+   * restates a sheet restates this one. A row is never shorter than a target.
+   */
+  [data-ui-select][data-part-positioner][data-presentation='sheet'] {
+    display: grid;
+    inline-size: auto;
+    inset: 0;
+    max-inline-size: none;
+    min-inline-size: 0;
+    position: fixed;
+    translate: 0 0;
+    /* What `presence` waits for: the panel's own way out. */
+    transition: translate
+      var(
+        --slotted-drawer-slide-exit-duration,
+        var(--slotted-drawer-slide-duration, var(--slotted-duration-short))
+      )
+      var(--slotted-easing-exit);
+  }
+
+  [data-ui-select][data-part-positioner][data-presentation='sheet'][data-open] {
+    animation: none;
+    pointer-events: auto;
+  }
+
+  /* A filter makes the scrim a stacking context, so it stands under the panel. */
+  [data-ui-select] > [data-part-backdrop] {
+    background: var(--slotted-drawer-scrim, var(--slotted-scrim, Canvas));
+    grid-area: 1 / 1;
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    z-index: -1;
+  }
+
+  [data-ui-select][data-open] > [data-part-backdrop] {
+    -webkit-backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+    backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+    opacity: 1;
+    transition: opacity var(--slotted-duration-long) var(--slotted-easing-standard);
+  }
+
+  [data-ui-select][data-part-positioner] > [data-part-backdrop] {
+    transition-property:
+      opacity,
+      -webkit-backdrop-filter,
+      backdrop-filter;
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-select][data-open] > [data-part-backdrop] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  [data-ui-select][data-part-positioner][data-presentation='sheet'] > [data-part-content] {
+    --_sheet-radius: var(--slotted-drawer-radius, var(--_radius));
+
+    align-self: end;
+    background: var(--slotted-drawer-surface, var(--_surface));
+    border-color: var(--slotted-drawer-border-color, var(--_border-color));
+    border-block-end-width: 0;
+    border-end-end-radius: 0;
+    border-end-start-radius: 0;
+    border-inline-width: 0;
+    border-start-end-radius: var(--_sheet-radius);
+    border-start-start-radius: var(--_sheet-radius);
+    box-shadow: var(--slotted-shadow-lg);
+    display: flex;
+    flex-direction: column;
+    grid-area: 1 / 1;
+    /* A strip of scrim is left for the press outside. */
+    max-block-size: min(var(--slotted-overlay-max-block-size, 100dvh), 90dvh);
+    opacity: 1;
+    overflow: hidden;
+    padding: var(--slotted-target-min, 24px) 0 env(safe-area-inset-bottom, 0px);
+    position: relative;
+    transform: translateY(100%);
+    transition: transform
+      var(
+        --slotted-drawer-slide-exit-duration,
+        var(--slotted-drawer-slide-duration, var(--slotted-duration-short))
+      )
+      var(--slotted-drawer-slide-exit-easing, var(--slotted-easing-exit));
+  }
+
+  [data-ui-select][data-part-positioner][data-presentation='sheet'][data-open]
+    > [data-part-content] {
+    animation: slotted-select-sheet-enter
+      var(--slotted-drawer-slide-duration, var(--slotted-duration-long))
+      var(--slotted-drawer-slide-easing, var(--slotted-easing-standard));
+    transform: none;
+    transition: none;
+  }
+
+  @keyframes slotted-select-sheet-enter {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-select][data-part-positioner][data-presentation='sheet'] > [data-part-content],
+    [data-ui-select][data-part-positioner][data-presentation='sheet'][data-open]
+      > [data-part-content] {
+      animation: none;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* The grip every bottom sheet carries, in the drawer's geometry and line color. */
+  [data-ui-select] > [data-part-content] > [data-part-grip] {
+    background-clip: content-box;
+    background-color: var(
+      --slotted-drawer-resizer-line-color,
+      var(--slotted-border-strong, ButtonBorder)
+    );
+    block-size: var(--slotted-space-2, 0.25rem);
+    /* The bar is the content box: each radius less the padding on its axis is
+       half the bar's block size, so its ends are round. */
+    border-radius: calc(var(--slotted-space-2, 0.25rem) / 2) /
+      calc(var(--slotted-target-min, 24px) / 2);
+    box-sizing: content-box;
+    cursor: grab;
+    inline-size: var(--slotted-space-11, 3rem);
+    inset-block-start: 0;
+    inset-inline: 0;
+    margin-inline: auto;
+    padding-block: calc((var(--slotted-target-min, 24px) - var(--slotted-space-2, 0.25rem)) / 2);
+    position: absolute;
+    touch-action: none;
+  }
+
+  [data-ui-select] > [data-part-content] > [data-part-header] {
+    flex: none;
+    padding-block-end: var(--slotted-space-3, 0.375rem);
+    padding-inline: calc(var(--_inset-inline) + var(--_item-inset));
+  }
+
+  [data-ui-select] > [data-part-content] > [data-part-header] > [data-part-title] {
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--slotted-font-size-md, 0.875rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-md, 1.25rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-select][data-presentation='sheet'] [data-part-list] {
+    outline: none;
+  }
+
+  [data-ui-select][data-presentation='sheet'] [data-part-item] {
+    min-block-size: max(var(--_item-height), var(--slotted-target-min, 24px));
+  }
+
   /* ── Forced colors ───────────────────────────────────────────────────── */
 
   /**

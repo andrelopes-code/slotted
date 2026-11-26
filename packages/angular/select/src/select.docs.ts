@@ -95,11 +95,38 @@ const anatomy: AnatomyRow[] = [
       'The layer, portalled to the end of the document. It carries data-ui="select" again, because a stylesheet cannot reach the portalled list through the root. Its content is an ng-template, so the options are not created until the list first opens.',
   },
   {
+    part: 'backdrop',
+    element: 'div',
+    required: false,
+    purpose:
+      'The scrim over the page while the listbox is a sheet (presentation="auto" on a phone), aria-hidden. A press on it closes the sheet.',
+  },
+  {
     part: 'content',
-    element: 'div with role="listbox", or role="dialog" under search',
+    element: 'div with role="listbox", or role="dialog" under search and in the sheet',
     required: true,
     purpose:
       'The list surface. It defines the three columns every option uses, is bounded by the height the positioner reports, and scrolls inside it. With search it becomes a dialog that holds the search field and the list, because a listbox may hold only options and groups.',
+  },
+  {
+    part: 'grip',
+    element: 'span',
+    required: false,
+    purpose:
+      'The bar at the top of the sheet, aria-hidden. A pull down on it dismisses the sheet; Escape, the scrim and the platform’s way back are the other ways out.',
+  },
+  {
+    part: 'header',
+    element: 'div',
+    required: false,
+    purpose: 'The row above the list of the sheet, holding its title.',
+  },
+  {
+    part: 'title',
+    element: 'div',
+    required: false,
+    purpose:
+      'The heading of the sheet: the label of the control, as a reader hears it. It names the dialog the sheet is.',
   },
   {
     part: 'search',
@@ -642,6 +669,13 @@ const api = apiRows([
     'true',
     'sl-select',
     'Whether the list renders at the end of the document instead of inside the control.',
+  ],
+  [
+    'presentation',
+    "'popover' | 'auto'",
+    'popover',
+    'sl-select, provideSelectDefaults',
+    'auto draws the listbox in a bottom sheet under (max-width: 480px) and (pointer: coarse): modal, headed by the field’s label, every option at least --slotted-target-min tall, dismissed by its grip, its scrim, Escape and the platform’s way back, with focus given back to the trigger. A select with search keeps its anchored list, because the on-screen keyboard covers the bottom of the screen.',
   ],
   [
     'fullWidth',

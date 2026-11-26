@@ -7,6 +7,12 @@ export type SelectSide = 'bottom' | 'top' | 'inline-start' | 'inline-end' | 'lef
 export type SelectAlign = 'start' | 'center' | 'end';
 export type SelectWidth = 'anchor' | 'content';
 export type SelectMount = 'active' | 'lazy' | 'eager';
+/**
+ * `auto` draws the listbox in a bottom sheet on a phone (`SHEET_QUERY`),
+ * headed by the field's label. A select with a search field keeps its
+ * anchored list: the on-screen keyboard covers the bottom of the screen.
+ */
+export type SelectPresentation = 'popover' | 'auto';
 export type SelectStrategy = 'absolute' | 'fixed';
 
 export type SelectOptionValue = string;
@@ -75,6 +81,7 @@ export interface SelectDefaults {
   mount: SelectMount;
   multiple: boolean;
   portal: boolean;
+  presentation: SelectPresentation;
   readOnly: boolean;
   required: boolean;
   shift: boolean;
@@ -114,6 +121,7 @@ export const SELECT_FALLBACK: SelectDefaults = {
   mount: 'active',
   multiple: false,
   portal: true,
+  presentation: 'popover',
   readOnly: false,
   required: false,
   shift: true,

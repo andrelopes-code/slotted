@@ -12,6 +12,7 @@ export type {
   SelectHighlightReason,
   SelectItems,
   SelectMount,
+  SelectPresentation,
   SelectOpenReason,
   SelectOption,
   SelectOptionGroup,

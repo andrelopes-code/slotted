@@ -1,6 +1,7 @@
 import '@slotted/styles/select/select.css';
 
 import { createFilter, revealWithin } from '@slotted/core/collection';
+import { SHEET_QUERY } from '@slotted/core/extent';
 import { selectMessages, type FamilyTranslator, type SelectMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
 import {
@@ -13,10 +14,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { MutableRefObject } from 'react';
+import type { KeyboardEvent, MutableRefObject } from 'react';
 
 import { useField } from '../field';
 import { useLocale, useMessages } from '../i18n';
+import { useMediaQuery } from '../picker-panel/use-media-query';
 import { useSelectDefaults } from './select-defaults';
 import type {
   SelectAlign,
@@ -61,6 +63,8 @@ export interface SelectContextValue {
   highlighted: SelectOptionValue | null;
   highlightMatch: boolean;
   invalid: boolean;
+  /** The trigger's key handling, which the sheet's list answers while it holds focus. */
+  keys: MutableRefObject<((event: KeyboardEvent<HTMLElement>) => void) | null>;
   labelFor: (value: SelectOptionValue) => string | undefined;
   listId: string;
   loading: boolean;
@@ -97,6 +101,8 @@ export interface SelectContextValue {
   setQuery: (next: string, reason: SelectSearchReason, source?: unknown) => void;
   setSearchNode: (node: HTMLInputElement | null) => void;
   setTriggerNode: (node: HTMLElement | null) => void;
+  /** The listbox is a bottom sheet: `presentation="auto"`, no search field, on a phone. */
+  sheet: boolean;
   shift: boolean;
   side: SelectSide;
   sideOffset: number;
@@ -204,6 +210,7 @@ export function Select({
   onValueChange,
   open,
   portal,
+  presentation,
   readOnly,
   ref,
   required,
@@ -260,6 +267,10 @@ export function Select({
   const currentSelection = value === undefined ? ownSelection : normalize(value);
   const currentHighlighted = highlightedValue === undefined ? ownHighlighted : highlightedValue;
   const resolvedSearch = search ?? defaults.search;
+  const sheet = useMediaQuery(
+    (presentation ?? defaults.presentation) === 'auto' && !resolvedSearch ? SHEET_QUERY : null,
+  );
+  const keys = useRef<((event: KeyboardEvent<HTMLElement>) => void) | null>(null);
   /* A query only exists while there is a field holding it, so a select whose
      consumer turned `search` off never filters, whatever `searchValue` says. */
   const currentQuery = resolvedSearch ? (searchValue === undefined ? ownQuery : searchValue) : '';
@@ -534,6 +545,7 @@ export function Select({
     highlighted: currentHighlighted,
     highlightMatch: highlightMatch ?? defaults.highlightMatch,
     invalid: invalid ?? field?.invalid ?? defaults.invalid,
+    keys,
     labelFor,
     listId,
     loading: loading ?? defaults.loading,
@@ -562,6 +574,7 @@ export function Select({
     setQuery,
     setSearchNode,
     setTriggerNode,
+    sheet,
     shift: shift ?? defaults.shift,
     side: side ?? defaults.side,
     sideOffset: sideOffset ?? defaults.sideOffset,
