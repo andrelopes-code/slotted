@@ -66,14 +66,14 @@ test('shares the foundation with the single-line control and not its selectors',
 
 /**
  * The block padding is derived rather than chosen: half of what is left when
- * one line box is taken out of the control height. A textarea of one row is
+ * one line box and the two borders are taken out of the control height. A textarea of one row is
  * then exactly as tall as an input of the same step, at every density, and no
  * second scale is invented for it.
  */
 test('derives its block padding from the control height and its own line box', () => {
   assert.match(
     rule(root),
-    /--_padding-block:max\(0px,calc\(\(var\(--_height\)\s*-\s*1lh\)\s*\/\s*2\)\)/,
+    /--_padding-block:max\(0px,calc\(\(var\(--_height\)\s*-\s*1lh\)\s*\/\s*2\s*-\s*var\(--slotted-control-border-width,1px\)\)\)/,
   );
   assert.match(rule(root), /padding-block:var\(--_padding-block\)/);
   assert.doesNotMatch(declarations, /padding-block:\s*\d+px/);

@@ -19,14 +19,18 @@
      * scales, the only ones the theme restates per density.
      *
      * The block padding is derived rather than chosen: half of whatever is
-     * left when one line box is taken out of the control height. A textarea of
+     * left when one line box and the two borders are taken out of the control
+     * height. A textarea of
      * one row is then exactly as tall as an input of the same step, at every
      * density, and no second scale has to be invented for it.
      */
     --_font-size: var(--slotted-control-font-size-md, 13px);
     --_height: var(--slotted-control-height-md, 34px);
     --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
-    --_padding-block: max(0px, calc((var(--_height) - 1lh) / 2));
+    --_padding-block: max(
+      0px,
+      calc((var(--_height) - 1lh) / 2 - var(--slotted-control-border-width, 1px))
+    );
     /** The control height minus its content box: two paddings and two borders. */
     --_frame: calc(var(--_padding-block) * 2 + var(--slotted-control-border-width, 1px) * 2);
     /**
