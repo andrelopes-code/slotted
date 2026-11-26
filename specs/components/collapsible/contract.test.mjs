@@ -138,6 +138,13 @@ test('says what it refuses and what owns each refusal', () => {
   assert.match(contract.declined.detailsElement.reason, /only element inside a heading/);
 });
 
+test('lets the provider set every resolved axis and the peek of a lone panel', () => {
+  assert.deepEqual(contract.provides.collapsibleDefaults, [
+    ...Object.keys(contract.resolution),
+    'peek',
+  ]);
+});
+
 test('resolves every shared axis through the accordion before the provider', () => {
   for (const [axis, order] of Object.entries(contract.resolution)) {
     assert.equal(order[0], 'prop', `${axis} does not let the consumer's own value win`);
