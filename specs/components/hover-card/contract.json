@@ -132,7 +132,7 @@
   },
   "sharedCard": {
     "rule": "many triggers inside one card: the trigger that starts an opening registers itself as the anchor",
-    "payload": "onOpenChange receives the request; request.event.currentTarget is the trigger, and the consumer reads its data attributes",
+    "payload": "onOpenChange receives the request; request.source is the event that started it, its target is the trigger or an element inside it, and the consumer finds the trigger with target.closest() and reads its data attributes. currentTarget is not read: the open fires after a delay, when the event is no longer dispatched",
     "reason": "Base UI 1.8 ships handle and payload for one popup shared by many triggers. Here the composition needs no API: a list of two hundred mentions mounts one card, and the request already carries the event."
   },
   "declined": {

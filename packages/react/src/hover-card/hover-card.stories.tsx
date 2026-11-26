@@ -272,9 +272,11 @@ const SharedDemo = () => {
     <Viewport>
       <HoverCard
         onOpenChange={(open, request) => {
-          const target = (request.source as Event | undefined)?.currentTarget;
-          if (open && target instanceof HTMLElement) {
-            setHandle(target.dataset['handle'] ?? 'ana.souza');
+          const target = request.source instanceof Event ? request.source.target : null;
+          const trigger =
+            target instanceof Element ? target.closest<HTMLElement>('[data-handle]') : null;
+          if (open && trigger !== null) {
+            setHandle(trigger.dataset['handle'] ?? 'ana.souza');
           }
         }}
         portal={false}

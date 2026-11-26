@@ -179,9 +179,10 @@ class SharedDemo {
   readonly person = () => PEOPLE[this.handle()] ?? ANA;
 
   remember(request: { value: boolean; source?: unknown }) {
-    const target = (request.source as Event | undefined)?.currentTarget;
-    if (request.value && target instanceof HTMLElement) {
-      this.handle.set(target.dataset['handle'] ?? 'ana.souza');
+    const target = request.source instanceof Event ? request.source.target : null;
+    const trigger = target instanceof Element ? target.closest<HTMLElement>('[data-handle]') : null;
+    if (request.value && trigger !== null) {
+      this.handle.set(trigger.dataset['handle'] ?? 'ana.souza');
     }
   }
 }

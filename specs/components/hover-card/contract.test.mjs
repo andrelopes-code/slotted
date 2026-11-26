@@ -147,7 +147,7 @@ test('answers every key it binds, and says where focus lands', () => {
 
 test('shares one card between many triggers without a second API', () => {
   assert.match(contract.sharedCard.rule, /registers itself as the anchor/);
-  assert.match(contract.sharedCard.payload, /currentTarget/);
+  assert.match(contract.sharedCard.payload, /target\.closest\(\)/);
 });
 
 test('resolves every axis in the same order, and holds a default for each', () => {
