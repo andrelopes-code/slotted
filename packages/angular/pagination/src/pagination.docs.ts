@@ -65,15 +65,14 @@ const anatomy: AnatomyRow[] = [
     part: 'ellipsis',
     element: 'span',
     required: false,
-    purpose:
-      'The pages the row does not draw. Announced to nobody: the two triggers and the four boundary pages already reach every page it hides.',
+    purpose: 'The pages the row does not draw. Announced to nobody.',
   },
   {
     part: 'summary',
     element: 'span',
     required: false,
     purpose:
-      '"Page 3 of 24" — what the numbered row becomes below the family’s own breakpoint. Rendered beside the list and displayed instead of it.',
+      '"Page 3 of 24" — what the numbered row becomes below its own breakpoint, 22rem of inline size. Rendered beside the list and displayed instead of it.',
   },
   {
     part: 'first',
@@ -99,15 +98,14 @@ const anatomy: AnatomyRow[] = [
     part: 'last',
     element: 'button, or a in link mode',
     required: false,
-    purpose:
-      'Jump to the last page. It cannot exist without a count, so a cursor paginator omits it.',
+    purpose: 'Jump to the last page. It needs a total, so it is disabled when count is unset.',
   },
   {
     part: 'status',
     element: 'p',
     required: false,
     purpose:
-      '"21–40 of 482", and the polite live region that announces a page change. Its text is replaceable by projecting your own.',
+      '"21–40 of 482", and the polite live region that announces a page change. Projected content replaces its text.',
   },
   {
     part: 'page-size',
@@ -141,7 +139,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'numbered',
     title: 'The row of pages',
-    note: 'Seven items at every page: a boundary, a gap, the current page and its siblings, a gap, a boundary. Walk through it and nothing moves except the numbers.',
+    note: 'With the default counts, seven items at every page: a boundary, a gap, the current page and its siblings, a gap, a boundary. Walk through it and nothing moves except the numbers.',
     snippet: defineSnippet({
       id: 'pagination-angular-numbered',
       language: 'angular',
@@ -153,7 +151,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'cursor',
     title: 'A total the server does not know',
-    note: 'No count, so there are no page numbers to draw and the family invents none. Two triggers and a sentence are the whole paginator.',
+    note: 'No count, so there are no page numbers to draw and no total is invented. Two triggers and a sentence are the whole paginator.',
     snippet: defineSnippet({
       id: 'pagination-angular-cursor',
       language: 'angular',
@@ -207,7 +205,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'angular',
       label: 'Nothing to write for it',
       source:
-        '<!-- The compaction is the family’s own container query.\n     A paginator in a split pane compacts; the same one on a full page does not. -->\n<nav slPagination [count]="482">\n  <sl-pagination-items />\n</nav>',
+        '<!-- The compaction is a container query on the paginator itself.\n     A paginator in a split pane compacts; the same one on a full page does not. -->\n<nav slPagination [count]="482">\n  <sl-pagination-items />\n</nav>',
     }),
   },
   {
@@ -249,7 +247,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'keyboard',
     title: 'Keyboard and announcement',
-    note: 'Tab reaches every control in reading order and Enter or Space activates it; the family binds no key of its own, because a list of controls inside a landmark is a list of tab stops.',
+    note: 'Tab reaches every control in reading order and Enter or Space activates it; Pagination binds no key of its own, because a list of controls inside a landmark is a list of tab stops.',
     snippet: defineSnippet({
       id: 'pagination-angular-keyboard',
       language: 'angular',
@@ -264,7 +262,7 @@ const events: EventRow[] = [
   {
     name: 'pageChange',
     payload: 'ChangeRequest<number>',
-    when: 'Before the page moves. The request carries the page it replaces, the reason — pointer, keyboard or programmatic — and the originating event, and cancelling it commits nothing. programmatic is the family’s own move: the collection shrank under a reader who was past its new end, or the page size changed and the page followed the reader’s first item.',
+    when: 'Before the page moves. The request carries the page it replaces, the reason — pointer, keyboard or programmatic — and the originating event, and cancelling it commits nothing. programmatic is a move Pagination makes on its own: the collection shrank under a reader who was past its new end, or the page size changed and the page followed the reader’s first item.',
   },
   {
     name: 'pageSizeChange',
@@ -285,79 +283,85 @@ export const ANGULAR_PAGINATION_DOCS = {
         'number',
         '—',
         'slPagination',
-        'How many items the collection holds. It has no default on purpose: left out entirely, the total is unknown, no page numbers are drawn, and the family invents none',
+        'How many items the collection holds. It has no default on purpose: left out entirely, the total is unknown, no page numbers are drawn, and no total is invented.',
       ],
       [
         'page',
         'number',
         '—',
         'slPagination',
-        'Present means controlled, for the life of the component',
+        'Present means controlled, for the life of the component.',
       ],
       [
         'defaultPage',
         'number',
         '1',
         'slPagination',
-        'The page an uncontrolled paginator starts from, read once',
+        'The page an uncontrolled paginator starts from, read once.',
       ],
       [
         'pageSize',
         'number',
         '—',
         'slPagination',
-        'Present means controlled, for the life of the component',
+        'Present means controlled, for the life of the component.',
       ],
       [
         'defaultPageSize',
         'number',
         '20',
         'slPagination',
-        'The page size it starts from, read once',
+        'The page size it starts from, read once.',
       ],
-      ['siblingCount', 'number', '1', 'slPagination', 'Pages drawn either side of the current one'],
-      ['boundaryCount', 'number', '1', 'slPagination', 'Pages drawn at each end of the row'],
+      [
+        'siblingCount',
+        'number',
+        '1',
+        'slPagination',
+        'Pages drawn either side of the current one.',
+      ],
+      ['boundaryCount', 'number', '1', 'slPagination', 'Pages drawn at each end of the row.'],
       [
         'pageSizeOptions',
         'readonly number[]',
         '[10, 20, 50, 100]',
         'slPagination',
-        'What the page-size control offers',
+        'What the page-size control offers.',
       ],
       [
         'itemHref',
         '(page: number) => string',
         '—',
         'slPagination',
-        'Turns every page and every trigger into an anchor with a real destination',
+        'Turns every page and every trigger into an anchor with a real destination.',
       ],
       [
         'messages',
         'Partial<PaginationMessages>',
         '—',
         'slPagination',
-        'Words laid over the language in force, key by key: the landmark’s name (label), every control and both sentences',
+        'Words laid over the language in force, key by key: the landmark’s name (label), every control and both sentences.',
       ],
       [
         'live',
         "'polite' | 'off'",
         'polite',
         'slPagination',
-        'Whether the range announces a page change',
+        'Whether the range announces a page change.',
       ],
       [
         'disabled',
         'boolean',
         'false',
         'slPagination',
-        'Takes every control away without taking the row out of the page',
+        'Takes every control away without taking the row out of the page.',
       ],
       [
         'loading',
         'boolean',
         'false',
         'slPagination',
-        'A page change in flight: the controls refuse, the row keeps its size, and the root says aria-busy',
+        'A page change in flight: the controls refuse, the row keeps its size, and the root says aria-busy.',
       ],
     ]),
     composition: apiRows([
@@ -366,37 +370,37 @@ export const ANGULAR_PAGINATION_DOCS = {
         'template reference',
         '—',
         'Template',
-        'Reaches the instance for goToPage, next, previous, reset and setPageSize, plus the arithmetic they were derived from',
+        'Reaches the instance for goToPage, next, previous, reset and setPageSize, plus the arithmetic they were derived from.',
       ],
       [
         'providePaginationDefaults',
         'siblingCount | boundaryCount | defaultPageSize | pageSizeOptions | live',
         '—',
         'Application',
-        'Sets those five once for the whole injector; an input on the paginator still wins',
+        'Sets those five once for the whole injector; an input on the paginator still wins.',
       ],
       [
         'aria-label',
         'attribute',
         '—',
         'The nav',
-        'A static label written straight onto the element survives the host binding, so the consumer’s own name is never rewritten',
+        'A static label written straight onto the element survives the host binding, so the consumer’s own name is never rewritten.',
       ],
       [
         'ng-content',
         'projection',
         '—',
         'slPaginationStatus, sl-pagination-page-size',
-        'Replaces the range sentence and the page-size label with your own wording, without replacing the element or its live region',
+        'Replaces the range sentence and the page-size label with the application’s own wording, without replacing the element or its live region.',
       ],
     ]),
     accessibility: [
-      'The rendered root is the consumer’s own nav, named so a page carrying several landmarks can tell them apart. Nothing here is a widget: a row of controls inside a landmark is a row of tab stops, so the family binds no key of its own and Tab, Enter and Space are the platform’s.',
+      'The rendered root is the consumer’s own nav, named so a page carrying several landmarks can tell them apart. Nothing here is a widget: a row of controls inside a landmark is a row of tab stops, so Pagination binds no key of its own and Tab, Enter and Space are the platform’s.',
       'The page being read carries aria-current="page" — the value the ARIA specification names for a link within a set of pagination links — and that attribute is also what paints its fill, so what a screen reader announces and what the eye sees are one fact rather than two.',
       'The range is a polite live region, and it is the only one: a paginator that also announced its label would say the same thing twice. It reports the new range after the page settles, and live="off" silences it where an application announces the page itself.',
       'A trigger at a bound stays in the page rather than disappearing, so the row does not reflow under the pointer. In button mode it takes the native disabled; in link mode it loses its href and says aria-disabled, because an anchor has no disabled attribute and one that kept its destination would still navigate on a middle click.',
       'The page size is a native select wrapped by its own label, which gives the control its accessible name from the platform with no generated id, and its popup follows the color scheme the theme already emits.',
-      'Below 22rem of the family’s own inline size the numbered row is replaced by "Page 3 of 24". Both are rendered and exactly one is displayed, so neither is announced twice — and where no summary exists to replace it, as in a cursor paginator, the range is kept instead.',
+      'Below 22rem of its own inline size the numbered row is replaced by "Page 3 of 24". Both are rendered and exactly one is displayed, so neither is announced twice — and where no summary exists to replace it, as in a cursor paginator, the range is kept instead.',
       'A disabled or loading paginator mutes the current page’s chip into the disabled palette while keeping its shape: the reader still sees which page they are on, and nothing in a greyed row reads as the one thing still operable.',
     ],
     snippets: [
@@ -416,7 +420,7 @@ export const ANGULAR_PAGINATION_DOCS = {
       defineSnippet({
         id: 'pagination-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning Pagination for an application',
         source:
           "[data-ui='pagination'] {\n  --slotted-pagination-gap: 0.25rem;\n  --slotted-pagination-target: 40px;\n}",
       }),

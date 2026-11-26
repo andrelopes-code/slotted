@@ -1,0 +1,74 @@
+---
+title: Pagination
+description: Moves between pages of a collection the application owns, as numbered pages, as previous and next only, or as links.
+---
+
+<Example name="basic" wide />
+
+<Installation />
+
+## First, last and the width of the row
+
+`PaginationFirst` and `PaginationLast` jump to the ends. `siblingCount` sets how many pages are drawn on each side of the current page, and `boundaryCount` how many are drawn at each end. The row keeps one length at every page, so the controls beside it do not move while a reader steps through the collection. Both counts default to 1. The first paginator here uses the defaults, the second widens both to 2.
+
+<Example name="row" wide />
+
+## A total the server does not know
+
+`count` has no default. Without it `PaginationItems` draws nothing, because no page numbers can be drawn for a total that is unknown, and `Next` stays available at every page. Pass `page` with `onPageChange` to hold the position, and give `PaginationStatus` its own children for the sentence, because the default range needs a count. Here the next page is always one press away. `PaginationLast` stays disabled without a count, because no last page exists, so this paginator leaves it out.
+
+<Example name="cursor" />
+
+## The range sentence
+
+`PaginationStatus` writes the items the page holds, such as `41–60 of 482`, in a polite live region. A page change is announced once. `live="off"` removes the announcement and keeps the sentence displayed, for an application that announces the new page itself. The default is `polite`.
+
+<Example name="range" wide />
+
+## Page size
+
+`PaginationPageSize` is a native `select` wrapped by its own label, so the platform names the control. `pageSizeOptions` sets the sizes offered and `defaultPageSize` the one it starts from; the label text is the `label` prop in React and the projected content in Angular. Changing the size keeps the first item of the current page visible: from page 5 at 25 rows, choosing 50 lands on page 3, which starts at the same item. The page that follows is reported as a second page change with the reason `programmatic`.
+
+<Example name="rows" wide />
+
+## Links
+
+`itemHref` receives a page number and returns its address. Every page and every trigger then renders as an anchor, so a middle click opens the page in a tab and a crawler can follow the row. Without `itemHref` they render as buttons. A trigger that cannot move, such as Previous on page 1, renders without `href` and with `aria-disabled`. In Angular the trigger element is written as `a` to match.
+
+<Example name="links" />
+
+## Narrow containers
+
+Below 22rem of its own inline size, the paginator replaces the numbered row with the summary, such as `Page 12 of 25`, and keeps the triggers. The rule is a container query on the paginator, not on the viewport, so the same paginator compacts in a narrow card and stays numbered on a wide page. Both the row and the summary are in the DOM, and exactly one is displayed. Nothing needs configuring.
+
+<Example name="compact" wide />
+
+## States
+
+A trigger at a bound is unavailable and stays in place, so nothing reflows. `loading` marks a page change in flight: every control refuses a press, the row keeps its size, and the root carries `aria-busy`. `disabled` takes every control away without taking the row out of the page, and the current page stays visible in the disabled palette.
+
+<Example name="states" wide />
+
+## Controlled
+
+Pass `page` to own the position. A press calls `onPageChange` in React and emits `pageChange` in Angular, before the page moves, with a request that carries the new value, the previous one, the `reason` and a `cancel()` method. The reason is `pointer` for a press, because Enter and Space on a button produce the same click. When the collection shrinks under a reader who is past its new end, the paginator asks for the last page itself, with the reason `programmatic`. The example starts on page 25. Press Show open invoices.
+
+<Example name="controlled" wide />
+
+## Wording
+
+`messages` replaces any of the words Pagination writes, key by key: `label`, `first`, `previous`, `next`, `last`, `page`, `pageSize`, `range` and `summary`. The `page`, `range` and `summary` messages take placeholders. A static `aria-label` on the paginator wins over `messages.label`. Keys left out keep the language in force.
+
+<Example name="messages" wide />
+
+## Application defaults
+
+`siblingCount`, `boundaryCount`, `defaultPageSize`, `pageSizeOptions` and `live` can be set once for everything below a provider: `PaginationDefaultsProvider` in React, `providePaginationDefaults` in Angular. A paginator that states a value of its own keeps it, as the second paginator does with `siblingCount`.
+
+<Example name="defaults" wide />
+
+## Reaching the paginator from inside
+
+`usePagination()` in React, called by any component rendered inside `Pagination`, returns `goToPage`, `next`, `previous`, `setPageSize` and the arithmetic they use. In Angular, `#pager="slPagination"` gives the template the same operations, plus `reset()`. Both go through the same request as a press, so `onPageChange` and `pageChange` report them. The button here returns to page 1.
+
+<Example name="wiring" wide />

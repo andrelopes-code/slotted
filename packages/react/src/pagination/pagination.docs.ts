@@ -68,7 +68,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: false,
     purpose:
-      '"Page 3 of 25", rendered beside the row and displayed instead of it below the family breakpoint. Always in the DOM, so the swap announces nothing twice.',
+      '"Page 3 of 25", rendered beside the row and displayed instead of it below its own breakpoint, 22rem of inline size. In the DOM whenever the total is known, so the swap announces nothing twice.',
   },
   {
     part: 'first',
@@ -92,7 +92,7 @@ const anatomy: AnatomyRow[] = [
     part: 'last',
     element: 'button or a',
     required: false,
-    purpose: 'Jump to the last page. It needs a total, so it is off in cursor mode.',
+    purpose: 'Jump to the last page. It needs a total, so it is disabled when count is unset.',
   },
   {
     part: 'status',
@@ -145,7 +145,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'cursor',
     title: 'A total the server does not know',
-    note: 'Leave count out and there are no page numbers to draw, so none are drawn. Two triggers and a sentence are the whole paginator, and the family invents no total.',
+    note: 'Leave count out and there are no page numbers to draw, so none are drawn. Two triggers and a sentence are the whole paginator, and no total is invented.',
     snippet: defineSnippet({
       id: 'pagination-react-cursor',
       language: 'tsx',
@@ -193,7 +193,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'compact',
     title: 'Narrow enough that the row will not fit',
-    note: 'Below 22rem of the paginator own inline size the numbered row gives way to the summary and the triggers stay. It is a container query, so the same paginator on a wide page never compacts.',
+    note: 'Below 22rem of its own inline size the numbered row gives way to the summary and the triggers stay. It is a container query, so the same paginator on a wide page never compacts.',
     snippet: defineSnippet({
       id: 'pagination-react-compact',
       language: 'tsx',
@@ -229,11 +229,11 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'Composition',
-    note: 'The same family in two arrangements — a numbered row, and the bar a table carries — plus the provider that sets the wording once and the hook that hands you the arithmetic.',
+    note: 'The same parts in two arrangements — a numbered row, and the bar a table carries — plus the provider that sets the wording once and the hook that hands the application the arithmetic.',
     snippet: defineSnippet({
       id: 'pagination-react-composition',
       language: 'tsx',
-      label: 'Two arrangements, one family',
+      label: 'Two arrangements, one set of parts',
       source:
         '<Pagination count={482}>\n  <PaginationPageSize />\n  <PaginationStatus />\n  <PaginationPrevious />\n  <PaginationNext />\n</Pagination>;\n\n<PaginationDefaultsProvider siblingCount={2}>\n  <App />\n</PaginationDefaultsProvider>;',
     }),
@@ -277,67 +277,67 @@ export const REACT_PAGINATION_DOCS = {
         'number',
         '—',
         'Pagination',
-        'How many items the collection holds. It has no default: left out entirely, the total is unknown, no page numbers are drawn, and the family invents none',
+        'How many items the collection holds. It has no default: left out entirely, the total is unknown, no page numbers are drawn, and no total is invented.',
       ],
       [
         'page',
         'number',
         '—',
         'Pagination',
-        'Present means controlled, for the life of the component',
+        'Present means controlled, for the life of the component.',
       ],
       [
         'defaultPage',
         'number',
         '1',
         'Pagination',
-        'The page an uncontrolled paginator starts from, read once',
+        'The page an uncontrolled paginator starts from, read once.',
       ],
-      ['pageSize', 'number', '—', 'Pagination', 'Present means controlled, like page'],
-      ['defaultPageSize', 'number', '20', 'Pagination', 'The page size it starts from, read once'],
+      ['pageSize', 'number', '—', 'Pagination', 'Present means controlled, like page.'],
+      ['defaultPageSize', 'number', '20', 'Pagination', 'The page size it starts from, read once.'],
       [
         'pageSizeOptions',
         'readonly number[]',
         '[10, 20, 50, 100]',
         'Pagination',
-        'What the page-size control offers',
+        'What the page-size control offers.',
       ],
-      ['siblingCount', 'number', '1', 'Pagination', 'Pages drawn either side of the current one'],
-      ['boundaryCount', 'number', '1', 'Pagination', 'Pages drawn at each end of the row'],
+      ['siblingCount', 'number', '1', 'Pagination', 'Pages drawn either side of the current one.'],
+      ['boundaryCount', 'number', '1', 'Pagination', 'Pages drawn at each end of the row.'],
       [
         'itemHref',
         '(page: number) => string',
         '—',
         'Pagination',
-        'Turns every page and every trigger into an anchor with a real destination',
+        'Turns every page and every trigger into an anchor with a real destination.',
       ],
       [
         'messages',
         'Partial<PaginationMessages>',
         '—',
         'Pagination',
-        "Words laid over the language in force, key by key: the landmark's name (label), every control and both sentences",
+        "Words laid over the language in force, key by key: the landmark's name (label), every control and both sentences.",
       ],
       [
         'live',
         "'polite' | 'off'",
         'polite',
         'Pagination',
-        'Whether the range announces a page change',
+        'Whether the range announces a page change.',
       ],
       [
         'disabled',
         'boolean',
         'false',
         'Pagination',
-        'Takes every control away without taking the row out of the page',
+        'Takes every control away without taking the row out of the page.',
       ],
       [
         'loading',
         'boolean',
         'false',
         'Pagination',
-        'A page change in flight: every move is refused, the row keeps its size, and the root says aria-busy',
+        'A page change in flight: every move is refused, the row keeps its size, and the root says aria-busy.',
       ],
     ]),
     composition: apiRows([
@@ -348,7 +348,7 @@ export const REACT_PAGINATION_DOCS = {
         'every part',
         'Substitutes the rendered element. Every data attribute is handed to it, so a router link keeps them.',
       ],
-      ['ref', 'Ref<HTMLElement>', '—', 'every part', 'Reaches the element, and focus() with it'],
+      ['ref', 'Ref<HTMLElement>', '—', 'every part', 'Reaches the element, and focus() with it.'],
       [
         'onClick',
         'MouseEventHandler',
@@ -361,14 +361,14 @@ export const REACT_PAGINATION_DOCS = {
         '() => PaginationContextValue',
         '—',
         'inside a Pagination',
-        'goToPage, next, previous, setPageSize, and the arithmetic they came from: page, pages, range, items',
+        'goToPage, next, previous, setPageSize, and the arithmetic they came from: page, pages, range, items.',
       ],
       [
         'PaginationDefaultsProvider',
         'siblingCount | boundaryCount | defaultPageSize | pageSizeOptions | live',
         '—',
         'Application',
-        'Sets those five once for everything below it; a prop on the paginator still wins',
+        'Sets those five once for everything below it; a prop on the paginator still wins.',
       ],
     ]),
     accessibility: [
@@ -376,8 +376,8 @@ export const REACT_PAGINATION_DOCS = {
       'The range is a polite live region, and it is the only one: one region announcing one sentence is the whole of the announcement, so a page change is not read out twice.',
       'In link mode a trigger at a bound renders an anchor with no destination and aria-disabled, rather than a disabled anchor — there is no such thing, and one that kept its href would still navigate on a middle click.',
       'The page size is a native select wrapped by its own label, which gives the control its accessible name from the platform and needs no generated id; its popup follows the color scheme the theme already emits.',
-      'Below the family own breakpoint the numbered row gives way to the summary. Both are always in the DOM and exactly one is displayed, so nothing is announced twice — and the range is only hidden where a summary exists to replace it.',
-      'Focus stays on the control that was pressed. When pressing it makes it unavailable — Next on the second-to-last page — focus moves to the nearest control that survives, because losing focus to the body after activating a control is what the guide means by preserving position predictably.',
+      'Below 22rem of its own inline size the numbered row gives way to the summary. Both are always in the DOM and exactly one is displayed, so nothing is announced twice — and the range is only hidden where a summary exists to replace it.',
+      'Focus stays on the control that was pressed. When pressing it makes it unavailable — Next on the second-to-last page — focus moves to the nearest control that survives, because focus that falls to the body after a press discards the reader’s position.',
       'The figures are tabular and every cell is at least as wide as it is tall, so page 9 and page 8 942 are the same target and the row does not move under the pointer.',
     ],
     snippets: [
@@ -391,7 +391,7 @@ export const REACT_PAGINATION_DOCS = {
       defineSnippet({
         id: 'pagination-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning Pagination for an application',
         source:
           "[data-ui='pagination'] {\n  --slotted-pagination-target: 40px;\n  --slotted-pagination-item-gap: 0.25rem;\n  --slotted-pagination-radius: 9999px;\n}",
       }),
