@@ -52,15 +52,25 @@ const PARTS = process.env.PARITY_PARTS !== '0';
 const ONLY = process.env.PARITY_ONLY ?? '';
 
 /**
- * The one server-render difference the comparison admits. A toast region with
+ * The differences the comparison admits. A toast region with
  * `attach="portal"` belongs at the end of the document (toast contract,
  * `attach.portal`), which neither runtime can reach on the server: React's
  * `ToastRegion` draws it through `createPortal` once the client has a
  * container, so its server markup holds none, and `SlToastRegion` draws it in
  * its host until the browser moves it. The region is left out of both trees;
- * every other element, the region's own siblings included, is compared.
+ * every other element, the region's own siblings included, is compared. A
+ * loading overlay with `scope="page"` covers the document for the same reason:
+ * React's `LoadingOverlay` draws it through `createPortal` once the client
+ * has a layer, and `slLoadingOverlay` is the consumer's element, drawn where
+ * it was written. A closed floating panel is absent in React and `hidden` in
+ * Angular, whose `slFloatingPanel` is the consumer's element and stays in the
+ * document; neither draws it.
  */
-const SERVER_ONLY_DIFFERENCE = '[data-ui="toast"][data-attach="portal"]';
+const ADMITTED_DIFFERENCE = [
+  '[data-ui="toast"][data-attach="portal"]',
+  '[data-ui="loading-overlay"][data-scope="page"]',
+  '[data-ui="floating-panel"][hidden]',
+].join(', ');
 
 /** The `data-ui` tree of a fragment of markup, one line per element. */
 export function dataUiTree(html) {
@@ -71,7 +81,7 @@ export function dataUiTree(html) {
   }
   const lines = [];
   const walk = (element, depth) => {
-    if (element.matches(SERVER_ONLY_DIFFERENCE)) return;
+    if (element.matches(ADMITTED_DIFFERENCE)) return;
     let childDepth = depth;
     if (element.hasAttribute('data-ui') || (PARTS && element.hasAttribute('data-part'))) {
       const attributes = [...element.attributes]
