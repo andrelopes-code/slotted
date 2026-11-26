@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { SlButton } from '@slotted/angular/button';
 import { provideSlotted } from '@slotted/angular/i18n';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
 
@@ -270,5 +271,30 @@ describe('SlActionSheet', () => {
     sheet.close();
     await settle(fixture);
     expect(fixture.componentInstance.open()).toBe(false);
+  });
+});
+
+@Component({
+  standalone: true,
+  imports: [SlButton, ...SL_ACTION_SHEET],
+  template: `<button slButton [slActionSheetTrigger]="s">Share</button>
+    <sl-action-sheet #s="slActionSheet"></sl-action-sheet>`,
+})
+class ButtonTrigger {}
+
+/**
+ * On the library's button the element is the root of that family, which is
+ * what React's `ActionSheetTrigger render={<Button />}` renders.
+ */
+describe('SlActionSheetTrigger on the library button', () => {
+  it('leaves the button the root of its own family', () => {
+    TestBed.configureTestingModule({ imports: [ButtonTrigger] });
+    const fixture = TestBed.createComponent(ButtonTrigger);
+    fixture.detectChanges();
+
+    const control = fixture.nativeElement.querySelector('[data-ui="button"]') as HTMLElement;
+    expect(control.getAttribute('data-part')).toBe('root');
+    expect(control.getAttribute('aria-haspopup')).toBe('dialog');
+    fixture.destroy();
   });
 });

@@ -1,5 +1,6 @@
 import { createRovingTabindex } from '@slotted/core/focus';
 import type { RovingTabindexHandle } from '@slotted/core/focus';
+import { hostSelectorKey } from '@slotted/core/selector-key';
 import { createTypeahead, isPrintable } from '@slotted/core/typeahead';
 import {
   AfterContentChecked,
@@ -49,8 +50,7 @@ const uniqueId = (prefix: string) => `${prefix}-${(nextId += 1)}`;
   standalone: true,
   exportAs: 'slActionSheetTrigger',
   host: {
-    'data-part': 'trigger',
-    'data-part-trigger': '',
+    '[attr.data-part]': 'part',
     type: 'button',
     'aria-haspopup': 'dialog',
     '[attr.aria-expanded]': 'sheet().open()',
@@ -65,6 +65,18 @@ export class SlActionSheetTrigger implements OnInit, OnDestroy {
   readonly sheet = input.required<SlActionSheet>({ alias: 'slActionSheetTrigger' });
 
   private readonly native: HTMLElement = inject(ElementRef).nativeElement;
+
+  /**
+   * `trigger` names the control when it belongs to no family of its own. On
+   * `slButton` the element is that family's root, and the part stays `root`,
+   * as React's `render` keeps it by spreading the button's props last.
+   */
+  protected readonly part = hostSelectorKey(
+    this.native,
+    'part',
+    this.native.hasAttribute('data-ui') ? this.native.getAttribute('data-part') : 'trigger',
+  );
+
   protected readonly controls = computed(() =>
     this.sheet().mounted() ? this.sheet().panelId() : null,
   );
