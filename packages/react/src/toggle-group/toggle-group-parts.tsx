@@ -45,7 +45,7 @@ export function ToggleGroupItem({
   const pressed = group.holds(value);
   const resolvedDisabled = disabled ?? group.disabled;
 
-  const rootProps: ToggleGroupItemRootProps = keyedProps({
+  const rootProps: Omit<ToggleGroupItemRootProps, 'disabled' | 'ref' | 'type'> = keyedProps({
     ...nativeProps,
     'aria-pressed': pressed,
     children: (
@@ -55,11 +55,9 @@ export function ToggleGroupItem({
             {icon}
           </span>
         )}
-        {children === undefined ? null : (
-          <span data-part="label" data-part-label="">
-            {children}
-          </span>
-        )}
+        <span data-part="label" data-part-label="">
+          {children}
+        </span>
       </>
     ),
     className,
@@ -77,6 +75,6 @@ export function ToggleGroupItem({
   return render === undefined ? (
     <button {...rootProps} disabled={resolvedDisabled} ref={ref} type={type ?? 'button'} />
   ) : (
-    render(rootProps)
+    render({ ...rootProps, disabled: resolvedDisabled, ref, type: type ?? 'button' })
   );
 }

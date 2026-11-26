@@ -161,7 +161,8 @@ describe('Toggle', () => {
     render(<Toggle aria-label="Bold" icon={<svg />} />);
 
     expect(control()).toHaveAccessibleName('Bold');
-    expect(control().querySelector('[data-part="label"]')).toBeNull();
+    /* An empty label box, as Angular projects it: the stylesheet reads it as no words. */
+    expect(control().querySelector('[data-part="label"]')).toBeEmptyDOMElement();
   });
 
   it('reaches the native element and passes native attributes through', () => {
@@ -186,6 +187,15 @@ describe('Toggle', () => {
     expect(own).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(own);
     expect(own).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('hands render the type, the disabled state and the ref it gives its own button', () => {
+    const ref = createRef<HTMLButtonElement>();
+    render(<Toggle disabled ref={ref} render={(props) => <button {...props} />} />);
+
+    expect(control()).toHaveAttribute('type', 'button');
+    expect(control()).toBeDisabled();
+    expect(ref.current).toBe(control());
   });
 
   /** Inside a bar the toggle is one of its controls: the bar owns the tab stop. */

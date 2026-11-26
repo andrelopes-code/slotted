@@ -297,6 +297,21 @@ describe('ToggleGroup', () => {
     expect(root).toHaveAttribute('data-ui', contract.ui);
   });
 
+  it('hands an item render the type, the disabled state and the ref', () => {
+    const ref = createRef<HTMLButtonElement>();
+    render(
+      <ToggleGroup aria-label="Text style">
+        <ToggleGroupItem disabled ref={ref} render={(props) => <button {...props} />} value="b">
+          Bold
+        </ToggleGroupItem>
+      </ToggleGroup>,
+    );
+
+    expect(item(0)).toHaveAttribute('type', 'button');
+    expect(item(0)).toBeDisabled();
+    expect(ref.current).toBe(item(0));
+  });
+
   it('draws the mark an item was given, hidden from the reading order', () => {
     render(
       <ToggleGroup aria-label="Text style">
@@ -308,6 +323,8 @@ describe('ToggleGroup', () => {
     expect(mark).toHaveAttribute('data-part', 'icon');
     expect(mark).toHaveAttribute('aria-hidden', 'true');
     expect(item(0)).toHaveAccessibleName('Bold');
+    /* An empty label box, as Angular projects it: the stylesheet reads it as no words. */
+    expect(item(0).querySelector('[data-part="label"]')).toBeEmptyDOMElement();
   });
 
   it('keeps a controlled value the consumer moves', () => {

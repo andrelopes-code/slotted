@@ -206,3 +206,12 @@ test('states no distance between joined items and one between separated ones', (
   assert.match(dense, /\[data-part-root\]:not\(\[data-attached\]\)\{gap:var\(--_separation\)/);
   assert.match(dense, /--_separation:calc\(var\(--_gap\)\*2\)/);
 });
+
+/** An empty label box is no words: the Angular item projects into one it always renders. */
+test('draws an item whose label box is empty as a square', () => {
+  assert.match(
+    dense,
+    /\[data-part-item\]:not\(:has\(\[data-part-label\]:not\(:empty\)\)\)\{padding-inline:0/,
+  );
+  assert.match(dense, /\[data-part-label\]:empty\{display:none/);
+});

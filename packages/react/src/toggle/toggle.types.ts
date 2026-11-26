@@ -1,5 +1,5 @@
 import type { ChangeRequest } from '@slotted/core/state';
-import type { ComponentPropsWithRef, HTMLAttributes, ReactNode } from 'react';
+import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref } from 'react';
 
 /** The type step the control sits at. */
 export type ToggleSize = 'sm' | 'md' | 'lg';
@@ -46,6 +46,9 @@ export interface ToggleRootProps extends HTMLAttributes<HTMLElement> {
   'data-size': ToggleSize;
   'data-ui': string;
   'data-variant': ToggleVariant;
+  disabled: boolean | undefined;
+  ref: Ref<HTMLButtonElement> | undefined;
+  type: 'button' | 'submit' | 'reset';
 }
 
 export interface ToggleProps extends Omit<

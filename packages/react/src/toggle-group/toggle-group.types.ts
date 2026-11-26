@@ -1,5 +1,5 @@
 import type { ChangeRequest } from '@slotted/core/state';
-import type { ComponentPropsWithRef, HTMLAttributes, ReactNode } from 'react';
+import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref } from 'react';
 
 /** The type step the group and every item inside it sit at. */
 export type ToggleGroupSize = 'sm' | 'md' | 'lg';
@@ -74,6 +74,9 @@ export interface ToggleGroupItemRootProps extends HTMLAttributes<HTMLElement> {
   'data-disabled'?: '' | undefined;
   'data-part': string;
   'data-pressed'?: '' | undefined;
+  disabled: boolean | undefined;
+  ref: Ref<HTMLButtonElement> | undefined;
+  type: 'button' | 'submit' | 'reset';
 }
 
 export interface ToggleGroupProps extends Omit<ComponentPropsWithRef<'div'>, 'defaultValue'> {

@@ -174,10 +174,15 @@
 
   /**
    * An item with no words is a square holding one mark, so its inline padding
-   * is whatever centers that mark rather than the padding a label needs.
+   * is whatever centers that mark rather than the padding a label needs. An
+   * empty label box counts as no words, and holds no gap open.
    */
-  [data-ui-toggle-group] [data-part-item]:not(:has([data-part-label])) {
+  [data-ui-toggle-group] [data-part-item]:not(:has([data-part-label]:not(:empty))) {
     padding-inline: 0;
+  }
+
+  [data-ui-toggle-group] [data-part-label]:empty {
+    display: none;
   }
 
   [data-ui-toggle-group] [data-part-icon] {

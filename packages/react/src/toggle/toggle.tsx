@@ -56,7 +56,7 @@ export function Toggle({
     onRequest: (request) => onPressedChange?.(request.value, request as never),
   });
 
-  const rootProps: ToggleRootProps = keyedProps({
+  const rootProps: Omit<ToggleRootProps, 'disabled' | 'ref' | 'type'> = keyedProps({
     ...nativeProps,
     'aria-pressed': state.value,
     children: (
@@ -66,11 +66,9 @@ export function Toggle({
             {icon}
           </span>
         )}
-        {children === undefined ? null : (
-          <span data-part="label" data-part-label="">
-            {children}
-          </span>
-        )}
+        <span data-part="label" data-part-label="">
+          {children}
+        </span>
       </>
     ),
     className,
@@ -94,6 +92,6 @@ export function Toggle({
   return render === undefined ? (
     <button {...rootProps} disabled={disabled} ref={ref} type={type} />
   ) : (
-    render(rootProps)
+    render({ ...rootProps, disabled, ref, type })
   );
 }
