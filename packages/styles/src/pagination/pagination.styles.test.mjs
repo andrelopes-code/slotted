@@ -175,3 +175,11 @@ test('keeps the chevrons through forced colors without naming a system color', (
     );
   }
 });
+
+/** An anchor in link mode is content-box by default; a button is border-box. */
+test('sizes a link and a button to the same box', () => {
+  assert.match(
+    normalized,
+    /\[data-part-last\]\)\{align-items:center;appearance:none;background-color:transparent;block-size:var\(--_target\);border:[^;]+;border-radius:var\(--_radius\);box-sizing:border-box;/,
+  );
+});
