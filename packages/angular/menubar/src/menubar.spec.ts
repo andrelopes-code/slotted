@@ -10,7 +10,7 @@ import { SlMenubar } from './menubar';
   standalone: true,
   imports: [SlMenu, SlMenuItem, SlMenuTrigger, SlMenubar],
   template: `
-    <sl-menubar aria-label="Main" [orientation]="orientation()">
+    <sl-menubar aria-label="Main" [orientation]="orientation()" [disabled]="disabled()">
       <button [slMenuTriggerFor]="file">File</button>
       <sl-menu #file value="file">
         <button slMenuItem>New</button>
@@ -30,6 +30,7 @@ import { SlMenubar } from './menubar';
 })
 class Host {
   readonly orientation = signal<'horizontal' | 'vertical' | undefined>(undefined);
+  readonly disabled = signal<boolean | undefined>(undefined);
 }
 
 const triggers = () => [...document.querySelectorAll<HTMLElement>("[data-part='trigger']")];
@@ -159,5 +160,21 @@ describe('SlMenubar', () => {
     press('v');
 
     expect(document.activeElement).toBe(trigger('View'));
+  });
+
+  it('marks every trigger of a disabled bar disabled, and opens none', async () => {
+    fixture.componentInstance.disabled.set(true);
+    await settle();
+
+    expect(triggers().map((node) => node.getAttribute('aria-disabled'))).toEqual([
+      'true',
+      'true',
+      'true',
+    ]);
+
+    click(trigger('File'));
+    await settle();
+
+    expect(trigger('File').getAttribute('aria-expanded')).toBe('false');
   });
 });
