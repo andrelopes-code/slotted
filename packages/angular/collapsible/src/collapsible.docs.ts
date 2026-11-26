@@ -25,7 +25,7 @@ export const ANGULAR_COLLAPSIBLE_TOKENS = collapsibleTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import { SlCollapsible, SlCollapsibleActions, SlCollapsibleContent, SlCollapsibleHeader, SlCollapsiblePanel, SlCollapsibleTrigger } from '@slotted/angular/collapsible';",
+    "import { provideCollapsibleDefaults, SlCollapsible, SlCollapsibleActions, SlCollapsibleContent, SlCollapsibleHeader, SlCollapsibleMore, SlCollapsiblePanel, SlCollapsibleTrigger } from '@slotted/angular/collapsible';",
   selector:
     '[slCollapsible], [slCollapsibleHeader], button[slCollapsibleTrigger], [slCollapsibleActions], [slCollapsiblePanel], ng-template[slCollapsibleContent]',
   exportAs: 'slCollapsible, slCollapsibleHeader, slCollapsibleTrigger, slCollapsiblePanel',
@@ -37,7 +37,7 @@ const anatomy: AnatomyRow[] = [
     element: 'the element carrying slCollapsible',
     required: true,
     purpose:
-      'The family. A two-column, two-row grid carrying data-ui="collapsible", the six axes, data-open, data-disabled, data-loading and data-value. It is also its own container, so the header reflows on its own inline size rather than the viewport’s.',
+      'The root. A two-column, two-row grid carrying data-ui="collapsible", data-size, data-variant, data-indicator, data-toggle-placement, data-mount, data-truncate, data-open, data-disabled, data-loading, data-peek and data-value. It is also its own container, so the header reflows on its own inline size rather than the viewport’s.',
   },
   {
     part: 'header',
@@ -51,7 +51,7 @@ const anatomy: AnatomyRow[] = [
     element: 'button[slCollapsibleTrigger]',
     required: true,
     purpose:
-      'The control. Holds aria-expanded, aria-controls, the identifier, and every native attribute the consumer wrote on the button. Enter and Space are the platform’s, so the family binds no key of its own.',
+      'The control. Holds aria-expanded, aria-controls, the identifier, and every native attribute the consumer wrote on the button. Enter and Space are the platform’s, so SlCollapsible binds no key of its own.',
   },
   {
     part: 'indicator',
@@ -107,7 +107,7 @@ const anatomy: AnatomyRow[] = [
     element: 'button',
     required: false,
     purpose:
-      'The control at the end of a peeking panel, past the fade and --slotted-collapsible-more-overlap over the panel, where the content is masked whole; a Button takes its place. Present only while the panel is closed and peek is set, it opens the panel and names it through aria-controls, as the header trigger does.',
+      'The control that opens a peeking panel, placed after the panel and drawn over its fade. It exists only while the panel is closed and peek is set. It opens the panel and names it through aria-controls, as the trigger does.',
   },
 ];
 
@@ -195,12 +195,12 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'description',
     title: 'A summary that stays visible',
-    note: 'The second line is inside the trigger and therefore inside the accessible name, which is what the pattern means by a snippet of the hidden content staying visible.',
+    note: 'The second line is inside the trigger and therefore inside the accessible name, which makes it part of what a screen reader announces for the control.',
     snippet: defineSnippet({
       id: 'collapsible-angular-description',
       language: 'angular',
       label: 'Title and summary in one control',
-      source: `<button slCollapsibleTrigger description="2 regras ativas">Regras de frete</button>`,
+      source: `<button slCollapsibleTrigger description="2 active rules">Shipping rules</button>`,
     }),
   },
   {
@@ -213,7 +213,7 @@ const scenes: ReferenceSceneMeta[] = [
       label: 'A toolbar on the header’s row',
       source: `<div slCollapsible variant="framed" [open]="true">
   <h3 slCollapsibleHeader>
-    <button slCollapsibleTrigger>Regras de frete</button>
+    <button slCollapsibleTrigger>Shipping rules</button>
   </h3>
   <div slCollapsibleActions>
     <div slToolbar aria-label="Rule actions" size="sm">
@@ -244,7 +244,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'states',
-    title: 'Every state the family paints',
+    title: 'Every state it paints',
     note: 'Hover lays a wash under the row and press goes one step further; disabled answers neither, because the browser has already taken the control out of action; loading holds the box open and says so.',
     snippet: defineSnippet({
       id: 'collapsible-angular-states',
@@ -262,7 +262,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'content',
-    title: 'Content the family did not choose',
+    title: 'Content the component did not choose',
     note: 'A long title grows the row instead of pushing the mark off the line, truncate clips it to one line with the whole string still in the DOM, and a title in another script reads its own way.',
     snippet: defineSnippet({
       id: 'collapsible-angular-content',
@@ -279,11 +279,11 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'Setting it once, and reaching past it',
-    note: 'provideCollapsibleDefaults carries the seven decisions an application takes once, exportAs reaches the instance, and a disclosure nests inside another’s panel without the outer one opening it.',
+    note: 'provideCollapsibleDefaults carries the decisions an application takes once, exportAs reaches the instance, and a disclosure nests inside another’s panel without the outer one opening it.',
     snippet: defineSnippet({
       id: 'collapsible-angular-composition',
       language: 'ts',
-      label: 'Seven decisions, taken once',
+      label: 'Decisions taken once',
       source: `bootstrapApplication(App, {
   providers: [provideCollapsibleDefaults({ variant: 'framed', size: 'sm' })],
 });`,
@@ -337,105 +337,105 @@ export const ANGULAR_COLLAPSIBLE_DOCS = {
         'model<boolean>',
         'false',
         'slCollapsible',
-        'Whether the panel is open. A model, so [(open)] is both the value and the write-back — the initial value is the uncontrolled start and a bound signal is the controlled one. Inside an slAccordion the set owns it instead',
+        'Whether the panel is open. A model, so [(open)] is both the value and the write-back — the initial value is the uncontrolled start and a bound signal is the controlled one. Inside an slAccordion the set owns it instead.',
       ],
       [
         'size',
         "'sm' | 'md' | 'lg'",
         'md',
         'slCollapsible, slAccordion, provideCollapsibleDefaults',
-        'The step the header sits at. The title comes from the type scale and everything geometric from the control scales, so a density changes the rhythm rather than the reading size',
+        'The step the header sits at. The title comes from the type scale and everything geometric from the control scales, so a density changes the rhythm rather than the reading size.',
       ],
       [
         'variant',
         "'plain' | 'ruled' | 'framed'",
         'plain',
         'slCollapsible, provideCollapsibleDefaults',
-        'plain paints no chrome, ruled draws a hairline above the header so a stack reads as one list, and framed is its own card. An slAccordion hands its items the one its own variant maps onto',
+        'plain paints no chrome, ruled draws a hairline above the header so a stack reads as one list, and framed is its own card. An slAccordion hands its items the one its own variant maps onto.',
       ],
       [
         'indicator',
         "'chevron' | 'plus-minus' | 'none'",
         'chevron',
         'slCollapsible, slAccordion, provideCollapsibleDefaults',
-        'The mark, drawn from a glyph token. The chevron turns between down and up rather than pointing along the inline axis, so nothing is mirrored for a right-to-left document',
+        'The mark, drawn from a glyph token. The chevron turns between down and up rather than pointing along the inline axis, so nothing is mirrored for a right-to-left document.',
       ],
       [
         'togglePlacement',
         "'end' | 'start'",
         'end',
         'slCollapsible, slAccordion, provideCollapsibleDefaults',
-        'Which side of the words the mark stands on. With it at the start the panel’s content is indented to line up with the title rather than with the mark',
+        'Which side of the words the mark stands on. With it at the start the panel’s content is indented to line up with the title rather than with the mark.',
       ],
       [
         'level',
         "'none' | '1' | '2' | '3' | '4' | '5' | '6'",
         'none',
         'slCollapsible, provideCollapsibleDefaults',
-        'The heading level the header answers to. A native heading element is left alone; anything else is given role="heading" and this level. none writes no heading semantics at all',
+        'The heading level the header answers to. A native heading element is left alone; anything else is given role="heading" and this level. none writes no heading semantics at all.',
       ],
       [
         'mount',
         "'active' | 'lazy' | 'eager' | 'until-found'",
         'eager',
         'slCollapsible, slAccordion, provideCollapsibleDefaults',
-        'When the panel’s content exists. The box always does, so aria-controls never names an element that is gone. lazy needs an ng-template[slCollapsibleContent], because projected content is built whether or not it is inserted',
+        'When the panel’s content exists. The box always does, so aria-controls never names an element that is gone. lazy needs an ng-template[slCollapsibleContent], because projected content is built whether or not it is inserted.',
       ],
       [
         'peek',
         'string',
         '—',
         'slCollapsible, provideCollapsibleDefaults',
-        'A length (9rem): a closed panel keeps that block size of its content in view under a fade, stays inert, and animates to its full size with the same durations; forced colors drop the fade and keep the clip. The panel carries data-state="peek", and mount is forced to eager',
+        'A length (9rem): a closed panel keeps that block size of its content in view under a fade, stays inert, and animates to its full size with the same durations; forced colors drop the fade and keep the clip. The panel carries data-state="peek", and mount is forced to eager.',
       ],
       [
         'truncate',
         'boolean',
         'false',
         'slCollapsible, slAccordion, provideCollapsibleDefaults',
-        'Clips the title to one line instead of letting the row grow. The whole string stays in the DOM, which the library decided once for every family',
+        'Clips the title to one line instead of letting the row grow. The whole string stays in the DOM, which holds for every component.',
       ],
       [
         'region',
         'boolean',
         'false',
         'slCollapsible',
-        'Makes the panel a region landmark. Off by default, because the pattern’s own example warns that a landmark per panel fills the landmark list',
+        'Makes the panel a region landmark. Off by default, because the pattern’s own example warns that a landmark per panel fills the landmark list.',
       ],
       [
         'disabled',
         'boolean',
         'false',
         'slCollapsible',
-        'Reaches the trigger as the native attribute, which is also what stops the press. Unstated rather than false, so the disclosure defers to the slAccordion around it',
+        'Reaches the trigger as the native attribute, which is also what stops the press. Unstated rather than false, so the disclosure defers to the slAccordion around it.',
       ],
       [
         'loading',
         'boolean',
         'false',
         'slCollapsible',
-        'The panel keeps a line’s height and carries aria-busy; what stands in for the content is slSkeleton, composed by the consumer',
+        'The panel keeps a line’s height and carries aria-busy; what stands in for the content is slSkeleton, composed by the consumer.',
       ],
       [
         'value',
         'string',
         'from SlCollapsibleIdFactory',
         'slCollapsible',
-        'What this disclosure is called inside an slAccordion. It is identity rather than state, and it reaches the DOM as data-value',
+        'What this disclosure is called inside an slAccordion. It is identity rather than state, and it reaches the DOM as data-value.',
       ],
       [
         'summary',
         'string',
         '—',
         'slCollapsibleTrigger',
-        'What the disclosure holds, at the end of the title line and before the mark, cut with an ellipsis; inside the trigger and therefore inside its accessible name',
+        'What the disclosure holds, at the end of the title line and before the mark, cut with an ellipsis; inside the trigger and therefore inside its accessible name.',
       ],
       [
         'description',
         'string',
         '—',
         'slCollapsibleTrigger',
-        'A second line under the title, inside the trigger and therefore inside its accessible name',
+        'A second line under the title, inside the trigger and therefore inside its accessible name.',
       ],
     ]),
     composition: apiRows([
@@ -444,37 +444,37 @@ export const ANGULAR_COLLAPSIBLE_DOCS = {
         "'slCollapsible' | 'slCollapsibleHeader' | 'slCollapsibleTrigger' | 'slCollapsiblePanel'",
         '—',
         'every part',
-        'Reaches the instance from the template: #panel="slCollapsible" gives isOpen(), toggle(next, reason) and the resolved axes without a component class in between',
+        'Reaches the instance from the template: #panel="slCollapsible" gives isOpen(), toggle(next, reason) and the resolved axes without a component class in between.',
       ],
       [
         'slCollapsibleContent',
         'ng-template',
         '—',
         'inside slCollapsiblePanel',
-        'Content built the first time the panel opens. ng-content is instantiated whether or not it is inserted, so lazy needs a template — which is Angular Material’s own matExpansionPanelContent',
+        'Content built the first time the panel opens. ng-content is instantiated whether or not it is inserted, so lazy needs a template — which is Angular Material’s own matExpansionPanelContent.',
       ],
       [
         'provideCollapsibleDefaults',
         '(defaults: Partial<CollapsibleDefaults>) => Provider',
         '—',
         'an injector',
-        'The seven decisions an application takes once. An slAccordion sits between it and the item, and a disclosure that states any of them itself still wins',
+        'The decisions an application takes once: size, variant, indicator, togglePlacement, level, mount, peek and truncate. An slAccordion sits between it and the item, and a disclosure that states any of them itself still wins.',
       ],
       [
         'the element each directive is on',
         'any',
         '—',
         'slCollapsible, slCollapsibleHeader, slCollapsibleActions, slCollapsiblePanel',
-        'Every part but the trigger attaches to the consumer’s own element, so a disclosure can be a section and a heading can be an h2 without a render prop existing',
+        'Every part but the trigger attaches to the consumer’s own element, so a disclosure can be a section and a heading can be an h2 without a render prop existing.',
       ],
     ]),
     accessibility: [
-      'The pattern is the WAI-ARIA APG’s Disclosure (w3.org/WAI/ARIA/apg/patterns/disclosure/), and inside an slAccordion it answers the Accordion pattern as well. Its whole keyboard table is the platform’s: the trigger is a button, so Enter and Space toggle without the family binding a key, and Tab reaches it like any other control — the pattern requires every focusable element in an accordion to be in the page tab sequence, which is why nothing here writes tabindex.',
+      'The pattern is the WAI-ARIA APG’s Disclosure (w3.org/WAI/ARIA/apg/patterns/disclosure/), and inside an slAccordion it answers the Accordion pattern as well. Its whole keyboard table is the platform’s: the trigger is a button, so Enter and Space toggle without SlCollapsible binding a key, and Tab reaches it like any other control — the pattern requires every focusable element in an accordion to be in the page tab sequence, which is why nothing here writes tabindex.',
       'The trigger carries aria-expanded and aria-controls; the panel carries aria-labelledby pointing back. Both identifiers come from an application-scoped factory, so two applications rendering in one server process do not collide and the server and client sequences match. The panel’s box is never removed — mount drops its content, not the box — because aria-controls naming an element that is not there is a reference a screen reader has to make sense of.',
       'The heading is the element the consumer wrote. A native h1 to h6 is left exactly as it is; anything else is given role="heading" and the resolved aria-level, which the pattern names as the alternative to a native element. React reads the element off level instead, because there the component owns the tag; both reach the same accessibility tree.',
-      'A closed panel is out of the tab sequence and out of the accessibility tree twice over: the stylesheet with content-visibility, and the directive with inert, so a browser without the property still cannot put focus inside it. Under mount="until-found" neither applies: hidden="until-found" is what lets the browser’s page search reach the text and open the panel, and beforematch is what tells the family to.',
+      'A closed panel is out of the tab sequence and out of the accessibility tree twice over: the stylesheet with content-visibility, and the directive with inert, so a browser without the property still cannot put focus inside it. Under mount="until-found" neither applies: hidden="until-found" is what lets the browser’s page search reach the text and open the panel, and beforematch is what tells SlCollapsible to open.',
       'aria-disabled appears on the trigger only when an slAccordion refuses to let this panel close. That is the pattern’s own instruction for a set that requires one panel to stay open, and it leaves the control focusable and announced rather than removing it from the reader’s path.',
-      'The element is a button and a region rather than details and summary. What that costs is written down: a page with JavaScript disabled cannot open a panel. What it buys is the accordion pattern — a summary cannot be wrapped in a heading — a value a template can bind, a request that carries a reason, and a panel that animates without interpolate-size.',
+      'The trigger is a button and the panel a div, rather than details and summary. What that costs is written down: a page with JavaScript disabled cannot open a panel. What it buys is the accordion pattern — a summary cannot be wrapped in a heading — a value a template can bind, a request that carries a reason, and a panel that animates without interpolate-size.',
     ],
     snippets: [
       defineSnippet({
@@ -508,7 +508,7 @@ export const ANGULAR_COLLAPSIBLE_DOCS = {
       defineSnippet({
         id: 'collapsible-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning Collapsible for an application',
         source: `[data-ui='collapsible'] {
   --slotted-collapsible-rule-color: var(--slotted-border-strong);
   --slotted-collapsible-hover-background: var(--slotted-tone-accent-surface);

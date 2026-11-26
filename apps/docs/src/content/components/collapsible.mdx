@@ -1,0 +1,89 @@
+---
+title: Collapsible
+description: One region whose content shows or hides, behind a header the reader operates.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Header and panel
+
+A collapsible is a header and the panel it controls. The trigger is a `button` inside the header, so `Enter` and `Space` toggle the panel and focus stays on the trigger. Every trigger, every control in the actions slot and every control inside an open panel is in the page tab sequence: nothing writes `tabindex`. A closed panel is out of the tab sequence and out of the accessibility tree. The trigger carries `aria-expanded` and `aria-controls`, and the panel carries `aria-labelledby`.
+
+The panel opens without being measured: its height transitions between `0fr` and `1fr`, so the content sets it at every frame. In React, `defaultOpen` sets the starting state. In Angular, the `open` input does, and it is also the two-way binding described under Controlled.
+
+## Variants
+
+`variant` sets the chrome. `plain` draws none, `ruled` draws a hairline above the header so a stack of collapsibles reads as one list, and `framed` draws a card. The three share one geometry, so changing the variant moves nothing.
+
+<Example name="variant" />
+
+## Sizes
+
+`size` sets the header at one step: `sm` for dense panels, `md` for most pages, `lg` for sparse ones. The title follows the type scale, and the height, padding, gap and indicator follow the control scales, so a dense page is tighter rather than smaller.
+
+<Example name="sizes" />
+
+## Indicator and placement
+
+`indicator` picks the mark: a `chevron` that turns between down and up, a `plus-minus` that swaps one bar for the pair, or `none` for a header whose state `aria-expanded` and the panel already tell. `togglePlacement="start"` puts the mark before the title and indents the panel content to line up with the title. The default, `end`, puts the mark after the words.
+
+<Example name="indicator" />
+
+## Headings and landmarks
+
+`level` wraps the trigger in a heading from `1` to `6`, so a screen reader's heading list holds the collapsible at its depth. The default, `none`, writes no heading semantics, for a collapsible that belongs to no outline. In React, `level` renders the element. In Angular, the header is the element the template writes: a native `h1` to `h6` is left as it is, and any other element receives `role="heading"` and the resolved `aria-level`. A collapsible nests inside another one's panel without the outer one opening it.
+
+`region` makes the panel a `region` landmark, named by its trigger. It is off by default because a landmark per panel fills the landmark list: use it for the two or three collapsibles a reader navigates to directly.
+
+<Example name="heading" />
+
+## Title, summary and description
+
+`description` is a second line under the title. `summary` stands at the end of the title line, before the indicator, on one line cut with an ellipsis. Both sit inside the trigger, so a screen reader announces them with the title. `truncate` clips a title to one line, with the whole string still in the DOM. Without it, a long title grows the row instead of pushing the indicator off the line.
+
+<Example name="details" />
+
+## Actions beside the header
+
+`CollapsibleActions` in React and `slCollapsibleActions` in Angular hold controls that stay visible whether the panel is open or closed. The slot is a sibling of the header, not a child, because the pattern requires the trigger to be the only element inside the heading and a control cannot sit inside a `button`. Put a toolbar in it so the actions take one tab stop. Below 22rem the slot moves to a row of its own.
+
+<Example name="actions" wide />
+
+## When the content exists
+
+`mount` decides when the panel's content is built. The panel element always exists, so `aria-controls` never names an element that is gone.
+
+- `active` builds the content on opening and drops it on closing, so closing is instant and the content loses its state.
+- `lazy` builds it on the first opening and keeps it.
+- `eager`, the default, builds it from the start, which is what lets the panel transition closed.
+- `until-found` builds it from the start and writes `hidden="until-found"` while closed, so the browser's find-in-page opens the panel when the text matches.
+
+Type in each note, close the panel and open it again: the first note is cleared and the other two are kept. To try `until-found`, search the page for "Anna Rivers" with the browser's find command. In Angular, `active` and `lazy` need the content inside an `ng-template` marked `slCollapsibleContent`, because projected content is built whether or not it is inserted.
+
+<Example name="mount" />
+
+## Peek
+
+`peek` takes a length. A closed panel then keeps that block size of its content in view under a fade, and stays inert. It animates to its full size on opening. `CollapsibleMore` in React and `slCollapsibleMore` in Angular draw the control that opens the panel, after the panel, over the fade. The control exists only while the panel is closed and `peek` is set. A peeking panel always mounts its content, whatever `mount` says.
+
+<Example name="peek" />
+
+## States
+
+`disabled` writes the native `disabled` attribute on the trigger, so the header answers neither the pointer nor the keyboard. The panel keeps its current state. `loading` marks the panel with `aria-busy` and keeps it at least one line tall. The content that stands in for the missing data is the consumer's: here, a text skeleton in the shape of the history it will hold.
+
+<Example name="states" />
+
+## Controlled
+
+Pass `open` to own the state. In React, `onOpenChange` receives the new value and a request with the reason (`pointer`, `keyboard`, `select` or `programmatic`), and the panel moves only when `open` changes. In Angular, `[(open)]` keeps a signal in step with the panel, and `openChangeRequest` emits the same request before the panel moves. The buttons above the panel set the state without a request, so the reason reads the last request from the trigger.
+
+<Example name="controlled" wide />
+
+## Defaults for an application
+
+`CollapsibleDefaultsProvider` in React and `provideCollapsibleDefaults` in Angular set `size`, `variant`, `indicator`, `togglePlacement`, `level`, `mount`, `peek` and `truncate` once for everything under them. A collapsible that states a value of its own keeps it, as the last one does here.
+
+<Example name="defaults" />

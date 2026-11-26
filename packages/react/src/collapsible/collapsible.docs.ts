@@ -25,7 +25,7 @@ export const REACT_COLLAPSIBLE_TOKENS = collapsibleTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import { Collapsible, CollapsibleActions, CollapsibleDefaultsProvider, CollapsibleHeader, CollapsiblePanel, CollapsibleTrigger } from '@slotted/react';",
+    "import { Collapsible, CollapsibleActions, CollapsibleDefaultsProvider, CollapsibleHeader, CollapsibleMore, CollapsiblePanel, CollapsibleTrigger } from '@slotted/react';",
 };
 
 const anatomy: AnatomyRow[] = [
@@ -34,7 +34,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div, or the element render returns',
     required: true,
     purpose:
-      'The family. A two-column, two-row grid carrying data-ui="collapsible", the six axes, data-open, data-disabled, data-loading and data-value. It is also its own container, so the header reflows on its own inline size rather than the viewport’s.',
+      'The root. A two-column, two-row grid carrying data-ui="collapsible", data-size, data-variant, data-indicator, data-toggle-placement, data-mount, data-truncate, data-open, data-disabled, data-loading, data-peek and data-value. It is also its own container, so the header reflows on its own inline size rather than the viewport’s.',
   },
   {
     part: 'header',
@@ -48,7 +48,7 @@ const anatomy: AnatomyRow[] = [
     element: 'button',
     required: true,
     purpose:
-      'The control. Holds aria-expanded, aria-controls, the identifier, and every native prop and ref the consumer wrote. Enter and Space are the platform’s, so the family binds no key of its own.',
+      'The control. Holds aria-expanded, aria-controls, the identifier, and every native prop and ref the consumer wrote. Enter and Space are the platform’s, so Collapsible binds no key of its own.',
   },
   {
     part: 'indicator',
@@ -104,7 +104,7 @@ const anatomy: AnatomyRow[] = [
     element: 'button',
     required: false,
     purpose:
-      'The control at the end of a peeking panel, past the fade and --slotted-collapsible-more-overlap over the panel, where the content is masked whole; a Button takes its place. Present only while the panel is closed and peek is set, it opens the panel and names it through aria-controls, as the header trigger does.',
+      'The control that opens a peeking panel, placed after the panel and drawn over its fade. It exists only while the panel is closed and peek is set. It opens the panel and names it through aria-controls, as the trigger does. render replaces it, with a Button for example.',
   },
 ];
 
@@ -192,12 +192,12 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'description',
     title: 'A summary that stays visible',
-    note: 'The second line is inside the trigger and therefore inside the accessible name, which is what the pattern means by a snippet of the hidden content staying visible.',
+    note: 'The second line is inside the trigger and therefore inside the accessible name, which makes it part of what a screen reader announces for the control.',
     snippet: defineSnippet({
       id: 'collapsible-react-description',
       language: 'tsx',
       label: 'Title and summary in one control',
-      source: `<CollapsibleTrigger description="2 regras ativas">Regras de frete</CollapsibleTrigger>;`,
+      source: `<CollapsibleTrigger description="2 active rules">Shipping rules</CollapsibleTrigger>;`,
     }),
   },
   {
@@ -210,7 +210,7 @@ const scenes: ReferenceSceneMeta[] = [
       label: 'A toolbar on the header’s row',
       source: `<Collapsible variant="framed" defaultOpen>
   <CollapsibleHeader>
-    <CollapsibleTrigger>Regras de frete</CollapsibleTrigger>
+    <CollapsibleTrigger>Shipping rules</CollapsibleTrigger>
   </CollapsibleHeader>
   <CollapsibleActions>
     <Toolbar aria-label="Rule actions" size="sm">
@@ -226,7 +226,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'mount',
     title: 'When the content exists',
-    note: 'eager builds it up front so the panel can transition closed, lazy builds it on the first open, active drops it each time, and until-found lets the browser’s own page search open the panel. A closed item under active commits once and reads no layout and no computed style; it creates no observer and no portal. Fifty closed items inside an Accordion, measured in Chrome: 7 ms of script and 23 ms to layout with a production build of React, 46 ms of script and 83 ms to layout with its development build.',
+    note: 'eager builds it up front so the panel can transition closed, lazy builds it on the first open, active drops it each time, and until-found lets the browser’s own page search open the panel. A closed item under active commits once and reads no layout and no computed style; it creates no observer and no portal.',
     snippet: defineSnippet({
       id: 'collapsible-react-mount',
       language: 'tsx',
@@ -241,7 +241,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'states',
-    title: 'Every state the family paints',
+    title: 'Every state it paints',
     note: 'Hover lays a wash under the row and press goes one step further; disabled answers neither, because the browser has already taken the control out of action; loading holds the box open and says so.',
     snippet: defineSnippet({
       id: 'collapsible-react-states',
@@ -259,7 +259,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'content',
-    title: 'Content the family did not choose',
+    title: 'Content the component did not choose',
     note: 'A long title grows the row instead of pushing the mark off the line, truncate clips it to one line with the whole string still in the DOM, and a title in another script reads its own way.',
     snippet: defineSnippet({
       id: 'collapsible-react-content',
@@ -276,11 +276,11 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'Setting it once, and reaching past it',
-    note: 'The provider carries the seven decisions an application takes once, render substitutes every root, and a disclosure nests inside another’s panel without the outer one opening it.',
+    note: 'CollapsibleDefaultsProvider carries the decisions an application takes once, render substitutes every root, and a disclosure nests inside another’s panel without the outer one opening it.',
     snippet: defineSnippet({
       id: 'collapsible-react-composition',
       language: 'tsx',
-      label: 'Seven decisions, taken once',
+      label: 'Decisions taken once',
       source: `<CollapsibleDefaultsProvider variant="framed" size="sm">
   <Collapsible>…</Collapsible>
 </CollapsibleDefaultsProvider>;`,
@@ -313,7 +313,7 @@ const events: EventRow[] = [
   {
     name: 'onClick, onFocus, onKeyDown, on the trigger',
     payload: 'the element’s own events',
-    when: 'Whenever the button fires them. The family composes with a consumer’s handler rather than replacing it: the consumer’s runs first, and preventDefault() in onClick refuses the toggle as well.',
+    when: 'Whenever the button fires them. Collapsible composes with a consumer’s handler rather than replacing it: the consumer’s runs first, and preventDefault() in onClick refuses the toggle as well.',
   },
 ];
 
@@ -329,112 +329,112 @@ export const REACT_COLLAPSIBLE_DOCS = {
         'boolean',
         '—',
         'Collapsible',
-        'Present means the consumer owns the state, for the life of the component. Inside an Accordion the set owns it instead, and an explicit open still wins over both',
+        'Present means the consumer owns the state, for the life of the component. Inside an Accordion the set owns it instead, and an explicit open still wins over both.',
       ],
       [
         'defaultOpen',
         'boolean',
         '—',
         'Collapsible',
-        'The value an uncontrolled disclosure starts from, read once. A later change to it does not silently become new state',
+        'The value an uncontrolled disclosure starts from, read once. A later change to it does not silently become new state.',
       ],
       [
         'size',
         "'sm' | 'md' | 'lg'",
         'md',
         'Collapsible, Accordion, CollapsibleDefaultsProvider',
-        'The step the header sits at. The title comes from the type scale and everything geometric from the control scales, so a density changes the rhythm rather than the reading size',
+        'The step the header sits at. The title comes from the type scale and everything geometric from the control scales, so a density changes the rhythm rather than the reading size.',
       ],
       [
         'variant',
         "'plain' | 'ruled' | 'framed'",
         'plain',
         'Collapsible, CollapsibleDefaultsProvider',
-        'plain paints no chrome, ruled draws a hairline above the header so a stack reads as one list, and framed is its own card. An Accordion hands its items the one its own variant maps onto',
+        'plain paints no chrome, ruled draws a hairline above the header so a stack reads as one list, and framed is its own card. An Accordion hands its items the one its own variant maps onto.',
       ],
       [
         'indicator',
         "'chevron' | 'plus-minus' | 'none'",
         'chevron',
         'Collapsible, Accordion, CollapsibleDefaultsProvider',
-        'The mark, drawn from a glyph token. The chevron turns between down and up rather than pointing along the inline axis, so nothing is mirrored for a right-to-left document',
+        'The mark, drawn from a glyph token. The chevron turns between down and up rather than pointing along the inline axis, so nothing is mirrored for a right-to-left document.',
       ],
       [
         'togglePlacement',
         "'end' | 'start'",
         'end',
         'Collapsible, Accordion, CollapsibleDefaultsProvider',
-        'Which side of the words the mark stands on. With it at the start the panel’s content is indented to line up with the title rather than with the mark',
+        'Which side of the words the mark stands on. With it at the start the panel’s content is indented to line up with the title rather than with the mark.',
       ],
       [
         'level',
         "'none' | '1' | '2' | '3' | '4' | '5' | '6'",
         'none',
         'Collapsible, CollapsibleDefaultsProvider',
-        'The heading element the trigger is wrapped in. none renders a div and writes no heading semantics; an Accordion sets it for a whole set through headingLevel',
+        'The heading element the trigger is wrapped in. none renders a div and writes no heading semantics; an Accordion sets it for a whole set through headingLevel.',
       ],
       [
         'mount',
         "'active' | 'lazy' | 'eager' | 'until-found'",
         'eager',
         'Collapsible, Accordion, CollapsibleDefaultsProvider',
-        'When the panel’s content exists. The box always does, so aria-controls never names an element that is gone. until-found writes hidden="until-found" and answers beforematch by opening',
+        'When the panel’s content exists. The box always does, so aria-controls never names an element that is gone. until-found writes hidden="until-found" and answers beforematch by opening.',
       ],
       [
         'peek',
         'string',
         '—',
         'Collapsible, CollapsibleDefaultsProvider',
-        'A length (9rem): a closed panel keeps that block size of its content in view under a fade, stays inert, and animates to its full size with the same durations; forced colors drop the fade and keep the clip. The panel carries data-state="peek", and mount is forced to eager',
+        'A length (9rem): a closed panel keeps that block size of its content in view under a fade, stays inert, and animates to its full size with the same durations; forced colors drop the fade and keep the clip. The panel carries data-state="peek", and mount is forced to eager.',
       ],
       [
         'truncate',
         'boolean',
         'false',
         'Collapsible, Accordion, CollapsibleDefaultsProvider',
-        'Clips the title to one line instead of letting the row grow. The whole string stays in the DOM, which the library decided once for every family',
+        'Clips the title to one line instead of letting the row grow. The whole string stays in the DOM, which holds for every component.',
       ],
       [
         'region',
         'boolean',
         'false',
         'Collapsible',
-        'Makes the panel a region landmark. Off by default, because the pattern’s own example warns that a landmark per panel fills the landmark list',
+        'Makes the panel a region landmark. Off by default, because the pattern’s own example warns that a landmark per panel fills the landmark list.',
       ],
       [
         'disabled',
         'boolean',
         'false',
         'Collapsible',
-        'Reaches the trigger as the native attribute, which is also what stops the press. Unstated rather than false, so the disclosure defers to the Accordion around it',
+        'Reaches the trigger as the native attribute, which is also what stops the press. Unstated rather than false, so the disclosure defers to the Accordion around it.',
       ],
       [
         'loading',
         'boolean',
         'false',
         'Collapsible',
-        'The panel keeps a line’s height and carries aria-busy; what stands in for the content is Skeleton, composed by the consumer',
+        'The panel keeps a line’s height and carries aria-busy; what stands in for the content is Skeleton, composed by the consumer.',
       ],
       [
         'value',
         'string',
         'from useId',
         'Collapsible',
-        'What this disclosure is called inside an Accordion. It is identity rather than state, and it reaches the DOM as data-value',
+        'What this disclosure is called inside an Accordion. It is identity rather than state, and it reaches the DOM as data-value.',
       ],
       [
         'summary',
         'ReactNode',
         '—',
         'CollapsibleTrigger',
-        'What the disclosure holds, at the end of the title line and before the mark, cut with an ellipsis; inside the trigger and therefore inside its accessible name',
+        'What the disclosure holds, at the end of the title line and before the mark, cut with an ellipsis; inside the trigger and therefore inside its accessible name.',
       ],
       [
         'description',
         'ReactNode',
         '—',
         'CollapsibleTrigger',
-        'A second line under the title, inside the trigger and therefore inside its accessible name',
+        'A second line under the title, inside the trigger and therefore inside its accessible name.',
       ],
     ]),
     composition: apiRows([
@@ -443,37 +443,37 @@ export const REACT_COLLAPSIBLE_DOCS = {
         '(props) => ReactNode',
         '—',
         'Collapsible, CollapsibleHeader, CollapsibleTrigger, CollapsibleActions, CollapsiblePanel',
-        'Substitutes any of the five roots and hands it every attribute — a disclosure can be a section, a panel an article. The heading may become another element, but the trigger has to stay its only child',
+        'Substitutes any of the five roots and hands it every attribute — a disclosure can be a section, a panel an article. The heading may become another element, but the trigger has to stay its only child.',
       ],
       [
         'ref',
         'Ref<HTMLElement>',
         '—',
         'every part',
-        'Reaches the element itself, so focus() and click() are the platform’s and no imperative handle is invented for what it already ships',
+        'Reaches the element itself, so focus() and click() are the platform’s and no imperative handle is invented for what it already ships.',
       ],
       [
         'useCollapsible()',
         '() => CollapsibleContextValue',
         '—',
         'inside Collapsible',
-        'What the parts read: the open state, the identifiers, the mount strategy, whether the group holds this one open, and toggle(next, reason). It throws outside a family rather than rendering a control that does nothing',
+        'What the parts read: the open state, the identifiers, the mount strategy, whether the group holds this one open, and toggle(next, reason). It throws outside Collapsible rather than rendering a control that does nothing.',
       ],
       [
         'CollapsibleDefaultsProvider',
-        '{ size, variant, indicator, togglePlacement, level, mount, truncate }',
+        '{ size, variant, indicator, togglePlacement, level, mount, peek, truncate }',
         '—',
         'a subtree',
-        'The seven decisions an application takes once. An Accordion sits between it and the item, and a disclosure that states any of them itself still wins',
+        'The decisions an application takes once: size, variant, indicator, togglePlacement, level, mount, peek and truncate. An Accordion sits between it and the item, and a disclosure that states any of them itself still wins.',
       ],
     ]),
     accessibility: [
-      'The pattern is the WAI-ARIA APG’s Disclosure (w3.org/WAI/ARIA/apg/patterns/disclosure/), and inside an Accordion it answers the Accordion pattern as well. Its whole keyboard table is the platform’s: the trigger is a button, so Enter and Space toggle without the family binding a key, and Tab reaches it like any other control — the pattern requires every focusable element in an accordion to be in the page tab sequence, which is why nothing here writes tabindex.',
+      'The pattern is the WAI-ARIA APG’s Disclosure (w3.org/WAI/ARIA/apg/patterns/disclosure/), and inside an Accordion it answers the Accordion pattern as well. Its whole keyboard table is the platform’s: the trigger is a button, so Enter and Space toggle without Collapsible binding a key, and Tab reaches it like any other control — the pattern requires every focusable element in an accordion to be in the page tab sequence, which is why nothing here writes tabindex.',
       'The trigger carries aria-expanded and aria-controls; the panel carries aria-labelledby pointing back. Both identifiers come from useId, so a server response and the first client render agree. The panel’s box is never removed — mount drops its content, not the box — because aria-controls naming an element that is not there is a reference a screen reader has to make sense of.',
-      'A closed panel is out of the tab sequence and out of the accessibility tree twice over: the stylesheet with content-visibility, and the binding with inert, so a browser without the property still cannot put focus inside it. Under mount="until-found" neither applies: hidden="until-found" is what lets the browser’s page search reach the text and open the panel, and beforematch is what tells the family to.',
+      'A closed panel is out of the tab sequence and out of the accessibility tree twice over: the stylesheet with content-visibility, and the binding with inert, so a browser without the property still cannot put focus inside it. Under mount="until-found" neither applies: hidden="until-found" is what lets the browser’s page search reach the text and open the panel, and beforematch is what tells Collapsible to open.',
       'The heading is real. level renders h1 to h6 and the trigger is its only element, which is what the pattern requires; an accordion sets the level once for a whole set. level="none" writes no heading semantics at all, for a disclosure that belongs to no outline.',
       'aria-disabled appears on the trigger only when an Accordion refuses to let this panel close. That is the pattern’s own instruction for a set that requires one panel to stay open, and it leaves the control focusable and announced rather than removing it from the reader’s path.',
-      'The element is a button and a region rather than details and summary. What that costs is written down: a page with JavaScript disabled cannot open a panel. What it buys is the accordion pattern — a summary cannot be wrapped in a heading — a value the consumer can own, a request that carries a reason, and a panel that animates without interpolate-size.',
+      'The trigger is a button and the panel a div, rather than details and summary. What that costs is written down: a page with JavaScript disabled cannot open a panel. What it buys is the accordion pattern — a summary cannot be wrapped in a heading — a value the consumer can own, a request that carries a reason, and a panel that animates without interpolate-size.',
       'The mark is never the only thing that says the state: aria-expanded says it to a reader, and the indicator turns rather than changing color, so the high-contrast scheme and forced colors both keep it.',
     ],
     snippets: [
@@ -508,7 +508,7 @@ export const REACT_COLLAPSIBLE_DOCS = {
       defineSnippet({
         id: 'collapsible-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning Collapsible for an application',
         source: `[data-ui='collapsible'] {
   --slotted-collapsible-rule-color: var(--slotted-border-strong);
   --slotted-collapsible-hover-background: var(--slotted-tone-accent-surface);
