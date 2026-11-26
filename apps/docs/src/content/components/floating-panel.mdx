@@ -1,0 +1,44 @@
+---
+title: Floating panel
+description: A tool that stays over the page while the page stays usable, moved by its handle and kept whole inside the viewport.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## A tool beside the work
+
+A floating panel is a named region, not a dialog. It draws no scrim, traps no focus and makes nothing inert, so the page under it stays usable and the shortcuts an application holds back while a dialog is open keep working. A press outside the panel does nothing to it. Escape inside the panel and the close control ask `onOpenChange(false)` in React and emit `openChange` with `false` in Angular, and focus returns to the element that held it before the panel opened. Open the pick list, then press Pick one case while the panel stays open: the count in the panel goes up.
+
+<Example name="non-modal" />
+
+## Corners
+
+`defaultPlace` sets the corner the panel stands in until its first move: `top-start`, `top-end`, `bottom-start` or `bottom-end`. The corners follow the reading direction, so `start` is the right edge in a right-to-left language. The panel stands `--slotted-floating-panel-inset` from the edges, and `bottom-end` is the default. The panel itself is always `position: fixed`, so Show all docks opens four panels in the corners of the viewport, not of the preview.
+
+<Example name="corners" />
+
+## Moving the panel
+
+A press on the handle drags the panel, with the pointer captured and no scroll of the page; the panel carries `data-dragging` while it moves. The grip at the start of the handle is a button named Move. An arrow key on the grip moves the panel one step, and Shift moves it a larger one. A move never takes the panel out of the viewport: the stylesheet clamps its place by the viewport and by the panel's own size, so the panel stays whole when the window shrinks too. `step` sets the pixels of an arrow key, 8 by default, and `largeStep` sets the pixels of an arrow key with Shift, 32 by default. The panel below moves 16 and 64 pixels.
+
+<Example name="steps" />
+
+## Storing the place
+
+A move reports its end once, by pointer or by key: `onPlaceChange` in React, `placeChange` in Angular. The place is the panel's top-left corner in viewport pixels. Pass it back as `place` to own the panel's position, for example to restore it in the next session. A place outside the viewport is drawn inside it. Open the panel and drag it, or pin it to the top left.
+
+<Example name="place" />
+
+## A name without a title
+
+The region is named by `FloatingPanelTitle`. A panel without a title takes its name from `aria-label` in React and `label` in Angular, and the title part can be left out. Use it for a tool whose body states its purpose, such as a note.
+
+<Example name="label" />
+
+## Messages
+
+The grip and the close control carry names from the language in force: Move and Close. `messages` overlays one or both for a single panel with `move` and `close`.
+
+<Example name="messages" />
