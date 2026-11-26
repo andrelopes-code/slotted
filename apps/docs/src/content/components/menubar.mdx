@@ -1,0 +1,56 @@
+---
+title: Menubar
+description: A horizontal bar of menus, as in a desktop application, with one tab stop and arrow keys that move between the menus.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Menus on a bar
+
+`Menubar` holds which menu is open and nothing else. Each menu on it is the `Menu` of the menu family, so submenus, shortcuts and every other menu capability work unchanged; in Angular the trigger is a button with `slMenuTriggerFor` placed inside `sl-menubar`, next to its `sl-menu`. Give each menu a `value`: the bar identifies the open menu by that name. Press a trigger to open its menu; with one menu open, moving the pointer along the bar switches menus without another press, and moving it along a closed bar opens nothing. Name the bar with `aria-label`, because the `menubar` role has no name of its own.
+
+<Example name="submenus" />
+
+## Options in a menu
+
+Checkbox items and a radio group keep the menu open while the reader changes them, so a View menu takes several choices in one visit. The bar keeps the same menu open until the reader moves to another menu or leaves the bar.
+
+<Example name="options" />
+
+## Orientation
+
+`orientation="vertical"` turns the bar into a column of triggers, as in a sidebar of commands. The bar sets `aria-orientation="vertical"`, the menus open beside the bar instead of under it, and the two arrow pairs exchange places: ArrowDown and ArrowUp move between triggers, ArrowRight opens the menu, and ArrowLeft closes it. In a right-to-left document the horizontal arrows mirror.
+
+<Example name="orientation" />
+
+## Sizes
+
+`size` sets the step of every trigger and every menu on the bar: `sm`, `md` (the default) or `lg`. A menu on the bar takes the bar's size, so the size is stated once.
+
+<Example name="sizes" />
+
+## Disabled menu
+
+`disabled` on a menu keeps its trigger in the bar and in the keyboard order, sets `aria-disabled` on it and opens nothing. The trigger stays focusable so that a reader using assistive technology finds a command that is unavailable instead of passing over a gap. The `disabled` prop of the bar disables every menu on it at once, as on the second bar here, whose accounting period is closed.
+
+<Example name="states" />
+
+## Controlled
+
+Pass `value` to own which menu is open. In React, `onValueChange` receives the next value and a request carrying the reason (`pointer`, `keyboard`, `escape`, `outsidePress`, `select`, `dismiss` or `programmatic`) and the originating event; the request can be cancelled. In Angular, `[(value)]` binds the open menu and `valueChangeRequest` emits the same request. A closed bar reports an empty string in the request. Here the buttons open and close the bar from code, and the line beside them reports the last change.
+
+<Example name="controlled" wide />
+
+## Keyboard
+
+The bar is one tab stop: Tab enters it on the trigger the reader last left, and the next Tab leaves it and closes any open menu. ArrowLeft and ArrowRight move between triggers and, while a menu is open, switch to the neighbouring menu with focus left on its trigger. Home and End jump to the first and last trigger. Typing a letter moves to the next trigger whose label begins with it. Escape closes the open menu and leaves focus on its trigger. `loop={false}` in React and `[loop]="false"` in Angular stop the arrows at the ends of the bar instead of wrapping; `typeahead` set to false turns typing off.
+
+<Example name="keyboard" wide />
+
+## Defaults for every bar
+
+`MenubarDefaultsProvider` in React and `provideMenubarDefaults` in Angular set `orientation`, `size`, `loop`, `typeahead` and `disabled` once for every bar under them. A bar that states a value of its own keeps it, as the second bar does here.
+
+<Example name="defaults" wide />

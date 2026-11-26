@@ -48,7 +48,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'A bar of four menus, driven by the controls under the canvas. Change the orientation and the size, and the menus follow the bar rather than being told twice.',
+    note: 'A bar of three menus, driven by the controls under the canvas. Change the orientation and the size, and the menus follow the bar rather than being told twice.',
     snippet: defineSnippet({
       id: 'menubar-react-playground',
       language: 'tsx',
@@ -66,7 +66,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'bar',
     title: 'The bar',
-    note: 'Four menus in a header. Pressing one opens it; with one open, moving the pointer along the bar switches menus without another press.',
+    note: 'Three menus in a header. Pressing one opens it; with one open, moving the pointer along the bar switches menus without another press.',
     snippet: defineSnippet({
       id: 'menubar-react-bar',
       language: 'tsx',
@@ -102,7 +102,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'checkbox-and-radio',
     title: 'Options on a bar',
-    note: 'A View menu of toggles and a choice, which stay open as they are changed — the bar keeps its menu while the reader turns three things on.',
+    note: 'A View menu of toggles and a choice, which stay open as they are changed — the bar keeps its menu while the reader changes several options.',
     snippet: defineSnippet({
       id: 'menubar-react-checkbox-and-radio',
       language: 'tsx',
@@ -160,7 +160,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'In context',
-    note: 'An application header: the bar sits beside a logo and an account control, paints no ground of its own, and takes its size from the provider once.',
+    note: 'An application header: the bar sits beside the application name, paints no ground of its own, and takes its size from the provider once.',
     snippet: defineSnippet({
       id: 'menubar-react-composition',
       language: 'tsx',
@@ -249,7 +249,7 @@ const composition = apiRows([
     'component',
     '—',
     'Application',
-    'Sets the orientation, the size, the wrapping and the typeahead once for a subtree. A bar that states one itself still wins.',
+    'Sets the orientation, the size, the wrapping, the typeahead and the disabled state once for a subtree. A bar that states one itself still wins.',
   ],
   [
     'Menu',
@@ -270,7 +270,7 @@ const composition = apiRows([
     'prop',
     '—',
     'Menubar',
-    'A handle carrying focus() and close(), for an application that opens its own menus from a shortcut.',
+    'A handle carrying focus() and close(), for an application that moves focus to the bar or closes its menu from a shortcut.',
   ],
   [
     'native props',
@@ -283,7 +283,7 @@ const composition = apiRows([
 
 const accessibility = [
   'The platform supplies each trigger: it is a native button, so the press and the two keys are the browser\'s own. role="menuitem" replaces role="button", because on a bar the control is an item of a composite widget rather than a button in a row.',
-  "The family supplies the bar's keyboard, as the WAI-ARIA menu and menubar pattern describes it: one tab stop for the whole bar, arrows along its own axis with wrapping, Home and End at the ends, typeahead by name, and — from inside an open menu — the inline arrows closing it and opening the neighbouring one with focus left on the trigger.",
+  'Menubar supplies the keyboard, as the WAI-ARIA menu and menubar pattern describes it: one tab stop for the whole bar, arrows along its own axis with wrapping, Home and End at the ends, typeahead by name, and — from inside an open menu — the inline arrows closing it and opening the neighbouring one with focus left on the trigger.',
   'The bar has no name of its own to invent, so the consumer gives it one: aria-label on the bar, which is what a reader hears before the first trigger.',
   'A disabled trigger stays focusable and takes aria-disabled rather than the native attribute, so a reader can find a menu that is currently unavailable instead of walking past a gap in the bar.',
 ];
