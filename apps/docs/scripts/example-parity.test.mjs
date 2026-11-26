@@ -64,12 +64,16 @@ const ONLY = process.env.PARITY_ONLY ?? '';
  * has a layer, and `slLoadingOverlay` is the consumer's element, drawn where
  * it was written. A closed floating panel is absent in React and `hidden` in
  * Angular, whose `slFloatingPanel` is the consumer's element and stays in the
- * document; neither draws it.
+ * document; neither draws it. A folded breadcrumb's ellipsis item is drawn by
+ * React in its first render; `slBreadcrumbList` is the consumer's `ol` and
+ * inserts the item after the first render in the browser, so the server markup
+ * holds none. The item is left out; every crumb is compared.
  */
 const ADMITTED_DIFFERENCE = [
   '[data-ui="toast"][data-attach="portal"]',
   '[data-ui="loading-overlay"][data-scope="page"]',
   '[data-ui="floating-panel"][hidden]',
+  '[data-ui="breadcrumb"] li:has(> [data-part="ellipsis"])',
 ].join(', ');
 
 /** The `data-ui` tree of a fragment of markup, one line per element. */
