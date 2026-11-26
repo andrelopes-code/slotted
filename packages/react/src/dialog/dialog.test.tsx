@@ -337,6 +337,30 @@ describe('Dialog', () => {
     expect((onOpenChange.mock.calls[0]?.[1] as DialogChangeRequest).reason).toBe('escape');
   });
 
+  it('marks the Escape it answers as handled, for a region around it that closes on Escape', () => {
+    expect('CloseWatcher' in window).toBe(false);
+    const onOpenChange = vi.fn();
+    const seen: boolean[] = [];
+    render(
+      <section
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') seen.push(event.defaultPrevented);
+        }}
+      >
+        <Dialog defaultOpen onOpenChange={onOpenChange}>
+          <DialogContent>
+            <DialogTitle>Rename</DialogTitle>
+          </DialogContent>
+        </Dialog>
+      </section>,
+    );
+
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+
+    expect(onOpenChange.mock.calls[0]?.[0]).toBe(false);
+    expect(seen).toEqual([true]);
+  });
+
   /**
    * The platform's way back reaches the layer and not the page: a modal layer
    * holds one history entry, and the popstate that leaves it closes the layer

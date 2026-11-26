@@ -300,6 +300,8 @@ function handleKeyDown(state: DocumentStack, event: KeyboardEvent) {
   if (!top) return;
   /* A topmost layer that refuses Escape swallows it: the key belongs to the top. */
   if (top.options.escape === false) return;
+  /* The key is answered: a region around the layer that reads `defaultPrevented` leaves it. */
+  event.preventDefault();
   request(top, 'escape', event);
 }
 
