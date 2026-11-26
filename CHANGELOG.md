@@ -2,6 +2,35 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.41 — 2026-11-26
+
+- fix(textarea): one row is as tall as the control height of its size
+- fix(dismissable-layer): the Escape a layer answers is marked handled on every platform
+- test(pickers): the Angular specs that empty a draft from the footer state clearable
+- docs(evals): AF-09 and theme writes meet the thresholds in both bindings
+- fix(calendar, pickers): the panel clears only what may be cleared, the weekend is the locale's, and the day it is can be stated
+- fix(theme): a rule that writes an unknown token is refused, with the nearest token named
+- test(core, popover): the chart option is read with its types, and the loading-states skill sends a saving control to its asked value
+- docs(guidelines): AF-09, a control that saves at the press shows the asked value at once
+- feat(currency-field): cents entry edits the digit the caret is against
+- feat(popover): presentation="auto" is a bottom sheet on a phone, and the help of a widget, a column and a chart uses it
+- feat(chart): end labels, dotted strokes, hidden axis labels, ticks and a second line on a time axis, and annotation labels in their tone
+- fix(chart): the tooltip grows to the width of its rows, and the prose in it wraps at 18rem
+- test(section): the provider of the nested heading test takes its own props
+- feat(data-grid): isRowSelectable keeps a row out of the selection, and isRowMuted draws one that is no longer active
+- feat(switch): the thumb of a pending switch is the shape of Loader, and loadingDelay holds it back
+- fix(stat-card): the theme's hooks list the text of the label
+- feat(tag, badge): an inline form no taller than the line of text around it
+- feat(section): a title stated on a nested section draws the title form
+- fix(stat-card): a short label leaves its room to the action, and an action is one line of the header
+- fix(action-bar): align places the run beside a status
+- fix(app-shell): a scrolling region holds its absolutely positioned descendants
+- docs: the README links the documentation site and both Storybooks
+
+### Guidelines
+
+- Added: AF-09
+
 ## 0.1.0-beta.40 — 2026-11-25
 
 - test(angular): the datetime-picker spec holds no empty suite, and the inline-message snippet is formatted
