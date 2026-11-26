@@ -57,7 +57,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: true,
     purpose:
-      'The wash, the one-cell grid that centers the panel, and the query container. In the document for the life of the family, so both directions of the fade are transitions.',
+      'The wash, the one-cell grid that centers the panel, and the query container. In the document for the life of the overlay, so both directions of the fade are transitions.',
   },
   {
     part: 'panel',
@@ -207,7 +207,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'indicator',
     title: 'A wait with a number on it',
-    note: 'The mark is a projection slot. The default is the contained loader; a determinate upload projects a slProgressBar with its own value, and the family that owns a measured quantity draws it.',
+    note: 'The mark is a projection slot. The default is the contained loader; a determinate upload projects a slProgressBar with its own value, and progress-indicator owns the measured quantity and draws it.',
     snippet: defineSnippet({
       id: 'loading-overlay-angular-indicator',
       language: 'angular',
@@ -218,7 +218,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'content',
-    title: 'Words the family did not choose',
+    title: 'Words the overlay did not choose',
     note: 'A translated sentence is longer than the English one that was measured. The panel wraps it, keeps its own measure, and never truncates: the announcement holds the same sentence whole for the reader who would otherwise lose it.',
     snippet: defineSnippet({
       id: 'loading-overlay-angular-content',
@@ -231,13 +231,13 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'The parts a consumer owns',
-    note: 'The selector is a bare attribute, so the region is the element the page already has. Project [slLoadingOverlayCancel] to bring your own control: the family’s control paint is written :not([data-ui]), so an slButton keeps its own.',
+    note: 'The selector is a bare attribute, so the region is the element the page already has. Project [slLoadingOverlayCancel] to bring your own control: the overlay’s control paint is written :not([data-ui]), so an slButton keeps its own.',
     snippet: defineSnippet({
       id: 'loading-overlay-angular-composition',
       language: 'angular',
       label: 'Substituting the parts',
       source:
-        '<section slLoadingOverlay cancellable #overlay="slLoadingOverlay">\n  <button slLoadingOverlayCancel slButton variant="outline" size="sm">Interromper</button>\n  …\n</section>',
+        '<section slLoadingOverlay cancellable #overlay="slLoadingOverlay">\n  <button slLoadingOverlayCancel slButton variant="outline" size="sm">Cancel</button>\n  …\n</section>',
     }),
   },
   {
@@ -265,7 +265,7 @@ export const ANGULAR_LOADING_OVERLAY_DOCS = {
         'boolean',
         'true',
         'SlLoadingOverlay',
-        'Whether the data is still on its way. The consumer’s own fact: the family never moves it, so it is an input() and not a model()',
+        'Whether the data is still on its way. The consumer’s own fact: the overlay never moves it, so it is an input() and not a model()',
       ],
       [
         'scope',
@@ -349,7 +349,7 @@ export const ANGULAR_LOADING_OVERLAY_DOCS = {
       {
         name: '(cancel)',
         payload: '{ reason: "dismiss" | "escape"; source: Event }',
-        when: 'The reader presses the control or the Escape key. The family commits nothing — it does not lower loading and does not hide itself — because the operation has not stopped until the application has stopped it.',
+        when: 'The reader presses the control or the Escape key. The overlay commits nothing — it does not lower loading and does not hide itself — because the operation has not stopped until the application has stopped it.',
       },
       {
         name: '(reveal)',
@@ -377,7 +377,7 @@ export const ANGULAR_LOADING_OVERLAY_DOCS = {
         'directive',
         '—',
         'SlLoadingOverlay',
-        'Your own control in the slot. It takes the part and the press; the family’s control paint is written :not([data-ui]) and steps back',
+        'Your own control in the slot. It takes the part and the press; the overlay’s control paint is written :not([data-ui]) and steps back',
       ],
       [
         'the selector',
@@ -402,8 +402,8 @@ export const ANGULAR_LOADING_OVERLAY_DOCS = {
       ],
     ]),
     accessibility: [
-      'The covered content carries inert while the layer blocks, which takes it out of the tab order and out of the accessibility tree. It is the capability the two surveyed implementations that document accessibility both decline: Quasar states that the content it covers stays focusable and asks the developer to solve it, and Mantine says the same in its usage section.',
-      'The region carries aria-busy="true" while it waits, which is the platform’s own answer: ARIA 1.2 asks an author to set it on the region until it is finished loading. Page scope writes it nowhere, because the busy region would be the document root and this family owns no part of it.',
+      'The covered content carries inert while the layer blocks, which takes it out of the tab order and out of the accessibility tree. A covered control is neither focusable nor announced, so the reader does not reach a field the wait has made unsafe to edit.',
+      'The region carries aria-busy="true" while it waits, which is the platform’s own answer: ARIA 1.2 asks an author to set it on the region until it is finished loading. Page scope writes it nowhere, because the busy region would be the document root and LoadingOverlay owns no part of it.',
       'One overlay is one announcement. A visually-hidden role="status" holds the label while waiting and is emptied afterwards, and emptying a live region announces nothing, so a wait says one thing. The two painted lines carry aria-hidden, so the same sentence is not heard twice.',
       'Focus is read before the content goes inert. If it was inside, it moves to the control or to the panel itself — the container destination the APG advises for content that must be read before it is operated — and returns to where it came from when the wait ends. Focus that was elsewhere is never moved: a background save does not take the caret out of another form.',
       'There is no APG pattern for a loading overlay: the pattern index holds none for a busy region or a blocking layer, and claiming the Dialog pattern would import aria-modal and a close affordance into something that is neither. Page scope makes the rest of the document inert instead, which is what ARIA 1.2 asks of a modal element, and writes no aria-modal because that property inherits only into dialog and alertdialog.',
@@ -420,7 +420,7 @@ export const ANGULAR_LOADING_OVERLAY_DOCS = {
       defineSnippet({
         id: 'loading-overlay-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning the overlay for an application',
         source:
           "[data-ui='loading-overlay'] {\n  --slotted-loading-overlay-scrim: rgb(15 23 42 / 0.6);\n  --slotted-loading-overlay-blur: 6px;\n  --slotted-loading-overlay-measure: 22rem;\n}",
       }),

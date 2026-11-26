@@ -1,0 +1,72 @@
+---
+title: Loading overlay
+description: Covers a region, or the whole page, while a wait the application owns runs, and keeps the covered content in place and out of reach.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Covering a region
+
+The overlay wraps the content it covers. The content stays in the document and keeps its geometry, so nothing around it moves when the layer appears. While the layer blocks, the content is `inert`: its controls leave the tab order and the accessibility tree, and the region carries `aria-busy`. `loading` is the application's own fact and defaults to `true`, so set it from the state of the request. Focus that was inside the content moves into the panel and returns to where it came from when the wait ends; focus that was elsewhere does not move. Press Save customer in the lead example: the card is covered for 2.5 seconds.
+
+## Veil
+
+`veil` sets how the covered content is obscured. `wash` draws the theme's scrim, `blur` adds a backdrop filter so the text stops being legible, and `none` blocks exactly as much and dims nothing, for a wait short enough that a wash would read as a flash. Each card here shows its own value as the description.
+
+<Example name="veil" />
+
+## Sizes
+
+`size` sets the mark, the two lines of text and the padding of the panel to one step: `sm` for dense regions, `md` for most cards, `lg` for sparse ones. The panel also follows the width of the region: below 220 px it keeps the mark and drops the two lines, and the announcement still carries the sentence.
+
+<Example name="sizes" />
+
+## Page scope
+
+`scope="page"` covers the whole viewport. The layer is portalled, every sibling of the portal root becomes `inert`, and the document scroll is locked. Tab wraps inside the layer. Use it only when partial interaction would be unsafe, such as closing an accounting period, and not for a row that is saving. The region carries no `aria-busy` in this scope. Press Close March period: the wait ends after 4 seconds, or sooner with Cancel.
+
+<Example name="page" />
+
+## Cancelling
+
+`cancellable` renders the control that asks to stop and binds Escape to it while focus is inside the layer. The request carries a `reason`, `dismiss` for the press and `escape` for the key, and commits nothing: the overlay stays until the application aborts its work and sets `loading` to `false`. The handler is `onCancel` in React and the `cancel` output in Angular. Start the import, press Tab to reach the control, then stop the import with the control or with Escape.
+
+<Example name="cancel" />
+
+## Timing
+
+`delay` is how long the wait must last before anything is painted, so a response that arrives sooner draws nothing. `minDuration` is how long a painted layer is held, so it does not vanish a few frames after it appeared. Both default to zero. `onReveal` in React and the `reveal` output in Angular fire when the covered content is reachable again, which is later than `loading` turning `false` whenever `minDuration` is still holding the layer. The 100 ms lookup draws no layer. The 500 ms lookup draws one after 300 ms and holds it until 600 ms after it appeared.
+
+<Example name="timing" />
+
+## Indicator
+
+The mark is a slot. The default is the contained loader of `progress-indicator`. For a wait that reports how much is done, pass a `ProgressBar` with its own value: the `indicator` prop in React, an element with `slLoadingOverlayIndicator` projected into the overlay in Angular. The overlay holds no progress value of its own. Start the upload: the bar advances every 400 ms.
+
+<Example name="indicator" />
+
+## Labels
+
+`messages.label` is the short line. It is painted in the panel and announced once. `description` is a second line for what the first cannot hold; it is painted and never announced. `messages.cancel` replaces the words of the cancel control. The panel wraps a long sentence and keeps its own measure, and the announcement holds the sentence whole.
+
+<Example name="content" />
+
+## Announcements
+
+A screen reader hears one sentence when the wait begins: the `role="status"` element holds `messages.label`, and the painted lines are `aria-hidden` so the sentence is not heard twice. The wait ends in silence unless `loadedLabel` is set, in which case that sentence is announced. `live="off"` removes the announcement for a page that already says the wait elsewhere.
+
+<Example name="announce" />
+
+## Defaults
+
+`veil`, `size`, `live`, `loadedLabel`, `delay` and `minDuration` are set once for everything below a provider: `LoadingOverlayDefaultsProvider` in React, `provideLoadingOverlayDefaults` in Angular. A prop or input on an overlay wins over the provider.
+
+<Example name="defaults" />
+
+## Substituting the parts
+
+The region and the cancel control can be elements the page already has. In React, `render` receives the props of the region and returns its element, and `renderCancel` does the same for the control. In Angular the selector is a bare attribute, so the region is the element it sits on, and `slLoadingOverlayCancel` marks a projected control as the cancel part. The paint of the control is written `:not([data-ui])`, so a component that carries its own `data-ui` keeps its own paint, and on a `Button` the element stays the root of the button. Focus still lands on it when the overlay opens over a focused field.
+
+<Example name="compose" />
