@@ -117,8 +117,8 @@ export function Collapsible({
       controlled: open ?? grouped,
       initial: current,
       onRequest: (request) => {
-        cancelled = request.cancelled;
         onOpenChange?.(request.value, request);
+        cancelled = request.cancelled;
       },
     });
     const moved = state.request(next, reason, source);

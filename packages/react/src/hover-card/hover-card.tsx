@@ -114,8 +114,8 @@ export function HoverCard({
         controlled: state.open,
         initial: state.current,
         onRequest: (request) => {
-          cancelled = request.cancelled;
           state.onOpenChange?.(request.value, request);
+          cancelled = request.cancelled;
         },
       });
       const moved = controllable.request(next, reason, source);

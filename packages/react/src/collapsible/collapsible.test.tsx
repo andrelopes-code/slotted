@@ -137,6 +137,20 @@ describe('Collapsible', () => {
     expect(root()).not.toHaveAttribute('data-open');
   });
 
+  it('lets the request be refused inside an accordion', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Accordion onValueChange={onValueChange}>
+        <Basic onOpenChange={(_open, request) => request.cancel()} value="delivery" />
+      </Accordion>,
+    );
+
+    fireEvent.click(trigger());
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(root()).not.toHaveAttribute('data-open');
+  });
+
   it("composes with the consumer's own click handler rather than replacing it", () => {
     const onClick = vi.fn();
     render(

@@ -76,8 +76,8 @@ export function Menubar({
       controlled: state.value,
       initial: state.held ?? '',
       onRequest: (request) => {
-        cancelled = request.cancelled;
         state.onValueChange?.(request.value, request as never);
+        cancelled = request.cancelled;
       },
     });
     const moved = controllable.request(next ?? '', reason, source);
