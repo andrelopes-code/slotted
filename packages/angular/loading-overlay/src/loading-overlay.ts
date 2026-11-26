@@ -12,6 +12,7 @@ import { createPortalRoot } from '@slotted/core/portal';
 import type { PortalRootHandle } from '@slotted/core/portal';
 import { createPresence } from '@slotted/core/presence';
 import type { PresenceHandle } from '@slotted/core/presence';
+import { hostSelectorKey } from '@slotted/core/selector-key';
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
@@ -221,6 +222,8 @@ export class SlLoadingOverlay {
   protected readonly ownMark = computed(() => this.projectedMark() === undefined);
 
   private readonly contentRef = viewChild<ElementRef<HTMLElement>>('content');
+  /* The consumer's own control: on `slButton` its part is that family's root. */
+  private readonly ownCancel = contentChild(SlLoadingOverlayCancel, { read: ElementRef });
   private readonly scrimRef = viewChild<ElementRef<HTMLElement>>('scrim');
   private readonly panelRef = viewChild<ElementRef<HTMLElement>>('panel');
 
@@ -367,7 +370,9 @@ export class SlLoadingOverlay {
       const scope = createFocusScope(panel, {
         contain: page,
         initial: cancellable
-          ? () => panel.querySelector<HTMLElement>('[data-part="cancel"]')
+          ? () =>
+              this.ownCancel()?.nativeElement ??
+              panel.querySelector<HTMLElement>('[data-part="cancel"]')
           : 'container',
       });
       scope.enter();
@@ -440,11 +445,23 @@ function optionalNumber(value: unknown): number | undefined {
   selector: '[slLoadingOverlayCancel]',
   standalone: true,
   host: {
-    'data-part': 'cancel',
-    'data-part-cancel': '',
+    '[attr.data-part]': 'part',
     '(click)': 'overlay.requestCancel($event)',
   },
 })
 export class SlLoadingOverlayCancel {
   protected readonly overlay = inject(SlLoadingOverlay);
+
+  private readonly native: HTMLElement = inject(ElementRef).nativeElement;
+
+  /**
+   * `cancel` names the control when it belongs to no family of its own. On
+   * `slButton` the element is that family's root, and the part stays `root`,
+   * as React's `renderCancel` keeps it by spreading the button's props last.
+   */
+  protected readonly part = hostSelectorKey(
+    this.native,
+    'part',
+    this.native.hasAttribute('data-ui') ? this.native.getAttribute('data-part') : 'cancel',
+  );
 }

@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { SlButton } from '@slotted/angular/button';
 import { provideSlotted } from '@slotted/angular/i18n';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
 
@@ -379,5 +380,37 @@ describe('SlLoadingOverlayCancel', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.asks).toBe(1);
+  });
+});
+
+@Component({
+  imports: [SlButton, SlLoadingOverlay, SlLoadingOverlayCancel],
+  template: `<div slLoadingOverlay cancellable [loading]="loading()">
+    <button slButton slLoadingOverlayCancel type="button">Stop export</button>
+    <input aria-label="Street address" />
+  </div>`,
+})
+class ButtonCancelHost {
+  readonly loading = signal(false);
+}
+
+/**
+ * On the library's button the element is the root of that family, which is
+ * what React's `renderCancel={(props) => <Button {...props} />}` renders: the
+ * button's own props are spread after the overlay's.
+ */
+describe('SlLoadingOverlayCancel on the library button', () => {
+  it('leaves the button the root of its own family, and still takes focus', () => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(ButtonCancelHost);
+    fixture.detectChanges();
+    document.querySelector<HTMLInputElement>('input[aria-label="Street address"]')!.focus();
+
+    fixture.componentInstance.loading.set(true);
+    fixture.detectChanges();
+
+    const control = document.querySelector<HTMLElement>('[data-ui="button"]')!;
+    expect(control.getAttribute('data-part')).toBe('root');
+    expect(document.activeElement).toBe(control);
   });
 });
