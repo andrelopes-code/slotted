@@ -37,11 +37,45 @@ const anatomy: AnatomyRow[] = [
       'The layer the menu is positioned on. It carries data-ui="menu", the resolved size, side and align, and data-open while the menu is open. The gap between the trigger and the surface is the layer\'s own padding, so the pointer never crosses the page on its way into a submenu.',
   },
   {
+    part: 'backdrop',
+    element: 'div',
+    required: false,
+    purpose:
+      'The scrim over the page while the menu is a sheet (presentation="auto" on a phone), aria-hidden. A press on it dismisses every step; on a second step it is clear, since the first already dims the page.',
+  },
+  {
     part: 'content',
     element: 'div',
     required: true,
     purpose:
       'The painted surface, carrying role="menu". It lays out the columns every item uses, is never taller than the room left in the window, and scrolls inside that height.',
+  },
+  {
+    part: 'grip',
+    element: 'span',
+    required: false,
+    purpose:
+      'The bar at the top of the sheet, aria-hidden. A pull down on it dismisses the step it belongs to.',
+  },
+  {
+    part: 'step',
+    element: 'div',
+    required: false,
+    purpose:
+      'The head of a submenu drawn as the second step of a sheet: the back control, then the name of the item that opened it.',
+  },
+  {
+    part: 'back',
+    element: 'button',
+    required: false,
+    purpose:
+      'Returns to the first step of the sheet, named by messages.back, with focus on the item that opened the step.',
+  },
+  {
+    part: 'title',
+    element: 'div',
+    required: false,
+    purpose: 'The name of the item that opened the step, as a reader hears it.',
   },
   {
     part: 'header',
@@ -602,6 +636,20 @@ const api = apiRows([
     'true',
     'Menu',
     'Whether the layer is rendered at the end of the document.',
+  ],
+  [
+    'presentation',
+    "'popover' | 'auto'",
+    'popover',
+    'Menu, MenuDefaultsProvider',
+    'auto draws the menu as a bottom sheet under (max-width: 480px) and (pointer: coarse): modal, as ActionSheet draws its actions, every item at least --slotted-target-min tall, dismissed by its grip, its scrim, Escape and the platform’s way back, with focus given back to the trigger. A submenu opens as a second step of the same sheet. A menu on a bar stays anchored.',
+  ],
+  [
+    'messages',
+    'Partial<MenuMessages>',
+    '—',
+    'Menu',
+    'Words laid over the catalog of the language in force: back, the name of the control that returns from a submenu step to the first step of a sheet.',
   ],
   [
     'disabled',

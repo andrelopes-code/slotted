@@ -119,6 +119,11 @@ const HEADINGS = [
     selector: '[data-ui-event-calendar] > [data-part-header] > [data-part-title]',
   },
   {
+    family: 'menu',
+    part: 'title',
+    selector: '[data-ui-menu] > [data-part-content] > [data-part-step] > [data-part-title]',
+  },
+  {
     family: 'select',
     part: 'title',
     selector: '[data-ui-select] > [data-part-content] > [data-part-header] > [data-part-title]',

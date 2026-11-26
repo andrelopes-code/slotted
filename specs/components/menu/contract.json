@@ -18,6 +18,18 @@
     "separator": "separator"
   },
   "modal": false,
+  "presentation": {
+    "values": ["popover", "auto"],
+    "default": "popover",
+    "query": "(max-width: 480px) and (pointer: coarse)",
+    "attribute": "data-presentation on the layer: popover, or sheet while presentation is auto, the menu is not on a bar and the query matches",
+    "sheet": "a bottom sheet over the page, as action-sheet draws its actions: modal, the scroll locked, the page inert under a scrim, focus in the items and given back to the trigger. The grip pulled down, a press on the scrim, Escape and the platform's way back dismiss it. Every item is at least --slotted-target-min tall, and keeps its role, its value, its tone, its disabled state and the typeahead",
+    "step": "a submenu of a sheet is a second step of the same sheet: a layer over the first, at least as tall, with a clear scrim, headed by a back control and the name of the item that opened it. Escape, the back control and the way back return to the first step; a press on the scrim dismisses both",
+    "bar": "a menu on a bar stays anchored, since the bar is the control it hangs from",
+    "tokens": "the drawer's surface, radius, scrim, grip and slide",
+    "reason": "A menu of row actions on a phone opened as a list anchored to its trigger, beside the sheets of the same screen; ActionSheet draws the phone form, and an application had to render a second tree of items to reach it"
+  },
+  "messages": ["back"],
   "composes": [
     "positioner",
     "presence",
@@ -307,6 +319,7 @@
     "shift": ["prop", "defaults", true],
     "hideWhenDetached": ["prop", "defaults", true],
     "portal": ["prop", "defaults", true],
+    "presentation": ["prop", "defaults", "popover"],
     "disabled": ["prop", "defaults", false]
   },
   "provides": {
@@ -327,6 +340,7 @@
       "shift",
       "hideWhenDetached",
       "portal",
+      "presentation",
       "disabled",
       "sideOffset",
       "alignOffset",
@@ -390,6 +404,7 @@
         "shift": true,
         "hideWhenDetached": true,
         "portal": true,
+        "presentation": "popover",
         "disabled": false,
         "loading": false,
         "sideOffset": 0,
@@ -423,7 +438,12 @@
       ],
       "parts": [
         "root",
+        "backdrop",
         "content",
+        "grip",
+        "step",
+        "back",
+        "title",
         "header",
         "group",
         "group-label",

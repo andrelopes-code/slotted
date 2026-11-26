@@ -167,7 +167,12 @@ test('needs no focus guard, because Tab is a key the pattern already binds', () 
 test('names every part, and no part it does not own', () => {
   assert.deepEqual(member.parts, [
     'root',
+    'backdrop',
     'content',
+    'grip',
+    'step',
+    'back',
+    'title',
     'header',
     'group',
     'group-label',
@@ -291,4 +296,12 @@ test('gives an item a meta column of its own, outside typeahead', () => {
   assert.equal(contract.meta.column, 3);
   assert.equal(contract.meta.typeahead, false);
   assert.equal(contract.shortcut.part, 'shortcut');
+});
+
+test('draws the phone form of a menu only when asked', () => {
+  assert.deepEqual(contract.presentation.values, ['popover', 'auto']);
+  assert.equal(contract.presentation.default, 'popover');
+  assert.equal(contract.presentation.query, '(max-width: 480px) and (pointer: coarse)');
+  assert.match(contract.presentation.step, /second step of the same sheet/);
+  assert.deepEqual(contract.messages, ['back']);
 });

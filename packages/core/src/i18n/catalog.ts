@@ -49,6 +49,7 @@ import * as linkModule from './messages/link';
 import * as loadingOverlayModule from './messages/loading-overlay';
 import * as markdownModule from './messages/markdown';
 import * as mediaViewerModule from './messages/media-viewer';
+import * as menuModule from './messages/menu';
 import * as messageModule from './messages/message';
 import * as messageScrollerModule from './messages/message-scroller';
 import * as multiSelectModule from './messages/multi-select';
@@ -136,6 +137,7 @@ export type { LinkMessages } from './messages/link';
 export type { LoadingOverlayMessages } from './messages/loading-overlay';
 export type { MarkdownMessages } from './messages/markdown';
 export type { MediaViewerMessages } from './messages/media-viewer';
+export type { MenuMessages } from './messages/menu';
 export type { MessageMessages } from './messages/message';
 export type { MessageScrollerMessages } from './messages/message-scroller';
 export type { MultiSelectMessages } from './messages/multi-select';
@@ -223,6 +225,7 @@ export { linkMessages } from './messages/link';
 export { loadingOverlayMessages } from './messages/loading-overlay';
 export { markdownMessages } from './messages/markdown';
 export { mediaViewerMessages } from './messages/media-viewer';
+export { menuMessages } from './messages/menu';
 export { messageMessages } from './messages/message';
 export { messageScrollerMessages } from './messages/message-scroller';
 export { multiSelectMessages } from './messages/multi-select';
@@ -312,6 +315,7 @@ export interface SlottedMessages {
   readonly loadingOverlay: loadingOverlayModule.LoadingOverlayMessages;
   readonly markdown: markdownModule.MarkdownMessages;
   readonly mediaViewer: mediaViewerModule.MediaViewerMessages;
+  readonly menu: menuModule.MenuMessages;
   readonly message: messageModule.MessageMessages;
   readonly messageScroller: messageScrollerModule.MessageScrollerMessages;
   readonly multiSelect: multiSelectModule.MultiSelectMessages;
@@ -402,6 +406,7 @@ export const EN_US: SlottedMessages = {
   loadingOverlay: loadingOverlayModule.en,
   markdown: markdownModule.en,
   mediaViewer: mediaViewerModule.en,
+  menu: menuModule.en,
   message: messageModule.en,
   messageScroller: messageScrollerModule.en,
   multiSelect: multiSelectModule.en,

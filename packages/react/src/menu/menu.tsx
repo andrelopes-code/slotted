@@ -1,6 +1,8 @@
 import '@slotted/styles/menu/menu.css';
 import '@slotted/styles/highlight/highlight.css';
 
+import { SHEET_QUERY } from '@slotted/core/extent';
+import { menuMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
 import {
   createContext,
@@ -12,6 +14,8 @@ import {
   useState,
 } from 'react';
 
+import { useMessages } from '../i18n';
+import { useMediaQuery } from '../picker-panel/use-media-query';
 import { useMenuDefaults } from './menu-defaults';
 import type {
   MenuContextValue,
@@ -98,11 +102,13 @@ export function Menu({
   flip,
   hideWhenDetached,
   loop,
+  messages,
   mount,
   onOpenChange,
   open,
   openOnHover,
   portal,
+  presentation,
   ref,
   shift,
   side,
@@ -126,6 +132,14 @@ export function Menu({
    */
   const menubar = useMenubarSurface();
   const onBar = parent === null && menubar !== null;
+  const t = useMessages(menuMessages, messages);
+  /* A submenu is a step of its parent's sheet; a menu on a bar stays anchored. */
+  const phone = useMediaQuery(
+    parent === null && !onBar && (presentation ?? defaults.presentation) === 'auto'
+      ? SHEET_QUERY
+      : null,
+  );
+  const sheet = parent === null ? phone : parent.sheet;
 
   const generated = useId();
   const identity = value ?? generated;
@@ -255,6 +269,7 @@ export function Menu({
     seen: seen.current,
     setContentNode,
     setTriggerNode,
+    sheet,
     shift: shift ?? defaults.shift,
     side: side ?? inheritedSide ?? defaults.side,
     sideOffset: sideOffset ?? defaults.sideOffset,
@@ -263,6 +278,7 @@ export function Menu({
     strategy: strategy ?? defaults.strategy,
     submenuCloseDelay: submenuCloseDelay ?? defaults.submenuCloseDelay,
     submenuOpenDelay: submenuOpenDelay ?? defaults.submenuOpenDelay,
+    t,
     toggle,
     triggerId,
     triggerNode,

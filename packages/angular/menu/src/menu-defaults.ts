@@ -10,6 +10,13 @@ export type MenuSize = 'sm' | 'md' | 'lg';
  */
 export type MenuWidth = 'content' | 'anchor';
 
+/**
+ * `auto` draws the menu as a bottom sheet on a phone (`SHEET_QUERY`), as
+ * `slActionSheet` draws its actions; a submenu opens as a second step of the
+ * same sheet. A menu on a bar stays anchored.
+ */
+export type MenuPresentation = 'popover' | 'auto';
+
 /** Where the surface hangs. The two logical values mirror; the rest do not. */
 export type MenuSide = 'top' | 'bottom' | 'inline-start' | 'inline-end' | 'left' | 'right';
 
@@ -44,6 +51,7 @@ export interface MenuDefaults {
   mount: MenuMount;
   openOnHover: boolean;
   portal: boolean;
+  presentation: MenuPresentation;
   shift: boolean;
   side: MenuSide;
   sideOffset: number;
@@ -78,6 +86,7 @@ const FALLBACK: MenuDefaults = {
   mount: 'active',
   openOnHover: true,
   portal: true,
+  presentation: 'popover',
   shift: true,
   side: 'bottom',
   sideOffset: 0,

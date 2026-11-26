@@ -149,7 +149,8 @@ export class SlMenuTrigger {
    */
   protected onPointerEnter(event: Event) {
     const menu = this.menu();
-    if (menu.resolvedDisabled()) return;
+    /* A step of a sheet opens on a press; a finger has no hover to wait for. */
+    if (menu.resolvedDisabled() || menu.sheet()) return;
     this.cancelPending();
 
     if (this.isSubmenu()) {
@@ -180,7 +181,7 @@ export class SlMenuTrigger {
     }
 
     const menu = this.menu();
-    if (!this.isSubmenu() || !menu.isOpen()) return;
+    if (!this.isSubmenu() || !menu.isOpen() || menu.sheet()) return;
 
     const surface = menu.surface();
     if (surface === null) return;

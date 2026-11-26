@@ -1,3 +1,4 @@
+import type { FamilyTranslator, MenuMessages } from '@slotted/core/i18n';
 import type { PositionerAnchor } from '@slotted/core/positioner';
 import type { ChangeRequest } from '@slotted/core/state';
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref, RefObject } from 'react';
@@ -20,6 +21,12 @@ export type MenuSize = 'sm' | 'md' | 'lg';
  * as the row that opens it. A submenu is always `content`.
  */
 export type MenuWidth = 'content' | 'anchor';
+/**
+ * `auto` draws the menu as a bottom sheet on a phone (`SHEET_QUERY`), as
+ * `ActionSheet` draws its actions; a submenu opens as a second step of the
+ * same sheet. A menu on a bar stays anchored.
+ */
+export type MenuPresentation = 'popover' | 'auto';
 
 /** Where the surface hangs. The two logical values mirror; the rest do not. */
 export type MenuSide = 'top' | 'bottom' | 'inline-start' | 'inline-end' | 'left' | 'right';
@@ -97,6 +104,7 @@ export interface MenuDefaults {
   mount: MenuMount;
   openOnHover: boolean;
   portal: boolean;
+  presentation: MenuPresentation;
   shift: boolean;
   side: MenuSide;
   sideOffset: number;
@@ -128,6 +136,8 @@ export interface MenuProps extends Partial<MenuDefaults> {
   value?: string;
   /** The consumer's value. Present at all puts the menu in controlled mode. */
   open?: boolean | undefined;
+  /** Words laid over the catalog of the language in force: the back control of a submenu step. */
+  messages?: Partial<MenuMessages> | undefined;
   /** The value an uncontrolled menu starts from, read once. */
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, request: MenuChangeRequest) => void;
@@ -311,6 +321,9 @@ export interface MenuContextValue {
   portal: boolean;
   seen: boolean;
   setContentNode: (node: HTMLElement | null) => void;
+  /** The surface is a bottom sheet: `presentation="auto"` on a phone, or the step of one. */
+  sheet: boolean;
+  t: FamilyTranslator<MenuMessages>;
   setTriggerNode: (node: HTMLElement | null) => void;
   shift: boolean;
   side: MenuSide;
@@ -354,6 +367,8 @@ export interface MenuSurfaceValue {
   openItem: HTMLElement | null;
   setOpenItem: (node: HTMLElement | null) => void;
   depth: number;
+  /** The surface is a bottom sheet, so a submenu of it is a second step of the sheet. */
+  sheet: boolean;
   /** A header names itself here, and the surface is described by it. */
   setHeaderId: (id: string | null) => void;
 }

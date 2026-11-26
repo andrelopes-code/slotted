@@ -897,4 +897,206 @@
       color: GrayText;
     }
   }
+
+  /* ── The sheet of a phone ─────────────────────────────────────────────── */
+
+  /**
+   * `presentation="auto"` on a phone: the layer is the screen, the scrim covers
+   * the page and the panel slides in from the bottom edge, as the sheet of
+   * `action-sheet` draws its actions. A submenu is a second step of the same
+   * sheet: a layer over the first, at least as tall, with a clear scrim, since
+   * the first already dims the page. The surface, the radius, the scrim, the
+   * grip and the slide are the drawer's tokens. A row is never shorter than a
+   * target.
+   */
+  [data-ui-menu][data-presentation='sheet'] {
+    display: grid;
+    inline-size: auto;
+    inset: 0;
+    max-inline-size: none;
+    min-inline-size: 0;
+    padding: 0;
+    position: fixed;
+    translate: 0 0;
+    /* What `presence` waits for: the panel's own way out. */
+    transition: translate
+      var(
+        --slotted-drawer-slide-exit-duration,
+        var(--slotted-drawer-slide-duration, var(--slotted-duration-short))
+      )
+      var(--slotted-easing-exit);
+  }
+
+  [data-ui-menu][data-presentation='sheet'][data-open] {
+    animation: none;
+    pointer-events: auto;
+  }
+
+  /* A filter makes the scrim a stacking context, so it stands under the panel. */
+  [data-ui-menu] > [data-part-backdrop] {
+    background: var(--slotted-drawer-scrim, var(--slotted-scrim, Canvas));
+    grid-area: 1 / 1;
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    z-index: -1;
+  }
+
+  [data-ui-menu][data-open] > [data-part-backdrop] {
+    -webkit-backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+    backdrop-filter: var(--slotted-drawer-scrim-backdrop-filter, none);
+    opacity: 1;
+    transition: opacity var(--slotted-duration-long) var(--slotted-easing-standard);
+  }
+
+  [data-ui-menu][data-presentation='sheet'] > [data-part-backdrop] {
+    transition-property:
+      opacity,
+      -webkit-backdrop-filter,
+      backdrop-filter;
+  }
+
+  [data-ui-menu][data-presentation='sheet'][data-step] > [data-part-backdrop] {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: transparent;
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-menu][data-open] > [data-part-backdrop] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  [data-ui-menu][data-presentation='sheet'] > [data-part-content] {
+    --_sheet-radius: var(--slotted-drawer-radius, var(--_radius));
+
+    align-self: end;
+    background: var(--slotted-drawer-surface, var(--_surface));
+    border-color: var(--slotted-drawer-border-color, var(--_border-color));
+    border-block-end-width: 0;
+    border-end-end-radius: 0;
+    border-end-start-radius: 0;
+    border-inline-width: 0;
+    border-start-end-radius: var(--_sheet-radius);
+    border-start-start-radius: var(--_sheet-radius);
+    box-shadow: var(--slotted-shadow-lg);
+    grid-area: 1 / 1;
+    /* A strip of scrim is left for the press outside. */
+    max-block-size: min(var(--slotted-overlay-max-block-size, 100dvh), 90dvh);
+    min-block-size: var(--_step-floor, 0px);
+    opacity: 1;
+    padding-block: var(--slotted-target-min, 24px)
+      calc(var(--_inset-block) + env(safe-area-inset-bottom, 0px));
+    position: relative;
+    transform: translateY(100%);
+    transition: transform
+      var(
+        --slotted-drawer-slide-exit-duration,
+        var(--slotted-drawer-slide-duration, var(--slotted-duration-short))
+      )
+      var(--slotted-drawer-slide-exit-easing, var(--slotted-easing-exit));
+  }
+
+  [data-ui-menu][data-presentation='sheet'][data-open] > [data-part-content] {
+    animation: slotted-menu-sheet-enter
+      var(--slotted-drawer-slide-duration, var(--slotted-duration-long))
+      var(--slotted-drawer-slide-easing, var(--slotted-easing-standard));
+    transform: none;
+    transition: none;
+  }
+
+  @keyframes slotted-menu-sheet-enter {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-menu][data-presentation='sheet'] > [data-part-content],
+    [data-ui-menu][data-presentation='sheet'][data-open] > [data-part-content] {
+      animation: none;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* The grip every bottom sheet carries, in the drawer's geometry and line color. */
+  [data-ui-menu] > [data-part-content] > [data-part-grip] {
+    background-clip: content-box;
+    background-color: var(
+      --slotted-drawer-resizer-line-color,
+      var(--slotted-border-strong, ButtonBorder)
+    );
+    block-size: var(--slotted-space-2, 0.25rem);
+    /* The bar is the content box: each radius less the padding on its axis is
+       half the bar's block size, so its ends are round. */
+    border-radius: calc(var(--slotted-space-2, 0.25rem) / 2) /
+      calc(var(--slotted-target-min, 24px) / 2);
+    box-sizing: content-box;
+    cursor: grab;
+    inline-size: var(--slotted-space-11, 3rem);
+    inset-block-start: 0;
+    inset-inline: 0;
+    margin-inline: auto;
+    padding-block: calc((var(--slotted-target-min, 24px) - var(--slotted-space-2, 0.25rem)) / 2);
+    position: absolute;
+    touch-action: none;
+  }
+
+  [data-ui-menu][data-presentation='sheet'] [data-part-item] {
+    min-block-size: max(var(--_item-height), var(--slotted-target-min, 24px));
+  }
+
+  /* The head of a second step: the way back, then the name of the item that opened it. */
+  [data-ui-menu] > [data-part-content] > [data-part-step] {
+    align-items: center;
+    column-gap: var(--_column-gap);
+    display: flex;
+    grid-column: 1 / -1;
+    min-block-size: max(var(--_item-height), var(--slotted-target-min, 24px));
+    padding-inline: var(--_item-inset);
+  }
+
+  [data-ui-menu] > [data-part-content] > [data-part-step] > [data-part-back] {
+    align-items: center;
+    background: transparent;
+    block-size: max(var(--_item-height), var(--slotted-target-min, 24px));
+    border: 0;
+    border-radius: var(--_item-radius);
+    color: var(--_text);
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    inline-size: max(var(--_item-height), var(--slotted-target-min, 24px));
+    justify-content: center;
+    padding: 0;
+  }
+
+  [data-ui-menu] > [data-part-content] > [data-part-step] > [data-part-back]:not(:disabled):hover {
+    background: var(--_highlight);
+  }
+
+  [data-ui-menu] > [data-part-content] > [data-part-step] > [data-part-back]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  [data-ui-menu] > [data-part-content] > [data-part-step] > [data-part-title] {
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-menu] > [data-part-content] > [data-part-step] [data-ui-icon] {
+    block-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+  }
 }

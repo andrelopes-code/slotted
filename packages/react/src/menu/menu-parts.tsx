@@ -17,6 +17,7 @@ import { createPortal } from 'react-dom';
 import { Glyph, Icon } from '../icon';
 import { MenuItemIcon, MenuItemLabel, MenuItemMeta } from './menu-items';
 import { MenuSurfaceProvider, useMenu } from './menu';
+import { MenuSheetStep } from './menu-sheet-step';
 import type {
   MenuContentProps,
   MenuContentRootProps,
@@ -25,6 +26,7 @@ import type {
   MenuTriggerProps,
   MenuTriggerRootProps,
 } from './menu.types';
+import { useMenuSheet } from './use-menu-sheet';
 
 /**
  * The family's own handler runs after the consumer's, and only if the consumer
@@ -217,7 +219,8 @@ export function MenuTrigger({
    * menubar from a row of buttons.
    */
   const onPointerEnter = (event: PointerEvent<HTMLElement>) => {
-    if (menu.disabled) return;
+    /* A step of a sheet opens on a press; a finger has no hover to wait for. */
+    if (menu.disabled || menu.sheet) return;
     cancelPending();
 
     if (parent !== null) {
@@ -246,7 +249,7 @@ export function MenuTrigger({
       clearTimeout(timer.current);
       timer.current = undefined;
     }
-    if (parent === null || !menu.open) return;
+    if (parent === null || !menu.open || menu.sheet) return;
 
     const surface = menu.contentNode;
     if (surface === null) return;
@@ -471,8 +474,19 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
      tore the open submenu's position down and wrote it again each time. */
   const parentSurface = menu.parent?.node ?? null;
 
+  /* Focus enters the sheet as it opens, on the item the pattern names. */
+  const enterSheet = useCallback(() => {
+    const { menu, surfaceNode } = latest.current;
+    if (!menu.open || surfaceNode === null) return;
+    const entry = menu.entry.current;
+    menu.entry.current = 'first';
+    if (entry !== 'trigger') focusEntry(surfaceNode, entry);
+  }, []);
+
+  useMenuSheet(layerNode, surfaceNode, enterSheet);
+
   useLayoutEffect(() => {
-    if (layerNode === null || anchor === null) return;
+    if (layerNode === null || anchor === null || menu.sheet) return;
 
     /* A submenu is anchored to its item and placed from the parent's edge: the
        parent surface's inset is added along the side, and the submenu's own
@@ -516,6 +530,7 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
     hideWhenDetached,
     layerNode,
     parentSurface,
+    menu.sheet,
     menu.triggerNode,
     shift,
     side,
@@ -546,7 +561,7 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
    * never closes the parent.
    */
   useEffect(() => {
-    if (layerNode === null || !menu.open) return;
+    if (layerNode === null || !menu.open || menu.sheet) return;
     const branches = [menu.triggerNode, parent?.node ?? null].filter(
       (branch): branch is HTMLElement => branch !== null,
     );
@@ -572,6 +587,7 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
     menu.closeOnEscape,
     menu.closeOnOutsidePress,
     menu.open,
+    menu.sheet,
     menu.triggerNode,
     parent,
   ]);
@@ -623,6 +639,7 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
     openItem,
     rootTrigger: parent?.rootTrigger ?? menu.triggerNode,
     setHeaderId,
+    sheet: menu.sheet,
     setOpenItem,
   };
 
@@ -700,13 +717,16 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
      */
     ...(menu.open ? {} : { inert: true }),
     'data-part': 'root',
+    'data-presentation': menu.sheet ? 'sheet' : 'popover',
     'data-size': menu.size,
     'data-ui': 'menu',
     'data-width': menu.width,
+    ...(menu.sheet && parent !== null ? { 'data-step': '' } : {}),
   });
 
   const element = (
     <div {...rootProps} ref={setLayer}>
+      {menu.sheet && <div aria-hidden="true" data-part="backdrop" data-part-backdrop="" />}
       <div
         {...withSelectorKey(nativeProps, 'part', 'content')}
         aria-busy={loading === true ? true : undefined}
@@ -723,6 +743,8 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
            where they are and no second item stays highlighted. */
         tabIndex={-1}
       >
+        {menu.sheet && <span aria-hidden="true" data-part="grip" data-part-grip="" />}
+        {menu.sheet && parent !== null && <MenuSheetStep />}
         <MenuSurfaceProvider value={surface}>{children}</MenuSurfaceProvider>
       </div>
     </div>

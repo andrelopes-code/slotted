@@ -51,6 +51,7 @@ import { ptBR as link } from './pt-BR/link';
 import { ptBR as loadingOverlay } from './pt-BR/loading-overlay';
 import { ptBR as markdown } from './pt-BR/markdown';
 import { ptBR as mediaViewer } from './pt-BR/media-viewer';
+import { ptBR as menu } from './pt-BR/menu';
 import { ptBR as message } from './pt-BR/message';
 import { ptBR as messageScroller } from './pt-BR/message-scroller';
 import { ptBR as multiSelect } from './pt-BR/multi-select';
@@ -139,6 +140,7 @@ export const PT_BR: SlottedMessages = {
   loadingOverlay,
   markdown,
   mediaViewer,
+  menu,
   message,
   messageScroller,
   multiSelect,

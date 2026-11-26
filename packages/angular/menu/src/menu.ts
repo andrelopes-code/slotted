@@ -1,6 +1,11 @@
 import { revealWithin } from '@slotted/core/collection';
+import { injectMessages } from '@slotted/angular/i18n';
+import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 import { createDismissableLayer } from '@slotted/core/dismissable-layer';
 import type { DismissableLayerHandle } from '@slotted/core/dismissable-layer';
+import { attachGripDismiss, SHEET_QUERY, watchMedia } from '@slotted/core/extent';
+import { menuMessages } from '@slotted/core/i18n';
+import type { MenuMessages, PartialMessages } from '@slotted/core/i18n';
 import { createArrowNavigation, tabbables } from '@slotted/core/focus';
 import type { ArrowNavigationHandle } from '@slotted/core/focus';
 import { createPortalRoot } from '@slotted/core/portal';
@@ -11,6 +16,7 @@ import { createPresence } from '@slotted/core/presence';
 import type { PresenceHandle } from '@slotted/core/presence';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeRequest } from '@slotted/core/state';
+import { spokenText } from '@slotted/core/text';
 import { createTypeahead, isPrintable } from '@slotted/core/typeahead';
 import type { TypeaheadHandle } from '@slotted/core/typeahead';
 import {
@@ -40,6 +46,7 @@ import type {
   MenuAlign,
   MenuMount,
   MenuOpenReason,
+  MenuPresentation,
   MenuSide,
   MenuSize,
   MenuStrategy,
@@ -94,6 +101,7 @@ const reveal = (item: HTMLElement) => {
   exportAs: 'slMenu',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  imports: [SlGlyph, SlIcon],
   styleUrls: ['../../../styles/src/menu/menu.css', '../../../styles/src/highlight/highlight.css'],
   host: { style: 'display: none' },
   template: `
@@ -107,8 +115,13 @@ const reveal = (item: HTMLElement) => {
         [attr.data-size]="resolvedSize()"
         [attr.data-width]="resolvedWidth()"
         [attr.data-open]="isOpen() ? '' : null"
+        [attr.data-presentation]="sheet() ? 'sheet' : 'popover'"
+        [attr.data-step]="sheet() && parent !== null ? '' : null"
         [attr.inert]="isOpen() ? null : ''"
       >
+        @if (sheet()) {
+          <div aria-hidden="true" data-part="backdrop" data-part-backdrop=""></div>
+        }
         <div
           #surface
           data-part="content"
@@ -123,6 +136,23 @@ const reveal = (item: HTMLElement) => {
           [attr.data-loading]="loading() ? '' : null"
           (keydown)="onKeyDown($event)"
         >
+          @if (sheet()) {
+            <span aria-hidden="true" data-part="grip" data-part-grip=""></span>
+          }
+          @if (sheet() && parent !== null) {
+            <div data-part="step" data-part-step="">
+              <button
+                type="button"
+                data-part="back"
+                data-part-back=""
+                [attr.aria-label]="t('back')"
+                (click)="back($event)"
+              >
+                <span slIcon><svg slGlyph name="chevron-left"></svg></span>
+              </button>
+              <div data-part="title" data-part-title="">{{ stepTitle() }}</div>
+            </div>
+          }
           <ng-content />
         </div>
       </div>
@@ -186,6 +216,10 @@ export class SlMenu {
   readonly shift = input(undefined, { transform: SlMenu.flag });
   readonly hideWhenDetached = input(undefined, { transform: SlMenu.flag });
   readonly portal = input(undefined, { transform: SlMenu.flag });
+  /** `auto` is a bottom sheet on a phone (`MenuPresentation`). Defaults to the provider, then `popover`. */
+  readonly presentation = input<MenuPresentation | undefined>(undefined);
+  /** Words laid over the catalog of the language in force: the back control of a submenu step. */
+  readonly messages = input<PartialMessages<MenuMessages> | undefined>(undefined);
   /**
    * The surface is waiting for its items. It keeps its measure, says so with
    * `aria-busy`, and shows whatever the consumer put in `slMenuEmpty`.
@@ -193,6 +227,7 @@ export class SlMenu {
   readonly loading = input(false, { transform: booleanAttribute });
 
   private readonly defaults = injectMenuDefaults();
+  readonly t = injectMessages(menuMessages, this.messages);
   private readonly viewContainer = inject(ViewContainerRef);
   private readonly template = viewChild.required<TemplateRef<unknown>>('layer');
 
@@ -236,6 +271,12 @@ export class SlMenu {
   private navigation: ArrowNavigationHandle | null = null;
   private presence: PresenceHandle | null = null;
   private typeaheadHandle: TypeaheadHandle | null = null;
+  private releaseGrip: (() => void) | null = null;
+  /** The layer standing is the sheet's, which gives focus back as it goes. */
+  private modal = false;
+  private readonly phone = signal(false);
+  /** The name of the item that opened this step of a sheet. */
+  protected readonly stepTitle = signal('');
 
   readonly name = computed(() => this.value() ?? this.contentId);
   readonly resolvedAlign = computed(
@@ -302,6 +343,8 @@ export class SlMenu {
 
     afterNextRender(() => {
       if (this.resolvedMount() === 'eager' && !this.isOpen()) this.build();
+      if (this.parent !== null || this.onBar) return;
+      destroyRef.onDestroy(watchMedia(SHEET_QUERY, (matches) => this.phone.set(matches)));
     });
 
     destroyRef.onDestroy(() => this.teardown());
@@ -361,11 +404,38 @@ export class SlMenu {
 
   readonly resolvedMount = computed(() => this.mount() ?? this.defaults.mount);
 
+  /** The surface is a bottom sheet: `presentation="auto"` on a phone, or a step of one. */
+  readonly sheet = computed((): boolean =>
+    this.parent !== null
+      ? this.parent.sheet()
+      : !this.onBar &&
+        (this.presentation() ?? this.defaults.presentation) === 'auto' &&
+        this.phone(),
+  );
+
   private show() {
     this.build();
-    this.position();
+    if (this.sheet()) this.step();
+    else this.position();
     this.bind();
     this.enter();
+  }
+
+  /** Closes the step of a sheet this submenu is, back to the step below. */
+  protected back(event: MouseEvent) {
+    this.toggle(false, event.detail === 0 ? 'keyboard' : 'pointer', event);
+  }
+
+  /** A second step is headed by the item that opened it, and is at least as tall as the first. */
+  private step() {
+    this.view?.detectChanges();
+    const below = this.parent?.surface() ?? null;
+    if (this.layerNode === null || below === null) return;
+
+    const item = this.trigger();
+    const label = item?.querySelector("[data-part='label']") ?? item;
+    this.stepTitle.set(label == null ? '' : spokenText(label));
+    this.layerNode.style.setProperty('--_step-floor', `${String(below.offsetHeight)}px`);
   }
 
   /**
@@ -442,19 +512,36 @@ export class SlMenu {
       (branch): branch is HTMLElement => branch !== null,
     );
 
+    /* The sheet is modal: the page is inert under its scrim, and a press on the scrim is outside. */
+    const sheet = this.sheet();
+    this.modal = sheet;
     this.layer = createDismissableLayer(this.layerNode, {
+      back: sheet,
       branches,
+      content: this.surfaceNode,
       escape: this.closeOnEscape() ?? this.defaults.closeOnEscape,
       focusOutside: false,
-      modal: false,
+      modal: sheet,
       outsidePress: this.closeOnOutsidePress() ?? this.defaults.closeOnOutsidePress,
-      scrollLock: false,
+      outsidePressEvent: sheet ? 'click' : 'pointerdown',
+      scrollLock: sheet,
       onDismiss: (request) => {
         const reason: MenuOpenReason = request.reason === 'escape' ? 'escape' : 'outsidePress';
         this.toggle(false, reason, request.source as Event | undefined);
         if (reason === 'outsidePress') this.parent?.closeAll(reason, request.source as Event);
       },
     });
+
+    /* A pull down on the sheet's grip dismisses it, as the grip of every other sheet does. */
+    const grip = this.surfaceNode.querySelector<HTMLElement>(':scope > [data-part="grip"]');
+    if (sheet && grip !== null) {
+      this.releaseGrip = attachGripDismiss({
+        grip,
+        scrim: this.layerNode.querySelector<HTMLElement>(':scope > [data-part="backdrop"]'),
+        sheet: this.surfaceNode,
+        onDismiss: (event) => this.toggle(false, 'pointer', event),
+      });
+    }
 
     this.navigation = createArrowNavigation(this.surfaceNode, {
       focus: reveal,
@@ -493,7 +580,15 @@ export class SlMenu {
   /** The listeners a closed surface has no use for. */
   private unbind() {
     this.navigation?.destroy();
+    const restore = this.layer !== null && this.modal && this.holdsFocus();
+    this.modal = false;
+    this.releaseGrip?.();
+    this.releaseGrip = null;
+    /* The layer first: focus given back to an `inert` trigger is refused. */
     this.layer?.destroy();
+    /* After every step of the stack has let the page go in this pass. */
+    const trigger = this.trigger();
+    if (restore) queueMicrotask(() => trigger?.focus({ preventScroll: true }));
     this.positioner?.destroy();
     this.typeaheadHandle?.destroy();
     this.navigation = null;
@@ -574,6 +669,25 @@ export class SlMenu {
   }
 
   /** The control that opened the outermost surface of this stack. */
+  /**
+   * Whether focus is the sheet's: in this layer, on a step above it, or lost
+   * to the document by a press on a scrim. A step gives focus back to its
+   * item only while the step below stays open.
+   */
+  private holdsFocus(): boolean {
+    const layer = this.layerNode;
+    if (layer === null) return false;
+    if (this.parent !== null && !this.parent.isOpen()) return false;
+
+    const { activeElement, body } = layer.ownerDocument;
+    return (
+      activeElement === null ||
+      activeElement === body ||
+      layer.contains(activeElement) ||
+      activeElement.closest('[data-ui="menu"][data-step]') !== null
+    );
+  }
+
   private rootTrigger(): HTMLElement | null {
     return this.parent === null ? this.trigger() : this.parent.rootTriggerOf();
   }

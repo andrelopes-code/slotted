@@ -23,6 +23,7 @@ export type {
   MenuOpenReason,
   MenuSide,
   MenuSize,
+  MenuPresentation,
   MenuWidth,
   MenuStrategy,
   MenuTone,

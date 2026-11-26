@@ -251,7 +251,8 @@ export class SlMenuItem {
   }
 
   private run(reason: MenuValueReason, source: Event) {
-    if (this.disabled()) return;
+    /* A press on an item that opens a submenu is how a finger reaches the submenu: it runs nothing. */
+    if (this.disabled() || this.opensSubmenu()) return;
 
     this.commit(reason, source);
 
