@@ -35,7 +35,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div inside <sl-drawer>’s panel',
     required: true,
     purpose:
-      'The family’s own box, data-ui="action-sheet": a grid of header, list and footer that spans every row of drawer’s panel, so the list is the one row that scrolls when the sheet reaches its cap. The layer around it is <sl-drawer> with side="bottom" and size="content", which owns the portal, the scrim, the role="dialog" panel, the slide, the drag and the width — here the family’s --slotted-action-sheet-inline-size, handed to the drawer’s sheet through its panel.',
+      'The action sheet’s own box, data-ui="action-sheet": a grid of header, list and footer that spans every row of drawer’s panel, so the list is the one row that scrolls when the sheet reaches its cap. The layer around it is <sl-drawer> with side="bottom" and size="content", which owns the portal, the scrim, the role="dialog" panel, the slide, the drag and the width — here the action sheet’s --slotted-action-sheet-inline-size, handed to the drawer’s sheet through its panel.',
   },
   {
     part: 'trigger',
@@ -135,12 +135,12 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'A trigger, the actions and the way out',
-    note: 'Press Partilhar: the sheet rises from the bottom edge over a scrim, focus lands on the first action, and choosing one closes it with the reason select and the action’s value.',
+    note: 'Press Share: the sheet rises from the bottom edge over a scrim, focus lands on the first action, and choosing one closes it with the reason select and the action’s value.',
     snippet: defineSnippet({
       id: 'action-sheet-angular-playground',
       language: 'angular',
-      label: 'The whole family',
-      source: `<button slButton [slActionSheetTrigger]="sheet">Partilhar</button>
+      label: 'The whole sheet',
+      source: `<button slButton [slActionSheetTrigger]="sheet">Share</button>
 <sl-action-sheet #sheet="slActionSheet" (openChangeRequest)="run($event.result)">
   <header slActionSheetHeader>
     <h2 slActionSheetTitle>Share report</h2>
@@ -150,14 +150,14 @@ const scenes: ReferenceSceneMeta[] = [
     <button slActionSheetItem value="copy">Copy link</button>
     <button slActionSheetItem value="pdf">Download PDF</button>
   </div>
-  <div slActionSheetFooter><button slActionSheetCancel>Cancelar</button></div>
+  <div slActionSheetFooter><button slActionSheetCancel>Cancel</button></div>
 </sl-action-sheet>`,
     }),
   },
   {
     id: 'destructive',
     title: 'The destructive choice, at the top',
-    note: 'tone="danger" paints the words, the mark and the highlight red, and the destructive action goes first, where it is noticed. Opened, this sheet puts focus on Cancelar rather than on the danger.',
+    note: 'tone="danger" paints the words, the mark and the highlight red, and the destructive action goes first, where it is noticed. Opened, this sheet puts focus on Cancel rather than on the danger.',
     snippet: defineSnippet({
       id: 'action-sheet-angular-destructive',
       language: 'angular',
@@ -189,21 +189,21 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'content',
-    title: 'Content the family did not choose',
+    title: 'Content the sheet did not choose',
     note: 'A title of two lines, a long message, labels that wrap and a reference with no spaces: nothing truncates, the list is the one row that scrolls, and the title and the cancel stay on screen.',
     snippet: defineSnippet({
       id: 'action-sheet-angular-content',
       language: 'angular',
       label: 'Long content scrolls in the list',
       source: `<button slActionSheetItem value="copy-ref">
-  Copiar ENC-2026-0000088213-ATLANTICA-PT-LISBOA-NORTE
+  Copy ENC-2026-0000088213-ATLANTIC-PT-LISBON-NORTH
 </button>`,
     }),
   },
   {
     id: 'loading',
     title: 'An action that takes time',
-    note: 'Press Descarregar PDF: the ring takes the mark’s box and the label stays, so nothing moves; the item carries aria-busy, refuses a second press, and the sheet stays open until the consumer clears loading.',
+    note: 'Press Download PDF: the ring takes the mark’s box and the label stays, so nothing moves; the item carries aria-busy, refuses a second press, and the sheet stays open until the consumer clears loading.',
     snippet: defineSnippet({
       id: 'action-sheet-angular-loading',
       language: 'angular',
@@ -215,7 +215,7 @@ const scenes: ReferenceSceneMeta[] = [
   [loading]="exporting()"
   (select)="exportPdf()"
 >
-  Descarregar PDF
+  Download PDF
 </button>`,
     }),
   },
@@ -233,7 +233,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'policy',
     title: 'What may close it',
-    note: 'escape, outsidePress and back each take close or none, and every close is a request the consumer can cancel. Here only Cancelar closes the sheet; the line under the trigger names each request that arrived.',
+    note: 'escape, outsidePress and back each take close or none, and every close is a request the consumer can cancel. Here only Cancel closes the sheet; the line under the trigger names each request that arrived.',
     snippet: defineSnippet({
       id: 'action-sheet-angular-policy',
       language: 'angular',
@@ -251,7 +251,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'focus',
     title: 'Where focus enters, and where it goes back',
-    note: 'Focus enters on the first action that can run; when that action is destructive it enters on Cancelar, the least destructive one the dialog pattern asks for. On close it returns to the trigger; initialFocus and finalFocus name other elements.',
+    note: 'Focus enters on the first action that can run; when that action is destructive it enters on Cancel, the least destructive one the dialog pattern asks for. On close it returns to the trigger; initialFocus and finalFocus name other elements.',
     snippet: defineSnippet({
       id: 'action-sheet-angular-focus',
       language: 'angular',
@@ -278,11 +278,11 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'responsive',
     title: 'One list of actions, a menu on a pointer and a sheet on a phone',
-    note: 'The item vocabulary is menu’s, word for word — value, tone, disabled, (select) and the description line — so one array renders as either family, and the breakpoint that picks between them is the application’s.',
+    note: 'The item vocabulary is menu’s, word for word — value, tone, disabled, (select) and the description line — so one array renders as either component, and the breakpoint that picks between them is the application’s.',
     snippet: defineSnippet({
       id: 'action-sheet-angular-responsive',
       language: 'angular',
-      label: 'The same array, two families',
+      label: 'The same array, two components',
       source: `@if (coarse()) {
   <sl-action-sheet #sheet="slActionSheet" aria-label="Actions">
     <div slActionSheetList aria-label="Actions">
@@ -317,14 +317,14 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'accessibility',
     title: 'The keyboard',
-    note: 'Open it and use the keys: the arrows move between actions and wrap, Home and End reach the ends, a letter moves to the next action that starts with it, Tab moves between the list and Cancelar, and Escape closes and returns focus.',
+    note: 'Open it and use the keys: the arrows move between actions and wrap, Home and End reach the ends, a letter moves to the next action that starts with it, Tab moves between the list and Cancel, and Escape closes and returns focus.',
     snippet: defineSnippet({
       id: 'action-sheet-angular-accessibility',
       language: 'angular',
       label: 'Typeahead on a label that is not text',
-      source: `<button slActionSheetItem value="flag" textValue="Sinalizar">
+      source: `<button slActionSheetItem value="flag" textValue="Flag">
   <span slActionSheetItemIcon><ng-icon name="lucideFlag" /></span>
-  Sinalizar
+  Flag
 </button>`,
     }),
   },
@@ -359,42 +359,42 @@ const composition = apiRows([
     'SlActionSheet',
     '—',
     'the consumer’s button',
-    'The wiring on the application’s own control: <button slButton [slActionSheetTrigger]="sheet">. A handler of the consumer’s that calls preventDefault() refuses the open',
+    'The wiring on the application’s own control: <button slButton [slActionSheetTrigger]="sheet">. A handler of the consumer’s that calls preventDefault() refuses the open.',
   ],
   [
     'exportAs',
     'slActionSheet',
     '—',
     'sl-action-sheet',
-    'The instance, with show(), close() and focus() — the actions a template cannot express declaratively',
+    'The instance, with show(), close() and focus() — the actions a template cannot express declaratively.',
   ],
   [
     'a[slActionSheetItem]',
     'anchor',
     '—',
     'slActionSheetItem',
-    'An action that navigates is an anchor and keeps its role and keyboard',
+    'An action that navigates is an anchor and keeps its role and keyboard.',
   ],
   [
     'SL_ACTION_SHEET',
     'readonly Type[]',
     '—',
     'a standalone component’s imports',
-    'Every part at once',
+    'Every part at once.',
   ],
   [
     'provideActionSheetDefaults()',
     '{ modal, mount, escape, outsidePress, back, closeOnSelect }',
     '—',
     'an injector',
-    'The decisions an application takes once. A sheet that states any of them itself still wins',
+    'The decisions an application takes once. A sheet that states any of them itself still wins.',
   ],
   [
     'aria-label',
     'string',
     '—',
     'sl-action-sheet',
-    'Read from the host before the bindings are written and moved to the panel, which carries the role — for a sheet with no title',
+    'Read from the host before the bindings are written and moved to the panel, which carries the role — for a sheet with no title.',
   ],
 ]);
 
@@ -432,7 +432,7 @@ const snippets = [
           <span data-part="label">Copy link</span>
         </button>
       </div>
-      <div data-part="footer"><button data-part="cancel" type="button">Cancelar</button></div>
+      <div data-part="footer"><button data-part="cancel" type="button">Cancel</button></div>
     </div>
   </div>
 </div>`,
@@ -440,7 +440,7 @@ const snippets = [
   defineSnippet({
     id: 'action-sheet-theming',
     language: 'css',
-    label: 'Retuning the family for an application',
+    label: 'Retuning the action sheet for an application',
     source: `/* The measure is read by drawer's panel, which is the root's parent, so it is
    written where both see it: the theme. */
 :root {
@@ -471,49 +471,49 @@ export const ANGULAR_ACTION_SHEET_DOCS = {
         'model<boolean>',
         'false',
         'sl-action-sheet',
-        'Whether the sheet is open. Two-way with [(open)]; the family asks through openChangeRequest before it moves',
+        'Whether the sheet is open. Two-way with [(open)]; the sheet asks through openChangeRequest before it moves.',
       ],
       [
         'modal',
         'boolean',
         'true',
         'sl-action-sheet, provideActionSheetDefaults',
-        'Whether the page is inert, the scroll locked, focus contained and the scrim painted. false keeps the page operable and paints no scrim',
+        'Whether the page is inert, the scroll locked, focus contained and the scrim painted. false keeps the page operable and paints no scrim.',
       ],
       [
         'mount',
         "'active' | 'lazy' | 'eager'",
         'active',
         'sl-action-sheet, provideActionSheetDefaults',
-        'When the layer exists. active drops it once the exit is over, lazy builds it on the first open and keeps it, eager builds it up front and makes it inert',
+        'When the layer exists. active drops it once the exit is over, lazy builds it on the first open and keeps it, eager builds it up front and makes it inert.',
       ],
       [
         'escape',
         "'close' | 'none'",
         'close',
         'sl-action-sheet, provideActionSheetDefaults',
-        'Whether Escape asks to close. It reaches the topmost layer only',
+        'Whether Escape asks to close. It reaches the topmost layer only.',
       ],
       [
         'outsidePress',
         "'close' | 'none'",
         'close',
         'sl-action-sheet, provideActionSheetDefaults',
-        'Whether a press outside the panel asks to close',
+        'Whether a press outside the panel asks to close.',
       ],
       [
         'back',
         "'close' | 'none'",
         'close',
         'sl-action-sheet, provideActionSheetDefaults',
-        'The platform’s way back closes the sheet instead of leaving the page, while it is modal',
+        'The platform’s way back closes the sheet instead of leaving the page, while it is modal.',
       ],
       [
         'closeOnSelect',
         'boolean',
         'true',
         'sl-action-sheet, provideActionSheetDefaults',
-        'Whether choosing an action closes the sheet with the reason select',
+        'Whether choosing an action closes the sheet with the reason select.',
       ],
       [
         'messages',
@@ -527,63 +527,63 @@ export const ANGULAR_ACTION_SHEET_DOCS = {
         'HTMLElement | false',
         '—',
         'sl-action-sheet',
-        'Where focus goes on opening. Unstated, the first action that can run, or the least destructive one when that action is danger. false moves nothing',
+        'Where focus goes on opening. Unstated, the first action that can run, or the least destructive one when that action is danger. false moves nothing.',
       ],
       [
         'finalFocus',
         'HTMLElement | false',
         '—',
         'sl-action-sheet',
-        'Where focus goes on closing. Unstated, the element that held it on opening',
+        'Where focus goes on closing. Unstated, the element that held it on opening.',
       ],
       [
         'container',
         'Element | null',
         '—',
         'sl-action-sheet',
-        'A parent for this layer alone instead of the shared portal root',
+        'A parent for this layer alone instead of the shared portal root.',
       ],
       [
         'value',
         'string',
         '—',
         'slActionSheetItem',
-        'What the close request carries as result when this action is chosen',
+        'What the close request carries as result when this action is chosen.',
       ],
       [
         'textValue',
         'string',
         '—',
         'slActionSheetItem',
-        'What typeahead matches when the label is not plain text',
+        'What typeahead matches when the label is not plain text.',
       ],
       [
         'tone',
         "'accent' | 'secondary' | 'success' | 'warning' | 'danger'",
         '—',
         'slActionSheetItem',
-        'Paints the words, the mark and the highlight. danger is the destructive action',
+        'Paints the words, the mark and the highlight. danger is the destructive action.',
       ],
       [
         'disabled',
         'boolean',
         'false',
         'slActionSheetItem',
-        'The action cannot run. It stays focusable and takes aria-disabled; the native attribute is removed so the item stays in the ring',
+        'The action cannot run. It stays focusable and takes aria-disabled; the native attribute is removed so the item stays in the ring.',
       ],
       [
         'loading',
         'boolean',
         'false',
         'slActionSheetItem',
-        'The action is running: the ring takes the mark’s box, aria-busy is written, a second press is refused and the sheet stays open',
+        'The action is running: the ring takes the mark’s box, aria-busy is written, a second press is refused and the sheet stays open.',
       ],
       [
         'closeOnSelect',
         'boolean',
         '—',
         'slActionSheetItem',
-        'Overrides the sheet’s closeOnSelect for this action',
+        'Overrides the sheet’s closeOnSelect for this action.',
       ],
     ]),
     composition,

@@ -34,7 +34,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div, inside drawer’s panel',
     required: true,
     purpose:
-      'The family’s own box, data-ui="action-sheet": a grid of header, list and footer that spans every row of drawer’s panel, so the list is the one row that scrolls when the sheet reaches its cap. The layer around it is drawer with side="bottom" and size="content", which owns the portal, the scrim, the role="dialog" panel, the slide, the drag and the width — here the family’s --slotted-action-sheet-inline-size, handed to drawer’s sheet.',
+      'The action sheet’s own box, data-ui="action-sheet": a grid of header, list and footer that spans every row of drawer’s panel, so the list is the one row that scrolls when the sheet reaches its cap. The layer around it is drawer with side="bottom" and size="content", which owns the portal, the scrim, the role="dialog" panel, the slide, the drag and the width — here the action sheet’s --slotted-action-sheet-inline-size, handed to drawer’s sheet.',
   },
   {
     part: 'trigger',
@@ -133,13 +133,13 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'A trigger, the actions and the way out',
-    note: 'Press Partilhar: the sheet rises from the bottom edge over a scrim, focus lands on the first action, and choosing one closes it with the reason select and the action’s value.',
+    note: 'Press Share: the sheet rises from the bottom edge over a scrim, focus lands on the first action, and choosing one closes it with the reason select and the action’s value.',
     snippet: defineSnippet({
       id: 'action-sheet-react-playground',
       language: 'tsx',
-      label: 'The whole family',
+      label: 'The whole sheet',
       source: `<ActionSheet onOpenChange={(open, request) => run(request.result)}>
-  <ActionSheetTrigger>Partilhar</ActionSheetTrigger>
+  <ActionSheetTrigger>Share</ActionSheetTrigger>
   <ActionSheetContent>
     <ActionSheetHeader>
       <ActionSheetTitle>Share report</ActionSheetTitle>
@@ -150,10 +150,10 @@ const scenes: ReferenceSceneMeta[] = [
         Copy link
       </ActionSheetItem>
       <ActionSheetItem value="pdf" icon={<FileText />}>
-        Descarregar PDF
+        Download PDF
       </ActionSheetItem>
     </ActionSheetList>
-    <ActionSheetCancel>Cancelar</ActionSheetCancel>
+    <ActionSheetCancel>Cancel</ActionSheetCancel>
   </ActionSheetContent>
 </ActionSheet>;`,
     }),
@@ -161,7 +161,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'destructive',
     title: 'The destructive choice, at the top',
-    note: 'tone="danger" paints the words, the mark and the highlight red, and the destructive action goes first, where it is noticed. Opened, this sheet puts focus on Cancelar rather than on the danger.',
+    note: 'tone="danger" paints the words, the mark and the highlight red, and the destructive action goes first, where it is noticed. Opened, this sheet puts focus on Cancel rather than on the danger.',
     snippet: defineSnippet({
       id: 'action-sheet-react-destructive',
       language: 'tsx',
@@ -190,9 +190,9 @@ const scenes: ReferenceSceneMeta[] = [
     </ActionSheetItem>
   </ActionSheetGroup>
   <ActionSheetSeparator />
-  <ActionSheetGroup label="Estado">
+  <ActionSheetGroup label="Status">
     <ActionSheetItem value="paid" tone="success">
-      Marcar como paga
+      Mark as paid
     </ActionSheetItem>
   </ActionSheetGroup>
 </ActionSheetList>;`,
@@ -200,21 +200,21 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'content',
-    title: 'Content the family did not choose',
+    title: 'Content the sheet did not choose',
     note: 'A title of two lines, a long message, labels that wrap and a reference with no spaces: nothing truncates, the list is the one row that scrolls, and the title and the cancel stay on screen.',
     snippet: defineSnippet({
       id: 'action-sheet-react-content',
       language: 'tsx',
       label: 'Long content scrolls in the list',
       source: `<ActionSheetItem value="copy-ref">
-  Copiar ENC-2026-0000088213-ATLANTICA-PT-LISBOA-NORTE
+  Copy ENC-2026-0000088213-ATLANTIC-PT-LISBON-NORTH
 </ActionSheetItem>;`,
     }),
   },
   {
     id: 'loading',
     title: 'An action that takes time',
-    note: 'Press Descarregar PDF: the ring takes the mark’s box and the label stays, so nothing moves; the item carries aria-busy, refuses a second press, and the sheet stays open until the consumer clears loading.',
+    note: 'Press Download PDF: the ring takes the mark’s box and the label stays, so nothing moves; the item carries aria-busy, refuses a second press, and the sheet stays open until the consumer clears loading.',
     snippet: defineSnippet({
       id: 'action-sheet-react-loading',
       language: 'tsx',
@@ -231,7 +231,7 @@ const scenes: ReferenceSceneMeta[] = [
     });
   }}
 >
-  Descarregar PDF
+  Download PDF
 </ActionSheetItem>;`,
     }),
   },
@@ -249,7 +249,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'policy',
     title: 'What may close it',
-    note: 'escape, outsidePress and back each take close or none, and every close is a request the consumer can cancel. Here only Cancelar closes the sheet; the line under the trigger names each request that arrived and whether it was refused.',
+    note: 'escape, outsidePress and back each take close or none, and every close is a request the consumer can cancel. Here only Cancel closes the sheet; the line under the trigger names each request that arrived and whether it was refused.',
     snippet: defineSnippet({
       id: 'action-sheet-react-policy',
       language: 'tsx',
@@ -270,7 +270,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'focus',
     title: 'Where focus enters, and where it goes back',
-    note: 'Focus enters on the first action that can run; when that action is destructive it enters on Cancelar, the least destructive one the dialog pattern asks for. On close it returns to the trigger; initialFocus and finalFocus name other elements.',
+    note: 'Focus enters on the first action that can run; when that action is destructive it enters on Cancel, the least destructive one the dialog pattern asks for. On close it returns to the trigger; initialFocus and finalFocus name other elements.',
     snippet: defineSnippet({
       id: 'action-sheet-react-focus',
       language: 'tsx',
@@ -302,11 +302,11 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'responsive',
     title: 'One list of actions, a menu on a pointer and a sheet on a phone',
-    note: 'The item vocabulary is menu’s, word for word — value, icon, description, tone, disabled, onSelect — so one array renders as either family, and the breakpoint that picks between them is the application’s.',
+    note: 'The item vocabulary is menu’s, word for word — value, icon, description, tone, disabled, onSelect — so one array renders as either component, and the breakpoint that picks between them is the application’s.',
     snippet: defineSnippet({
       id: 'action-sheet-react-responsive',
       language: 'tsx',
-      label: 'The same array, two families',
+      label: 'The same array, two components',
       source: `const coarse = useMediaQuery('(pointer: coarse)');
 
 coarse ? (
@@ -349,13 +349,13 @@ coarse ? (
   {
     id: 'accessibility',
     title: 'The keyboard',
-    note: 'Open it and use the keys: the arrows move between actions and wrap, Home and End reach the ends, a letter moves to the next action that starts with it, Tab moves between the list and Cancelar, and Escape closes and returns focus.',
+    note: 'Open it and use the keys: the arrows move between actions and wrap, Home and End reach the ends, a letter moves to the next action that starts with it, Tab moves between the list and Cancel, and Escape closes and returns focus.',
     snippet: defineSnippet({
       id: 'action-sheet-react-accessibility',
       language: 'tsx',
       label: 'Typeahead on a label that is not text',
-      source: `<ActionSheetItem value="flag" textValue="Sinalizar">
-  <FlagBadge /> Sinalizar
+      source: `<ActionSheetItem value="flag" textValue="Flag">
+  <FlagBadge /> Flag
 </ActionSheetItem>;`,
     }),
   },
@@ -375,7 +375,7 @@ const events: EventRow[] = [
   {
     name: 'onClick, onKeyDown, onPointerMove, on every part',
     payload: 'the element’s own events',
-    when: 'Whenever the element fires them. The consumer’s handler runs first, and preventDefault() refuses the family’s own behavior.',
+    when: 'Whenever the element fires them. The consumer’s handler runs first, and preventDefault() refuses the action sheet’s own behavior.',
   },
 ];
 
@@ -385,35 +385,35 @@ const composition = apiRows([
     '(props) => ReactNode',
     '—',
     'ActionSheetTrigger, ActionSheetContent, ActionSheetTitle, ActionSheetMessage, ActionSheetItem, ActionSheetCancel',
-    'Substitutes the element. An item that navigates renders an anchor and keeps its role and keyboard; the trigger becomes the application’s own Button. The list, the groups and the separator are fixed, because their role is what they are',
+    'Substitutes the element. An item that navigates renders an anchor and keeps its role and keyboard; the trigger becomes the application’s own Button. The list, the groups and the separator are fixed, because their role is what they are.',
   ],
   [
     'ref',
     'Ref<ActionSheetHandle> on ActionSheet, Ref<HTMLElement> on every part',
     '—',
     'ActionSheet, every part',
-    'On a part it reaches the element. On the family it is a handle with open(), close() and focus() — the actions a consumer cannot express declaratively',
+    'On a part it reaches the element. On ActionSheet it is a handle with open(), close() and focus() — the actions a consumer cannot express declaratively.',
   ],
   [
     'container',
     'Element | null',
     '—',
     'ActionSheet',
-    'A parent for this layer alone instead of the shared portal root, passed to drawer',
+    'A parent for this layer alone instead of the shared portal root, passed to drawer.',
   ],
   [
     'useActionSheet()',
     '() => ActionSheetContextValue',
     '—',
     'inside ActionSheet',
-    'What the parts read: the open state, the identifiers, the axes and close(reason, result). It throws outside a sheet',
+    'What the parts read: the open state, the identifiers, the axes and close(reason, result). It throws outside a sheet.',
   ],
   [
     'ActionSheetDefaultsProvider',
     '{ modal, mount, escape, outsidePress, back, closeOnSelect }',
     '—',
     'a subtree',
-    'The decisions an application takes once. A sheet that states any of them itself still wins',
+    'The decisions an application takes once. A sheet that states any of them itself still wins.',
   ],
 ]);
 
@@ -473,7 +473,7 @@ const snippets = [
       </div>
       <div data-part="footer">
         <button data-part="cancel" type="button">
-          Cancelar
+          Cancel
         </button>
       </div>
     </div>
@@ -483,7 +483,7 @@ const snippets = [
   defineSnippet({
     id: 'action-sheet-theming',
     language: 'css',
-    label: 'Retuning the family for an application',
+    label: 'Retuning the action sheet for an application',
     source: `/* The measure is read by drawer's panel, which is the root's parent, so it is
    written where both see it: the theme. */
 :root {
@@ -514,56 +514,56 @@ export const REACT_ACTION_SHEET_DOCS = {
         'boolean',
         '—',
         'ActionSheet',
-        'Present at all means the consumer owns the state, for the life of the component. The family then asks and waits',
+        'Present at all means the consumer owns the state, for the life of the component. ActionSheet then asks and waits.',
       ],
       [
         'defaultOpen',
         'boolean',
         '—',
         'ActionSheet',
-        'The value an uncontrolled sheet starts from, read once',
+        'The value an uncontrolled sheet starts from, read once.',
       ],
       [
         'modal',
         'boolean',
         'true',
         'ActionSheet, ActionSheetDefaultsProvider',
-        'Whether the page is inert, the scroll locked, focus contained and the scrim painted. false keeps the page operable and paints no scrim',
+        'Whether the page is inert, the scroll locked, focus contained and the scrim painted. false keeps the page operable and paints no scrim.',
       ],
       [
         'mount',
         "'active' | 'lazy' | 'eager'",
         'active',
         'ActionSheet, ActionSheetDefaultsProvider',
-        'When the layer exists. active drops it once the exit is over, lazy builds it on the first open and keeps it, eager builds it up front and makes it inert',
+        'When the layer exists. active drops it once the exit is over, lazy builds it on the first open and keeps it, eager builds it up front and makes it inert.',
       ],
       [
         'escape',
         "'close' | 'none'",
         'close',
         'ActionSheet, ActionSheetDefaultsProvider',
-        'Whether Escape asks to close. It reaches the topmost layer only',
+        'Whether Escape asks to close. It reaches the topmost layer only.',
       ],
       [
         'outsidePress',
         "'close' | 'none'",
         'close',
         'ActionSheet, ActionSheetDefaultsProvider',
-        'Whether a press outside the panel — on the scrim, or on the page behind a non-modal sheet — asks to close',
+        'Whether a press outside the panel — on the scrim, or on the page behind a non-modal sheet — asks to close.',
       ],
       [
         'back',
         "'close' | 'none'",
         'close',
         'ActionSheet, ActionSheetDefaultsProvider',
-        'The platform’s way back — a phone’s gesture, a browser’s button — closes the sheet instead of leaving the page, while it is modal',
+        'The platform’s way back — a phone’s gesture, a browser’s button — closes the sheet instead of leaving the page, while it is modal.',
       ],
       [
         'closeOnSelect',
         'boolean',
         'true',
         'ActionSheet, ActionSheetDefaultsProvider',
-        'Whether choosing an action closes the sheet with the reason select',
+        'Whether choosing an action closes the sheet with the reason select.',
       ],
       [
         'messages',
@@ -577,77 +577,77 @@ export const REACT_ACTION_SHEET_DOCS = {
         'RefObject<HTMLElement> | false',
         '—',
         'ActionSheet',
-        'Where focus goes on opening. Unstated, the first action that can run, or the least destructive one when that action is danger. false moves nothing',
+        'Where focus goes on opening. Unstated, the first action that can run, or the least destructive one when that action is danger. false moves nothing.',
       ],
       [
         'finalFocus',
         'RefObject<HTMLElement> | false',
         '—',
         'ActionSheet',
-        'Where focus goes on closing. Unstated, the element that held it on opening',
+        'Where focus goes on closing. Unstated, the element that held it on opening.',
       ],
       [
         'value',
         'string',
         '—',
         'ActionSheetItem',
-        'What the close request carries as result when this action is chosen',
+        'What the close request carries as result when this action is chosen.',
       ],
       [
         'textValue',
         'string',
         '—',
         'ActionSheetItem',
-        'What typeahead matches when the label is not plain text',
+        'What typeahead matches when the label is not plain text.',
       ],
       [
         'icon',
         'ReactNode',
         '—',
         'ActionSheetItem',
-        'The action’s visual, drawn in the mark column',
+        'The action’s visual, drawn in the mark column.',
       ],
       [
         'description',
         'ReactNode',
         '—',
         'ActionSheetItem',
-        'The second line, which aria-describedby points at',
+        'The second line, which aria-describedby points at.',
       ],
       [
         'tone',
         "'accent' | 'secondary' | 'success' | 'warning' | 'danger'",
         '—',
         'ActionSheetItem',
-        'Paints the words, the mark and the highlight. danger is the destructive action',
+        'Paints the words, the mark and the highlight. danger is the destructive action.',
       ],
       [
         'disabled',
         'boolean',
         'false',
         'ActionSheetItem',
-        'The action cannot run. It stays focusable and takes aria-disabled',
+        'The action cannot run. It stays focusable and takes aria-disabled.',
       ],
       [
         'loading',
         'boolean',
         'false',
         'ActionSheetItem',
-        'The action is running: the ring takes the mark’s box, aria-busy is written, a second press is refused and the sheet stays open',
+        'The action is running: the ring takes the mark’s box, aria-busy is written, a second press is refused and the sheet stays open.',
       ],
       [
         'closeOnSelect',
         'boolean',
         '—',
         'ActionSheetItem',
-        'Overrides the sheet’s closeOnSelect for this action',
+        'Overrides the sheet’s closeOnSelect for this action.',
       ],
       [
         'label',
         'ReactNode',
         '—',
         'ActionSheetGroup',
-        'Rendered as the group-label part, and the group’s accessible name',
+        'Rendered as the group-label part, and the group’s accessible name.',
       ],
     ]),
     composition,

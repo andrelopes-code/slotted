@@ -1,0 +1,78 @@
+---
+title: Action sheet
+description: A sheet of short actions that rises from the bottom edge of the screen, for choices made with a thumb.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Actions, a title and a way out
+
+The trigger opens a sheet that holds a title, an optional message, a list of actions and a cancel. Choosing an action closes the sheet and reports its `value` as the result of the request. The cancel closes it with the reason `dismiss`, and with no words of its own it shows the cancel text of the language in force. The sheet is a dialog that names its list through the title, so a screen reader announces the title for the dialog and again for the list. Use an action sheet for a short list of choices on a phone; on a pointer device the same actions read better as a menu.
+
+## Tones
+
+`tone` paints the words, the icon and the highlight of an action in one of five tones: `accent`, `secondary`, `success`, `warning` or `danger`. `danger` marks the destructive action, which goes first in the list where it is noticed. When the first action that can run is `danger`, focus enters the sheet on the cancel instead, so a press on Enter right after opening cannot destroy anything.
+
+<Example name="tones" />
+
+## Groups and separators
+
+A group names a run of related actions with a label that is also its accessible name. A separator draws a rule between two runs. The groups, the separator and the actions stay in one list with one tab stop, so the arrow keys cross from one group to the next.
+
+<Example name="groups" />
+
+## Descriptions and unavailable actions
+
+A description is the action's second line, muted, and joins its accessible description. A `disabled` action keeps its place in the list and in the arrow key order, takes `aria-disabled` and refuses the press, so a reader can still reach it and read why it is unavailable.
+
+<Example name="states" />
+
+## Loading
+
+`loading` marks an action whose work has started. The spinner takes the icon's box and the label does not move, the action carries `aria-busy` and refuses a second press, and the sheet stays open until the application clears `loading` and closes it. Call `preventDefault()` on the select event so the press does not close the sheet. Press the first action: the export takes 2.5 seconds.
+
+<Example name="loading" />
+
+## Keeping the sheet open
+
+`closeOnSelect={false}` on the sheet, or the `closeOnSelect` input in Angular, keeps it open after any action is chosen, for a list where the reader makes several choices. `closeOnSelect` on one action overrides the sheet for that action. `messages` replaces the cancel's words, which here read Done. Press the pallets, then dispatch the route.
+
+<Example name="keep-open" />
+
+## Reading the result
+
+The request that moves the sheet carries `reason`, the way the move was asked for: `pointer` or `keyboard` from the trigger, `select` from an action, `dismiss` from the cancel, `escape`, `outsidePress`, `back` or `programmatic`. When the reason is `select`, `result` holds the chosen action's `value`. `onOpenChange` receives the request in React and `openChangeRequest` emits it in Angular; both bindings take `open` for a sheet the application controls. There is no promise-returning controller: the request already carries the answer.
+
+<Example name="result" />
+
+## Beside the page
+
+A modal sheet makes the page inert, locks the scroll and paints a scrim. `modal={false}` paints no scrim, leaves the page operable and contains no focus, for a sheet that stays open beside the work. A press outside it still closes the sheet. Open the sheet, then press Scan parcel.
+
+<Example name="modal" />
+
+## What may close it
+
+`escape`, `outsidePress` and `back` each take `close` or `none`. With `none`, that way of leaving is ignored. The cancel and the actions still close the sheet, so a sheet that must be answered always has an exit. `back` applies to a modal sheet: the browser's back button or a phone's back gesture closes the sheet and stays on the page.
+
+<Example name="policy" />
+
+## Focus
+
+Focus enters on the first action that can run. `initialFocus` names another element, or `false` to move nothing. On close, focus returns to the element that held it, and `finalFocus` names another. In React both take a ref, and in Angular they take the element. Here focus enters on Reprint shipping label and returns to Scan next parcel.
+
+<Example name="focus" />
+
+## Decided once
+
+`ActionSheetDefaultsProvider` in React and `provideActionSheetDefaults` in Angular set `modal`, `mount`, `escape`, `outsidePress`, `back` and `closeOnSelect` for every sheet below them. A sheet that states a value of its own keeps it. Here Picking inherits `closeOnSelect={false}` and `outsidePress="none"`, so a choice leaves it open; Packing states `closeOnSelect` and closes.
+
+<Example name="defaults" />
+
+## Links
+
+An action that navigates is an anchor. In React, `render` returns the anchor and receives the action's props. In Angular, the directive goes on an `a` element. The role and the keyboard are the same as for a button, and choosing the link closes the sheet.
+
+<Example name="links" />
