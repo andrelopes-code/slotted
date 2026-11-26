@@ -1,3 +1,4 @@
+export { spokenText } from './spoken-text';
 export { defaultTail, graphemes, truncateMiddle } from './text';
 export type { MiddleTruncationOptions } from './text';
 export { textBoxValues } from './text-box';

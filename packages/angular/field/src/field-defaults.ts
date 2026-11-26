@@ -56,8 +56,17 @@ export const FIELD_DESCRIBED_ORDER: readonly FieldDescribedSlot[] = [
   'error',
 ];
 
+/**
+ * How the help beside a label presents its hint. `auto` is the bottom sheet of
+ * `slPopover presentation="auto"` on a phone (`SHEET_QUERY`), headed by the
+ * field's label, and the toggletip anywhere else.
+ */
+export type FieldHelpPresentation = 'toggletip' | 'auto';
+
 export interface FieldDefaults {
   disabled: boolean | undefined;
+  /** How every `slFieldHelp` inside presents its hint, unless it states its own. */
+  helpPresentation: FieldHelpPresentation;
   labelPlacement: FieldLabelPlacement;
   necessity: FieldNecessity;
   readOnly: boolean | undefined;
@@ -66,6 +75,7 @@ export interface FieldDefaults {
 
 const FALLBACK: FieldDefaults = {
   disabled: undefined,
+  helpPresentation: 'toggletip',
   labelPlacement: 'top',
   necessity: 'mark',
   readOnly: undefined,
@@ -97,6 +107,7 @@ export function provideFieldDefaults(defaults: Partial<FieldDefaults>) {
     provide: FIELD_DEFAULTS,
     useFactory: (): FieldDefaults => ({
       disabled: defaults.disabled ?? FALLBACK.disabled,
+      helpPresentation: defaults.helpPresentation ?? FALLBACK.helpPresentation,
       labelPlacement: defaults.labelPlacement ?? FALLBACK.labelPlacement,
       necessity: defaults.necessity ?? FALLBACK.necessity,
       readOnly: defaults.readOnly ?? FALLBACK.readOnly,

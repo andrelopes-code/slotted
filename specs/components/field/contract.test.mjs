@@ -172,8 +172,15 @@ test('opens the hint on a tap, where a tooltip alone would need a long press', (
     controlled: 'open',
     uncontrolled: 'defaultOpen',
     request: 'onOpenChange',
-    reasons: ['pointer', 'keyboard', 'escape', 'blur', 'programmatic'],
+    reasons: ['pointer', 'keyboard', 'escape', 'blur', 'programmatic', 'outsidePress', 'dismiss'],
   });
+});
+
+test('presents the hint as a sheet on a phone only when asked', () => {
+  assert.deepEqual(contract.help.presentation.values, ['toggletip', 'auto']);
+  assert.equal(contract.help.presentation.default, 'toggletip');
+  assert.equal(contract.help.presentation.query, '(max-width: 480px) and (pointer: coarse)');
+  assert.match(contract.help.presentation.sheet, /focus given back to the help button/);
 });
 
 /**

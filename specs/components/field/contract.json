@@ -36,7 +36,15 @@
     "describedBy": "hidden-node",
     "tooltipDescribes": "none",
     "opensOn": "press, hover and focus",
-    "reason": "The tooltip layer exists only while it is open, so the control and the button are described by a hidden node carrying the same text; the tooltip describes nothing, so the hint is not read twice. The family controls the tooltip's open and toggles it on activation, because a tooltip alone opens on a coarse pointer only by a long press."
+    "reason": "The tooltip layer exists only while it is open, so the control and the button are described by a hidden node carrying the same text; the tooltip describes nothing, so the hint is not read twice. The family controls the tooltip's open and toggles it on activation, because a tooltip alone opens on a coarse pointer only by a long press.",
+    "presentation": {
+      "values": ["toggletip", "auto"],
+      "default": "toggletip",
+      "provider": "helpPresentation on the field defaults provider, which an application sets once; a field group inherits it",
+      "query": "(max-width: 480px) and (pointer: coarse)",
+      "sheet": "the bottom sheet of popover presentation=auto: modal, headed by the field's label beside a close control, dismissed by its grip, its scrim, Escape and the platform's way back, with focus given back to the help button. The hidden node that describes the button and the control stays as it is",
+      "reason": "The help of a widget, a column and a chart is a sheet under the same query; a toggletip on a phone covers the control or its neighbour and has no close control"
+    }
   },
   "disabledLeaves": ["help", "action"],
   "containerName": "slotted-field",
@@ -69,7 +77,15 @@
       "controlled": "open",
       "uncontrolled": "defaultOpen",
       "request": "onOpenChange",
-      "reasons": ["pointer", "keyboard", "escape", "blur", "programmatic"]
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "blur",
+        "programmatic",
+        "outsidePress",
+        "dismiss"
+      ]
     }
   },
   "members": {

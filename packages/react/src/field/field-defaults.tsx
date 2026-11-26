@@ -4,6 +4,7 @@ import type { FieldDefaults, FieldDefaultsProviderProps } from './field.types';
 
 const FALLBACK: FieldDefaults = {
   disabled: undefined,
+  helpPresentation: 'toggletip',
   labelPlacement: 'top',
   necessity: 'mark',
   readOnly: undefined,
@@ -35,6 +36,7 @@ export function useFieldDefaults(): FieldDefaults {
 export function FieldDefaultsProvider({
   children,
   disabled,
+  helpPresentation,
   labelPlacement,
   necessity,
   readOnly,
@@ -44,12 +46,13 @@ export function FieldDefaultsProvider({
   const value = useMemo<FieldDefaults>(
     () => ({
       disabled: disabled ?? inherited.disabled,
+      helpPresentation: helpPresentation ?? inherited.helpPresentation,
       labelPlacement: labelPlacement ?? inherited.labelPlacement,
       necessity: necessity ?? inherited.necessity,
       readOnly: readOnly ?? inherited.readOnly,
       size: size ?? inherited.size,
     }),
-    [disabled, inherited, labelPlacement, necessity, readOnly, size],
+    [disabled, helpPresentation, inherited, labelPlacement, necessity, readOnly, size],
   );
 
   return <FieldDefaultsContext.Provider value={value}>{children}</FieldDefaultsContext.Provider>;

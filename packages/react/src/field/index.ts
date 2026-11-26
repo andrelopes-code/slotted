@@ -33,6 +33,7 @@ export type {
   FieldDescribedSlot,
   FieldHeaderProps,
   FieldHeaderRootProps,
+  FieldHelpPresentation,
   FieldHelpProps,
   FieldIds,
   FieldIndicatorProps,

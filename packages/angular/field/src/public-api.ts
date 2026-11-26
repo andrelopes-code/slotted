@@ -16,6 +16,7 @@ export {
 export type {
   FieldDefaults,
   FieldDescribedSlot,
+  FieldHelpPresentation,
   FieldIds,
   FieldLabelPlacement,
   FieldNecessity,

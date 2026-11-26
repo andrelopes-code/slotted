@@ -1,4 +1,5 @@
 import { keyedProps, withSelectorKey } from '@slotted/core/selector-key';
+import { SHEET_QUERY } from '@slotted/core/extent';
 import { fieldMessages } from '@slotted/core/i18n';
 import { useEffect, useId, useRef } from 'react';
 import type { FocusEvent, MouseEvent, PointerEvent } from 'react';
@@ -6,6 +7,7 @@ import type { FocusEvent, MouseEvent, PointerEvent } from 'react';
 import { useMessages } from '../i18n';
 import { Glyph, Icon } from '../icon';
 import { InlineMessage } from '../inline-message';
+import { useMediaQuery } from '../picker-panel/use-media-query';
 import {
   Tooltip,
   TooltipArrow,
@@ -21,6 +23,8 @@ import {
   necessityMark,
   useField,
 } from './field-context';
+import { useFieldDefaults } from './field-defaults';
+import { FieldHelpSheet } from './field-help-sheet';
 import type {
   FieldActionProps,
   FieldActionRootProps,
@@ -363,14 +367,37 @@ export function FieldHelp({
   defaultOpen,
   onOpenChange,
   open,
+  presentation,
   side,
   ...buttonProps
 }: FieldHelpProps) {
   const field = useField();
+  const defaults = useFieldDefaults();
   const own = useMessages(fieldMessages);
   const fallbackId = useId();
   const textId = field?.ids.help ?? `slotted-field-help-${fallbackId}`;
   useRegisterMessage('help', hasFieldContent(children));
+  const sheet = useMediaQuery(
+    (presentation ?? defaults.helpPresentation) === 'auto' ? SHEET_QUERY : null,
+  );
+  const label = buttonProps['aria-label'] ?? (field?.t ?? own)('help');
+
+  if (sheet) {
+    return (
+      <FieldHelpSheet
+        {...buttonProps}
+        aria-describedby={buttonProps['aria-describedby'] ?? textId}
+        aria-label={label}
+        defaultOpen={defaultOpen}
+        label={label}
+        onOpenChange={onOpenChange}
+        open={open}
+        textId={textId}
+      >
+        {children}
+      </FieldHelpSheet>
+    );
+  }
 
   return (
     <>
@@ -386,7 +413,7 @@ export function FieldHelp({
         <FieldHelpTrigger
           {...buttonProps}
           aria-describedby={buttonProps['aria-describedby'] ?? textId}
-          aria-label={buttonProps['aria-label'] ?? (field?.t ?? own)('help')}
+          aria-label={label}
         >
           <span data-part="help-text" data-part-help-text="" hidden id={textId}>
             {children}

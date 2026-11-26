@@ -98,7 +98,7 @@ const events: EventRow[] = [
   {
     name: 'onOpenChange',
     payload: '(open: boolean, request: TooltipChangeRequest)',
-    when: 'On FieldHelp, before the hint opens or closes, once per transition. request.reason is pointer for a hover or a press; keyboard for focus, Enter or Space; or escape, blur or programmatic. request.cancel() refuses the change.',
+    when: 'On FieldHelp, before the hint opens or closes, once per transition. request.reason is pointer for a hover or a press; keyboard for focus, Enter or Space; or escape, blur or programmatic. The sheet of presentation="auto" also reports outsidePress for a press on its scrim, and dismiss for its close control and the platform’s way back. request.cancel() refuses the change.',
   },
 ];
 
@@ -333,6 +333,20 @@ export const REACT_FIELD_DOCS = {
         'false',
         'FieldHelp',
         'Whether the hint starts open, read once when FieldHelp owns the state.',
+      ],
+      [
+        'presentation',
+        "'toggletip' | 'auto'",
+        'toggletip',
+        'FieldHelp',
+        'auto draws the hint as a bottom sheet under (max-width: 480px) and (pointer: coarse): modal, headed by the field’s label beside a close control, dismissed by its grip, its scrim, Escape and the platform’s way back, with focus given back to the help button. Anywhere else it is the toggletip.',
+      ],
+      [
+        'helpPresentation',
+        "'toggletip' | 'auto'",
+        'toggletip',
+        'FieldDefaultsProvider',
+        'The presentation of every FieldHelp inside, unless a FieldHelp states its own.',
       ],
       [
         'side',

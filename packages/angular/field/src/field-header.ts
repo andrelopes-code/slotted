@@ -1,18 +1,29 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   Directive,
   effect,
+  ElementRef,
   forwardRef,
   HostAttributeToken,
   inject,
   input,
   signal,
+  viewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import { injectMessages } from '@slotted/angular/i18n';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
+import {
+  SlPopover,
+  SlPopoverBody,
+  SlPopoverContent,
+  SlPopoverLayer,
+} from '@slotted/angular/popover';
+import type { PopoverChangeRequest } from '@slotted/angular/popover';
 import {
   provideTooltipDefaults,
   SlTooltip,
@@ -21,16 +32,22 @@ import {
   SlTooltipLayer,
   SlTooltipTrigger,
 } from '@slotted/angular/tooltip';
+import type { TooltipOpenReason } from '@slotted/angular/tooltip';
+import { SHEET_QUERY, watchMedia } from '@slotted/core/extent';
 import { fieldMessages } from '@slotted/core/i18n';
+import { spokenText } from '@slotted/core/text';
 
 import { SlField } from './field';
 import { formatFieldCount, isFieldCountOver } from './field-counter';
 import {
+  FIELD_DEFAULTS,
+  SlFieldDefaultsSource,
   SlFieldHeaderSlot,
   SlFieldHelpSlot,
   SlFieldIdFactory,
   SlFieldIndicatorSlot,
 } from './field-defaults';
+import type { FieldHelpPresentation } from './field-defaults';
 
 /**
  * The label row, when the label has company: the help, an indicator, an action
@@ -117,12 +134,28 @@ export class SlFieldIndicator {
  *
  * **It stays operable on a disabled field.** The help is often where the reason
  * the field is off is written.
+ *
+ * **On a phone it can be a sheet.** Under `presentation="auto"` (or the field
+ * defaults' `helpPresentation`) and `SHEET_QUERY`, the hint is the bottom sheet
+ * of `slPopover presentation="auto"`, headed by the field's label beside a
+ * close control; focus goes back to this button on close. The open state is
+ * still the tooltip's, so `[(open)]` and `(openChangeRequest)` hold for both.
  */
 @Component({
   selector: 'button[slFieldHelp]',
   standalone: true,
   exportAs: 'slFieldHelp',
-  imports: [SlGlyph, SlIcon, SlTooltipArrow, SlTooltipContent, SlTooltipLayer],
+  imports: [
+    SlGlyph,
+    SlIcon,
+    SlPopover,
+    SlPopoverBody,
+    SlPopoverContent,
+    SlPopoverLayer,
+    SlTooltipArrow,
+    SlTooltipContent,
+    SlTooltipLayer,
+  ],
   hostDirectives: [
     {
       directive: SlTooltip,
@@ -135,10 +168,25 @@ export class SlFieldIndicator {
     <span data-part="help-text" data-part-help-text="" hidden [id]="textId()">{{
       slFieldHelp()
     }}</span>
-    <ng-template slTooltipLayer>
-      <div slTooltipContent>{{ slFieldHelp() }}</div>
-      <div slTooltipArrow></div>
-    </ng-template>`,
+    @if (sheet()) {
+      <ng-container
+        slPopover
+        presentation="auto"
+        [open]="tooltip.isOpen()"
+        (openChangeRequest)="closeSheet($event)"
+      >
+        <ng-template slPopoverLayer>
+          <div slPopoverContent [attr.aria-label]="heading()">
+            <div slPopoverBody>{{ slFieldHelp() }}</div>
+          </div>
+        </ng-template>
+      </ng-container>
+    } @else {
+      <ng-template slTooltipLayer>
+        <div slTooltipContent>{{ slFieldHelp() }}</div>
+        <div slTooltipArrow></div>
+      </ng-template>
+    }`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   providers: [
@@ -151,6 +199,8 @@ export class SlFieldIndicator {
     type: 'button',
     '[attr.aria-label]': 'label()',
     '[attr.aria-describedby]': 'describedBy()',
+    '[attr.aria-haspopup]': "sheet() ? 'dialog' : null",
+    '[attr.aria-expanded]': 'sheet() ? tooltip.isOpen() : null',
     '(pointerenter)': 'enter($event)',
     '(pointerleave)': 'leave($event)',
     '(focus)': 'focus($event)',
@@ -161,9 +211,16 @@ export class SlFieldIndicator {
 export class SlFieldHelp {
   /** The hint. */
   readonly slFieldHelp = input('');
+  /** `auto` is a bottom sheet on a phone. Defaults to the field defaults, then `toggletip`. */
+  readonly presentation = input<FieldHelpPresentation | undefined>(undefined);
 
   private readonly field = inject(SlField, { optional: true });
-  private readonly tooltip = inject(SlTooltip);
+  protected readonly tooltip = inject(SlTooltip);
+  private readonly host: HTMLElement = inject(ElementRef).nativeElement;
+  private readonly source = inject(SlFieldDefaultsSource, { optional: true });
+  private readonly token = inject(FIELD_DEFAULTS);
+  private readonly note = viewChild(SlPopover);
+  private readonly phone = signal(false);
   private readonly writtenLabel = inject(new HostAttributeToken('aria-label'), { optional: true });
   private readonly writtenDescribedBy = inject(new HostAttributeToken('aria-describedby'), {
     optional: true,
@@ -178,6 +235,14 @@ export class SlFieldHelp {
   );
   protected readonly describedBy = computed(() => this.writtenDescribedBy ?? this.textId());
 
+  private readonly resolvedPresentation = computed(
+    () => this.presentation() ?? (this.source?.fieldDefaults() ?? this.token).helpPresentation,
+  );
+  /** The hint is the sheet: `auto`, on a phone. */
+  protected readonly sheet = computed(() => this.resolvedPresentation() === 'auto' && this.phone());
+  /** The words of the field's label, read as the sheet opens. */
+  protected readonly heading = signal('');
+
   /** Whether a press opened the hint; a hover-opened hint closes when the pointer leaves. */
   private readonly pinned = signal(false);
 
@@ -187,25 +252,46 @@ export class SlFieldHelp {
     effect(() => {
       if (!this.tooltip.isOpen()) this.pinned.set(false);
     });
+
+    /* The sheet gives focus back to this button, and a press on it is inside. */
+    effect(() => this.note()?.triggerNode.set(this.host));
+
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      destroyRef.onDestroy(watchMedia(SHEET_QUERY, (matches) => this.phone.set(matches)));
+    });
+  }
+
+  /** The sheet closed itself — its scrim, its grip, Escape, its close control. */
+  protected closeSheet(request: PopoverChangeRequest) {
+    if (request.value) return;
+
+    /* The sheet's own reasons, outsidePress and dismiss among them, reach the consumer as they are. */
+    this.tooltip.toggle(false, request.reason as TooltipOpenReason, request.source as Event);
+    /* A consumer who refused the close keeps the sheet open. */
+    if (this.tooltip.isOpen()) request.cancel();
   }
 
   protected enter(event: PointerEvent) {
-    if (event.pointerType === 'touch' || this.tooltip.isOpen()) return;
+    if (this.sheet() || event.pointerType === 'touch' || this.tooltip.isOpen()) return;
     this.tooltip.openAfterDelay(event);
   }
 
   protected leave(event: PointerEvent) {
-    if (event.pointerType === 'touch' || this.pinned()) return;
+    if (this.sheet() || event.pointerType === 'touch' || this.pinned()) return;
     this.tooltip.closeAfterDelay(event);
   }
 
   /** `:focus-visible` rather than every focus: a press focuses the button too. */
   protected focus(event: FocusEvent) {
-    if (!(event.target as HTMLElement).matches(':focus-visible')) return;
+    if (this.sheet() || !(event.target as HTMLElement).matches(':focus-visible')) return;
     this.tooltip.toggle(true, 'keyboard', event);
   }
 
   protected blur(event: FocusEvent) {
+    /* Focus leaves for the sheet it opened. */
+    if (this.sheet()) return;
+
     this.pinned.set(false);
     this.tooltip.toggle(false, 'blur', event);
   }
@@ -216,6 +302,12 @@ export class SlFieldHelp {
    */
   protected press(event: MouseEvent) {
     const reason = event.detail === 0 ? 'keyboard' : 'pointer';
+    if (this.sheet()) {
+      this.heading.set(this.labelText());
+      this.tooltip.toggle(!this.tooltip.isOpen(), reason, event);
+      return;
+    }
+
     if (this.tooltip.isOpen() && this.pinned()) {
       this.pinned.set(false);
       this.tooltip.toggle(false, reason, event);
@@ -223,5 +315,19 @@ export class SlFieldHelp {
     }
     this.pinned.set(true);
     this.tooltip.toggle(true, reason, event);
+  }
+
+  /** The field's label as a reader hears it, or this button's name outside a field. */
+  private labelText(): string {
+    const ids = this.field?.ids();
+    const document = this.host.ownerDocument;
+    const label =
+      ids === undefined
+        ? null
+        : (document.getElementById(ids.label) ??
+          document.querySelector(`label[for="${CSS.escape(ids.control)}"]`));
+    const text = label === null ? '' : spokenText(label);
+
+    return text === '' ? this.label() : text;
   }
 }

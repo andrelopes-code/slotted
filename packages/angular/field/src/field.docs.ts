@@ -105,7 +105,7 @@ const events: EventRow[] = [
   {
     name: '(openChangeRequest)',
     payload: 'ChangeRequest<boolean>',
-    when: 'On button[slFieldHelp], before the hint opens or closes, once per transition. reason is pointer for a hover or a press; keyboard for focus, Enter or Space; or escape, blur or programmatic. cancel() refuses the change.',
+    when: 'On button[slFieldHelp], before the hint opens or closes, once per transition. reason is pointer for a hover or a press; keyboard for focus, Enter or Space; or escape, blur or programmatic. The sheet of presentation="auto" also reports outsidePress for a press on its scrim, and dismiss for its close control and the platform’s way back. cancel() refuses the change.',
   },
 ];
 
@@ -333,6 +333,20 @@ export const ANGULAR_FIELD_DOCS = {
         'false',
         'button[slFieldHelp]',
         'Whether the hint is showing. It is the composed SlTooltip’s model, exposed on the button, so [(open)] binds it both ways.',
+      ],
+      [
+        'presentation',
+        "'toggletip' | 'auto'",
+        'toggletip',
+        'button[slFieldHelp]',
+        'auto draws the hint as a bottom sheet under (max-width: 480px) and (pointer: coarse): modal, headed by the field’s label beside a close control, dismissed by its grip, its scrim, Escape and the platform’s way back, with focus given back to the help button. Anywhere else it is the toggletip. Unset, it is provideFieldDefaults’ helpPresentation.',
+      ],
+      [
+        'helpPresentation',
+        "'toggletip' | 'auto'",
+        'toggletip',
+        'provideFieldDefaults',
+        'The presentation of every slFieldHelp in the application, unless a help states its own.',
       ],
       [
         'side',

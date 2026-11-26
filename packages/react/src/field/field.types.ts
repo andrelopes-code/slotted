@@ -74,6 +74,7 @@ export type FieldDescribedSlot = 'indicator' | 'help' | 'description' | 'counter
 /** What an application sets once for every field under it. */
 export interface FieldDefaults {
   disabled: boolean | undefined;
+  helpPresentation: FieldHelpPresentation;
   labelPlacement: FieldLabelPlacement;
   necessity: FieldNecessity;
   readOnly: boolean | undefined;
@@ -83,6 +84,8 @@ export interface FieldDefaults {
 export interface FieldDefaultsProviderProps {
   children?: ReactNode | undefined;
   disabled?: boolean | undefined;
+  /** How every `FieldHelp` inside presents its hint (`FieldHelpProps.presentation`). */
+  helpPresentation?: FieldHelpPresentation | undefined;
   labelPlacement?: FieldLabelPlacement | undefined;
   necessity?: FieldNecessity | undefined;
   readOnly?: boolean | undefined;
@@ -286,6 +289,15 @@ export interface FieldHelpProps extends Omit<ComponentPropsWithRef<'button'>, 'c
   onOpenChange?: ((open: boolean, request: TooltipChangeRequest) => void) | undefined;
   /** The hint's state, controlled. */
   open?: boolean | undefined;
+  /**
+   * `auto` draws the hint as the bottom sheet of `Popover presentation="auto"`
+   * on a phone (`SHEET_QUERY`), headed by the field's label, and as the
+   * toggletip anywhere else. Defaults to `FieldDefaultsProvider`, then
+   * `toggletip`.
+   */
+  presentation?: FieldHelpPresentation | undefined;
   /** Where the hint opens. Defaults to the tooltip provider, then `top`. */
   side?: TooltipSide | undefined;
 }
+
+export type FieldHelpPresentation = 'toggletip' | 'auto';

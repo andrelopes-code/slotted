@@ -233,6 +233,7 @@ export class SlFieldGroup extends SlFieldDefaultsSource {
   fieldDefaults(): FieldDefaults {
     return {
       disabled: this.disabled() ?? this.inherited().disabled,
+      helpPresentation: this.inherited().helpPresentation,
       labelPlacement: this.labelPlacement() ?? this.inherited().labelPlacement,
       necessity: this.resolvedNecessity(),
       readOnly: this.readOnly() ?? this.inherited().readOnly,
