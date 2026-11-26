@@ -1,0 +1,80 @@
+---
+title: Toggle group
+description: A set of two-state buttons that share one value, with one tab stop for the whole set.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Value
+
+Each item carries a `value`, and the group holds the values that are on. The value is an array in every mode, so a group that allows one item at a time holds an array of one. `defaultValue` sets the starting value of an uncontrolled group and is read once. `multiple` allows several items on at once. By default, pressing the active item turns it off and the group empties; `deselectable={false}` in React and `[deselectable]="false"` in Angular keeps the last item on, and the property has no effect while `multiple` is set.
+
+<Example name="selection" />
+
+## Variants
+
+`variant` sets how the items are drawn. `outline`, the default, draws the bar's own edge. `ghost` draws none, for a bar inside a surface that already has one, such as a toolbar or a card header. The color of an item that is on is the same in both. `chips` draws separate rounded items that wrap onto the next line and are never joined, with the pressed item in the neutral tone. Use `chips` for filters that grow with the data.
+
+<Example name="variants" />
+
+## Sizes
+
+`size` takes `sm`, `md` or `lg` and sets the bar and every item to one control step. A bar is as tall as a text field or a button of the same size, so the three line up in one row.
+
+<Example name="sizes" />
+
+## Layout
+
+`fullWidth` makes the items share the whole line; without it the bar is as wide as its labels. `attached` is `true` by default and joins the items into one bar, and `false` spaces them apart. `orientation="vertical"` stacks the items and writes `aria-orientation` on the group. The `chips` variant is never attached.
+
+<Example name="layout" />
+
+## States
+
+An item is pressed when its value is in the group's value. `disabled` on an item sets the native `disabled` attribute, which removes it from the tab order and from the arrow keys while the rest of the bar stays live. An item that is on and disabled keeps both states, so the bar still shows the value. `disabled` on the group reaches every item that does not state its own.
+
+<Example name="states" />
+
+## Marks and words
+
+An item takes a mark before its words. In React the mark is the `icon` prop of `ToggleGroupItem`; in Angular it is an element with `slToggleGroupIcon` inside the button. The mark is sized from the control glyph scale and hidden from assistive technology, so the words beside it name the item.
+
+<Example name="icons" />
+
+## Marks without words
+
+An item without words holds one mark and takes its accessible name from an `aria-label` on the item. Without the label the item has no name.
+
+<Example name="icon-only" />
+
+## Controlled
+
+Pass `value` to own the selection. A press calls `onValueChange(value, request)` in React and emits `valueChange` in Angular, and the group moves only when the application passes the new array back. The request carries `value`, `previous`, `reason` (`pointer` or `keyboard`) and `cancel()`. In Angular the emitted object is the request, so the new array is `$event.value`. Here the handler refuses a fourth column with `cancel()`.
+
+<Example name="controlled" />
+
+## Inside a toolbar
+
+A toolbar is one tab stop with arrow navigation across every control it holds. A toggle group inside a toolbar does not hold a second tab stop, and the toolbar moves focus between the buttons of the group. The group finds the toolbar in the DOM, so nothing is passed. `rovingFocus` states the choice for a bar that is not a Slotted toolbar.
+
+<Example name="toolbar" wide />
+
+## Inside a field
+
+A toggle group inside a field is named by the field label through `aria-labelledby`. An `aria-label` or `aria-labelledby` written on the group wins over the field label. A group is not a form control: it submits no value.
+
+<Example name="field" />
+
+## Keyboard
+
+`Tab` enters the group once, on the pressed item or on the first item that is not disabled. The arrow keys, `Home` and `End` move focus and never change the value. `Space` and `Enter` toggle the focused item. A horizontal group answers `ArrowLeft` and `ArrowRight`, and a vertical group answers `ArrowUp` and `ArrowDown`; the other pair is left to the page so scrolling continues. `loop` is `true` by default and wraps focus past the ends; `loop={false}` in React and `[loop]="false"` in Angular stops it at the first and last items.
+
+<Example name="keyboard" />
+
+## Defaults
+
+`ToggleGroupDefaultsProvider` in React and `provideToggleGroupDefaults` in Angular set `size`, `variant`, `orientation`, `attached`, `deselectable` and `loop` once for every group under them. A group that states a value of its own keeps it. In the example the second group states `variant="outline"` and takes the rest from the provider.
+
+<Example name="defaults" />

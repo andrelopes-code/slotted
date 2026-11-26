@@ -85,9 +85,14 @@ const scenes: ReferenceSceneMeta[] = [
       id: 'toggle-group-angular-selection',
       language: 'angular',
       label: 'Single, multiple, and a set that always holds one',
-      source: `<div slToggleGroup aria-label="Text style" multiple [defaultValue]="['bold']">
-  <button slToggleGroupItem value="bold">Bold</button>
-  <button slToggleGroupItem value="italic">Italic</button>
+      source: `<div slToggleGroup aria-label="Order channels" multiple [defaultValue]="['web', 'retail']">
+  <button slToggleGroupItem value="web">Web</button>
+  <button slToggleGroupItem value="retail">Retail</button>
+</div>
+
+<div slToggleGroup aria-label="Reporting currency" [deselectable]="false" [defaultValue]="['usd']">
+  <button slToggleGroupItem value="usd">USD</button>
+  <button slToggleGroupItem value="eur">EUR</button>
 </div>`,
     }),
   },
@@ -141,21 +146,21 @@ const scenes: ReferenceSceneMeta[] = [
       id: 'toggle-group-angular-attached',
       language: 'angular',
       label: 'The two shapes',
-      source: `<div slToggleGroup aria-label="Camadas" multiple [attached]="false" [defaultValue]="['roads']">
-  <button slToggleGroupItem value="roads">Ruas</button>
-  <button slToggleGroupItem value="terrain">Relevo</button>
+      source: `<div slToggleGroup aria-label="Map layers" multiple [attached]="false" [defaultValue]="['roads']">
+  <button slToggleGroupItem value="roads">Roads</button>
+  <button slToggleGroupItem value="terrain">Terrain</button>
 </div>`,
     }),
   },
   {
     id: 'states',
-    title: 'Every state the contract declares',
+    title: 'Every state',
     note: 'Hover, focus, press, on, unavailable, and unavailable while on — that last one keeps both facts, because the state a reader cannot change is still one they have to be able to read.',
     snippet: defineSnippet({
       id: 'toggle-group-angular-states',
       language: 'angular',
       label: 'One item unavailable inside a live bar',
-      source: `<div slToggleGroup aria-label="Formato" [defaultValue]="['csv']">
+      source: `<div slToggleGroup aria-label="Export format" [defaultValue]="['csv']">
   <button slToggleGroupItem value="csv">CSV</button>
   <button slToggleGroupItem value="xlsx" disabled>XLSX</button>
 </div>`,
@@ -164,14 +169,14 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'iconOnly',
     title: 'Marks without words',
-    note: 'An item with only a mark draws square and takes its accessible name from aria-label, which is the one thing the family cannot supply for a consumer’s own artwork.',
+    note: 'An item with only a mark draws square and takes its accessible name from aria-label, which is the one thing toggle group cannot supply for a mark it did not draw.',
     snippet: defineSnippet({
       id: 'toggle-group-angular-icon-only',
       language: 'angular',
-      label: 'A formatting bar',
-      source: `<div slToggleGroup aria-label="Estilo do texto" multiple [defaultValue]="['bold']">
-  <button slToggleGroupItem value="bold" aria-label="Negrito">
-    <ng-icon slToggleGroupIcon name="lucideBold" />
+      label: 'A bar of marks',
+      source: `<div slToggleGroup aria-label="Order flags" multiple [defaultValue]="['starred']">
+  <button slToggleGroupItem value="starred" aria-label="Starred">
+    <span slToggleGroupIcon><svg slGlyph name="star"></svg></span>
   </button>
 </div>`,
     }),
@@ -198,29 +203,22 @@ const scenes: ReferenceSceneMeta[] = [
       id: 'toggle-group-angular-toolbar',
       language: 'angular',
       label: 'A toggle group in a bar',
-      source: `<div slToolbar aria-label="Formatting">
-  <div
-    slToggleGroup
-    aria-label="Estilo do texto"
-    multiple
-    variant="ghost"
-    [defaultValue]="['bold']"
-  >
-    <button slToggleGroupItem value="bold" aria-label="Negrito">
-      <ng-icon slToggleGroupIcon name="lucideBold" />
-    </button>
+      source: `<div slToolbar aria-label="Sales report">
+  <div slToggleGroup aria-label="Chart type" variant="ghost" [defaultValue]="['bars']">
+    <button slToggleGroupItem value="bars">Bars</button>
+    <button slToggleGroupItem value="lines">Lines</button>
   </div>
 </div>`,
     }),
   },
   {
     id: 'content',
-    title: 'Content the family did not choose',
-    note: 'A label nine words long, one unbroken token, and a right-to-left string inside a left-to-right page. Each clips at the ellipsis and keeps its whole text in the DOM.',
+    title: 'Labels longer than their item',
+    note: 'A label wider than its item clips at the ellipsis and keeps its whole text in the DOM, so a bar never grows a second line.',
     snippet: defineSnippet({
       id: 'toggle-group-angular-content',
       language: 'angular',
-      label: 'Long, unbroken and mirrored labels',
+      label: 'A label wider than its item',
       source: `<div slToggleGroup aria-label="Frequency" fullWidth [defaultValue]="['now']">
   <button slToggleGroupItem value="now">Immediately</button>
   <button slToggleGroupItem value="digest">Once a day, in the evening digest</button>
@@ -386,7 +384,7 @@ export const ANGULAR_TOGGLE_GROUP_DOCS = {
         'directive on any element',
         '—',
         'inside an item',
-        'The mark, projected into the item and hidden from the reading order. An ng-icon, an inline svg or a span all work and none of them loses its own semantics',
+        'The mark, projected into the item and hidden from the reading order. A slGlyph svg, an inline svg or a span all work and none of them loses its own semantics',
       ],
       [
         'exportAs',
@@ -412,7 +410,7 @@ export const ANGULAR_TOGGLE_GROUP_DOCS = {
     ]),
     accessibility: [
       'There is no APG pattern called “toggle group”. The container is a group, each item is the Button pattern’s toggle button (w3.org/WAI/ARIA/apg/patterns/button/), and the movement between them is the Toolbar pattern’s roving tabindex (w3.org/WAI/ARIA/apg/patterns/toolbar/). Citing one and implying the other is how a family ends up with half a keyboard.',
-      'So the arrows move focus and never toggle, which is the one place this family and segmented-control genuinely differ and the one a reader feels. Space and Enter turn the focused item on or off; Home and End reach the ends; a horizontal group ignores the cross axis so the page keeps scrolling with focus inside it.',
+      'So the arrows move focus and never toggle, which is the one place toggle group and segmented-control genuinely differ and the one a reader feels. Space and Enter turn the focused item on or off; Home and End reach the ends; a horizontal group ignores the cross axis so the page keeps scrolling with focus inside it.',
       'aria-pressed is written in both states, so an item is announced as a toggle rather than as a button that happens to be pressed — and the label never changes with the state, which the Button pattern calls critical. An item with only a mark takes its name from an aria-label the consumer writes on the button.',
       'Inside a toolbar the group gives its keyboard up: the bar is found in the DOM by its public identifier rather than by injecting the other family, so neither depends on the other. rovingFocus states it outright for a bar this library did not write.',
       'disabled is the native attribute, because that is also what makes the browser refuse focus and what makes the ring skip the item. The group is not a form control and implements no ControlValueAccessor: a set of choices a form submits is checkbox-group for many and segmented-control for one.',
@@ -441,7 +439,7 @@ export const ANGULAR_TOGGLE_GROUP_DOCS = {
       defineSnippet({
         id: 'toggle-group-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning toggle group for an application',
         source: `[data-ui='toggle-group'] {
   --slotted-toggle-group-radius: var(--slotted-radius-full);
   --slotted-toggle-group-border-color: var(--slotted-border-subtle);

@@ -145,21 +145,21 @@ const scenes: ReferenceSceneMeta[] = [
       id: 'toggle-group-react-attached',
       language: 'tsx',
       label: 'The two shapes',
-      source: `<ToggleGroup aria-label="Camadas" attached={false} defaultValue={['roads']} multiple>
-  <ToggleGroupItem value="roads">Ruas</ToggleGroupItem>
-  <ToggleGroupItem value="terrain">Relevo</ToggleGroupItem>
+      source: `<ToggleGroup aria-label="Map layers" attached={false} defaultValue={['roads']} multiple>
+  <ToggleGroupItem value="roads">Roads</ToggleGroupItem>
+  <ToggleGroupItem value="terrain">Terrain</ToggleGroupItem>
 </ToggleGroup>;`,
     }),
   },
   {
     id: 'states',
-    title: 'Every state the contract declares',
+    title: 'Every state',
     note: 'Hover, focus, press, on, unavailable, and unavailable while on — that last one keeps both facts, because the state a reader cannot change is still one they have to be able to read.',
     snippet: defineSnippet({
       id: 'toggle-group-react-states',
       language: 'tsx',
       label: 'One item unavailable inside a live bar',
-      source: `<ToggleGroup aria-label="Formato" defaultValue={['pdf']}>
+      source: `<ToggleGroup aria-label="Export format" defaultValue={['pdf']}>
   <ToggleGroupItem value="csv">CSV</ToggleGroupItem>
   <ToggleGroupItem disabled value="xlsx">
     XLSX
@@ -173,14 +173,14 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'iconOnly',
     title: 'Marks without words',
-    note: 'An item with only a mark draws square and takes its accessible name from aria-label, which is the one thing the family cannot supply for a consumer’s own artwork.',
+    note: 'An item with only a mark draws square and takes its accessible name from aria-label, which is the one thing toggle group cannot supply for a mark it did not draw.',
     snippet: defineSnippet({
       id: 'toggle-group-react-icon-only',
       language: 'tsx',
-      label: 'A formatting bar',
-      source: `<ToggleGroup aria-label="Text style" defaultValue={['bold']} multiple>
-  <ToggleGroupItem aria-label="Bold" icon={<BoldIcon />} value="bold" />
-  <ToggleGroupItem aria-label="Italic" icon={<ItalicIcon />} value="italic" />
+      label: 'A bar of marks',
+      source: `<ToggleGroup aria-label="Order flags" defaultValue={['starred']} multiple>
+  <ToggleGroupItem aria-label="Starred" icon={<Glyph name="star" />} value="starred" />
+  <ToggleGroupItem aria-label="Pinned" icon={<Glyph name="pin" />} value="pinned" />
 </ToggleGroup>;`,
     }),
   },
@@ -206,26 +206,26 @@ const scenes: ReferenceSceneMeta[] = [
       id: 'toggle-group-react-toolbar',
       language: 'tsx',
       label: 'A toggle group in a bar',
-      source: `<Toolbar aria-label="Formatting">
-  <ToggleGroup aria-label="Text style" defaultValue={['bold']} multiple variant="ghost">
-    <ToggleGroupItem aria-label="Bold" icon={<BoldIcon />} value="bold" />
-    <ToggleGroupItem aria-label="Italic" icon={<ItalicIcon />} value="italic" />
+      source: `<Toolbar aria-label="Sales report">
+  <ToggleGroup aria-label="Chart type" defaultValue={['bars']} variant="ghost">
+    <ToggleGroupItem value="bars">Bars</ToggleGroupItem>
+    <ToggleGroupItem value="lines">Lines</ToggleGroupItem>
   </ToggleGroup>
   <ToolbarSeparator />
   <Button size="sm" tone="secondary" variant="ghost">
-    Publicar
+    Export
   </Button>
 </Toolbar>;`,
     }),
   },
   {
     id: 'content',
-    title: 'Content the family did not choose',
-    note: 'A label nine words long, one unbroken token, and a right-to-left string inside a left-to-right page. Each clips at the ellipsis and keeps its whole text in the DOM.',
+    title: 'Labels longer than their item',
+    note: 'A label wider than its item clips at the ellipsis and keeps its whole text in the DOM, so a bar never grows a second line.',
     snippet: defineSnippet({
       id: 'toggle-group-react-content',
       language: 'tsx',
-      label: 'Long, unbroken and mirrored labels',
+      label: 'A label wider than its item',
       source: `<ToggleGroup aria-label="Frequency" defaultValue={['now']} fullWidth>
   <ToggleGroupItem value="now">Immediately</ToggleGroupItem>
   <ToggleGroupItem value="digest">Once a day, in the evening digest</ToggleGroupItem>
@@ -241,8 +241,8 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'tsx',
       label: 'A provider over a substituted root',
       source: `<ToggleGroupDefaultsProvider size="sm" variant="ghost">
-  <ToggleGroup aria-label="Camadas" render={(props) => <nav {...props} />}>
-    <ToggleGroupItem value="roads">Ruas</ToggleGroupItem>
+  <ToggleGroup aria-label="Map layers" render={(props) => <nav {...props} />}>
+    <ToggleGroupItem value="roads">Roads</ToggleGroupItem>
   </ToggleGroup>
 </ToggleGroupDefaultsProvider>;`,
     }),
@@ -272,7 +272,7 @@ const events: EventRow[] = [
   {
     name: 'onClick, onFocus, onBlur, on each item',
     payload: 'the element’s own events',
-    when: 'Whenever that item’s button fires them. The family composes with a consumer’s handler rather than replacing it: the consumer’s runs first, and always runs. Calling preventDefault() in onClick stops the toggle as well.',
+    when: 'Whenever that item’s button fires them. ToggleGroupItem composes with the application’s handler rather than replacing it: the application’s runs first, and always runs. Calling preventDefault() in onClick stops the toggle as well.',
   },
 ];
 
@@ -428,9 +428,9 @@ export const REACT_TOGGLE_GROUP_DOCS = {
     ]),
     accessibility: [
       'There is no APG pattern called “toggle group”. The container is a group, each item is the Button pattern’s toggle button (w3.org/WAI/ARIA/apg/patterns/button/), and the movement between them is the Toolbar pattern’s roving tabindex (w3.org/WAI/ARIA/apg/patterns/toolbar/). Citing one and implying the other is how a family ends up with half a keyboard.',
-      'So the arrows move focus and never toggle, which is the one place this family and segmented-control genuinely differ and the one a reader feels. Space and Enter turn the focused item on or off; Home and End reach the ends; a horizontal group ignores the cross axis so the page keeps scrolling with focus inside it.',
+      'So the arrows move focus and never toggle, which is the one place toggle group and segmented-control genuinely differ and the one a reader feels. Space and Enter turn the focused item on or off; Home and End reach the ends; a horizontal group ignores the cross axis so the page keeps scrolling with focus inside it.',
       'aria-pressed is written in both states, so an item is announced as a toggle rather than as a button that happens to be pressed — and the label never changes with the state, which the Button pattern calls critical. An item with only a mark takes its name from an aria-label the consumer writes.',
-      'Inside a toolbar the group gives its keyboard up: a bar is already one tab stop with arrow navigation across every control it holds. The bar is found in the DOM by its public identifier rather than through an imported context, so neither family depends on the other; rovingFocus states it outright for a bar this library did not write.',
+      'Inside a toolbar the group gives its keyboard up: a bar is already one tab stop with arrow navigation across every control it holds. The bar is found in the DOM by its public identifier rather than through an imported context, so neither depends on the other; rovingFocus states it outright for a bar this library did not write.',
       'disabled is the native attribute, because that is also what makes the browser refuse focus and what makes the ring skip the item. The group is not a form control: a set of choices a form submits is checkbox-group for many and segmented-control for one.',
       'The target is the item itself, never narrower than it is tall, so the WCAG 2.2 minimum of 24 by 24 holds at the smallest step and the tightest density — and the theme grows every control to 44 under a coarse pointer.',
     ],
@@ -458,7 +458,7 @@ export const REACT_TOGGLE_GROUP_DOCS = {
       defineSnippet({
         id: 'toggle-group-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning toggle group for an application',
         source: `[data-ui='toggle-group'] {
   --slotted-toggle-group-radius: var(--slotted-radius-full);
   --slotted-toggle-group-border-color: var(--slotted-border-subtle);
