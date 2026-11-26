@@ -202,6 +202,7 @@ describe('SlPagination', () => {
     expect(part('list')).toBeNull();
     expect(part('previous').hasAttribute('disabled')).toBe(true);
     expect(part('next').hasAttribute('disabled')).toBe(false);
+    expect(part('last').hasAttribute('disabled')).toBe(true);
   });
 
   it('leaves a button at a bound to the native disabled, as React does', () => {

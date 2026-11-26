@@ -145,7 +145,8 @@ export function PaginationLast(props: PaginationTriggerProps) {
       label={props['aria-label'] ?? pagination.t('last')}
       part="last"
       target={pagination.pages}
-      usable={pagination.canGoNext}
+      /* A cursor paginator has no last page to reach. */
+      usable={pagination.canGoNext && Number.isFinite(pagination.pages)}
     />
   );
 }

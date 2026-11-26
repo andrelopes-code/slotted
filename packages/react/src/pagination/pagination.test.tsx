@@ -218,12 +218,14 @@ describe('Pagination', () => {
           <PaginationPrevious />
           <PaginationStatus>Showing the first 20 results</PaginationStatus>
           <PaginationNext />
+          <PaginationLast />
         </Pagination>,
       );
 
       expect(control('list')).toBeNull();
       expect(control('previous')).toBeDisabled();
       expect(control('next')).not.toBeDisabled();
+      expect(control('last')).toBeDisabled();
     });
 
     it('still moves forward, one page at a time', () => {

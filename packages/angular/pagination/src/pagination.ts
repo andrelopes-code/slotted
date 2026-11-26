@@ -373,7 +373,9 @@ export class SlPaginationNext extends SlPaginationTrigger {
 export class SlPaginationLast extends SlPaginationTrigger {
   override readonly part = 'last' as const;
   protected override target = () => this.pagination.pages();
-  protected override usable = () => this.pagination.canGoNext();
+  /* A cursor paginator has no last page to reach. */
+  protected override usable = () =>
+    this.pagination.canGoNext() && Number.isFinite(this.pagination.pages());
   protected override defaultLabel = () => this.pagination.t('last');
 }
 
