@@ -1,0 +1,62 @@
+---
+title: Toggle
+description: A button that stays pressed or unpressed, for a mode that applies the moment it is pressed.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## A mode that is on or off
+
+A toggle is a native button that carries `aria-pressed` in both states, so a screen reader announces it as a toggle. Its label never changes with its state: the pressed look and `aria-pressed` carry the state. A toggle is for a mode that is true the moment it is pressed, such as Pin header or Wrap lines. An action that reaches a server and waits, such as Follow, is `ToggleButton` from the button family. In React the mark goes in `icon`. In Angular the mark is an element with `slToggleIcon`. Both are hidden from the reading order. `disabled` is the native attribute: a disabled toggle leaves the tab order and keeps showing whether it is on. Hover, press and focus are drawn by the toggle itself.
+
+<Example name="states" />
+
+## Variants
+
+`variant` sets how the toggle looks before it is on. `outline`, the default, draws its own edge. `ghost` is for a toggle inside something already framed, such as a toolbar or a card header. `chips` draws a rounded item that presses in the neutral ink, which suits a row of filters. The three variants share one geometry, so turning a toggle on changes colors and never its size. The first toggle of each row is pressed.
+
+<Example name="variants" />
+
+## Sizes
+
+`size` takes `sm`, `md` or `lg`. Each step reads the control scale, so a toggle is as tall as a text field or a button of the same step.
+
+<Example name="sizes" />
+
+## Icon only
+
+A toggle with an `icon` and no words draws a square. The family writes no accessible name, so the application passes `aria-label`.
+
+<Example name="icon-only" />
+
+## Controlled
+
+Pass `pressed` to own the state. A press calls `onPressedChange` in React and emits `pressedChange` in Angular with the new value, and the toggle moves only when the application passes that value back. `defaultPressed` sets the starting state of a toggle that owns its state, and is read once.
+
+<Example name="controlled" />
+
+## Reading the reason
+
+The request carries `reason`, which is `pointer` for a click and `keyboard` for Space or Enter. React passes the new value first and the request second: `onPressedChange(pressed, request)`. Angular emits the request, whose `value` is the new state. A value equal to the current one emits nothing.
+
+<Example name="reason" />
+
+## Refusing a change
+
+`request.cancel()` stops the move before anything commits. A toggle that owns its state stays where it was, and the application can say why. Here a locked period cannot be unlocked from this control.
+
+<Example name="guard" />
+
+## Inside a toolbar
+
+A toolbar is one tab stop and moves between its controls with the arrow keys. A toggle is one of those controls, and Space or Enter presses it. The toggle writes no key listener of its own. `ghost` fits a toolbar, which is already framed.
+
+<Example name="toolbar" wide />
+
+## Defaults
+
+`ToggleDefaultsProvider` in React and `provideToggleDefaults` in Angular set `size` and `variant` for every toggle below them. A toggle that states either value keeps its own. Here the filter row is `chips` at `sm`, and Archived states `ghost`.
+
+<Example name="defaults" wide />

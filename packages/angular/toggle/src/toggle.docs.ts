@@ -58,35 +58,35 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'One toggle with every axis on it, driven by the controls below the canvas. Press it: the label stays “Quebrar linhas” and the state is what changes, which is what a screen reader announces beside it.',
+    note: 'One toggle with every axis exposed as a control below the canvas. Pressing it changes the state and leaves the label “Wrap lines” as written, so a screen reader announces the same name with a different pressed state.',
     snippet: defineSnippet({
       id: 'toggle-angular-playground',
       language: 'angular',
       label: 'A mode that switches on and off',
       source: `<button slToggle defaultPressed>
   <ng-icon slToggleIcon name="lucideWrapText" />
-  Quebrar linhas
+  Wrap lines
 </button>`,
     }),
   },
   {
     id: 'pressed',
     title: 'Owned by the consumer, or by the toggle',
-    note: 'The left toggle owns its state and starts from defaultPressed. The right one is controlled: the page holds the value, the toggle asks with a request carrying the reason, and the page decides. Both announce “pressed” the same way.',
+    note: 'The left toggle owns its state and starts from defaultPressed. The right toggle is controlled: the application holds the value, the toggle emits a request that carries the reason, and the application decides. Both write aria-pressed the same way.',
     snippet: defineSnippet({
       id: 'toggle-angular-pressed',
       language: 'angular',
       label: 'The controlled pair',
       source: `<button slToggle [pressed]="wrap()" (pressedChange)="wrap.set($event.value)">
   <ng-icon slToggleIcon name="lucideWrapText" />
-  Quebrar linhas
+  Wrap lines
 </button>`,
     }),
   },
   {
     id: 'variant',
-    title: 'Framed, or bare until it is on',
-    note: 'outline draws its own edge and stands beside a field; ghost is the toggle inside something already framed — a toolbar, a card header. Both turn on into the same accent pair, so “on” is one color wherever the control is.',
+    title: 'Outline, ghost and chips',
+    note: 'outline draws its own edge and stands beside a field. ghost is the toggle inside something already framed, such as a toolbar or a card header. chips is a rounded item that presses in the neutral ink, which suits a row of filters. outline and ghost turn on into the same accent pair, so “on” is one color wherever the control is.',
     snippet: defineSnippet({
       id: 'toggle-angular-variant',
       language: 'angular',
@@ -100,26 +100,26 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'sizes',
     title: 'Three steps, one control tall',
-    note: 'Every step reads the control scale, so a toggle beside a text field of the same step lines up with it to the pixel — and the density switch in the toolbar moves both together.',
+    note: 'Every step reads the control scale, so a toggle beside a text field of the same step has the same height as it, and the density switch in the toolbar moves both together.',
     snippet: defineSnippet({
       id: 'toggle-angular-sizes',
       language: 'angular',
       label: 'The small step beside a field',
       source: `<button slToggle size="sm">
   <ng-icon slToggleIcon name="lucideWrapText" />
-  Quebrar
+  Wrap
 </button>`,
     }),
   },
   {
     id: 'iconOnly',
     title: 'A mark and no words',
-    note: 'Without children the toggle draws square from the control height and the mark is centerd in it. The name comes from aria-label, and the type makes nothing of that: the reference page is where the rule is stated, and the harness photographs it.',
+    note: 'Without children the toggle draws a square the height of the control, with the mark centered in it. The name comes from aria-label, which the type does not require and the application writes.',
     snippet: defineSnippet({
       id: 'toggle-angular-icon-only',
       language: 'angular',
       label: 'Named by the consumer',
-      source: `<button slToggle aria-label="Negrito" defaultPressed>
+      source: `<button slToggle aria-label="Bold" defaultPressed>
   <ng-icon slToggleIcon name="lucideBold" />
 </button>`,
     }),
@@ -127,7 +127,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'Every state the contract declares',
-    note: 'Hover takes the neutral ground when off and the accent ground’s own hover step when on. Disabled keeps both facts of a toggle that is on: the ground says unavailable and the edge still says on, so the reader learns the mode from a control they cannot change.',
+    note: 'Hover takes the neutral ground when off and the accent ground’s own hover step when on. Disabled keeps both facts of a toggle that is on: the ground says unavailable and the edge still says on, so a reader learns the mode from a control that cannot be changed.',
     snippet: defineSnippet({
       id: 'toggle-angular-states',
       language: 'angular',
@@ -141,13 +141,13 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'toolbar',
     title: 'Inside a toolbar',
-    note: 'The bar is one tab stop with arrow navigation across every control it holds, and a toggle is one of those controls: Tab reaches the bar once, the arrows reach the toggle, Space presses it. The family writes no listener of its own.',
+    note: 'The bar is one tab stop with arrow navigation across every control it holds, and a toggle is one of those controls: Tab reaches the bar once, the arrows reach the toggle, Space presses it. Toggle writes no listener of its own.',
     snippet: defineSnippet({
       id: 'toggle-angular-toolbar',
       language: 'angular',
       label: 'Ghost modes in a bar',
       source: `<div slToolbar aria-label="Editor">
-  <button slToggle variant="ghost" aria-label="Negrito">
+  <button slToggle variant="ghost" aria-label="Bold">
     <ng-icon slToggleIcon name="lucideBold" />
   </button>
   <button slToggle variant="ghost" aria-label="Italic">
@@ -156,14 +156,14 @@ const scenes: ReferenceSceneMeta[] = [
   <hr slToolbarSeparator />
   <button slToggle variant="ghost">
     <ng-icon slToggleIcon name="lucideWrapText" />
-    Quebrar
+    Wrap
   </button>
 </div>`,
     }),
   },
   {
     id: 'content',
-    title: 'Content the family did not choose',
+    title: 'Content the application chooses',
     note: 'A long translated label in a narrow column clamps at the ellipsis and keeps its string whole in the DOM; a right-to-left document mirrors the mark to the other side of the words. Switch the direction in the toolbar to see the second.',
     snippet: defineSnippet({
       id: 'toggle-angular-content',
@@ -171,7 +171,7 @@ const scenes: ReferenceSceneMeta[] = [
       label: 'A label the column cannot hold',
       source: `<button slToggle>
   <ng-icon slToggleIcon name="lucideWrapText" />
-  Zeilenumbruch aktivieren
+  Show every line of the order notes
 </button>`,
     }),
   },
@@ -186,7 +186,7 @@ const scenes: ReferenceSceneMeta[] = [
       source: `<!-- providers: [provideToggleDefaults({ size: 'sm', variant: 'ghost' })] -->
 <button slToggle #pin="slToggle" data-track="pin" (click)="track(pin.isPressed())">
   <ng-icon slToggleIcon name="lucidePin" />
-  Fixar
+  Pin
 </button>`,
     }),
   },
@@ -200,21 +200,21 @@ const scenes: ReferenceSceneMeta[] = [
       label: 'Reading the reason',
       source: `<button slToggle (pressedChange)="log($event.reason)">
   <ng-icon slToggleIcon name="lucideWrapText" />
-  Quebrar linhas
+  Wrap lines
 </button>`,
     }),
   },
   {
     id: 'versus',
     title: 'Toggle, or ToggleButton',
-    note: 'A mode is one color and true the moment it is pressed: Toggle. An action that persists — Follow, Subscribe — reaches a server, waits, and stands in one of five tones beside the other actions of a page: button’s ToggleButton. Same state model, different meaning.',
+    note: 'A mode is one color and true the moment it is pressed: Toggle. An action that persists — Follow, Subscribe — reaches a server, waits, and carries a tone beside the other actions of a page: button’s ToggleButton. Same state model, different meaning.',
     snippet: defineSnippet({
       id: 'toggle-angular-versus',
       language: 'angular',
       label: 'The two members side by side',
       source: `<button slToggle>
   <ng-icon slToggleIcon name="lucideWrapText" />
-  Quebrar linhas
+  Wrap lines
 </button>
 <button
   slToggleButton
@@ -222,7 +222,7 @@ const scenes: ReferenceSceneMeta[] = [
   [pressed]="followed()"
   (pressedChange)="follow($event)"
 >
-  Seguir
+  Follow
 </button>`,
     }),
   },
@@ -237,7 +237,7 @@ const events: EventRow[] = [
   {
     name: '(click), (focus), (blur)',
     payload: 'the element’s own events',
-    when: 'Whenever the button fires them. The family listens after the view is created, so a (click) written on the same element runs first; calling preventDefault() in it stops the toggle as well.',
+    when: 'Whenever the button fires them. Toggle listens after the view is created, so a (click) written on the same element runs first; calling preventDefault() in it stops the toggle as well.',
   },
 ];
 
@@ -253,42 +253,42 @@ export const ANGULAR_TOGGLE_DOCS = {
         'boolean',
         '—',
         'slToggle',
-        'Bound, the consumer owns the state for the life of the component. Unbound, the toggle owns it and starts from defaultPressed',
+        'Bound, the consumer owns the state for the life of the component. Unbound, the toggle owns it and starts from defaultPressed.',
       ],
       [
         'defaultPressed',
         'boolean',
         'false',
         'slToggle',
-        'What an uncontrolled toggle starts from, read once. A later change to it does not silently become new state',
+        'What an uncontrolled toggle starts from, read once. A later change to it does not silently become new state.',
       ],
       [
         'size',
         "'sm' | 'md' | 'lg'",
         'md',
         'slToggle',
-        'The control step. It reads the control scale, so the toggle is as tall as the field beside it',
+        'The control step. It reads the control scale, so the toggle is as tall as the field beside it.',
       ],
       [
         'variant',
         "'outline' | 'ghost' | 'chips'",
         'outline',
         'slToggle',
-        'Whether the control draws its own edge before it is on, or is a chip pressed in the neutral tone ink. There is no tone axis: a mode is one color when it is on, and an action that persists in one of five tones is button’s ToggleButton',
+        'outline draws its own edge, ghost is bare until the toggle is on, and chips is a rounded item that presses in the neutral ink. There is no tone axis: a mode is one color when it is on, and an action that persists, with a tone, is button’s ToggleButton.',
       ],
       [
         'disabled',
         'boolean',
         'false',
         'slToggle',
-        'The native attribute, which is also what makes the browser refuse focus. A toggle that is on and unavailable keeps saying both',
+        'The native attribute, which is also what makes the browser refuse focus. A toggle that is on and unavailable keeps saying both.',
       ],
       [
         'type',
         "'button' | 'submit' | 'reset'",
         'button',
         'slToggle',
-        'The native attribute, kept when the consumer wrote it. A toggle in a form is not a form control — checkbox and switch are — so it is a button unless the consumer says otherwise',
+        'The native attribute, kept when the consumer wrote it. A toggle in a form is not a form control — checkbox and switch are — so it is a button unless the consumer says otherwise.',
       ],
     ]),
     composition: apiRows([
@@ -297,41 +297,41 @@ export const ANGULAR_TOGGLE_DOCS = {
         'directive on a button',
         '—',
         'the consumer’s element',
-        'The component is a directive on the consumer’s own button: every attribute, every listener and every structural directive around it stay as written. It stays a button, because aria-pressed on a link is a link announcing a state a link does not hold',
+        'The component is a directive on the consumer’s own button: every attribute, every listener and every structural directive around it stay as written. It stays a button, because aria-pressed on a link is a link announcing a state a link does not hold.',
       ],
       [
         'slToggleIcon',
         'directive on any element',
         '—',
         'inside the button',
-        'The mark, projected before the words and hidden from the reading order. An ng-icon, an inline svg or a masked span all work and none loses its own semantics',
+        'The mark, projected before the words and hidden from the reading order. An ng-icon, an inline svg or a masked span all work and none loses its own semantics.',
       ],
       [
         'exportAs',
         "'slToggle'",
         '—',
         'a template reference',
-        'Reaches the instance, so a template can read isPressed(), resolvedSize() or resolvedVariant() without the component owning a second copy of the state',
+        'Reaches the instance, so a template can read isPressed(), resolvedSize() or resolvedVariant() without the component owning a second copy of the state.',
       ],
       [
         'provideToggleDefaults()',
         '(defaults: Partial<ToggleDefaults>) => Provider',
         '—',
         'an injector',
-        'The two decisions an application takes once, at the root or on one route. A toggle that states either itself still wins',
+        'The two decisions an application takes once, at the root or on one route. A toggle that states either itself still wins.',
       ],
       [
         'type',
         'string',
         'button',
         'slToggle',
-        'Read from the host with HostAttributeToken before the host binding writes, so a consumer’s own submit survives',
+        'Read from the host with HostAttributeToken before the host binding writes, so a consumer’s own submit survives.',
       ],
     ]),
     accessibility: [
       'The APG Button pattern’s toggle button (w3.org/WAI/ARIA/apg/patterns/button/): a native button with aria-pressed, and no navigation pattern around it — a single control has no arrows of its own.',
       'aria-pressed is written in both states, so the control is announced as a toggle rather than as a button that happens to be pressed — and the label never changes with the state, which the pattern calls critical. A toggle with only a mark takes its name from an aria-label the consumer writes.',
-      'Inside slToolbar the bar owns the tab stop and the arrows and reaches this control as it reaches every focusable control it holds; the family writes no listener. Space and Enter press it, from the platform.',
+      'Inside slToolbar the bar owns the tab stop and the arrows and reaches this control as it reaches every focusable control it holds; the toggle writes no listener. Space and Enter press it, from the platform.',
       'disabled is the native attribute, because that is also what makes the browser refuse focus and skip the control. The toggle is not a form control and implements no ControlValueAccessor: a value a form submits is checkbox or switch.',
       'The target is the control itself, never narrower than it is tall, so the WCAG 2.2 minimum of 24 by 24 holds at the smallest step and the tightest density — and the theme grows every control to 44 under a coarse pointer.',
     ],
@@ -350,13 +350,13 @@ export const ANGULAR_TOGGLE_DOCS = {
   data-variant="outline"
 >
   <ng-icon data-part="icon" aria-hidden="true"></ng-icon>
-  <span data-part="label">Quebrar linhas</span>
+  <span data-part="label">Wrap lines</span>
 </button>`,
       }),
       defineSnippet({
         id: 'toggle-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning Toggle for an application',
         source: `[data-ui='toggle'] {
   --slotted-toggle-radius: var(--slotted-radius-full);
   --slotted-toggle-border-color: var(--slotted-border-subtle);
