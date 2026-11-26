@@ -36,7 +36,7 @@ const anatomy: AnatomyRow[] = [
     element: 'a[slHoverCardTrigger], the consumer\u2019s own anchor',
     required: true,
     purpose:
-      'The trigger: the link the card is about. It carries data-ui="hover-card", data-open while its card shows, and — only when the card is navigable — aria-haspopup="dialog", aria-expanded and aria-controls. The card itself is the popover family unchanged, data-ui="popover", so this family declares no other part.',
+      'The trigger: the link the card is about. It carries data-ui="hover-card", data-open while its card shows, and — only when the card is navigable — aria-haspopup="dialog", aria-expanded and aria-controls. The card itself is the popover family unchanged, data-ui="popover", so the hover card declares no other part.',
   },
 ];
 
@@ -54,8 +54,8 @@ const scenes: ReferenceSceneMeta[] = [
   <ng-template slPopoverLayer>
     <div slPopoverContent>
       <div slPopoverBody>…</div>
-      <div slPopoverArrow></div>
     </div>
+    <div slPopoverArrow></div>
   </ng-template>
 </ng-container>`,
     }),
@@ -137,7 +137,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'shared',
     title: 'One card, many mentions',
-    note: 'A thread with four handles and one slHoverCard around all of them. The mention the pointer rests on registers itself as the anchor, and the request carries the event whose currentTarget names the person, so the card fills from one state instead of mounting four.',
+    note: 'A thread with four handles and one slHoverCard around all of them. The mention the pointer rests on registers itself as the anchor, and the request carries the event whose target sits inside the mention that names the person, so the card fills from one state instead of mounting four.',
     snippet: defineSnippet({
       id: 'hover-card-angular-shared',
       language: 'angular',
@@ -171,7 +171,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'On the consumer’s own link',
-    note: 'The trigger is a component on the consumer’s anchor, and two components do not share one element: a[slLink] cannot also carry it, so the family paints the link itself and a data-part the consumer wrote is kept. The Close part inside the card is the popover’s, and it is what a touch reader has in place of Escape.',
+    note: 'The trigger is a component on the consumer’s anchor, and two components do not share one element: a[slLink] cannot also carry it, so slHoverCardTrigger paints the link itself and a data-part the consumer wrote is kept. The Close part inside the card is the popover’s, and it is what a touch reader has in place of Escape.',
     snippet: defineSnippet({
       id: 'hover-card-angular-composition',
       language: 'angular',
@@ -246,14 +246,14 @@ const api = apiRows([
     'number',
     '4',
     'slHoverCard',
-    'The popover\u2019s own input, with the family\u2019s default: the halo the open mark draws plus the same again of air, so the arrow\u2019s tip stands off the word.',
+    'The popover\u2019s own input, with the hover card\u2019s default: the halo the open mark draws plus the same again of air, so the arrow\u2019s tip stands off the word.',
   ],
   [
     'side, align, size, width, arrow, mount, …',
     'SlPopover inputs',
     '—',
     'slHoverCard',
-    'Every input of slPopover except autoFocus, which the family forces off: slHoverCard extends SlPopover and provides itself as one.',
+    'Every input of slPopover except autoFocus, which the hover card forces off: slHoverCard extends SlPopover and provides itself as one.',
   ],
 ]);
 
@@ -305,9 +305,9 @@ const composition = apiRows([
 
 const accessibility = [
   'The platform supplies the link: it is a native anchor, so Enter follows it, a middle click opens it in a tab and a screen reader hears a link. The card never takes focus when it opens — autoFocus is forced off on the popover it holds — so the reader’s focus stays on the word under the pointer.',
-  'The family answers WCAG 2.2 SC 1.4.13 item by item: the card is dismissible with Escape and no pointer movement, hoverable because the pointer may move onto it and the grace area keeps it open on the way, and persistent because it stays until hover and focus have left both link and card.',
-  'A card the keyboard cannot enter is role="presentation" and the link says nothing about it, because a popup the announced means cannot reach would be a lie a screen reader repeats. A navigable card is the APG’s non-modal dialog, named by its title, with aria-haspopup="dialog", aria-expanded and aria-controls on the link, and Tab from the link enters it.',
-  'Focus the family itself puts back on the link — after Escape inside the card, after a focus guard — does not reopen the card; the link holds the reopening back until focus has left it once. Without that rule a guard would close the card, focus the link, and open the card again.',
+  'The hover card answers WCAG 2.2 SC 1.4.13 item by item: the card is dismissible with Escape and no pointer movement, hoverable because the pointer may move onto it and the grace area keeps it open on the way, and persistent because it stays until hover and focus have left both link and card.',
+  'A popup that assistive technology cannot reach is not announced: a card the keyboard cannot enter is role="presentation", and the link says nothing about it. A navigable card is the APG’s non-modal dialog, named by its title, with aria-haspopup="dialog", aria-expanded and aria-controls on the link, and Tab from the link enters it.',
+  'Focus that the hover card itself puts back on the link — after Escape inside the card, after a focus guard — does not reopen the card; the link holds the reopening back until focus has left it once. Without that rule a guard would close the card, focus the link, and open the card again.',
 ];
 
 const code = defineSnippet({

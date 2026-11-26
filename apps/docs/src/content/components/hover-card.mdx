@@ -1,0 +1,60 @@
+---
+title: Hover card
+description: Shows a preview of a link or a person when the pointer rests on it or focus reaches it, and leaves the link working.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Previewing a link
+
+The trigger is a native `a` element, so `Enter` follows it, a middle click opens it in a new tab and a screen reader announces a link. The card opens after the pointer has rested on the trigger for `openDelay`, which is 600 ms by default, and opens at once when keyboard focus arrives. A press that focuses the link does not open it. The card stays while the pointer moves onto it, including along the diagonal path from the trigger, and closes `closeDelay` after the pointer has left both, which is 300 ms by default. The card never takes focus, and `Escape` closes it. Title and description come from the popover parts, which the card uses unchanged.
+
+<Example name="link-preview" />
+
+## Navigable cards
+
+A card with a control inside is declared with `navigable`. The panel then becomes a dialog named by its title, the trigger sets `aria-haspopup`, `aria-expanded` and `aria-controls`, and `Tab` on the open trigger moves focus into the card. Tabbing past either end of the card closes it and returns focus to the trigger, which does not reopen until focus has left it once. Without `navigable`, the panel has the `presentation` role, the keyboard cannot reach it and the trigger announces nothing. Put information in a card that is not navigable, and put anything a reader must act on in the destination.
+
+<Example name="navigable" />
+
+## Delays
+
+`openDelay` and `closeDelay` are milliseconds, set per card. Use a short open delay where the preview is the purpose of the page, and a longer close delay where the card holds text a reader needs time to move onto. Focus ignores `openDelay`.
+
+<Example name="delays" />
+
+## Disabled
+
+`disabled` stops the card from opening on hover, focus and tap. The link keeps its `href`, navigates as usual and shows no disabled styling. Use it for a record whose preview no longer exists.
+
+<Example name="disabled" />
+
+## Placement
+
+The card is the popover family behind a hover trigger, so `side`, `align`, `size`, `width` and the other popover options go on the card. The card prefers the side it is given and flips when the viewport has no room. `sideOffset` defaults to 4 so the arrow stays clear of the trigger's highlight.
+
+<Example name="placement" />
+
+## Controlled
+
+Pass `open` to own the state. React calls `onOpenChange(open, request)` and Angular emits `openChangeRequest`, with the request's `reason`: `pointer`, `keyboard`, `escape`, `outsidePress`, `blur`, `dismiss` or `programmatic`. `request.cancel()` refuses the change. In Angular, `[(open)]` binds the state in both directions. Here the line under the text reports the state and the last reason; rest the pointer on the link, press `Tab` onto it and press `Escape` to read each reason.
+
+<Example name="controlled" />
+
+## One card for several triggers
+
+Several triggers inside one card share it, so a long thread does not mount one card per mention. The trigger that starts an opening becomes the anchor, and the request's `source` is the event that started it. Its `target` is the trigger or an element inside it, so `target.closest()` finds the trigger, and the card reads the trigger's data attributes and fills from one piece of state. React puts all triggers inside one `HoverCard`; Angular puts them inside one `slHoverCard` container.
+
+<Example name="shared" />
+
+## Defaults for an application
+
+`HoverCardDefaultsProvider` in React and `provideHoverCardDefaults` in Angular set `openDelay`, `closeDelay` and `navigable` once for everything beneath them. React's provider also sets `disabled`. A card that states a value of its own keeps it, as the second mention does with `closeDelay`.
+
+<Example name="defaults" />
+
+## Touch
+
+A touch screen has no hover. The first tap on the trigger opens the card and does not follow the link, and a tap on the trigger while its card is open follows the link. Navigation costs one extra tap, and the preview stays available. Put a `PopoverClose` in the header of a card on touch-first pages, since there is no `Escape` key.

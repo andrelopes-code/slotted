@@ -25,7 +25,7 @@ export const REACT_HOVER_CARD_TOKENS = hoverCardTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import { HoverCard, HoverCardTrigger, HoverCardContent, HoverCardDefaultsProvider } from '@slotted/react';\nimport { PopoverBody, PopoverTitle, PopoverFooter } from '@slotted/react';",
+    "import { HoverCard, HoverCardTrigger, HoverCardContent, HoverCardDefaultsProvider } from '@slotted/react/hover-card';\nimport { PopoverBody, PopoverTitle, PopoverFooter } from '@slotted/react/popover';",
 };
 
 const anatomy: AnatomyRow[] = [
@@ -34,7 +34,7 @@ const anatomy: AnatomyRow[] = [
     element: 'a, or the element render returns',
     required: true,
     purpose:
-      'The trigger: the link the card is about. It carries data-ui="hover-card", data-open while its card shows, and — only when the card is navigable — aria-haspopup="dialog", aria-expanded and aria-controls. The card itself is the popover family unchanged, data-ui="popover", so this family declares no other part.',
+      'The trigger: the link the card is about. It carries data-ui="hover-card", data-open while its card shows, and — only when the card is navigable — aria-haspopup="dialog", aria-expanded and aria-controls. The card itself is the popover family unchanged, data-ui="popover", so the hover card declares no other part.',
   },
 ];
 
@@ -137,7 +137,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'shared',
     title: 'One card, many mentions',
-    note: 'A thread with four handles and one HoverCard around all of them. The mention the pointer rests on registers itself as the anchor, and the request carries the event whose currentTarget names the person, so the card fills from one state instead of mounting four.',
+    note: 'A thread with four handles and one HoverCard around all of them. The mention the pointer rests on registers itself as the anchor, and the request carries the event whose target sits inside the mention that names the person, so the card fills from one state instead of mounting four.',
     snippet: defineSnippet({
       id: 'hover-card-react-shared',
       language: 'tsx',
@@ -146,8 +146,9 @@ const scenes: ReferenceSceneMeta[] = [
 
 <HoverCard
   onOpenChange={(open, request) => {
-    const target = (request.source as Event | undefined)?.currentTarget;
-    if (open && target instanceof HTMLElement) setHandle(target.dataset['handle'] ?? null);
+    const target = request.source instanceof Event ? request.source.target : null;
+    const trigger = target instanceof Element ? target.closest<HTMLElement>('[data-handle]') : null;
+    if (open && trigger !== null) setHandle(trigger.dataset['handle'] ?? null);
   }}
 >
   <p>
@@ -180,7 +181,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'On another family’s link',
-    note: 'The trigger rendered onto Link: the link keeps its own paint and its identity, and takes only the state and the listeners from this family. The Close part inside the card is the popover’s, and it is what a touch reader has in place of Escape.',
+    note: 'The trigger rendered onto Link: the link keeps its own paint and its identity, and takes only the state and the listeners from the hover card. The Close part inside the card is the popover’s, and it is what a touch reader has in place of Escape.',
     snippet: defineSnippet({
       id: 'hover-card-react-composition',
       language: 'tsx',
@@ -269,14 +270,14 @@ const api = apiRows([
     'number',
     '4',
     'HoverCard',
-    'The popover’s own axis, with the family’s default: the halo the open mark draws plus the same again of air, so the arrow’s tip stands off the word.',
+    'The popover’s own axis, with the hover card’s default: the halo the open mark draws plus the same again of air, so the arrow’s tip stands off the word.',
   ],
   [
     'side, align, size, width, arrow, mount, …',
     'PopoverProps',
     '—',
     'HoverCard',
-    'Every prop of Popover except autoFocus, which the family forces off, reaches the popover it renders.',
+    'Every prop of Popover except autoFocus, which the hover card forces off, reaches the popover it renders.',
   ],
   [
     'render',
@@ -315,7 +316,7 @@ const composition = apiRows([
     'component',
     '—',
     'Inside a HoverCard',
-    'The popover’s layer and panel in one, with the family’s pointer handlers on the layer and the panel’s role decided by navigable. Its props reach the panel; the arrow is rendered under the popover’s arrow axis.',
+    'The popover’s layer and panel in one, with the hover card’s pointer handlers on the layer and the panel’s role decided by navigable. Its props reach the panel; the arrow is rendered under the popover’s arrow axis.',
   ],
   ['ref', 'prop', '—', 'HoverCard', 'A PopoverHandle carrying open(), close() and reposition().'],
   [
@@ -323,15 +324,15 @@ const composition = apiRows([
     'attributes',
     '—',
     'HoverCardTrigger',
-    "Anything an anchor takes — href, rel, target — reaches the link, and a consumer's own onPointerEnter or onFocus runs before the family's; preventDefault from it stops the family.",
+    "Anything an anchor takes — href, rel, target — reaches the link, and a consumer's own onPointerEnter or onFocus runs before the hover card's own; preventDefault from it stops the hover card's handler.",
   ],
 ]);
 
 const accessibility = [
   'The platform supplies the link: it is a native anchor, so Enter follows it, a middle click opens it in a tab and a screen reader hears a link. The card never takes focus when it opens — autoFocus is forced off on the popover it holds — so the reader’s focus stays on the word under the pointer.',
-  'The family answers WCAG 2.2 SC 1.4.13 item by item: the card is dismissible with Escape and no pointer movement, hoverable because the pointer may move onto it and the grace area keeps it open on the way, and persistent because it stays until hover and focus have left both link and card.',
-  'A card the keyboard cannot enter is role="presentation" and the link says nothing about it, because a popup the announced means cannot reach would be a lie a screen reader repeats. A navigable card is the APG’s non-modal dialog, named by its title, with aria-haspopup="dialog", aria-expanded and aria-controls on the link, and Tab from the link enters it.',
-  'Focus the family itself puts back on the link — after Escape inside the card, after a focus guard — does not reopen the card; the link holds the reopening back until focus has left it once. Without that rule a guard would close the card, focus the link, and open the card again.',
+  'The hover card answers WCAG 2.2 SC 1.4.13 item by item: the card is dismissible with Escape and no pointer movement, hoverable because the pointer may move onto it and the grace area keeps it open on the way, and persistent because it stays until hover and focus have left both link and card.',
+  'A popup that assistive technology cannot reach is not announced: a card the keyboard cannot enter is role="presentation", and the link says nothing about it. A navigable card is the APG’s non-modal dialog, named by its title, with aria-haspopup="dialog", aria-expanded and aria-controls on the link, and Tab from the link enters it.',
+  'Focus that the hover card itself puts back on the link — after Escape inside the card, after a focus guard — does not reopen the card; the link holds the reopening back until focus has left it once. Without that rule a guard would close the card, focus the link, and open the card again.',
 ];
 
 const code = defineSnippet({
