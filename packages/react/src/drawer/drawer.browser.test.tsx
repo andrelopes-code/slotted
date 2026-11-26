@@ -645,6 +645,128 @@ describe('a full bottom sheet with a short body', () => {
 });
 
 /**
+ * A content-sized sheet whose content grew kept the grown height after the
+ * content shrank: the scroll the sheet wrote to keep its place on the growth
+ * was read as a release of the reader's drag, and set an extent.
+ */
+describe('a content-sized bottom sheet whose content changes', () => {
+  beforeEach(async () => {
+    await page.viewport(412, 839);
+  });
+  afterEach(async () => {
+    await page.viewport(412, 915);
+  });
+
+  function Sheet({
+    transition = 'none',
+    ...props
+  }: Partial<DrawerProps> & { transition?: string }) {
+    const [grown, setGrown] = useState(false);
+    return (
+      <Drawer defaultOpen side="bottom" size="content" {...props}>
+        <DrawerPanel>
+          <DrawerHeader>
+            <DrawerTitle>Filters</DrawerTitle>
+          </DrawerHeader>
+          <DrawerBody>
+            <button onClick={() => setGrown((value) => !value)} type="button">
+              Add a group
+            </button>
+            <div style={{ blockSize: grown ? 300 : 0, transition }} />
+          </DrawerBody>
+          <DrawerFooter>Apply</DrawerFooter>
+        </DrawerPanel>
+      </Drawer>
+    );
+  }
+
+  const parts = () => {
+    const layer = document.querySelector('[data-ui="drawer"]') as HTMLElement;
+    return {
+      footer: layer.querySelector('[data-part="footer"]') as HTMLElement,
+      layer,
+      panel: layer.querySelector('[data-part="panel"]') as HTMLElement,
+      toggle: layer.querySelector('[data-part="body"] button') as HTMLButtonElement,
+    };
+  };
+
+  const shown = () => {
+    const { layer, panel } = parts();
+    return layer.getBoundingClientRect().bottom - panel.getBoundingClientRect().top;
+  };
+
+  async function settle() {
+    for (let index = 0; index < 45; index += 1) await frame();
+  }
+
+  /** A finger lifted from the sheet before the press: a touch on the layer is not a move of it. */
+  async function tap(element: HTMLElement) {
+    const title = parts().layer.querySelector('[data-part="title"]')!.getBoundingClientRect();
+    await touch('touchStart', title.left + 4, title.top + title.height / 2);
+    await touch('touchEnd', title.left + 4, title.top + title.height / 2);
+    element.click();
+  }
+
+  it.each([
+    ['at once', 'none'],
+    ['over frames, as a disclosure opens', 'block-size 300ms linear'],
+  ])(
+    'follows content that changes %s, with the footer on the bottom edge',
+    async (_, transition) => {
+      const onExtentChange = vi.fn();
+      render(<Sheet onExtentChange={onExtentChange} transition={transition} />);
+      await settle();
+      const opened = shown();
+
+      await tap(parts().toggle);
+      await settle();
+      expect(shown()).toBeGreaterThan(opened + 290);
+      expect(Math.round(parts().footer.getBoundingClientRect().bottom)).toBe(window.innerHeight);
+
+      await tap(parts().toggle);
+      await settle();
+      const { footer, layer, panel } = parts();
+
+      expect(Math.abs(shown() - opened)).toBeLessThanOrEqual(1);
+      expect(Math.abs(panel.getBoundingClientRect().height - opened)).toBeLessThanOrEqual(1);
+      expect(layer.style.getPropertyValue('--slotted-drawer-extent')).toBe('');
+      expect(panel.style.getPropertyValue('--slotted-drawer-extent')).toBe('');
+      expect(Math.round(footer.getBoundingClientRect().bottom)).toBe(window.innerHeight);
+      expect(onExtentChange).not.toHaveBeenCalled();
+    },
+  );
+
+  it('keeps the stop the reader dragged it to', async () => {
+    const onExtentChange = vi.fn();
+    render(<Sheet onExtentChange={onExtentChange} snapPoints={[0.85]} />);
+    await settle();
+    const header = parts().layer.querySelector('[data-part="header"]')!.getBoundingClientRect();
+    const x = header.left + header.width / 2;
+    const y = header.top + header.height / 2;
+    const by = -Math.round(window.innerHeight * 0.85 - shown());
+    await touch('touchStart', x, y);
+    for (let step = 1; step <= 20; step += 1) {
+      await touch('touchMove', x, y + (by * step) / 20);
+      await frame();
+    }
+    await touch('touchEnd', x, y + by);
+    await settle();
+    expect(onExtentChange).toHaveBeenLastCalledWith(
+      0.85,
+      expect.objectContaining({ reason: 'pointer' }),
+    );
+    const stop = shown();
+
+    parts().toggle.click();
+    await settle();
+    parts().toggle.click();
+    await settle();
+
+    expect(Math.abs(shown() - stop)).toBeLessThanOrEqual(2);
+  });
+});
+
+/**
  * An overlay sheet draws its side edges where it is narrower than the screen.
  * At the screen's width the two edges sat on the screen's own, and under
  * `size="full"` the sheet's rule outweighed the one that drops every edge.

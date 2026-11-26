@@ -37,6 +37,8 @@ import { contentLength } from './gesture';
 const SCROLL_IDLE_MS = 150;
 /** Two positions this close are the same stop. */
 const SAME_PX = 2;
+/** Where a key is the control's own, and scrolls nothing. */
+const CONTROLS = 'button, input, select, textarea, [contenteditable], [role="slider"]';
 
 /** `scrollTo` where the element has it; a document with no layout engine only has `scrollTop`. */
 function scrollLayer(layer: HTMLElement, top: number) {
@@ -317,6 +319,14 @@ export function attachSheetScroll(
   };
   /** Between an opening's first frame, out of sight, and its arrival: that bottom is no close. */
   let entering = false;
+  /**
+   * Whether the stops moved under the sheet since it last settled: its
+   * content was resized, and the sheet scrolled to keep its place or to snap
+   * to the new stops. Such a scroll settles nothing unless the reader moved
+   * the sheet too (`asked`): a hand, a wheel, a key, a drag or a travel.
+   */
+  let resized = false;
+  let asked = false;
   const settle = () => {
     moving = false;
     /* Nothing is laid out to settle on yet: the stops come with the opening's frame. */
@@ -329,7 +339,10 @@ export function attachSheetScroll(
     const inContent = position() > span + SAME_PX;
     read(inContent);
     if (inContent && fingers === 0) anchor(true);
-    options.onSettle(resting());
+    const reader = asked || !resized;
+    asked = false;
+    resized = false;
+    if (reader) options.onSettle(resting());
   };
 
   const touched = (event: TouchEvent) => {
@@ -348,6 +361,7 @@ export function attachSheetScroll(
   let moving = false;
   const scrolled = () => {
     moving = true;
+    if (fingers > 0) asked = true;
     const top = position();
     /* Past the top the content is read with no snap, from the frame the scroll gets there. */
     if (!reading && top > span + SAME_PX) read(true);
@@ -358,6 +372,14 @@ export function attachSheetScroll(
     idle = setTimeout(settle, SCROLL_IDLE_MS);
   };
   layer.addEventListener('scroll', scrolled, { passive: true });
+  /* A wheel, or a key that scrolls the layer rather than a control in it. */
+  const steered = (event: Event) => {
+    const target = event.target as Element | null;
+    if (event.type === 'keydown' && target?.closest?.(CONTROLS) != null) return;
+    asked = true;
+  };
+  layer.addEventListener('wheel', steered, { passive: true });
+  layer.addEventListener('keydown', steered);
   if (native) layer.addEventListener('scrollend', settle);
 
   const observer =
@@ -366,19 +388,33 @@ export function attachSheetScroll(
       : new ResizeObserver(() => {
           /* The first report, and any before the opening has laid out, is the opening's. */
           if (!laidOut) return;
-          /* Content scrolled past the top keeps its place; a sheet on a stop keeps its stop. */
+          /* Content scrolled past the top keeps its place; a sheet on a stop keeps its stop,
+             and a sheet at the height of its content follows the content. */
           const raw = position();
           const scrolled = raw > span + SAME_PX;
           const extent = at();
+          const atRest = options.content() && Math.abs(raw - nearestRest() * span) <= SAME_PX;
           const before = written;
           lay();
+          if (written !== before) resized = true;
           /* A scroll in flight — an opening, a close, a fling — keeps going. */
           if (entering || moving || written === before) return;
-          const wanted = (scrolled ? raw : extent * span) - shift;
+          const wanted = (scrolled ? raw : (atRest ? nearestRest() : extent) * span) - shift;
           if (Math.abs(layer.scrollTop - wanted) > 1) layer.scrollTop = wanted;
         });
   observer?.observe(layer);
   observer?.observe(panel);
+  /**
+   * The panel is held at least as tall as its highest stop, so content that
+   * shrinks leaves the panel's own size as it was: its rows are watched too,
+   * and a row mounted later is watched from then on.
+   */
+  const watchRows = () => {
+    for (const child of panel.children) observer?.observe(child);
+  };
+  watchRows();
+  const rows = typeof MutationObserver === 'undefined' ? null : new MutationObserver(watchRows);
+  rows?.observe(panel, { childList: true });
 
   /** The opening in flight, and how to call it off. */
   let pending: (() => void) | null = null;
@@ -424,6 +460,7 @@ export function attachSheetScroll(
    * motion — reduced motion, no Web Animations, no distance — is the jump.
    */
   const glide = (top: number, smooth: boolean) => {
+    asked = true;
     halt();
     const from = layer.scrollTop;
     const reduced =
@@ -561,6 +598,7 @@ export function attachSheetScroll(
       halt();
       anchor(false);
       dragging = true;
+      asked = true;
       const from = layer.scrollTop;
       layer.style.scrollSnapType = 'none';
       return {
@@ -590,8 +628,11 @@ export function attachSheetScroll(
       travel?.cancel();
       arrived();
       observer?.disconnect();
+      rows?.disconnect();
       clearTimeout(idle);
       layer.removeEventListener('scroll', scrolled);
+      layer.removeEventListener('wheel', steered);
+      layer.removeEventListener('keydown', steered);
       layer.removeEventListener('touchstart', touched);
       layer.removeEventListener('touchend', touched);
       layer.removeEventListener('touchcancel', touched);
