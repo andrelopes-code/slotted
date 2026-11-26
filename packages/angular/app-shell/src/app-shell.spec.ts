@@ -20,6 +20,7 @@ import {
   SlAppShellMain,
   SlAppShellNav,
   SlAppShellNavBody,
+  SlAppShellNavPinned,
   SlAppShellNavRail,
   SlAppShellNavToggle,
   SlAppShellProgress,
@@ -1026,5 +1027,37 @@ describe('across the breakpoint', () => {
     expect(fixture.nativeElement.querySelector('[data-part="main"]').hasAttribute('inert')).toBe(
       false,
     );
+  });
+});
+
+@Component({
+  standalone: true,
+  imports: [SlAppShell, SlAppShellMain, SlAppShellNav, SlAppShellNavBody, SlAppShellNavPinned],
+  template: `<div slAppShell navMode="inline">
+    <nav slAppShellNav>
+      <div slAppShellNavPinned><button type="button">New order</button></div>
+      <div slAppShellNavBody><a href="#orders">Orders</a></div>
+    </nav>
+    <main slAppShellMain>Orders</main>
+  </div>`,
+})
+class PinnedHost {}
+
+/**
+ * A block of commands above the list scrolled away with it, because the body
+ * scrolls as a whole; the pinned block is a part of its own, before the body.
+ */
+describe('the pinned block of the navigation column', () => {
+  it('is the nav-pinned part, before the body that scrolls', () => {
+    TestBed.configureTestingModule({ imports: [PinnedHost] });
+    const fixture = TestBed.createComponent(PinnedHost);
+    fixture.detectChanges();
+    const pinned = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-part="nav-pinned"]',
+    )!;
+
+    expect(pinned.hasAttribute('data-part-nav-pinned')).toBe(true);
+    expect(pinned.nextElementSibling?.getAttribute('data-part')).toBe('nav-body');
+    expect(pinned.querySelector('button')?.textContent).toBe('New order');
   });
 });

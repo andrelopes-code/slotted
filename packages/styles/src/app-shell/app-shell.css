@@ -516,7 +516,12 @@
    */
   [data-ui-app-shell]
     > [data-part-nav]
-    > :is([data-part-nav-header], [data-part-nav-body], [data-part-nav-footer]) {
+    > :is(
+      [data-part-nav-header],
+      [data-part-nav-pinned],
+      [data-part-nav-body],
+      [data-part-nav-footer]
+    ) {
     /**
      * Published where it pads, beside the row geometry the root publishes:
      * `side-navigation` reads it to keep its rows' box on the edge it had,
@@ -556,6 +561,29 @@
     position: relative;
     scrollbar-gutter: stable;
     scrollbar-width: thin;
+  }
+  /**
+   * The commands above the list: create, search, open a panel. They stay put
+   * while the list scrolls under them with a hard edge, each one the row's
+   * width in the open column, at the space step a stack of controls takes,
+   * and the list starts one larger step below them. The gutter the body
+   * reserves is reserved here, as the head and the foot reserve it, so the
+   * commands keep the edge of the rows.
+   */
+  [data-ui-app-shell] > [data-part-nav] > [data-part-nav-pinned] {
+    align-items: stretch;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: var(--slotted-space-3, 0.375rem);
+    min-inline-size: 0;
+    overflow: hidden;
+    padding-block: var(--slotted-space-4, 0.5rem) 0;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+  }
+  [data-ui-app-shell] > [data-part-nav] > [data-part-nav-pinned] + [data-part-nav-body] {
+    padding-block-start: var(--slotted-space-6, 1rem);
   }
 
   [data-ui-app-shell] > [data-part-main] {
@@ -1463,11 +1491,33 @@
   [data-ui-app-shell] > [data-part-nav]:has(> [data-part-nav-rail]) > [data-part-nav-footer] {
     grid-area: 3 / 2 / 4 / 3;
   }
+  /* A pinned block is a row of its own between the head and the body. */
+  [data-ui-app-shell] > [data-part-nav]:has(> [data-part-nav-rail]):has(> [data-part-nav-pinned]) {
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+  [data-ui-app-shell] > [data-part-nav]:has(> [data-part-nav-rail]) > [data-part-nav-pinned] {
+    grid-area: 2 / 2 / 3 / 3;
+  }
+  [data-ui-app-shell]
+    > [data-part-nav]:has(> [data-part-nav-rail]):has(> [data-part-nav-pinned])
+    > [data-part-nav-body] {
+    grid-area: 3 / 2 / 4 / 3;
+  }
+  [data-ui-app-shell]
+    > [data-part-nav]:has(> [data-part-nav-rail]):has(> [data-part-nav-pinned])
+    > [data-part-nav-footer] {
+    grid-area: 4 / 2 / 5 / 3;
+  }
   /* The strip's rule is an edge, and a row whose ground meets it reads as a
      column with no padding. */
   [data-ui-app-shell]
     > [data-part-nav]:has(> [data-part-nav-rail])
-    > :is([data-part-nav-header], [data-part-nav-body], [data-part-nav-footer]) {
+    > :is(
+      [data-part-nav-header],
+      [data-part-nav-pinned],
+      [data-part-nav-body],
+      [data-part-nav-footer]
+    ) {
     padding-inline-start: calc(var(--_row-inset) + var(--_row-ring-inset));
     transition: visibility var(--_duration) step-start;
   }
@@ -1483,7 +1533,12 @@
   }
   [data-ui-app-shell][data-nav-mode='inline']:not([data-open])
     > [data-part-nav]:has(> [data-part-nav-rail])
-    > :is([data-part-nav-header], [data-part-nav-body], [data-part-nav-footer]) {
+    > :is(
+      [data-part-nav-header],
+      [data-part-nav-pinned],
+      [data-part-nav-body],
+      [data-part-nav-footer]
+    ) {
     transition: visibility var(--_duration) step-end;
     visibility: hidden;
   }
@@ -1637,7 +1692,7 @@
   }
   [data-ui-app-shell][data-nav-mode='inline']:not([data-open])
     > [data-part-nav]
-    > [data-part-nav-body] {
+    > :is([data-part-nav-pinned], [data-part-nav-body]) {
     align-items: center;
   }
   /**

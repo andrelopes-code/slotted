@@ -149,7 +149,7 @@ test('insets the rows of the overlay card on the inset plane', () => {
   assert.match(layer, /--_nav-inset:\s*var\(--_row-inset\)/);
   assert.match(layer, /padding-inline:\s*0/);
   const parts = rule(
-    '> [data-part-nav]\n    > :is([data-part-nav-header], [data-part-nav-body], [data-part-nav-footer]) {',
+    '> [data-part-nav]\n    > :is(\n      [data-part-nav-header],\n      [data-part-nav-pinned],\n      [data-part-nav-body],\n      [data-part-nav-footer]\n    ) {',
   ).body;
   assert.match(parts, /padding-inline:\s*calc\(var\(--_nav-inset\) \+ var\(--_row-ring-inset\)\)/);
 });
@@ -343,7 +343,7 @@ test('pads the column parts by the focus ring and shares the body gutter', () =>
     /--_row-ring-inset:\s*calc\(\s*var\(--slotted-focus-ring-width, 2px\) \+ var\(--slotted-focus-ring-offset, 2px\)\s*\)/,
   );
   const parts = rule(
-    '> [data-part-nav]\n    > :is([data-part-nav-header], [data-part-nav-body], [data-part-nav-footer]) {',
+    '> [data-part-nav]\n    > :is(\n      [data-part-nav-header],\n      [data-part-nav-pinned],\n      [data-part-nav-body],\n      [data-part-nav-footer]\n    ) {',
   ).body;
   assert.match(parts, /--slotted-app-shell-row-ring-inset:\s*var\(--_row-ring-inset\)/);
   const ends = rule(
@@ -351,6 +351,9 @@ test('pads the column parts by the focus ring and shares the body gutter', () =>
   ).body;
   assert.match(ends, /overflow:\s*hidden/);
   assert.match(ends, /scrollbar-gutter:\s*stable/);
+  const pinned = rule('[data-ui-app-shell] > [data-part-nav] > [data-part-nav-pinned] {').body;
+  assert.match(pinned, /overflow:\s*hidden/);
+  assert.match(pinned, /scrollbar-gutter:\s*stable/);
 });
 
 test('makes the navigation region a query container of its own', () => {

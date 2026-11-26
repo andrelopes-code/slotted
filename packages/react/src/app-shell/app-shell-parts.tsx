@@ -260,6 +260,31 @@ export function AppShellNavHeader({
   return part({ ...rootProps, ref: attach }, render) ?? <div {...rootProps} ref={attach} />;
 }
 
+/**
+ * A block of commands between the head and the list — create, search, open a
+ * panel — that stays where it is while the list under it scrolls. It takes the
+ * inline inset of the list, so its rows align with the rows below, and in the
+ * rail it centers its marks on the axis the head and the foot center theirs.
+ */
+export function AppShellNavPinned({
+  children,
+  className,
+  ref,
+  render,
+  style,
+  ...nativeProps
+}: AppShellNavSectionProps) {
+  const rootProps = keyedProps({
+    ...nativeProps,
+    children,
+    className,
+    'data-part': 'nav-pinned',
+    style,
+  });
+  const attach = useAttach(ref as never);
+  return part({ ...rootProps, ref: attach }, render) ?? <div {...rootProps} ref={attach} />;
+}
+
 /** The middle, and the only part of the column that scrolls. */
 export function AppShellNavBody({
   children,

@@ -121,6 +121,13 @@ const anatomy: AnatomyRow[] = [
       'The pinned top of the column: the workspace switcher, the mark. Under primary="nav" it takes the banner’s height, so the workspace and the bar sit on one line.',
   },
   {
+    part: 'nav-pinned',
+    element: 'div',
+    required: false,
+    purpose:
+      'A block of commands between the head and the list — create, search, open a panel — that stays where it is while the list scrolls under it with a hard edge. It takes the list’s inline inset and gutter, so its rows align with the rows below; each command stretches to the row width in the open column and centers on the marks’ axis in the rail.',
+  },
+  {
     part: 'nav-body',
     element: 'div',
     required: false,

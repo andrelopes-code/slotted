@@ -16,6 +16,7 @@ export {
   AppShellNavBody,
   AppShellNavFooter,
   AppShellNavHeader,
+  AppShellNavPinned,
   AppShellNavRail,
   AppShellNavToggle,
   AppShellProgress,

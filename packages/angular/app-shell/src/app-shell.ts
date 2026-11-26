@@ -782,6 +782,20 @@ export class SlAppShellNavRail {}
 })
 export class SlAppShellNavHeader {}
 
+/**
+ * A block of commands between the head and the list — create, search, open a
+ * panel — that stays where it is while the list under it scrolls. It takes the
+ * inline inset of the list, so its rows align with the rows below, and in the
+ * rail it centers its marks on the axis the head and the foot center theirs.
+ */
+@Directive({
+  selector: '[slAppShellNavPinned]',
+  standalone: true,
+  exportAs: 'slAppShellNavPinned',
+  host: { 'data-part': 'nav-pinned', 'data-part-nav-pinned': '' },
+})
+export class SlAppShellNavPinned {}
+
 /** The middle, and the only part of the column that scrolls. */
 @Directive({
   selector: '[slAppShellNavBody]',

@@ -17,6 +17,7 @@ export {
   SlAppShellNavBody,
   SlAppShellNavFooter,
   SlAppShellNavHeader,
+  SlAppShellNavPinned,
   SlAppShellNavRail,
   SlAppShellNavToggle,
   SlAppShellProgress,
