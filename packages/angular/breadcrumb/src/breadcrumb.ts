@@ -124,8 +124,8 @@ export class SlBreadcrumb {
    */
   readonly expandedChange = output<ChangeRequest<boolean>>();
 
-  private readonly own = signal(false);
-  readonly expanded = computed(() => this.expandedValue() ?? this.own());
+  private readonly own = signal<boolean | undefined>(undefined);
+  readonly expanded = computed(() => this.expandedValue() ?? this.own() ?? this.defaultExpanded());
 
   private readonly defaults = injectBreadcrumbDefaults();
 

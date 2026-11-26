@@ -24,6 +24,7 @@ import { collapsedRange, provideBreadcrumbDefaults } from './breadcrumb.constant
     [messages]="messages()"
     [maxItems]="maxItems()"
     [expanded]="expanded()"
+    [defaultExpanded]="defaultExpanded()"
     (expandedChange)="onExpandedChange($event)"
   >
     <ol slBreadcrumbList>
@@ -41,6 +42,7 @@ class TestHost {
   readonly messages = signal<{ label?: string } | undefined>(undefined);
   readonly maxItems = signal<number | undefined>(0);
   readonly expanded = signal<boolean | undefined>(undefined);
+  readonly defaultExpanded = signal(false);
   readonly onExpandedChange = vi.fn();
 }
 
@@ -112,6 +114,18 @@ describe('SlBreadcrumb', () => {
         ellipsis()?.querySelector('[data-ui="icon"] > svg[data-glyph="ellipsis"]'),
       ).not.toBeNull();
       expect(items().filter((item) => item.hasAttribute('hidden'))).toHaveLength(3);
+    });
+
+    it('starts unfolded under defaultExpanded', () => {
+      TestBed.configureTestingModule({ imports: [TestHost] });
+      const fixture = TestBed.createComponent(TestHost);
+      fixture.componentInstance.maxItems.set(4);
+      fixture.componentInstance.defaultExpanded.set(true);
+      fixture.detectChanges();
+
+      const root = fixture.nativeElement.querySelector('[data-ui="breadcrumb"]') as HTMLElement;
+      expect(root.querySelector('[data-part="ellipsis"]')).toBeNull();
+      expect(root.querySelectorAll('[data-part="item"][hidden]')).toHaveLength(0);
     });
 
     it('reveals the trail and moves focus to the first crumb it revealed', async () => {
