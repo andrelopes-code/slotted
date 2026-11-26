@@ -40,6 +40,12 @@
     z-index: var(--slotted-z-index-popover, 1000);
   }
 
+  /* Angular keeps a closed panel with `hidden`, and `display: flex` above
+     beats the user agent's own `[hidden] { display: none }`. */
+  [data-ui-floating-panel][data-part-root][hidden] {
+    display: none;
+  }
+
   [data-ui-floating-panel][data-part-root]:dir(rtl) {
     inset-inline-end: 0;
     inset-inline-start: auto;
