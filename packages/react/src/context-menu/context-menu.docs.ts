@@ -25,7 +25,7 @@ export const REACT_CONTEXT_MENU_TOKENS = contextMenuTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import { ContextMenu, ContextMenuTrigger, ContextMenuDefaultsProvider } from '@slotted/react';\nimport { MenuContent, MenuItem, MenuSeparator } from '@slotted/react';",
+    "import {\n  ContextMenu,\n  ContextMenuTrigger,\n  ContextMenuDefaultsProvider,\n} from '@slotted/react/context-menu';\nimport { MenuContent, MenuItem, MenuSeparator } from '@slotted/react/menu';",
 };
 
 const anatomy: AnatomyRow[] = [
@@ -167,7 +167,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'disabled',
     title: 'Disabled',
-    note: "A disabled family suppresses nothing: the browser's own menu opens on the secondary click, because taking both away would leave the reader with none. The target says so with data-disabled and paints nothing, since the content it wraps still works.",
+    note: "A disabled context menu suppresses nothing: the browser's own menu opens on the secondary click, because taking both away would leave the reader with none. The target says so with data-disabled and paints nothing, since the content it wraps still works.",
     snippet: defineSnippet({
       id: 'context-menu-react-disabled',
       language: 'tsx',
@@ -237,14 +237,14 @@ const api = apiRows([
     'boolean',
     'false',
     'ContextMenu',
-    "The family never opens and the browser's own menu passes through. The target carries data-disabled.",
+    "The context menu never opens and the browser's own menu passes through. The target carries data-disabled.",
   ],
   [
     'size, side, align, closeOnSelect, loop, typeahead, …',
     'MenuProps',
     '—',
     'ContextMenu',
-    'Every prop of Menu except anchor and finalFocus, which the family decides, reaches the menu it renders.',
+    'Every prop of Menu except anchor and finalFocus, which ContextMenu decides, reaches the menu it renders.',
   ],
   [
     'render',
@@ -290,7 +290,7 @@ const composition = apiRows([
     'attribute',
     '—',
     'MenuContent',
-    "The surface is named after the target's text unless given one — right for a row, wrong for a canvas.",
+    "The surface is named after the target's text unless given an aria-label. The text fits a row and does not fit a canvas.",
   ],
   [
     'native props',
@@ -302,10 +302,10 @@ const composition = apiRows([
 ]);
 
 const accessibility = [
-  'The platform supplies the gesture: the contextmenu event is the secondary click, the Menu key and Shift+F10 on every desktop, and the family answers all three with preventDefault while it is enabled and with nothing while it is disabled, so a reader is never left with no menu at all.',
-  'The family writes no aria-haspopup on the target — it is not permitted on a generic element, and no surveyed library writes it — so a screen reader is not told the region has a menu. That is why every command in a context menu also exists by another path, and the reference page shows the path.',
+  'The platform supplies the gesture: the contextmenu event is the secondary click, the Menu key and Shift+F10 on every desktop, and the target answers all three with preventDefault while the context menu is enabled and with nothing while it is disabled, so a reader is never left with no menu at all.',
+  'The target writes no aria-haspopup — it is not permitted on a generic element — so a screen reader is not told the region has a menu. For that reason every command in a context menu also exists by another path, and the other-path example shows one.',
   'Focus goes to the first item on open and, on Escape or after a command, back to whatever held it when the menu opened — the checkbox in the row, the tile itself — rather than to a trigger that never had it. A press elsewhere leaves focus where the reader put it.',
-  'The family writes no tabindex: a target the page made focusable can be opened from the keyboard, and one it did not cannot. A tab stop on every wrapped region would be one a grid with roving focus cannot afford.',
+  'The target writes no tabindex. A target the page made focusable opens from the keyboard; one it did not make focusable does not. A tab stop on every wrapped region would break a grid with roving focus.',
 ];
 
 const code = defineSnippet({

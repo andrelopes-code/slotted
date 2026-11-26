@@ -1,0 +1,66 @@
+---
+title: Context menu
+description: Opens a menu at the pointer on a secondary click, a long press or Shift+F10, over a region the application already draws.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Target and menu
+
+The target is the region the menu opens on: a file, a row, a canvas. In React `ContextMenuTrigger` renders a `div` around the content, and `render` takes another element. In Angular `slContextMenuTriggerFor` is written on the consumer's own element and receives the menu as a template reference. The target is a component, and Angular puts one component on an element, so a target that is another family's component, such as `slCard`, is wrapped in an element of its own. The menu is the `menu` family unchanged: `MenuContent` and `MenuItem` in React, `sl-menu` and `slMenuItem` in Angular. A secondary click opens the menu with its corner at the pointer. While the menu shows, another secondary click moves it to the new point. A primary press on the target closes it.
+
+## One menu for many rows
+
+One context menu serves a whole list. `onOpenChange` in React and `openChangeRequest` in Angular carry the originating event in `request.source`, and the handler finds the row with `event.target.closest()`. The menu then names the file it acts on. Mounting one menu per row is the shape this composition avoids.
+
+<Example name="rows" />
+
+## From the keyboard
+
+Shift+F10 and the Menu key open the menu with focus on the target. The menu hangs from the target, not from the pointer, and focus lands on the first item. Escape closes it and returns focus to the element that held it when the menu opened. The context menu writes no `tabindex`: a target the page made focusable opens from the keyboard, and one it did not make focusable does not. Set `tabIndex` in React or `tabindex` in Angular on a target that has no other way to take focus.
+
+<Example name="keyboard" />
+
+## Naming the menu
+
+The menu is named after the target's text through `aria-labelledby`, which fits a row or a file. For a canvas or a document, the target's text does not name the commands: give `MenuContent` or `sl-menu` an `aria-label`. The menu content is the menu family's, so groups, checkbox items, separators and submenus work as they do in a menu opened from a button.
+
+<Example name="canvas" />
+
+## Long press on touch
+
+A touch screen has no secondary button. On touch and pen, holding the target opens the menu at the finger. `longPressDelay` sets the hold in milliseconds and defaults to 500. Lifting the finger or moving it more than 10 pixels before the delay cancels the press, so a scroll that starts on the target stays a scroll. While the press runs the target carries `data-pressed`, and text selection and the platform callout are off. `longPressDelay` is a prop of `ContextMenu` in React and an input of the target in Angular.
+
+<Example name="touch" />
+
+## Turning the long press off
+
+`longPress` is `true` by default. Set it to `false` where touch and pen should keep the platform's own behavior for a held press. The secondary click and the keyboard keys still open the menu. `longPress` is a prop of `ContextMenu` in React and an input of the target in Angular.
+
+<Example name="long-press-off" />
+
+## Defaults for a subtree
+
+`ContextMenuDefaultsProvider` in React and `provideContextMenuDefaults` in Angular set `longPress` and `longPressDelay` once for everything beneath them. React's provider also sets `disabled`. A context menu that states a value of its own keeps it. Here both docks sit under a provider that sets 800 ms, and the second one states 300 ms.
+
+<Example name="defaults" />
+
+## Another path to every command
+
+A context menu is found by convention, and no `aria-haspopup` marks the target, so a reader who never right-clicks must reach every command another way. Here the same commands sit behind an Actions button inside the target, as a menu opened the ordinary way. In React one `MenuContent` element renders twice. In Angular a menu has one trigger element, so the target and the button each open their own `sl-menu`, and each repeats the commands.
+
+<Example name="other-path" />
+
+## Controlled
+
+Pass `open` to own the state. `onOpenChange` in React and `openChangeRequest` in Angular carry the reason: `pointer` for a secondary click or a long press, `keyboard` for Shift+F10 or the Menu key, and `escape`, `outsidePress`, `select`, `dismiss` or `programmatic` for the ways out. Moving the menu to a new point while it is open emits nothing, because `open` did not change. In Angular the state is the `[(open)]` of `sl-menu`.
+
+<Example name="controlled" />
+
+## Disabled
+
+A disabled context menu never opens and calls nothing on the event. The browser's own menu opens on the secondary click, so a reader is not left without a menu. The target carries `data-disabled`. `disabled` is a prop of `ContextMenu` in React and an input of `sl-menu` in Angular.
+
+<Example name="disabled" />
